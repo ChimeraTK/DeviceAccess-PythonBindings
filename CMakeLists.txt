@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.7)
 
 project(MtcaMappedDevicePythonBindings)
-set(python_module_name "MtcaMappedDeviceModule")
+set(python_module_name "mtcamappeddevice")
 
 # Check project dependencies are met
 #
