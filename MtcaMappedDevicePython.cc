@@ -2,7 +2,6 @@
 #include "WrapperMethods.h"
 
 namespace bp = boost::python;
-;
 
 // This covers the version of openDev method with default arguments
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(openDevDefaultArgs,
