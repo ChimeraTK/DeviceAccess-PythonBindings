@@ -11,8 +11,9 @@ find_package(MtcaMappedDevice REQUIRED)
 
 #
 # Set header file locations
-include_directories(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIR}
-    ${MtcaMappedDevice_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS} 
+                    ${PYTHON_INCLUDE_DIR}
+                    ${MtcaMappedDevice_INCLUDE_DIRS})
 
 #
 # Define the build target for python module 

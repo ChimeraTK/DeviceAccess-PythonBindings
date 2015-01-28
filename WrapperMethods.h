@@ -8,13 +8,12 @@ namespace bp = boost::python;
 
 namespace mtca4upy { // TODO: Refactor to a better name
 
-  class ArrayOutOfBoundException: public std::exception{
-  public:
-    inline virtual const char* what() const throw()
-     {
-       return "size to write is more than the specified array size";
-     }
-  };
+class ArrayOutOfBoundException : public std::exception {
+public:
+  inline virtual const char *what() const throw() {
+    return "size to write is more than the specified array size";
+  }
+};
 
 int32_t readReg(mtca4u::devBase &self, uint32_t registerOffset, uint8_t bar);
 void writeReg(mtca4u::devBase &self, uint32_t regOffset, int32_t data,
@@ -34,10 +33,8 @@ void closeDev(mtca4u::devBase &self);
 
 // Helper Methods
 int32_t *extractDataPointer(bp::numeric::array &Buffer);
-size_t extractArraySize(bp::numeric::array &dataToWrite);
+size_t extractNumberOfElements(bp::numeric::array &dataToWrite);
 
-void translate(ArrayOutOfBoundException const& exception);
-
-
+void translate(ArrayOutOfBoundException const &exception);
 }
 #endif /*_WRAPPER_METHODS_H_ */

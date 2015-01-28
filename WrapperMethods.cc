@@ -39,11 +39,12 @@ void readArea(mtca4u::devBase& self, int32_t regOffset,
 }
 
 void writeArea(mtca4u::devBase& self, uint32_t regOffset,
-               bp::numeric::array dataToWite, size_t bytesToWrite, uint8_t bar) {
+               bp::numeric::array dataToWite, size_t bytesToWrite,
+               uint8_t bar) {
 
-  size_t bytesInArray = (extractArraySize(dataToWite) * sizeof(int32_t));
-  if (bytesInArray < bytesToWrite){
-      throw ArrayOutOfBoundException();
+  size_t bytesInArray = (extractNumberOfElements(dataToWite) * sizeof(int32_t));
+  if (bytesInArray < bytesToWrite) {
+    throw ArrayOutOfBoundException();
   }
 
   int32_t* pointerToMemory = extractDataPointer(dataToWite);
@@ -57,8 +58,7 @@ int32_t* extractDataPointer(bp::numeric::array& Buffer) {
   return (reinterpret_cast<int32_t*>(pointerToNumPyArrayMemory->data));
 }
 
-size_t extractArraySize(bp::numeric::array& dataToWrite) {
+size_t extractNumberOfElements(bp::numeric::array& dataToWrite) {
   return (boost::python::extract<long>(dataToWrite.attr("size")));
 }
-
 }
