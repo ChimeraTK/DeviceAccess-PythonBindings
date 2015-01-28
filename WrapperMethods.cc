@@ -1,6 +1,10 @@
 #include "WrapperMethods.h"
 #include <vector>
 
+void openDev(mtca4u::devPCIE& self, const std::string& devName) {
+  self.openDev(devName, O_RDWR, NULL);
+}
+
 int32_t readReg(mtca4u::devPCIE& self, uint32_t registerOffset, uint8_t bar) {
   int32_t registerContent;
   self.readReg(registerOffset, &registerContent, bar);

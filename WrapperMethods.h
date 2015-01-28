@@ -4,6 +4,7 @@
 #include <MtcaMappedDevice/devPCIE.h>
 #include <boost/python.hpp>
 
+namespace mtca4upy { // TODO: Refactor to a better name
 int32_t readReg(mtca4u::devPCIE &self, uint32_t registerOffset, uint8_t bar);
 
 /*
@@ -18,4 +19,6 @@ void writeArea(mtca4u::devPCIE &self, uint32_t regOffset,
                boost::python::list data, size_t size, uint8_t bar);
 std::string readDeviceInfo(mtca4u::devPCIE &self);
 
+void openDev(mtca4u::devPCIE &self, const std::string &devName);
+}
 #endif /*_WRAPPER_METHODS_H_ */
