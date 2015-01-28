@@ -1,24 +1,43 @@
 #ifndef _WRAPPER_METHODS_H_
 #define _WRAPPER_METHODS_H_
 
-#include <MtcaMappedDevice/devPCIE.h>
+#include <MtcaMappedDevice/devBase.h>
 #include <boost/python.hpp>
 
+namespace bp = boost::python;
+
 namespace mtca4upy { // TODO: Refactor to a better name
-int32_t readReg(mtca4u::devPCIE &self, uint32_t registerOffset, uint8_t bar);
 
-/*
- * parameter size is the size in bytes, that the method has to return
- *
- */
-boost::python::list readDMA(mtca4u::devPCIE &self, uint32_t regOffset,
-                            size_t size, uint8_t bar);
-boost::python::list readArea(mtca4u::devPCIE &self, int32_t regOffset,
-                             size_t size, uint8_t bar);
-void writeArea(mtca4u::devPCIE &self, uint32_t regOffset,
-               boost::python::list data, size_t size, uint8_t bar);
-std::string readDeviceInfo(mtca4u::devPCIE &self);
+  class ArrayOutOfBoundException: public std::exception{
+  public:
+    inline virtual const char* what() const throw()
+     {
+       return "size to write is more than the specified array size";
+     }
+  };
 
-void openDev(mtca4u::devPCIE &self, const std::string &devName);
+int32_t readReg(mtca4u::devBase &self, uint32_t registerOffset, uint8_t bar);
+void writeReg(mtca4u::devBase &self, uint32_t regOffset, int32_t data,
+              uint8_t bar);
+
+void readDMA(mtca4u::devBase &self, uint32_t regOffset,
+             bp::numeric::array Buffer, size_t size, uint8_t bar);
+void readArea(mtca4u::devBase &self, int32_t regOffset,
+              bp::numeric::array Buffer, size_t size, uint8_t bar);
+
+void writeArea(mtca4u::devBase &self, uint32_t regOffset,
+               bp::numeric::array dataToWite, size_t bytesToWrite, uint8_t bar);
+std::string readDeviceInfo(mtca4u::devBase &self);
+
+void openDev(mtca4u::devBase &self, const std::string &devName);
+void closeDev(mtca4u::devBase &self);
+
+// Helper Methods
+int32_t *extractDataPointer(bp::numeric::array &Buffer);
+size_t extractArraySize(bp::numeric::array &dataToWrite);
+
+void translate(ArrayOutOfBoundException const& exception);
+
+
 }
 #endif /*_WRAPPER_METHODS_H_ */

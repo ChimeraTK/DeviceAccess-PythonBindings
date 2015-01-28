@@ -18,6 +18,7 @@ class DevBaseWrapper : public mtca4u::devBase,
                        public boost::python::wrapper<mtca4u::devBase> {
 public:
   DevBaseWrapper();
+  // Right now the methods are just stubs with no implementation.
   void openDev(const std::string& devName, int perm = O_RDWR,
                mtca4u::devConfigBase* pConfig = NULL);
   void closeDev();

@@ -1,65 +1,64 @@
 #include "WrapperMethods.h"
 #include <vector>
+#include <numpy/arrayobject.h>
 
-void openDev(mtca4u::devPCIE& self, const std::string& devName) {
+namespace mtca4upy {
+void openDev(mtca4u::devBase& self, const std::string& devName) {
   self.openDev(devName, O_RDWR, NULL);
 }
 
-int32_t readReg(mtca4u::devPCIE& self, uint32_t registerOffset, uint8_t bar) {
+int32_t readReg(mtca4u::devBase& self, uint32_t registerOffset, uint8_t bar) {
   int32_t registerContent;
   self.readReg(registerOffset, &registerContent, bar);
   return registerContent;
 }
 
-boost::python::list readDMA(mtca4u::devPCIE& self, uint32_t regOffset,
-                            size_t size, uint8_t bar) {
-  // Error Check if multiple of 4 (or sizeof(WORD_SIZE_IN_BYTES))
-  //
-  std::vector<int32_t> intBuffer((size) / 4); // TODO: Fix this with sizeof?
-  boost::python::list readInValues;
-  self.readDMA(regOffset, &intBuffer[0], size, bar);
+void writeReg(mtca4u::devBase& self, uint32_t regOffset, int32_t data,
+              uint8_t bar) {
+  self.writeReg(regOffset, data, bar);
+}
 
-  std::vector<int32_t>::iterator bufferIterator;
-  for (bufferIterator = intBuffer.begin(); bufferIterator != intBuffer.end();
-       bufferIterator++) {
-    readInValues.append<int32_t>(*bufferIterator);
+std::string readDeviceInfo(mtca4u::devBase& self) {
+  std::string deviceInfo;
+  self.readDeviceInfo(&deviceInfo);
+  return deviceInfo;
+}
+
+void closeDev(mtca4u::devBase& self) { self.closeDev(); }
+
+void readDMA(mtca4u::devBase& self, uint32_t regOffset,
+             bp::numeric::array Buffer, size_t size, uint8_t bar) {
+  int32_t* pointerToMemory = extractDataPointer(Buffer);
+  self.readDMA(regOffset, pointerToMemory, size, bar);
+}
+
+void readArea(mtca4u::devBase& self, int32_t regOffset,
+              bp::numeric::array Buffer, size_t size, uint8_t bar) {
+  int32_t* pointerToMemory = extractDataPointer(Buffer);
+  self.readArea(regOffset, pointerToMemory, size, bar);
+}
+
+void writeArea(mtca4u::devBase& self, uint32_t regOffset,
+               bp::numeric::array dataToWite, size_t bytesToWrite, uint8_t bar) {
+
+  size_t bytesInArray = (extractArraySize(dataToWite) * sizeof(int32_t));
+  if (bytesInArray < bytesToWrite){
+      throw ArrayOutOfBoundException();
   }
 
-  return readInValues;
+  int32_t* pointerToMemory = extractDataPointer(dataToWite);
+  self.writeArea(regOffset, pointerToMemory, bytesToWrite, bar);
 }
 
-boost::python::list readArea(mtca4u::devPCIE& self, int32_t regOffset,
-                             size_t size, uint8_t bar) {
-  // TODO: Clean this and above method ...
-
-  std::vector<int32_t> intBuffer((size) / 4); // TODO: Fix this with sizeof?
-  boost::python::list readInValues;
-  self.readArea(regOffset, &intBuffer[0], size, bar);
-
-  std::vector<int32_t>::iterator bufferIterator;
-  for (bufferIterator = intBuffer.begin(); bufferIterator != intBuffer.end();
-       bufferIterator++) {
-    readInValues.append<int32_t>(*bufferIterator);
-  }
-
-  return readInValues;
+// Helper Methods
+int32_t* extractDataPointer(bp::numeric::array& Buffer) {
+  PyArrayObject* pointerToNumPyArrayMemory =
+      reinterpret_cast<PyArrayObject*>(Buffer.ptr());
+  return (reinterpret_cast<int32_t*>(pointerToNumPyArrayMemory->data));
 }
 
-void writeArea(mtca4u::devPCIE& self, uint32_t regOffset,
-               boost::python::list data, size_t size, uint8_t bar) {
-  int lengthOfList = boost::python::len(data);
-  std::vector<int32_t> intBuffer(lengthOfList); // TODO: Fix this with sizeof?
-  std::vector<int32_t>::iterator bufferIterator = intBuffer.begin();
-  for (int i = 0; i < lengthOfList; i++) {
-    intBuffer[i] =
-        boost::python::extract<int32_t>(data[i]); // TODO: clean this up
-  }
-  self.writeArea(regOffset, &intBuffer[0], size, bar);
+size_t extractArraySize(bp::numeric::array& dataToWrite) {
+  return (boost::python::extract<long>(dataToWrite.attr("size")));
 }
 
-std::string readDeviceInfo(mtca4u::devPCIE& self) {
-  std::string a;
-  self.readDeviceInfo(&a);
-  return a;
 }
-
