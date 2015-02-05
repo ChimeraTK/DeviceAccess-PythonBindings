@@ -40,12 +40,24 @@ void devBaseAdapter::writeDMA(uint32_t regOffset,
 void devBaseAdapter::readDMA(const std::string& regName,
                              bp::numeric::array bufferSpace, size_t dataSize,
                              uint32_t addRegOffset) {
+  // Workaround to compiler warning: unused parameter
+  (void)(regName);
+  (void)(bufferSpace);
+  (void)(dataSize);
+  (void)(addRegOffset);
+
   throw mtca4upy::MethodNotImplementedException();
 }
 
 void devBaseAdapter::writeDMA(const std::string& regName,
                               bp::numeric::array dataToWrite, size_t dataSize,
                               uint32_t addRegOffset) {
+  // Workaround to compiler warning: unused parameter
+  (void)(regName);
+  (void)(dataToWrite);
+  (void)(dataSize);
+  (void)(addRegOffset);
+
   throw MethodNotImplementedException();
 }
 

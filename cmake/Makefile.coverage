@@ -1,0 +1,7 @@
+coverage:
+	#cd @CMAKE_BINARY_DIR@
+	rm -f `find . -name "*\.gcda"`
+	make test
+	lcov --capture --directory . --output-file coverage.info
+	lcov --extract coverage.info "@CMAKE_SOURCE_DIR@*" -o coverage_for_cmdLinetools_src.info
+	genhtml coverage_for_cmdLinetools_src.info --output-directory coverage_html
