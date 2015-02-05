@@ -18,9 +18,15 @@ include_directories(${Boost_INCLUDE_DIRS}
 #
 # Define the build target for python module 
 add_library(${python_module_name} SHARED MtcaMappedDevicePython.cc 
-                                         WrapperMethods.cc
-                                         SimpleFactory.cc
-                                         DevBaseWrapper.cc)
+                                         devMapAdapter.cc
+                                         devBaseAdapter.cc
+                                         devBaseFactory.cc
+                                         DeviceFactory.cc
+                                         devMapFactory.cc
+                                         PythonInterface.cc)
+                                         
+                                         
+                                         
 target_link_libraries(${python_module_name} ${MtcaMappedDevice_LIBRARIES}
                                             ${PYTHON_LIBRARIES} 
                                             ${Boost_LIBRARIES})
