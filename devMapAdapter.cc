@@ -11,6 +11,7 @@ namespace mtca4upy {
 
 void devMapAdapter::readArea(int32_t regOffset, bp::numeric::array Buffer,
                              size_t size, uint8_t bar) {
+  throwExceptionIfOutOfBounds(Buffer, size);
   _mappedDevice->readArea(regOffset, extractDataPointer(Buffer), size, bar);
 }
 
@@ -24,6 +25,7 @@ void devMapAdapter::writeArea(uint32_t regOffset,
 
 void devMapAdapter::readDMA(uint32_t regOffset, bp::numeric::array Buffer,
                             size_t size, uint8_t bar) {
+  throwExceptionIfOutOfBounds(Buffer, size);
   _mappedDevice->readDMA(regOffset, extractDataPointer(Buffer), size, bar);
 }
 
@@ -37,6 +39,7 @@ void devMapAdapter::writeDMA(uint32_t regOffset, bp::numeric::array dataToWrite,
 void devMapAdapter::readDMA(const std::string& regName,
                             bp::numeric::array bufferSpace, size_t dataSize,
                             uint32_t addRegOffset) {
+  throwExceptionIfOutOfBounds(bufferSpace, dataSize);
   _mappedDevice->readDMA(regName, extractDataPointer(bufferSpace), dataSize,
                          addRegOffset);
 }

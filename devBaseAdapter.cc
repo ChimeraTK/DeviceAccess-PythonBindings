@@ -14,6 +14,7 @@ devBaseAdapter::devBaseAdapter(mtca4u::devBase* mtcaDevice)
 
 void devBaseAdapter::readArea(int32_t regOffset, bp::numeric::array Buffer,
                               size_t size, uint8_t bar) {
+  throwExceptionIfOutOfBounds(Buffer, size);
   _mtcaDevice->readArea(regOffset, extractDataPointer(Buffer), size, bar);
 }
 
@@ -27,6 +28,7 @@ void devBaseAdapter::writeArea(uint32_t regOffset,
 
 void devBaseAdapter::readDMA(uint32_t regOffset, bp::numeric::array Buffer,
                              size_t size, uint8_t bar) {
+  throwExceptionIfOutOfBounds(Buffer, size);
   _mtcaDevice->readDMA(regOffset, extractDataPointer(Buffer), size, bar);
 }
 

@@ -15,7 +15,7 @@ namespace mtca4upy { // TODO: Refactor to a better name
 class ArrayOutOfBoundException : public std::exception {
 public:
   inline virtual const char *what() const throw() {
-    return "size to write is more than the specified array size";
+    return "size to write is more than the supplied array size";
   }
 };
 
