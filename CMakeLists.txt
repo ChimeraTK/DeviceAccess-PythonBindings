@@ -46,30 +46,30 @@ set_target_properties(${python_module_name} PROPERTIES PREFIX "")
 #
 # For now tests and coverage are enabled in the debug Mode only
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-ENABLE_TESTING()
-#
-# Enable gdb and coverage report in the debug configuration.
-# (-DCMAKE_BUILD_TYPE=Debug)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 --coverage")
-#
-# Copy the test scripts to the build directory:
-COPY_CONTENT_TO_BUILD_DIR("tests")
+    ENABLE_TESTING()
+    #
+    # Enable gdb and coverage report in the debug configuration.
+    # (-DCMAKE_BUILD_TYPE=Debug)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 --coverage")
+    #
+    # Copy the test scripts to the build directory:
+    COPY_CONTENT_TO_BUILD_DIR("tests")
 
-#
-# Add the scripts as ctests.
-FILE(GLOB location_of_script_files 
-    "${PROJECT_BINARY_DIR}/tests/*.py")
-ADD_SCRIPTS_AS_TESTS( "${location_of_script_files}" )
+    #
+    # Add the scripts as ctests.
+    FILE(GLOB location_of_script_files 
+        "${PROJECT_BINARY_DIR}/tests/*.py")
+    ADD_SCRIPTS_AS_TESTS( "${location_of_script_files}" )
 
-#
-# Enable code coverage when cmake build configured -DCMAKE_BUILD_TYPE=Debug.
-# lcov gets run by the target defined in Makefile.coverage
-  CONFIGURE_FILE(cmake/Makefile.coverage
-    ${PROJECT_BINARY_DIR}/Makefile.coverage @ONLY)
-  ADD_CUSTOM_TARGET(coverage
-    make -f Makefile.coverage
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Generating test coverage documentation" VERBATIM
-  )
-
+    #
+    # Enable code coverage when cmake build configured -DCMAKE_BUILD_TYPE=Debug.
+    # lcov gets run by the target defined in Makefile.coverage
+      CONFIGURE_FILE(cmake/Makefile.coverage
+        ${PROJECT_BINARY_DIR}/Makefile.coverage @ONLY)
+      ADD_CUSTOM_TARGET(coverage
+        make -f Makefile.coverage
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating test coverage documentation" VERBATIM
+      )
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+
