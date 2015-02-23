@@ -20,24 +20,35 @@ class PythonInterfaceWrapper
       public boost::python::wrapper<mtca4upy::PythonInterface> {
 public:
   PythonInterfaceWrapper() {};
+
+  inline void readRaw(uint32_t regOffset, bp::numeric::array Buffer,
+                       size_t size, uint8_t bar) {
+    this->get_override("readArea")(regOffset, Buffer, size, bar);
+  }
+  inline void readRaw(const std::string &regName, bp::numeric::array Buffer,
+                      size_t dataSize = 0, uint32_t addRegOffset = 0){
+    this->readRaw(regName, Buffer, dataSize, addRegOffset);
+  }
+
+  inline void writeRaw(uint32_t regOffset, bp::numeric::array dataToWite,
+                        size_t bytesToWrite, uint8_t bar) {
+    this->get_override("writeArea")(regOffset, dataToWite, bytesToWrite, bar);
+  }
+
+  inline void writeRaw(const std::string &regName, bp::numeric::array Buffer,
+                        size_t dataSize = 0, uint32_t addRegOffset = 0){
+    this->writeRaw(regName, Buffer, dataSize, addRegOffset);
+  }
+
   inline void readDMA(uint32_t regOffset, bp::numeric::array Buffer,
                       size_t size) {
     this->get_override("readDMA")(regOffset, Buffer, size);
   }
+
   inline void writeDMA(uint32_t regOffset, bp::numeric::array dataToWrite,
                        size_t size) {
 
     this->get_override("writeDMA")(regOffset, dataToWrite, size);
-  }
-
-  inline void readArea(int32_t regOffset, bp::numeric::array Buffer,
-                       size_t size, uint8_t bar) {
-    this->get_override("readArea")(regOffset, Buffer, size, bar);
-  }
-
-  inline void writeArea(uint32_t regOffset, bp::numeric::array dataToWite,
-                        size_t bytesToWrite, uint8_t bar) {
-    this->get_override("writeArea")(regOffset, dataToWite, bytesToWrite, bar);
   }
 
   inline void readDMA(const std::string &regName,

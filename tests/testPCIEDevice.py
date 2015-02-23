@@ -17,7 +17,7 @@ class TestPCIEDevice(unittest.TestCase):
                 "some_non_existent_device: No such file or directory", mtcamappeddevice.createDevice,
                 "some_non_existent_device")
 
-    def testReadArea(self):
+    def testreadRaw(self):
         device = mtcamappeddevice.createDevice("/dev/llrfdummys4")
         wordCompilationRegOffset = 4
         preAllocatedArray = numpy.zeros(2, dtype = numpy.int32)
@@ -25,7 +25,7 @@ class TestPCIEDevice(unittest.TestCase):
         registerBar = 0
 
         self.assertRaisesRegexp(RuntimeError, "size to write is more than the "
-        "supplied array size", device.readArea, wordCompilationRegOffset,
+        "supplied array size", device.readRaw, wordCompilationRegOffset,
         preAllocatedArray, bytesToRead, registerBar)
 
 
@@ -33,7 +33,7 @@ class TestPCIEDevice(unittest.TestCase):
         bytesToRead = 8
 
         self.assertRaisesRegexp(RuntimeError, "Cannot read data from device: "
-        "/dev/llrfdummys4: Bad address", device.readArea, badRegOffset,
+        "/dev/llrfdummys4: Bad address", device.readRaw, badRegOffset,
         preAllocatedArray, bytesToRead, registerBar)
 
 
@@ -41,7 +41,7 @@ class TestPCIEDevice(unittest.TestCase):
         wordCompilationRegOffset = 4
         bytesToRead = 4
 
-        device.readArea(wordCompilationRegOffset, preAllocatedArray, bytesToRead,
+        device.readRaw(wordCompilationRegOffset, preAllocatedArray, bytesToRead,
                 registerBar)
         self.assertTrue( 9 == preAllocatedArray[0])
 
@@ -52,14 +52,14 @@ class TestPCIEDevice(unittest.TestCase):
         bytesToWrite = 8
         bytesToRead = 8
 
-        device.writeArea(wordStatusRegOffset, dataArray,
+        device.writeRaw(wordStatusRegOffset, dataArray,
                 bytesToWrite, registerBar)
-        device.readArea(wordStatusRegOffset, readInArray, bytesToRead,
+        device.readRaw(wordStatusRegOffset, readInArray, bytesToRead,
                 registerBar)
 
         self.assertTrue(readInArray.tolist() == dataArray.tolist())
 
-    def testWriteArea(self):
+    def testwriteRaw(self):
         device = mtcamappeddevice.createDevice("/dev/llrfdummys4")
         wordStatusRegOffset = 8
         infoToWrite = numpy.array([566,58], dtype = numpy.int32)
@@ -68,14 +68,14 @@ class TestPCIEDevice(unittest.TestCase):
 
 
         self.assertRaisesRegexp(RuntimeError, "size to write is more than the "
-        "supplied array size", device.writeArea, wordStatusRegOffset,
+        "supplied array size", device.writeRaw, wordStatusRegOffset,
         infoToWrite, bytesToWrite, registerBar)
         
         badRegOffset = 5654
         bytesToWrite = 8
         
         self.assertRaisesRegexp(RuntimeError, "Cannot read data from device: "
-        "/dev/llrfdummys4: Bad address", device.readArea, badRegOffset,
+        "/dev/llrfdummys4: Bad address", device.readRaw, badRegOffset,
         infoToWrite, bytesToWrite, registerBar)
 
         # test of write done in the above testcase TODO: make this proper
@@ -90,7 +90,7 @@ class TestPCIEDevice(unittest.TestCase):
         bytesToWrite = 4 # i.e one word
         registerBar = 0
         dataArray = numpy.array([1], dtype = numpy.int32)
-        device.writeArea(wordAdcEnaRegOffset, dataArray, bytesToWrite,
+        device.writeRaw(wordAdcEnaRegOffset, dataArray, bytesToWrite,
                registerBar) # the DMA area would be set after this
 
          # TODO: Use a ;loop later

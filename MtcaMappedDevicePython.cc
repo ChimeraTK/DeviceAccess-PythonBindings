@@ -67,14 +67,32 @@ static boost::shared_ptr<mtca4upy::PythonInterface>(*createDevice)(
     const std::string&) = &mtca4upy::createDevice;
 static boost::shared_ptr<mtca4upy::PythonInterface>(*createMappedDevice)(
     const std::string&, const std::string&) = &mtca4upy::createDevice;
+
+static void (mtca4upy::PythonInterface::*readRawUsingRegisterOffset)(
+    uint32_t, bp::numeric::array, size_t, uint8_t) =
+    &mtca4upy::PythonInterface::readRaw;
+
+static void (mtca4upy::PythonInterface::*readRawUsingRegisterName)(
+    const std::string&, bp::numeric::array, size_t, uint32_t) =
+    &mtca4upy::PythonInterface::readRaw;
+
+static void (mtca4upy::PythonInterface::*writeRawUsingRegisterOffset)(
+    uint32_t, bp::numeric::array, size_t, uint8_t) =
+    &mtca4upy::PythonInterface::writeRaw;
+static void (mtca4upy::PythonInterface::*writeRawUsingRegisterName)(
+    const std::string&, bp::numeric::array, size_t, uint32_t) =
+    &mtca4upy::PythonInterface::writeRaw;
+
 //**********************************************************************************//
 
 BOOST_PYTHON_MODULE(mtcamappeddevice) {
   bp::register_exception_translator<mtca4u::exDevPCIE>(&translate);
 
   bp::class_<mtca4upy::PythonInterfaceWrapper, boost::noncopyable>("Device")
-      .def("readArea", bp::pure_virtual(&mtca4upy::PythonInterface::readArea))
-      .def("writeArea", bp::pure_virtual(&mtca4upy::PythonInterface::writeArea))
+      .def("readRaw", bp::pure_virtual(readRawUsingRegisterOffset))
+      .def("readRaw", bp::pure_virtual(readRawUsingRegisterName))
+      .def("writeRaw", bp::pure_virtual(writeRawUsingRegisterOffset))
+      .def("writeRaw", bp::pure_virtual(writeRawUsingRegisterName))
       .def("readDMA", bp::pure_virtual(readDMAUsingRegisterOffset))
       .def("readDMA", bp::pure_virtual(readDMAUsingRegisterName))
       .def("writeDMA", bp::pure_virtual(writeDMAUsingRegisterOffset))

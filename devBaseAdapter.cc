@@ -12,13 +12,13 @@ namespace mtca4upy {
 devBaseAdapter::devBaseAdapter(mtca4u::devBase* mtcaDevice)
     : _mtcaDevice(mtcaDevice) {}
 
-void devBaseAdapter::readArea(int32_t regOffset, bp::numeric::array Buffer,
+void devBaseAdapter::readRaw(uint32_t regOffset, bp::numeric::array Buffer,
                               size_t size, uint8_t bar) {
   throwExceptionIfOutOfBounds(Buffer, size);
   _mtcaDevice->readArea(regOffset, extractDataPointer(Buffer), size, bar);
 }
 
-void devBaseAdapter::writeArea(uint32_t regOffset,
+void devBaseAdapter::writeRaw(uint32_t regOffset,
                                bp::numeric::array dataToWrite,
                                size_t bytesToWrite, uint8_t bar) {
   throwExceptionIfOutOfBounds(dataToWrite, bytesToWrite);
@@ -29,7 +29,6 @@ void devBaseAdapter::writeArea(uint32_t regOffset,
 void devBaseAdapter::readDMA(uint32_t regOffset, bp::numeric::array Buffer,
                              size_t size) {
   uint8_t dummyDMABar = 0; // This can be anything; DMA region is not dependent on the Pcie bar
-  int arraySize = PythonInterface::extractNumberOfElements(Buffer);
   throwExceptionIfOutOfBounds(Buffer, size);
   _mtcaDevice->readDMA(regOffset, extractDataPointer(Buffer), size, dummyDMABar);
 }
@@ -64,9 +63,36 @@ void devBaseAdapter::writeDMA(const std::string& regName,
 
   throw MethodNotImplementedException();
 }
+void
+devBaseAdapter::readRaw (const std::string& regName,
+				   bp::numeric::array Buffer, size_t dataSize,
+				   uint32_t addRegOffset) {
+  // Workaround to compiler warning: unused parameter
+  (void)(regName);
+  (void)(Buffer);
+  (void)(dataSize);
+  (void)(addRegOffset);
+
+  throw MethodNotImplementedException();
+}
+
+void
+devBaseAdapter::writeRaw (const std::string& regName,
+				    bp::numeric::array Buffer, size_t dataSize,
+				    uint32_t addRegOffset) {
+  // Workaround to compiler warning: unused parameter
+  (void)(regName);
+  (void)(Buffer);
+  (void)(dataSize);
+  (void)(addRegOffset);
+
+  throw MethodNotImplementedException();
+}
 
 devBaseAdapter::~devBaseAdapter() {
   // TODO Auto-generated destructor stub
 }
 
 } /* namespace mtcapy */
+
+
