@@ -39,7 +39,7 @@ public:
    * that is large enough to accommodate contents of the register
    */
   virtual void readRaw(const std::string &regName, bp::numeric::array Buffer,
-                       size_t dataSize = 0, uint32_t addRegOffset = 0) = 0;
+                       size_t dataSize, uint32_t addRegOffset) = 0;
 
   /**
    * This method lets the user write a block of data to the offset specified
@@ -53,7 +53,7 @@ public:
    * the reg size + have to prevent user from writing out of bounds
    */
   virtual void writeRaw(const std::string &regName, bp::numeric::array Buffer,
-                        size_t dataSize = 0, uint32_t addRegOffset = 0) = 0;
+                        size_t dataSize, uint32_t addRegOffset) = 0;
 
 
 
@@ -63,11 +63,11 @@ public:
                         size_t size) = 0;
 
   virtual void readDMA(const std::string &regName,
-                       bp::numeric::array bufferSpace, size_t dataSize = 0,
-                       uint32_t addRegOffset = 0) = 0;
+                       bp::numeric::array bufferSpace, size_t dataSize,
+                       uint32_t addRegOffset) = 0;
   virtual void writeDMA(const std::string &regName,
-                        bp::numeric::array dataToWrite, size_t dataSize = 0,
-                        uint32_t addRegOffset = 0) = 0;
+                        bp::numeric::array dataToWrite, size_t dataSize,
+                        uint32_t addRegOffset) = 0;
 
   virtual ~PythonInterface() {};
 

@@ -26,7 +26,7 @@ public:
     this->get_override("readArea")(regOffset, Buffer, size, bar);
   }
   inline void readRaw(const std::string &regName, bp::numeric::array Buffer,
-                      size_t dataSize = 0, uint32_t addRegOffset = 0){
+                      size_t dataSize, uint32_t addRegOffset){
     this->readRaw(regName, Buffer, dataSize, addRegOffset);
   }
 
@@ -36,7 +36,7 @@ public:
   }
 
   inline void writeRaw(const std::string &regName, bp::numeric::array Buffer,
-                        size_t dataSize = 0, uint32_t addRegOffset = 0){
+                        size_t dataSize, uint32_t addRegOffset){
     this->writeRaw(regName, Buffer, dataSize, addRegOffset);
   }
 
@@ -52,13 +52,13 @@ public:
   }
 
   inline void readDMA(const std::string &regName,
-                      bp::numeric::array bufferSpace, size_t dataSize = 0,
-                      uint32_t addRegOffset = 0) {
+                      bp::numeric::array bufferSpace, size_t dataSize,
+                      uint32_t addRegOffset) {
     this->get_override("readDMA")(regName, bufferSpace, dataSize, addRegOffset);
   }
   inline void writeDMA(const std::string &regName,
-                       bp::numeric::array dataToWrite, size_t dataSize = 0,
-                       uint32_t addRegOffset = 0) {
+                       bp::numeric::array dataToWrite, size_t dataSize,
+                       uint32_t addRegOffset) {
     this->get_override("writeDMA")(regName, dataToWrite, dataSize,
                                    addRegOffset);
   }
