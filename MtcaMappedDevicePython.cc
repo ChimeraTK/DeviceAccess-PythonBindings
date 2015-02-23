@@ -52,10 +52,10 @@ void translate(mtca4u::exDevPCIE const& e) {
 // This section defines function pointers used for overloading methods//
 //**********************************************************************************//
 static void (mtca4upy::PythonInterface::*readDMAUsingRegisterOffset)(
-    uint32_t, bp::numeric::array, size_t, uint8_t) =
+    uint32_t, bp::numeric::array, size_t) =
     &mtca4upy::PythonInterface::readDMA;
 static void (mtca4upy::PythonInterface::*writeDMAUsingRegisterOffset)(
-    uint32_t, bp::numeric::array, size_t, uint8_t) =
+    uint32_t, bp::numeric::array, size_t) =
     &mtca4upy::PythonInterface::writeDMA;
 static void (mtca4upy::PythonInterface::*readDMAUsingRegisterName)(
     const std::string&, bp::numeric::array, size_t, uint32_t) =

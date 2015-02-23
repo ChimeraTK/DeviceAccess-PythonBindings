@@ -21,13 +21,13 @@ class PythonInterfaceWrapper
 public:
   PythonInterfaceWrapper() {};
   inline void readDMA(uint32_t regOffset, bp::numeric::array Buffer,
-                      size_t size, uint8_t bar) {
-    this->get_override("readDMA")(regOffset, Buffer, size, bar);
+                      size_t size) {
+    this->get_override("readDMA")(regOffset, Buffer, size);
   }
   inline void writeDMA(uint32_t regOffset, bp::numeric::array dataToWrite,
-                       size_t size, uint8_t bar) {
+                       size_t size) {
 
-    this->get_override("writeDMA")(regOffset, dataToWrite, size, bar);
+    this->get_override("writeDMA")(regOffset, dataToWrite, size);
   }
 
   inline void readArea(int32_t regOffset, bp::numeric::array Buffer,

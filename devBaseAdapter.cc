@@ -27,16 +27,18 @@ void devBaseAdapter::writeArea(uint32_t regOffset,
 }
 
 void devBaseAdapter::readDMA(uint32_t regOffset, bp::numeric::array Buffer,
-                             size_t size, uint8_t bar) {
+                             size_t size) {
+  uint8_t dummyDMABar = 0; // This can be anything; DMA region is not dependent on the Pcie bar
+  int arraySize = PythonInterface::extractNumberOfElements(Buffer);
   throwExceptionIfOutOfBounds(Buffer, size);
-  _mtcaDevice->readDMA(regOffset, extractDataPointer(Buffer), size, bar);
+  _mtcaDevice->readDMA(regOffset, extractDataPointer(Buffer), size, dummyDMABar);
 }
 
 void devBaseAdapter::writeDMA(uint32_t regOffset,
-                              bp::numeric::array dataToWrite, size_t size,
-                              uint8_t bar) {
+                              bp::numeric::array dataToWrite, size_t size) {
+  uint8_t dummyDMABar = 0; // This can be anything; DMA region is not dependent on the Pcie bar
   throwExceptionIfOutOfBounds(dataToWrite, size);
-  _mtcaDevice->writeDMA(regOffset, extractDataPointer(dataToWrite), size, bar);
+  _mtcaDevice->writeDMA(regOffset, extractDataPointer(dataToWrite), size, dummyDMABar);
 }
 
 void devBaseAdapter::readDMA(const std::string& regName,

@@ -42,10 +42,8 @@ public:
                                                                 // non template
                                                                 // class.
 
-  void readDMA(uint32_t regOffset, bp::numeric::array Buffer, size_t size,
-               uint8_t bar);
-  void writeDMA(uint32_t regOffset, bp::numeric::array dataToWrite, size_t size,
-                uint8_t bar);
+  void readDMA(uint32_t regOffset, bp::numeric::array Buffer, size_t size);
+  void writeDMA(uint32_t regOffset, bp::numeric::array dataToWrite, size_t size);
 
   void readArea(int32_t regOffset, bp::numeric::array Buffer, size_t size,
                 uint8_t bar);

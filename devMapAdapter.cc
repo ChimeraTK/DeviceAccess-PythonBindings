@@ -24,16 +24,18 @@ void devMapAdapter::writeArea(uint32_t regOffset,
 }
 
 void devMapAdapter::readDMA(uint32_t regOffset, bp::numeric::array Buffer,
-                            size_t size, uint8_t bar) {
+                            size_t size) {
+  uint8_t dummyDMABar = 0; // The value should not matter; MappedDevice readDMA would not be dependent on the pcie bar
   throwExceptionIfOutOfBounds(Buffer, size);
-  _mappedDevice->readDMA(regOffset, extractDataPointer(Buffer), size, bar);
+  _mappedDevice->readDMA(regOffset, extractDataPointer(Buffer), size, dummyDMABar);
 }
 
 void devMapAdapter::writeDMA(uint32_t regOffset, bp::numeric::array dataToWrite,
-                             size_t bytesToWrite, uint8_t bar) {
+                             size_t bytesToWrite) {
+  uint8_t dummyDMABar = 0;
   throwExceptionIfOutOfBounds(dataToWrite, bytesToWrite);
   _mappedDevice->writeDMA(regOffset, extractDataPointer(dataToWrite),
-                          bytesToWrite, bar);
+                          bytesToWrite, dummyDMABar);
 }
 
 void devMapAdapter::readDMA(const std::string& regName,

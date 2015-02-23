@@ -27,9 +27,9 @@ public:
   PythonInterface() {};
 
   virtual void readDMA(uint32_t regOffset, bp::numeric::array Buffer,
-                       size_t size, uint8_t bar) = 0;
+                       size_t size) = 0;
   virtual void writeDMA(uint32_t regOffset, bp::numeric::array dataToWrite,
-                        size_t size, uint8_t bar) = 0;
+                        size_t size) = 0;
 
   virtual void readArea(int32_t regOffset, bp::numeric::array Buffer,
                         size_t size, uint8_t bar) = 0;

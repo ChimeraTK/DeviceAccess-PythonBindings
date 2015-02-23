@@ -57,8 +57,6 @@ class TestPCIEDevice(unittest.TestCase):
         device.readArea(wordStatusRegOffset, readInArray, bytesToRead,
                 registerBar)
 
-        print readInArray
-        print dataArray
         self.assertTrue(readInArray.tolist() == dataArray.tolist())
 
     def testWriteArea(self):
@@ -82,9 +80,68 @@ class TestPCIEDevice(unittest.TestCase):
 
         # test of write done in the above testcase TODO: make this proper
 
-    def test(self):
-        self.assertTrue(True)
-        self.assertTrue(True)
+    def testReadDMA(self):
+        device = mtcamappeddevice.createDevice("/dev/llrfdummys4")
+        # Set the WORD_ADC_ENA reg to 1; This sets the first 25 words of the
+        # DMA memory area to a prabolically increasing set of values; The offset
+        # for the WORD_ADC_ENA register is 68
+
+        wordAdcEnaRegOffset = 68
+        bytesToWrite = 4 # i.e one word
+        registerBar = 0
+        dataArray = numpy.array([1], dtype = numpy.int32)
+        device.writeArea(wordAdcEnaRegOffset, dataArray, bytesToWrite,
+               registerBar) # the DMA area would be set after this
+
+         # TODO: Use a ;loop later
+        expectedDataArray = numpy.array([0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100,
+            121, 144, 169, 196, 225, 256,  289, 324, 361, 400, 441, 484, 529,
+            576], dtype = numpy.int32)
+
+
+        # read the DMA area which has been set with values
+        dmaArea = 0
+        readInArray = numpy.zeros(25, dtype = numpy.int32)
+        bytesToRead = 25 * 4 # 25 words
+
+        device.readDMA(dmaArea, readInArray, bytesToRead)
+
+        self.assertTrue(readInArray.tolist() == expectedDataArray.tolist())
+
+
+
+
+    def testWriteDMA(self):
+        device = mtcamappeddevice.createDevice("/dev/llrfdummys4") 
+        #TODO: Use loop later
+        #dataToWrite = numpy.array([576, 529, 484, 441, 400, 361, 324, 289, 256,
+            #225, 196, 169, 144, 121, 100, 81, 64, 49, 36, 25, 16, 9, 4, 1, 0],
+            #dtype = numpy.int32)
+        #dmaAreaAddress = 0
+        #bytesToWrite = 25 * 4 # 25 entries inside dataToWrite
+        #device.writeDMA(dmaAreaAddress, dataToWrite, bytesToWrite)
+
+        #dataToRead = numpy.zeros(25, dtype = numpy.int32) # Space for content to read from
+                                                          # DMA Area
+        #bytesToRead = 25*4
+        #device.readDMA(dmaAreaAddress, dataToRead, bytesToRead)
+
+        #self.assertTrue(dataToRead.tolist() == dataToWrite.tolist())
+
+        dmaAreaAddress = 0
+        dataToWrite = numpy.array([1,2], dtype = numpy.int32)
+        bytesToWrite = 2*4
+        self.assertRaisesRegexp(RuntimeError, "Operation not supported yet",
+                device.writeDMA, dmaAreaAddress, dataToWrite, bytesToWrite)
+       
+
+    #def testReadDMAThroughRegisterName():
+        #device = mtcamappeddevice.createDevice("/dev/llrfdummys4")           
+        #registerName = "WORD_ADC_ENA"
+        #dataArray = numpy.zeros(1, dtype = numpy.int32)
+#
+        #device.
+
 
 if __name__ == '__main__':
     unittest.main()
