@@ -12,18 +12,15 @@ import mtcamappeddevice
 class TestDummyDevice(unittest.TestCase):
 
     def testCreateDummyDevice(self):
-        self.assertRaisesRegexp(RuntimeError, "Cannot open device: : No such "
-                "file or directory", mtcamappeddevice.createDevice, "")
-        self.assertRaisesRegexp(RuntimeError, "Cannot open device: " 
-                "some_non_existent_device: No such file or directory", mtcamappeddevice.createDevice,
-                "some_non_existent_device")
-        self.assertRaisesRegexp(RuntimeError, "Cannot open device: "
-                "../mapfiles/mtcadummy.map1: No such file or directory", mtcamappeddevice.createDevice,
-                "../mapfiles/mtcadummy.map1")
+        self.assertRaisesRegexp(RuntimeError, "Mapped Dummy Device expects"
+                " first and second parameters to be the same map file"
+                , mtcamappeddevice.createDevice,
+                "mapfiles/mtcadummy.map", "someBogusMapFile.map")
 
     def testreadRaw(self):
         #TODO: Move the mapfile location to a global common variable
-        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map")
+        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map",
+                "mapfiles/mtcadummy.map")
         wordCompilationRegOffset = 4
         preAllocatedArray = numpy.zeros(2, dtype = numpy.int32)
         bytesToRead = 12
@@ -66,7 +63,8 @@ class TestDummyDevice(unittest.TestCase):
         self.assertTrue(readInArray.tolist() == dataArray.tolist())
 
     def testwriteRaw(self):
-        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map")
+        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map",
+                "mapfiles/mtcadummy.map")
         wordStatusRegOffset = 8
         infoToWrite = numpy.array([566,58], dtype = numpy.int32)
         bytesToWrite = 12
@@ -86,32 +84,47 @@ class TestDummyDevice(unittest.TestCase):
         infoToWrite, bytesToWrite, registerBar)
 
     def testWriteRawUsingRegName(self):
-        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map") 
+        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map",
+                "mapfiles/mtcadummy.map")
         registerName = "WORD_CLK_MUX"
+       
+        # pre set values in the register
+        registerOffset = 32
+        dataToSetInRegister = numpy.array([15, 14, 13, 12], dtype = numpy.int32)
+        bytesToSet = 4 * 4 # 4 words
+        bar = 0
+
         spaceToReadIn = numpy.zeros(4, dtype = numpy.int32)
         bytesToReadIn = 0 # 0 => read in the whole register 
         offset = 0 # start reading from the begining of the register
-        self.assertRaisesRegexp(RuntimeError, "This method is not available for"
-                " this device", device.writeRaw, registerName, spaceToReadIn,
-                bytesToReadIn, offset)
+        device.writeRaw(registerName, dataToSetInRegister, bytesToReadIn, offset)
+        device.readRaw(registerOffset, spaceToReadIn, bytesToSet, bar)
+
+        self.assertTrue(spaceToReadIn.tolist() == dataToSetInRegister.tolist())
 
     def testReadRawUsingRegName(self):
-        device = mtcamappeddevice.createDevice("/dev/llrfdummys4")
-
+        device = mtcamappeddevice.createDevice("/dev/llrfdummys4",
+        "mapfiles/mtcadummy.map")
         registerName = "WORD_CLK_MUX"
-        # array big enough to hold the whole register
-        spaceToReadIn = numpy.zeros(4, dtype = numpy.int32)
-        bytesToReadIn = 0 # 0 => read in the whole register
-        offset = 0 # start reading from the begining of the register
+       
+        # pre set values in the register
+        registerOffset = 32
+        dataToSetInRegister = numpy.array([5, 4, 3, 2], dtype = numpy.int32)
+        bytesToSet = 4 * 4 # 4 words
+        bar = 0
+        device.writeRaw(registerOffset, dataToSetInRegister, bytesToSet, bar)
 
-        # read in the register (4 words long) using its name
-        self.assertRaisesRegexp(RuntimeError, "This method is not available for"
-        " this device", device.readRaw, registerName, spaceToReadIn,
-        bytesToReadIn, offset)
+        spaceToReadIn = numpy.zeros(4, dtype = numpy.int32)
+        bytesToReadIn = 0 # 0 => read in the whole register 
+        offset = 0 # start reading from the begining of the register
+        device.readRaw(registerName, spaceToReadIn, bytesToReadIn, offset)
+
+        self.assertTrue(spaceToReadIn.tolist() == dataToSetInRegister.tolist())
 
     def testreadDMA(self):
+        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map",
+                "mapfiles/mtcadummy.map")
         # Read DMA internally a wrapper around readArea in the API
-        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map")
 
         wordStatusRegOffset = 8
         dataArray = numpy.array([5, 9], dtype=numpy.int32)
@@ -127,17 +140,30 @@ class TestDummyDevice(unittest.TestCase):
         self.assertTrue(readInArray.tolist() == dataArray.tolist())
 
     def testReadDMAUsingRegName(self):
-        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map")         
-        dmaRegName = "AREA_DMAABLE"
-        dataToRead = numpy.zeros(10, dtype = numpy.int32)
-        bytesToRead = 10 * 4
-        offset = 0
-        self.assertRaisesRegexp(RuntimeError, "This method is not available for"
-                " this device", device.readDMA, dmaRegName, dataToRead,
-                bytesToRead, offset)
+        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map",
+                "mapfiles/mtcadummy.map")
+        #TODO: Use loop later
+        dataToWrite = numpy.array([576, 529, 484, 441, 400, 361, 324, 289, 256,
+            225, 196, 169, 144, 121, 100, 81, 64, 49, 36, 25, 16, 9, 4, 1, 0],
+            dtype = numpy.int32)
+       
+        areaDMAABLEOffset = 0
+        bytesToWrite = 25 * 4 # 25 entries inside dataToWrite
+        bar = 2
+        device.writeRaw(areaDMAABLEOffset, dataToWrite, bytesToWrite, bar)
 
+        dataToRead = numpy.zeros(25, dtype = numpy.int32) # Space for content to read from
+                                                          # DMA Area
+        bytesToRead = 0 # read all
+        offset = 0
+        dmaRegName = "AREA_DMAABLE"
+        device.readDMA(dmaRegName, dataToRead, bytesToRead, offset)
+
+        self.assertTrue(dataToRead.tolist() == dataToWrite.tolist())
+       
     def testWriteDMA(self):
-        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map") 
+        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map",
+                "mapfiles/mtcadummy.map")
         dmaAreaAddress = 0
         dataToWrite = numpy.array([1,2], dtype = numpy.int32)
         bytesToWrite = 2*4
@@ -147,13 +173,15 @@ class TestDummyDevice(unittest.TestCase):
 
 
     def testWriteDMAThroughRegisterName(self):
-        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map")           
-        registerName = "AREA_DMAABLE"
+        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map",
+                "mapfiles/mtcadummy.map")
+        registerName = "AREA_DMA_VIA_DMA"
         dataArray = numpy.zeros(1, dtype = numpy.int32)
         bytesToRead = 1 * 4 # one word
         offset = 0
-        self.assertRaisesRegexp(RuntimeError, "This method is not available for"
-                " this device", device.writeDMA, registerName, dataArray,
+        self.assertRaisesRegexp(RuntimeError, "DummyDevice::writeDMA is not"
+                " implemented yet.", device.writeDMA, registerName, dataArray,
                 bytesToRead, offset)
+
 if __name__ == '__main__':
     unittest.main()

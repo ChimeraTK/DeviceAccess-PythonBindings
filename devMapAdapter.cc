@@ -67,7 +67,7 @@ void devMapAdapter::readRaw(const std::string& regName,
     bytesToRead = extractNumberOfElements(Buffer);
   }
   throwExceptionIfOutOfBounds(Buffer, bytesToRead);
-  _mappedDevice->readReg(regName, extractDataPointer(Buffer), bytesToRead,
+  _mappedDevice->readReg(regName, extractDataPointer(Buffer), bytesToRead * sizeof(int32_t),
                          addRegOffset);
 }
 
@@ -83,7 +83,7 @@ void devMapAdapter::writeRaw(const std::string& regName,
     bytesToWrite = extractNumberOfElements(Buffer);
   }
   throwExceptionIfOutOfBounds(Buffer, bytesToWrite);
-  _mappedDevice->writeReg(regName, extractDataPointer(Buffer), bytesToWrite, addRegOffset);
+  _mappedDevice->writeReg(regName, extractDataPointer(Buffer), bytesToWrite  * sizeof(int32_t), addRegOffset);
 
 }
 

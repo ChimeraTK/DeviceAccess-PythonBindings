@@ -22,7 +22,7 @@ std::string DeviceFactory::extractExtension(const std::string& fileName) {
   int fileNameLength =
       fileName.length(); // std::string.length returns number of bytes in the
                          // string. This should be the number of charachters,
-                         // provided ASCII encoding is used for the filr name
+                         // provided ASCII encoding is used for the file name
   std::string extension;
   if (fileNameLength >= 4) {
     extension = fileName.substr(fileNameLength - 4, 4);
