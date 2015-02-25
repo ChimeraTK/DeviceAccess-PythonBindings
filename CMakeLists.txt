@@ -53,7 +53,7 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 --coverage")
     #
     # Copy the test scripts to the build directory:
-    COPY_CONTENT_TO_BUILD_DIR("tests")
+    COPY_CONTENT_TO_BUILD_DIR("tests;tests/mapfiles")
 
     #
     # Add the scripts as ctests.
