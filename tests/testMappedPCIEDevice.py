@@ -71,10 +71,10 @@ class TestMappedPCIEDevice(unittest.TestCase):
         self.assertRaisesRegexp(RuntimeError, "size to write is more than the "
         "supplied array size", device.writeRaw, wordStatusRegOffset,
         infoToWrite, bytesToWrite, registerBar)
-        
+
         badRegOffset = 5654
         bytesToWrite = 8
-        
+
         self.assertRaisesRegexp(RuntimeError, "Cannot read data from device: "
         "/dev/llrfdummys4: Bad address", device.readRaw, badRegOffset,
         infoToWrite, bytesToWrite, registerBar)
@@ -86,7 +86,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
         device = mtcamappeddevice.createDevice("/dev/llrfdummys4",
         "mapfiles/mtcadummy.map")
         registerName = "WORD_CLK_MUX"
-       
+
         # pre set values in the register
         registerOffset = 32
         dataToSetInRegister = numpy.array([15, 14, 13, 12], dtype = numpy.int32)
@@ -94,7 +94,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
         bar = 0
 
         spaceToReadIn = numpy.zeros(4, dtype = numpy.int32)
-        bytesToReadIn = 0 # 0 => read in the whole register 
+        bytesToReadIn = 0 # 0 => read in the whole register
         offset = 0 # start reading from the begining of the register
         device.writeRaw(registerName, dataToSetInRegister, bytesToReadIn, offset)
         device.readRaw(registerOffset, spaceToReadIn, bytesToSet, bar)
@@ -106,7 +106,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
         device = mtcamappeddevice.createDevice("/dev/llrfdummys4",
         "mapfiles/mtcadummy.map")
         registerName = "WORD_CLK_MUX"
-       
+
         # pre set values in the register
         registerOffset = 32
         dataToSetInRegister = numpy.array([5, 4, 3, 2], dtype = numpy.int32)
@@ -115,7 +115,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
         device.writeRaw(registerOffset, dataToSetInRegister, bytesToSet, bar)
 
         spaceToReadIn = numpy.zeros(4, dtype = numpy.int32)
-        bytesToReadIn = 0 # 0 => read in the whole register 
+        bytesToReadIn = 0 # 0 => read in the whole register
         offset = 0 # start reading from the begining of the register
         device.readRaw(registerName, spaceToReadIn, bytesToReadIn, offset)
 
@@ -183,7 +183,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
         bytesToWrite = 2*4
         self.assertRaisesRegexp(RuntimeError, "Operation not supported yet",
                 device.writeDMA, dmaAreaAddress, dataToWrite, bytesToWrite)
-       
+
 
     def testWriteDMAThroughRegisterName(self):
         device = mtcamappeddevice.createDevice("/dev/llrfdummys4",
@@ -198,4 +198,3 @@ class TestMappedPCIEDevice(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

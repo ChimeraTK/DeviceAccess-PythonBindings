@@ -85,6 +85,9 @@ static void (mtca4upy::PythonInterface::*writeRawUsingRegisterName)(
 
 //**********************************************************************************//
 
+const char* a = "Example NumPy style docstrings. This module demonstrates documentation as specified by the `NumPy Documentation HOWTO`_. Docstrings may extend over multiple lines. Sections are created with a section header followed by an underline of equal length. Example ------- Examples can be given using either the ``Example`` or ``Examples`` sections. Sections support any reStructuredText formatting, including literal blocks:: $ python example_numpy.py Section breaks are created with two blank lines. Section breaks are also implicitly created anytime a new section starts. Section bodies *may* be indented: Notes ----- This is an example of an indented section. It's like any other section, but the body is indented to help it stand out from surrounding text. If a section is indented, then a section break is created simply by resuming unindented text. Attributes ---------- module_level_variable : int Module level variables may be documented in either the ``Attributes`` section of the module docstring, or in an inline docstring immediately following the variable. Either form is acceptable, but the two should not be mixed. Choose one convention to document module level variables and be consistent with it. .. _NumPy Documentation HOWTO: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt";
+const char* b=""" doctext \
+    Will this wrk """;
 BOOST_PYTHON_MODULE(mtcamappeddevice) {
   bp::register_exception_translator<mtca4u::exDevPCIE>(&translate);
 
@@ -98,7 +101,7 @@ BOOST_PYTHON_MODULE(mtcamappeddevice) {
       .def("writeDMA", bp::pure_virtual(writeDMAUsingRegisterOffset))
       .def("writeDMA", bp::pure_virtual(writeDMAUsingRegisterName));
 
-  bp::def("createDevice", createDevice);
+  bp::def("createDevice", createDevice, b);
   bp::def("createDevice", createMappedDevice);
   bp::register_ptr_to_python<boost::shared_ptr<mtca4upy::PythonInterface> >();
   bp::numeric::array::set_module_and_type("numpy", "ndarray");

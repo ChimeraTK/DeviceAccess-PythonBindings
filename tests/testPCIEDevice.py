@@ -70,10 +70,10 @@ class TestPCIEDevice(unittest.TestCase):
         self.assertRaisesRegexp(RuntimeError, "size to write is more than the "
         "supplied array size", device.writeRaw, wordStatusRegOffset,
         infoToWrite, bytesToWrite, registerBar)
-        
+
         badRegOffset = 5654
         bytesToWrite = 8
-        
+
         self.assertRaisesRegexp(RuntimeError, "Cannot read data from device: "
         "/dev/llrfdummys4: Bad address", device.readRaw, badRegOffset,
         infoToWrite, bytesToWrite, registerBar)
@@ -82,10 +82,10 @@ class TestPCIEDevice(unittest.TestCase):
 
 
     def testWriteRawUsingRegName(self):
-        device = mtcamappeddevice.createDevice("/dev/llrfdummys4") 
+        device = mtcamappeddevice.createDevice("/dev/llrfdummys4")
         registerName = "WORD_CLK_MUX"
         spaceToReadIn = numpy.zeros(4, dtype = numpy.int32)
-        bytesToReadIn = 0 # 0 => read in the whole register 
+        bytesToReadIn = 0 # 0 => read in the whole register
         offset = 0 # start reading from the begining of the register
         self.assertRaisesRegexp(RuntimeError, "This method is not available for"
                 " this device", device.writeRaw, registerName, spaceToReadIn,
@@ -135,7 +135,7 @@ class TestPCIEDevice(unittest.TestCase):
 
 
     def testReadDMAUsingRegName(self):
-        device = mtcamappeddevice.createDevice("/dev/llrfdummys4")         
+        device = mtcamappeddevice.createDevice("/dev/llrfdummys4")
         dmaRegName = "AREA_DMAABLE"
         dataToRead = numpy.zeros(10, dtype = numpy.int32)
         bytesToRead = 10 * 4
@@ -147,7 +147,7 @@ class TestPCIEDevice(unittest.TestCase):
 
 
     def testWriteDMA(self):
-        device = mtcamappeddevice.createDevice("/dev/llrfdummys4") 
+        device = mtcamappeddevice.createDevice("/dev/llrfdummys4")
         #TODO: Use loop later
         #dataToWrite = numpy.array([576, 529, 484, 441, 400, 361, 324, 289, 256,
             #225, 196, 169, 144, 121, 100, 81, 64, 49, 36, 25, 16, 9, 4, 1, 0],
@@ -168,10 +168,10 @@ class TestPCIEDevice(unittest.TestCase):
         bytesToWrite = 2*4
         self.assertRaisesRegexp(RuntimeError, "Operation not supported yet",
                 device.writeDMA, dmaAreaAddress, dataToWrite, bytesToWrite)
-       
+
 
     def testWriteDMAThroughRegisterName(self):
-        device = mtcamappeddevice.createDevice("/dev/llrfdummys4")           
+        device = mtcamappeddevice.createDevice("/dev/llrfdummys4")
         registerName = "AREA_DMAABLE"
         dataArray = numpy.zeros(1, dtype = numpy.int32)
         bytesToRead = 1 * 4 # one word

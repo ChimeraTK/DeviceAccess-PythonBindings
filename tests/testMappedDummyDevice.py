@@ -74,10 +74,10 @@ class TestDummyDevice(unittest.TestCase):
         self.assertRaisesRegexp(RuntimeError, "size to write is more than the "
         "supplied array size", device.writeRaw, wordStatusRegOffset,
         infoToWrite, bytesToWrite, registerBar)
-        
+
         badRegOffset = 5654
         bytesToWrite = 8
-        
+
         self.assertRaisesRegexp(RuntimeError, "Invalid address offset 5654 in"
                 " bar 0.Caught out_of_range exception: vector::_M_range_check"
         , device.readRaw, badRegOffset,
@@ -94,11 +94,11 @@ class TestDummyDevice(unittest.TestCase):
         offset = 0
         device.writeRaw(registerName, dataToSetInRegister,
                 setAllWordsInRegister, offset)
-       
+
         # Verify if the values have been written
         WORD_CLK_MUX_OFFSET = 32
         spaceToReadIn = numpy.zeros(4, dtype = numpy.int32)
-        bytesToReadIn = 4  * 4 # 0 => read in the whole register 
+        bytesToReadIn = 4  * 4 # 0 => read in the whole register
         bar = 0 # start reading from the begining of the register
         device.readRaw(WORD_CLK_MUX_OFFSET, spaceToReadIn, bytesToReadIn, bar)
 
@@ -117,7 +117,7 @@ class TestDummyDevice(unittest.TestCase):
 
         # read in the contents using the Registername
         spaceToReadIn = numpy.zeros(4, dtype = numpy.int32)
-        readAllWordsInRegister = 0 # 0 => read in the whole register 
+        readAllWordsInRegister = 0 # 0 => read in the whole register
         offset = 0 # start reading from the begining of the register
         device.readRaw(registerName, spaceToReadIn, readAllWordsInRegister, offset)
 
@@ -139,7 +139,7 @@ class TestDummyDevice(unittest.TestCase):
         bytesToWrite = 4 * 4 # 4 words
         registerBar = 0
 
-        # Fill content of the dataArray into WORD_CLK_MUX 
+        # Fill content of the dataArray into WORD_CLK_MUX
         device.writeRaw(WORD_CLK_MUX_OFFSET, dataArray,
                 bytesToWrite, registerBar)
 
@@ -178,7 +178,7 @@ class TestDummyDevice(unittest.TestCase):
                 offset)
 
         self.assertTrue(dataToSetInRegister.tolist() == spaceToReadInRegister.tolist())
-       
+
     def testWriteDMA(self):
         device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map",
                 "mapfiles/mtcadummy.map")
@@ -186,7 +186,7 @@ class TestDummyDevice(unittest.TestCase):
         dataToWrite = numpy.array([1,2], dtype = numpy.int32)
         bytesToWrite = 2*4
         self.assertRaisesRegexp(RuntimeError, "DummyDevice::writeDMA is not"
-                " implemented yet.", device.writeDMA, dmaAreaAddress, 
+                " implemented yet.", device.writeDMA, dmaAreaAddress,
                 dataToWrite, bytesToWrite)
 
 
