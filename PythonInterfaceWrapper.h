@@ -1,10 +1,3 @@
-/*
- * DevBaseWrapper.h
- *
- *  Created on: Jan 28, 2015
- *      Author: varghese
- */
-
 #ifndef SOURCE_DIRECTORY__DEVBASEWRAPPER_H_
 #define SOURCE_DIRECTORY__DEVBASEWRAPPER_H_
 

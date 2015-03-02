@@ -1,10 +1,3 @@
-/*
- * devMapAdapter.cc
- *
- *  Created on: Jan 30, 2015
- *      Author: varghese
- */
-
 #include "devMapAdapter.h"
 
 namespace mtca4upy {

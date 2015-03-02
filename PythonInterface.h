@@ -1,10 +1,3 @@
-/*
- * PythonInterface.h
- *
- *  Created on: Jan 30, 2015
- *      Author: varghese
- */
-
 #ifndef SOURCE_DIRECTORY__PYTHONINTERFACE_H_
 #define SOURCE_DIRECTORY__PYTHONINTERFACE_H_
 

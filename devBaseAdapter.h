@@ -1,10 +1,3 @@
-/*
- * devBaseAdapter.h
- *
- *  Created on: Feb 1, 2015
- *      Author: geo
- */
-
 #ifndef DEVBASEADAPTER_H_
 #define DEVBASEADAPTER_H_
 

@@ -1,10 +1,3 @@
-/*
- * devMapAdapter.h
- *
- *  Created on: Jan 30, 2015
- *      Author: varghese
- */
-
 #ifndef SOURCE_DIRECTORY__DEVMAPADAPTER_H_
 #define SOURCE_DIRECTORY__DEVMAPADAPTER_H_
 
@@ -67,8 +60,7 @@ public:
 
   /**
    * This method searches for the register name in regName and if found, writes
-   * to it with the data in Buffer; TODO: Bad part is user has to be aware of
-   * the reg size + have to prevent user from writing out of bounds
+   * to it with the data in Buffer;
    */
    void writeRaw(const std::string &regName, bp::numeric::array Buffer,
                         size_t dataSize = 0, uint32_t addRegOffset = 0);

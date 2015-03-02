@@ -1,10 +1,3 @@
-/*
- * devBaseAdapter.cc
- *
- *  Created on: Feb 1, 2015
- *      Author: geo
- */
-
 #include "devBaseAdapter.h"
 
 namespace mtca4upy {

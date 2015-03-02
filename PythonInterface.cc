@@ -1,10 +1,3 @@
-/*
- * PythonInterface.cc
- *
- *  Created on: Jan 30, 2015
- *      Author: varghese
- */
-
 #include "PythonInterface.h"
 #include <numpy/arrayobject.h>
 

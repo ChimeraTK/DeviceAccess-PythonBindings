@@ -1,10 +1,3 @@
-/*
- * MappedDeviceFactory.cc
- *
- *  Created on: Feb 2, 2015
- *      Author: geo
- */
-
 #include <MtcaMappedDevice/DummyDevice.h>
 #include <MtcaMappedDevice/devPCIE.h>
 #include "devMapAdapter.h"

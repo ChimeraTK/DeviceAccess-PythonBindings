@@ -1,10 +1,3 @@
-/*
- * DeviceFactory.h
- *
- *  Created on: Feb 2, 2015
- *      Author: geo
- */
-
 #ifndef DEVICEFACTORY_H_
 #define DEVICEFACTORY_H_
 

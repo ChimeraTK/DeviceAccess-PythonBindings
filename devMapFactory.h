@@ -1,8 +1,3 @@
-/*
- * MappedDeviceFactory.h
- *
- */
-
 #ifndef MAPPEDDEVICEFACTORY_H_
 #define MAPPEDDEVICEFACTORY_H_
 

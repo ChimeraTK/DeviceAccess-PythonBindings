@@ -1,10 +1,3 @@
-/*
- * PythonObjectFactory.cc
- *
- *  Created on: Feb 2, 2015
- *      Author: geo
- */
-
 #include "DeviceFactory.h"
 
 namespace mtca4upy {

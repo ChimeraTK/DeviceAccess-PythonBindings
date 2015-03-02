@@ -1,10 +1,3 @@
-/*
- * PythonException.h
- *
- *  Created on: Feb 3, 2015
- *      Author: varghese
- */
-
 #ifndef SOURCE_DIRECTORY__PYTHONEXCEPTION_H_
 #define SOURCE_DIRECTORY__PYTHONEXCEPTION_H_
 

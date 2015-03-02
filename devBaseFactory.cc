@@ -1,10 +1,3 @@
-/*
- * devBaseFactory.cc
- *
- *  Created on: Feb 2, 2015
- *      Author: geo
- */
-
 #include "devBaseFactory.h"
 #include "MtcaMappedDevice/DummyDevice.h"
 #include "MtcaMappedDevice/devPCIE.h"

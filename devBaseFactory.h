@@ -1,10 +1,3 @@
-/*
- * devBaseFactory.h
- *
- *  Created on: Feb 2, 2015
- *      Author: geo
- */
-
 #ifndef DEVBASEFACTORY_H_
 #define DEVBASEFACTORY_H_
 
