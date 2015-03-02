@@ -111,6 +111,7 @@ class TestDummyDevice(unittest.TestCase):
 
     def testreadDMA(self):
         # Read DMA internally a wrapper around readArea in the API
+        # Repeat the same tests as for readRaw
         device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map")
 
         wordStatusRegOffset = 8
