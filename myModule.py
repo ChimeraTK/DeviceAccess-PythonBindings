@@ -4,7 +4,7 @@ import numpy
 
 class Device():
 
-    def __init__(self, deviceName, mapFile = None):
+    def __init__(self, deviceName, mapFile):
         # exception handling is a kludge for now
         try:
             mtcamappeddevice.createDevice(5)
@@ -12,48 +12,57 @@ class Device():
             pass
 
         try:
-            if (mapFile != None):
-                self.__openedDevice = mtcamappeddevice.createDevice(deviceName,
-                        mapFile)
-            else:
                 self.__openedDevice = mtcamappeddevice.createDevice(deviceName)
         except Exception, e:            
             if(e.__class__ == self.__storedArgErrException.__class__):
                 print "Device name and mapfile name are expected to be strings"
 
-    def readRaw(self, offset, numberOfWords, registerName=None, bar=0):
+    def read(self, registerName, numberOf32bitWordsToRead=1,
+            offsetFromRegisterBaseAddress=0):
 
         device = self.__openedDevice
-        array = numpy.zeros(numberOfWords, dtype = numpy.int32)
+
+
+        # find the size of array in case of mapped:
+        #array = numpy.zeros(numberOfWords, dtype = numpy.int32)
         #numberOfWords = numberOfWords * 4
-        if(type(offset) != int):
-            print "offset is not type int"
-            return None
+        #if(type(addressOffset) != int):
+            #print "offset is not type int"
+            #return None
+#
+        #if(type(registerName) == str):
+            #device.readRaw(registerName, array, numberOfWords*4, addressOffset)
+        #else:
+            #device.readRaw(addressOffset, array, numberOfWords*4, bar)
+        #return array
 
-        if(type(registerName) == str):
-            device.readRaw(registerName, array, numberOfWords*4, offset)
+    def readRaw(self, registerName, numberOf32BitWordsToRead=1
+            offsetFromRegisterBaseAddress=0):
 
-        device.readRaw(offset, array, numberOfWords*4, bar)
-        return array
 
-    def writeRaw(self, offset, array, registerName=None, bar=0):
-        device = self.__openedDevice
-        wordsToWrite = array.size * 4
-        if(wordsToWrite == 0 ):
-            print "Nothing to write"
-            return None
+    def write(self, registerName, dataToWrite, offsetFromRegisterBaseAddress=0):
+        pass
 
-        if(type(offset) != int):
-            print "offset is not type int"
-            return None
+    def writeRaw(self, registerName, dataToWrite,
+            offsetFromRegisterBaseAddress=0):
+        #device = self.__openedDevice
+        #wordsToWrite = array.size * 4
+        #if(wordsToWrite == 0 ):
+            #print "Nothing to write"
+            #return None
 
-        if(array.dtype != numpy.int32):
-            print "expecting a numpy.int32 type array"
-            return None
+        #if(type(addressOffset) != int):
+            #print "offset is not type int"
+            #return None
 
-        if(type(registerName) == str):
-            device.writeRaw(registerName, array, wordsToWrite, offset)
-        device.writeRaw(offset, array, wordsToWrite, bar)
+        #if(array.dtype != numpy.int32):
+            #print "expecting a numpy.int32 type array"
+            #return None
+
+        #if(type(registerName) == str):
+            #device.writeRaw(registerName, array, wordsToWrite, addressOffset)
+        #else:
+            #device.writeRaw(addressOffset, array, wordsToWrite, bar)
 
 
 
