@@ -40,11 +40,11 @@ class Device():
             offsetFromRegisterBaseAddress=0):
     """ Reads out Fixed point converted values from the opened mapped device
     
-    This method uses the register mapping information to return properly
-    converted (Fixed Point converted) version of values contained in a register.
-    This method can be used to read in the whole register or an arbitary number
-    of register elements from anywhere in the span of the register (through the
-    'offsetFromRegisterBaseAddress' parameter).  
+    This method uses the register mapping information to return Fixed Point
+    converted version of the values contained in a register. This method can be
+    used to read in the whole register or an arbitary number of register
+    elements from anywhere in the span of the register (through the
+    'offsetFromRegisterBaseAddress' parameter).
     
     Parameters
     ----------
@@ -60,9 +60,10 @@ class Device():
       ommitted or when its value is set as 0.
       
     offsetFromRegisterBaseAddress : int, optional
-      This is an offset from the start of the specified register's base
-      address. When an offset is provided as a parameter, the read returns
-      elements from this point in memory (address offset) onwards.
+      This is an offset from the start of the specified register's base address.
+      An offset of 1 represents 32 bits. When an offset is provided as a
+      parameter, the method returns elements from this point in memory (/address
+      offset) onwards.
       
     Returns
     -------
@@ -79,6 +80,9 @@ class Device():
     >>> device.read("WORD_CLK_MUX")
     array([15.0,14.0, 13.0, 12.0], dtype = float32)#TODO fill in the output
     
+    >>> device.read("WORD_CLK_MUX", 0)
+    array([15.0,14.0, 13.0, 12.0], dtype = float32)#TODO fill in the output
+        
     >>> device.read("WORD_CLK_CNT", 1)
     array([15.0], dtype = float32)#TODO fill in the output
     
@@ -94,7 +98,7 @@ class Device():
     >>> device.read("WORD_CLK_CNT", offsetFromRegisterBaseAddress=2 )
     array([13.0, 12.0], dtype = float32)
     """
-    pass
+    return numpy.array([0], dtype = numpy.float32)
 
   def readRaw(self, registerName, numberOf32BitWordsToRead=1, 
               offsetFromRegisterBaseAddress=0):
