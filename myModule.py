@@ -3,132 +3,110 @@ import numpy
 
 
 class Device():
+  """ This class represents the hardware device to access 
+  
+  This class can be used to open and acess the registers of a mapped device
+  
+  Parameters
+  ----------
+  deviceName : str
+    The device file identifier for the hardware
 
-    def __init__(self, deviceName, mapFile):
-        # exception handling is a kludge for now
-        try:
-            mtcamappeddevice.createDevice(5)
-        except Exception as self.__storedArgErrException:
-            pass
+  mapFile : str
+    The location of the register mapped file for the hardware under
+    consideration
+  
+  Examples
+  --------
+  >>> device = Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+  """
+  
+  def __init__(self, deviceName, mapFile):
+    """ Constructor for the Device class
+    """
+  #exception handling is a kludge for now
+    try:
+      mtcamappeddevice.createDevice(5)
+    except Exception as self.__storedArgErrException:
+      pass
 
-        try:
-                self.__openedDevice = mtcamappeddevice.createDevice(deviceName)
-        except Exception, e:            
-            if(e.__class__ == self.__storedArgErrException.__class__):
-                print "Device name and mapfile name are expected to be strings"
+    try:
+      self.__openedDevice = mtcamappeddevice.createDevice(deviceName)
+    except Exception, e:            
+      if(e.__class__ == self.__storedArgErrException.__class__):
+        print "Device name and mapfile name are expected to be strings"
 
-    def read(self, registerName, numberOf32bitWordsToRead=1,
+  def read(self, registerName, numberOfElementsToRead=1,
             offsetFromRegisterBaseAddress=0):
-""" string, integer, integer -> list of double values
-        This is an example of a module level function.
-
-    Function parameters should be documented in the ``Parameters`` section.
-    The name of each parameter is required. The type and description of each
-    parameter is optional, but should be included if not obvious.
-
-    If the parameter itself is optional, it should be noted by adding
-    ", optional" to the type. If \*args or \*\*kwargs are accepted, they
-    should be listed as \*args and \*\*kwargs.
-
-    The format for a parameter is::
-
-        name : type
-            description
-
-            The description may span multiple lines. Following lines
-            should be indented to match the first line of the description.
-
-            Multiple paragraphs are supported in parameter
-            descriptions.
-
+    """ Reads out Fixed point converted values from the opened mapped device
+    
+    This method uses the register mapping information to return properly
+    converted (Fixed Point converted) version of values contained in a register.
+    This method can be used to read in the whole register or an arbitary number
+    of register elements from anywhere in the span of the register (through the
+    'offsetFromRegisterBaseAddress' parameter).  
+    
     Parameters
     ----------
-    param1 : int
-        The first parameter.
-    param2 : str, optional
-        The second parameter, defaults to None.
-    *args
-        Variable length argument list.
-    **kwargs
-        Arbitrary keyword arguments.
-
+    registerName : str
+      The name of the register on the device to which read access is sought.
+      
+    numberOfElementsToRead : int, optional 
+      Optional parameter specifying the number of register elements that should
+      be read out. The width of each register element is internally obtained
+      from the mapping file.
+      
+      The method returns all elements in the register if this parameter is
+      ommitted or when its value is set as 0.
+      
+    offsetFromRegisterBaseAddress : int, optional
+      This is an offset from the start of the specified register's base
+      address. When an offset is provided as a parameter, the read returns
+      elements from this point in memory (address offset) onwards.
+      
     Returns
     -------
-    bool
-        True if successful, False otherwise.
-
-        The return type is not optional. The ``Returns`` section may span
-        multiple lines and paragraphs. Following lines should be indented to
-        match the first line of the description.
-
-        The ``Returns`` section supports any reStructuredText formatting,
-        including literal blocks::
-
-            {
-                'param1': param1,
-                'param2': param2
-            }
-
-    Raises
-    ------
-    AttributeError
-        The ``Raises`` section is a list of all exceptions
-        that are relevant to the interface.
-    ValueError
-        If `param2` is equal to `param1`.
-
+    numpy.ndarray
+      The return type for the method is a 1-Dimensional array with datatype
+      numpy.float32. The returned 1-Dimensional numpy.ndarray would either
+      contain all elements in the register or only the number specified by the
+      numberOfElementsToRead parameter
+     
+    Examples
+    --------
+    >>> device = Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
+    >>> device.read("WORD_CLK_MUX")
+    array([15.0,14.0, 13.0, 12.0], dtype = float32)#TODO fill in the output
+    
+    >>> device.read("WORD_CLK_CNT", 1)
+    array([15.0], dtype = float32)#TODO fill in the output
+    
+    >>> device.read("WORD_CLK_CNT", 1, 2 )
+    array([13.0], dtype = float32)
 
-                device = self.__openedDevice
-
-
-        # find the size of array in case of mapped:
-        #array = numpy.zeros(numberOfWords, dtype = numpy.int32)
-        #numberOfWords = numberOfWords * 4
-        #if(type(addressOffset) != int):
-            #print "offset is not type int"
-            #return None
-#
-        #if(type(registerName) == str):
-            #device.readRaw(registerName, array, numberOfWords*4, addressOffset)
-        #else:
-            #device.readRaw(addressOffset, array, numberOfWords*4, bar)
-        #return array
-
-    def readRaw(self, registerName, numberOf32BitWordsToRead=1
-            offsetFromRegisterBaseAddress=0):
-
-
-    def write(self, registerName, dataToWrite, offsetFromRegisterBaseAddress=0):
-        pass
-
-    def writeRaw(self, registerName, dataToWrite,
-            offsetFromRegisterBaseAddress=0):
-        #device = self.__openedDevice
-        #wordsToWrite = array.size * 4
-        #if(wordsToWrite == 0 ):
-            #print "Nothing to write"
-            #return None
-
-        #if(type(addressOffset) != int):
-            #print "offset is not type int"
-            #return None
-
-        #if(array.dtype != numpy.int32):
-            #print "expecting a numpy.int32 type array"
-            #return None
-
-        #if(type(registerName) == str):
-            #device.writeRaw(registerName, array, wordsToWrite, addressOffset)
-        #else:
-            #device.writeRaw(addressOffset, array, wordsToWrite, bar)
-
-
-
+    >>> device.read("WORD_CLK_CNT", 0, 2 )
+    array([13.0, 12.0], dtype = float32)
         
-    def wrapper(self, regoffset=0, numpyArray=numpy.array([1], dtype=numpy.int32) ,
-            size=1, bar=0):
-        print self.__openedDevice
-        #device = Device()
-        #device.readRaw(regoffset, numpyArray, size, bar)
+    >>> device.read("WORD_CLK_CNT", numberOfElementsToRead=1, offsetFromRegisterBaseAddress=2 )
+    array([13.0], dtype = float32)
+    
+    >>> device.read("WORD_CLK_CNT", offsetFromRegisterBaseAddress=2 )
+    array([13.0, 12.0], dtype = float32)
+    """
+    pass
 
+  def readRaw(self, registerName, numberOf32BitWordsToRead=1, 
+              offsetFromRegisterBaseAddress=0):
+    pass
+  
+  def write(self, registerName, dataToWrite, offsetFromRegisterBaseAddress=0):
+    pass
+
+  def writeRaw(self, registerName, dataToWrite,
+      offsetFromRegisterBaseAddress=0):
+    pass
+  
+  def wrapper(self, regoffset=0, numpyArray=numpy.array([1], dtype=numpy.int32),
+               size=1, bar=0):
+    pass

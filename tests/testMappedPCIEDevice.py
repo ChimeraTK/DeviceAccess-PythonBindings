@@ -4,7 +4,8 @@ import sys
 import  unittest
 import numpy
 
-# This is a hack for nw
+# This is a hack for nw. What this does is, add the build directory to python's
+# path, so that it can find the mtacamappeddevice module. 
 sys.path.insert(0,os.path.abspath(os.curdir))
 import mtcamappeddevice
 
