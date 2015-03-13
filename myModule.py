@@ -19,8 +19,67 @@ class Device():
 
     def read(self, registerName, numberOf32bitWordsToRead=1,
             offsetFromRegisterBaseAddress=0):
+""" string, integer, integer -> list of double values
+        This is an example of a module level function.
 
-        device = self.__openedDevice
+    Function parameters should be documented in the ``Parameters`` section.
+    The name of each parameter is required. The type and description of each
+    parameter is optional, but should be included if not obvious.
+
+    If the parameter itself is optional, it should be noted by adding
+    ", optional" to the type. If \*args or \*\*kwargs are accepted, they
+    should be listed as \*args and \*\*kwargs.
+
+    The format for a parameter is::
+
+        name : type
+            description
+
+            The description may span multiple lines. Following lines
+            should be indented to match the first line of the description.
+
+            Multiple paragraphs are supported in parameter
+            descriptions.
+
+    Parameters
+    ----------
+    param1 : int
+        The first parameter.
+    param2 : str, optional
+        The second parameter, defaults to None.
+    *args
+        Variable length argument list.
+    **kwargs
+        Arbitrary keyword arguments.
+
+    Returns
+    -------
+    bool
+        True if successful, False otherwise.
+
+        The return type is not optional. The ``Returns`` section may span
+        multiple lines and paragraphs. Following lines should be indented to
+        match the first line of the description.
+
+        The ``Returns`` section supports any reStructuredText formatting,
+        including literal blocks::
+
+            {
+                'param1': param1,
+                'param2': param2
+            }
+
+    Raises
+    ------
+    AttributeError
+        The ``Raises`` section is a list of all exceptions
+        that are relevant to the interface.
+    ValueError
+        If `param2` is equal to `param1`.
+
+    
+
+                device = self.__openedDevice
 
 
         # find the size of array in case of mapped:

@@ -98,7 +98,7 @@ BOOST_PYTHON_MODULE(mtcamappeddevice) {
       .def("writeDMA", bp::pure_virtual(writeDMAUsingRegisterOffset))
       .def("writeDMA", bp::pure_virtual(writeDMAUsingRegisterName));
 
-  bp::def("createDevice", createDevice, b);
+  bp::def("createDevice", createDevice);
   bp::def("createDevice", createMappedDevice);
   bp::register_ptr_to_python<boost::shared_ptr<mtca4upy::PythonInterface> >();
   bp::numeric::array::set_module_and_type("numpy", "ndarray");

@@ -55,6 +55,13 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # Copy the test scripts to the build directory:
     COPY_CONTENT_TO_BUILD_DIR("tests;tests/mapfiles")
 
+    # Copy mymodule.py to the build directory. TODO: This is supposed to be a 
+    # temporary thing. Will have to structure into something better later
+    #
+    configure_file( myModule.py  ${PROJECT_BINARY_DIR} 
+                    copyonly)
+
+
     #
     # Add the scripts as ctests.
     FILE(GLOB location_of_script_files 
