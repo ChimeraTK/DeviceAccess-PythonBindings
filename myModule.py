@@ -108,6 +108,7 @@ class Device():
     Device.readRaw : Read in 'raw' bit values from a device register 
 
     """
+    
     return numpy.array([0], dtype = numpy.float32)
   
   def write(self, registerName, dataToWrite, offsetFromRegisterBaseAddress=0):
@@ -153,6 +154,10 @@ class Device():
     
     >>> dataToWrite = numpy.array([13.0, 12.0], dtype = float32)
     >>> device.write("WORD_CLK_MUX", dataToWrite, 2)
+    
+    See Also
+    --------
+    Device.writeRaw : Write 'raw' bit values to a device register
     
     """
     return None
@@ -269,7 +274,9 @@ class Device():
     >>> dataToWrite = numpy.array([13, 12], dtype = float32)
     >>> device.write("WORD_CLK_MUX", dataToWrite, 2)
         
-    
+    See Also
+    --------
+    Device.write : Write values that get fixed point converted to the device
     
     """
     return None

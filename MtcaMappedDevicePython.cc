@@ -45,9 +45,7 @@ boost::shared_ptr<mtca4upy::PythonInterface> createDevice(
 }
 } /* namespace mtca4upy */
 
-void translate(mtca4u::exDevPCIE const& e) {
-  PyErr_SetString(PyExc_RuntimeError, e.what());
-}
+
 
 // This section defines function pointers used for overloading methods//
 //**********************************************************************************//
@@ -86,8 +84,6 @@ static void (mtca4upy::PythonInterface::*writeRawUsingRegisterName)(
 //**********************************************************************************//
 
 BOOST_PYTHON_MODULE(mtcamappeddevice) {
-  bp::register_exception_translator<mtca4u::exDevPCIE>(&translate);
-
   bp::class_<mtca4upy::PythonInterfaceWrapper, boost::noncopyable>("Device")
       .def("readRaw", bp::pure_virtual(readRawUsingRegisterOffset))
       .def("readRaw", bp::pure_virtual(readRawUsingRegisterName))
@@ -98,6 +94,7 @@ BOOST_PYTHON_MODULE(mtcamappeddevice) {
       .def("writeDMA", bp::pure_virtual(writeDMAUsingRegisterOffset))
       .def("writeDMA", bp::pure_virtual(writeDMAUsingRegisterName));
 
+  //bp::class_
   bp::def("createDevice", createDevice);
   bp::def("createDevice", createMappedDevice);
   bp::register_ptr_to_python<boost::shared_ptr<mtca4upy::PythonInterface> >();
