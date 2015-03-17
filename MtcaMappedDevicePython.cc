@@ -94,6 +94,16 @@ void readWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp::nu
   self.read<float>(dataLocation, arraySize, dataOffset);
 }
 
+void writeWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp::numeric::array& dataSpace,size_t arraySize, uint32_t dataOffset){
+  float* dataLocation = extractDataPointer(dataSpace);
+  self.write<float>(dataLocation, arraySize, dataOffset);
+}
+
+uint32_t sizeWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self){
+  mtca4u::mapFile::mapElem mapelem = self.getRegisterInfo();
+  return(mapelem.reg_elem_nr);
+}
+
 BOOST_PYTHON_MODULE(mtcamappeddevice) {
   bp::class_<mtca4upy::PythonInterfaceWrapper, boost::noncopyable>("Device")
       .def("readRaw", bp::pure_virtual(readRawUsingRegisterOffset))
@@ -109,8 +119,9 @@ BOOST_PYTHON_MODULE(mtcamappeddevice) {
       "RegisterAccessor",
       bp::init<const std::string, const mtca4u::mapFile::mapElem,
                boost::shared_ptr<mtca4u::devBase> >())
-        	   .def("read", readWrapper);
-		   //.def("fPConvertedWrite", writeWrapper);
+        	   .def("read", readWrapper)
+		   .def("write", writeWrapper)
+		   .def("getNumElements", sizeWrapper);
 
   bp::def("createDevice", createDevice);
   bp::def("createDevice", createMappedDevice);
