@@ -148,7 +148,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
 
     # read them in and verify
     device = myModule.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-    readInValues = device.read("WORD_CLK_MUX")
+    readInValues = device.readRaw("WORD_CLK_MUX")
     self.assertTrue(readInValues.dtype == numpy.int32)
     self.assertTrue(readInValues.tolist() == dataToSet.tolist())
 
@@ -163,28 +163,35 @@ class TestMappedPCIEDevice(unittest.TestCase):
 
     # check corner cases
     # bad reg name
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.readRaw, 
+    self.assertRaisesRegexp(RuntimeError, "Cannot find register"
+                            " BAD_REGISTER_NAME in map"
+                            " file: mapfiles/mtcadummy.map", device.readRaw, 
                             "BAD_REGISTER_NAME")
       
     # Num of elements specified  is more than register size
     registerName = "WORD_CLK_MUX"
     elementsToRead = 5
     offset = 2
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.readRaw, 
-                            registerName, elementsToRead)
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.readRaw, 
-                            registerName, elementsToRead, offset)
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.readRaw, 
-                            registerName, numberOfElementsToRead=-1)
+    self.assertRaisesRegexp(RuntimeError, "Data size exceed register size", 
+                            device.readRaw, registerName, elementsToRead)
+    self.assertRaisesRegexp(RuntimeError, "Data size exceed register size", 
+                            device.readRaw, registerName, elementsToRead, 
+                            offset)
+    self.assertRaisesRegexp(ValueError, "negative dimensions are not allowed", 
+                            device.readRaw, registerName, 
+                            numberOfElementsToRead=-1)
     
     # bad offset value
     offset = 5
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.readRaw, 
-                            registerName, offsetFromRegisterBaseAddress = offset) 
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.readRaw, 
-                            registerName, numberofElementsToRead, offset)
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.readRaw, 
-                            registerName, offsetFromRegisterBaseAddress = -1)
+    self.assertRaisesRegexp(ValueError, "Element index: 5 incorrect."
+                            " Valid index range is \[0-3\]", device.readRaw, 
+                            registerName, elementIndexInRegister = offset) 
+    self.assertRaisesRegexp(ValueError, "Element index: 5 incorrect."
+                            " Valid index range is \[0-3\]", device.readRaw,
+                            registerName, elementsToRead, offset)
+    self.assertRaisesRegexp(OverflowError, "can't convert negative value"
+                            " to unsigned", device.readRaw, 
+                            registerName, elementIndexInRegister = -1)
 
   def testwriteRaw(self):
     # write to WORD_CLK_MUX register and verify the read

@@ -174,8 +174,8 @@ class Device():
     registerAccessor.write(dataToWrite, numberOfElementsToWrite,
                             elementIndexInRegister)
   
-  def readRaw(self, registerName, numberOfElementsToRead=1, 
-              offsetFromRegisterBaseAddress=0):
+  def readRaw(self, registerName, numberOfElementsToRead=0, 
+              elementIndexInRegister=0):
     """ Returns the raw values from a device's register
     
     This method returns the raw bit values contained in the queried register.
@@ -194,7 +194,7 @@ class Device():
       The method returns all elements in the register if this parameter is
       ommitted or when its value is set as 0.
     
-     offsetFromRegisterBaseAddress : int, optional
+     elementIndexInRegister : int, optional
       This is an offset from the start of the specified register's base address.
       An offset of 1 represents 32 bits. When an offset is provided as a
       parameter, the method reads out elements from this point in memory
@@ -231,10 +231,10 @@ class Device():
     >>> device.read("WORD_CLK_MUX", 0, 2 )
     array([13, 12], dtype = int32)
         
-    >>> device.read("WORD_CLK_MUX", numberOfElementsToRead=1, offsetFromRegisterBaseAddress=2 )
+    >>> device.read("WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
     array([13], dtype = int32)
     
-    >>> device.read("WORD_CLK_MUX", offsetFromRegisterBaseAddress=2 )
+    >>> device.read("WORD_CLK_MUX", elementIndexInRegister=2 )
     array([13, 12], dtype = int32)
     
     See Also
@@ -243,7 +243,22 @@ class Device():
     register
 
     """
-    return numpy.array([0], dtype = numpy.int32)
+    # gety register accessor for size
+    # use wrapper aroung readreg
+    registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
+    # throw if element index  exceeds register size
+    self.__checkSuppliedIndex(registerAccessor, elementIndexInRegister)
+    
+    if(numberOfElementsToRead == 0):
+      numberOfElementsToRead = registerAccessor.getNumElements() - \
+                               elementIndexInRegister
+    
+    arrayToHoldReadInData = numpy.zeros(numberOfElementsToRead, 
+                                        dtype = numpy.int32)
+    registerAccessor.readRaw(arrayToHoldReadInData, numberOfElementsToRead, 
+                          elementIndexInRegister)
+    
+    return arrayToHoldReadInData
   
   def writeRaw(self, registerName, dataToWrite,
       offsetFromRegisterBaseAddress=0):
