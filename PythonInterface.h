@@ -4,6 +4,7 @@
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
 #include "PythonExceptions.h"
+#include <MtcaMappedDevice/devMap.h>
 
 namespace bp = boost::python; // TODO: remove this definition from other files
                               // once this has been derived and used in
@@ -49,7 +50,7 @@ public:
                         size_t dataSize, uint32_t addRegOffset) = 0;
 
 
-
+  virtual mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(const std::string &regName) = 0;
   virtual void readDMA(uint32_t regOffset, bp::numeric::array Buffer,
                        size_t size) = 0;
   virtual void writeDMA(uint32_t regOffset, bp::numeric::array dataToWrite,

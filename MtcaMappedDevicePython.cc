@@ -1,8 +1,10 @@
 #include <MtcaMappedDevice/devPCIE.h>
+#include <MtcaMappedDevice/DummyDevice.h>
 #include "PythonInterfaceWrapper.h"
 #include "devBaseFactory.h"
 #include "devMapFactory.h"
 #include "MtcaMappedDevice/exDevPCIE.h"
+#include <numpy/arrayobject.h>
 
 namespace mtca4upy {
 /**
@@ -45,13 +47,10 @@ boost::shared_ptr<mtca4upy::PythonInterface> createDevice(
 }
 } /* namespace mtca4upy */
 
-
-
 // This section defines function pointers used for overloading methods//
 //**********************************************************************************//
 static void (mtca4upy::PythonInterface::*readDMAUsingRegisterOffset)(
-    uint32_t, bp::numeric::array, size_t) =
-    &mtca4upy::PythonInterface::readDMA;
+    uint32_t, bp::numeric::array, size_t) = &mtca4upy::PythonInterface::readDMA;
 static void (mtca4upy::PythonInterface::*writeDMAUsingRegisterOffset)(
     uint32_t, bp::numeric::array, size_t) =
     &mtca4upy::PythonInterface::writeDMA;
@@ -83,6 +82,18 @@ static void (mtca4upy::PythonInterface::*writeRawUsingRegisterName)(
 
 //**********************************************************************************//
 
+//wrapper methods for read and write
+float* extractDataPointer(const bp::numeric::array& Buffer) {
+  PyArrayObject* pointerToNumPyArrayMemory =
+      reinterpret_cast<PyArrayObject*>(Buffer.ptr());
+  return (reinterpret_cast<float*>(pointerToNumPyArrayMemory->data));
+}
+
+void readWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp::numeric::array& dataSpace,size_t arraySize, uint32_t dataOffset){
+  float* dataLocation = extractDataPointer(dataSpace);
+  self.read<float>(dataLocation, arraySize, dataOffset);
+}
+
 BOOST_PYTHON_MODULE(mtcamappeddevice) {
   bp::class_<mtca4upy::PythonInterfaceWrapper, boost::noncopyable>("Device")
       .def("readRaw", bp::pure_virtual(readRawUsingRegisterOffset))
@@ -92,9 +103,15 @@ BOOST_PYTHON_MODULE(mtcamappeddevice) {
       .def("readDMA", bp::pure_virtual(readDMAUsingRegisterOffset))
       .def("readDMA", bp::pure_virtual(readDMAUsingRegisterName))
       .def("writeDMA", bp::pure_virtual(writeDMAUsingRegisterOffset))
-      .def("writeDMA", bp::pure_virtual(writeDMAUsingRegisterName));
+      .def("getRegisterAccessor", bp::pure_virtual(&mtca4upy::PythonInterface::getRegisterAccessor));
 
-  //bp::class_
+  bp::class_<mtca4u::devMap<mtca4u::devBase>::RegisterAccessor>(
+      "RegisterAccessor",
+      bp::init<const std::string, const mtca4u::mapFile::mapElem,
+               boost::shared_ptr<mtca4u::devBase> >())
+        	   .def("read", readWrapper);
+		   //.def("fPConvertedWrite", writeWrapper);
+
   bp::def("createDevice", createDevice);
   bp::def("createDevice", createMappedDevice);
   bp::register_ptr_to_python<boost::shared_ptr<mtca4upy::PythonInterface> >();

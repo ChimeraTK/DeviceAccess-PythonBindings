@@ -55,6 +55,10 @@ public:
     this->get_override("writeDMA")(regName, dataToWrite, dataSize,
                                    addRegOffset);
   }
+
+  inline mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(const std::string &regName){
+    return(this->get_override("getRegisterAccessor")(regName));
+  }
   ~PythonInterfaceWrapper() {};
 };
 }

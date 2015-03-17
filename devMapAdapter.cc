@@ -83,6 +83,11 @@ void devMapAdapter::writeRaw(const std::string& regName,
 devMapAdapter::devMapAdapter(mtca4u::devMap<mtca4u::devBase>* mappedDevice)
     : _mappedDevice(mappedDevice) {}
 
+  mtca4u::devMap<mtca4u::devBase>::RegisterAccessor
+  devMapAdapter::getRegisterAccessor (const std::string& regName) {
+    return(_mappedDevice->getRegisterAccessor(regName));
+  }
+
 devMapAdapter::~devMapAdapter() {
   // TODO Auto-generated destructor stub
 }

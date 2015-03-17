@@ -53,6 +53,7 @@ public:
                         size_t dataSize = 0, uint32_t addRegOffset = 0);
 
 
+   mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(const std::string &regName);
 
   void readDMA(uint32_t regOffset, bp::numeric::array Buffer, size_t size);
   void writeDMA(uint32_t regOffset, bp::numeric::array dataToWrite, size_t size);

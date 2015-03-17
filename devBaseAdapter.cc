@@ -82,6 +82,12 @@ devBaseAdapter::writeRaw (const std::string& regName,
   throw MethodNotImplementedException();
 }
 
+  mtca4u::devMap<mtca4u::devBase>::RegisterAccessor
+  devBaseAdapter::getRegisterAccessor (const std::string& regName) {
+    (void)(regName);
+    throw MethodNotImplementedException();
+  }
+
 devBaseAdapter::~devBaseAdapter() {
   // TODO Auto-generated destructor stub
 }
