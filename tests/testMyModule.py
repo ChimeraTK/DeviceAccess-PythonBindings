@@ -102,7 +102,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
     word_clk_mux_register = "WORD_CLK_MUX"
     dataToWrite = numpy.array([8732, 789], dtype = numpy.float32)
     device.write(word_clk_mux_register, dataToWrite, 
-                 offsetFromRegisterBaseAddress = 2)
+                 elementIndexInRegister = 2)
     readInValue = device.read(word_clk_mux_register,
                               elementIndexInRegister = 2)
     self.assertTrue(readInValue.dtype == numpy.float32)
@@ -110,24 +110,29 @@ class TestMappedPCIEDevice(unittest.TestCase):
      
     # Check corner cases
     # Bogus register name
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.write, 
+    self.assertRaisesRegexp(RuntimeError, "Cannot find register"
+                            " BAD_REGISTER_NAME in map"
+                            " file: mapfiles/mtcadummy.map", device.write, 
                             "BAD_REGISTER_NAME", 
                             numpy.array([2.125], dtype = numpy.float32))
     
     # supplied array size exceeds register capacity
     dataToWrite = numpy.array([2.125, 3, 4], dtype = numpy.float32)
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.write, 
-                            word_incomplete_register, dataToWrite)
+    self.assertRaisesRegexp(RuntimeError, "Data size exceed register size",
+                             device.write, word_incomplete_register, 
+                             dataToWrite)
     
     # supplied offset exceeds register span
     dataToWrite = numpy.array([2.125, 3, 4], dtype = numpy.float32)
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.write, 
+    self.assertRaisesRegexp(ValueError, "Element index: 1 incorrect."
+                            " Valid index is 0", device.write, 
                             word_incomplete_register, dataToWrite,
-                            offsetFromRegisterBaseAddress=1)
+                            elementIndexInRegister=1)
     
     # dtype of input array not float32
     dataToWrite = numpy.array([2], dtype = numpy.int32)
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.write, 
+    self.assertRaisesRegexp(TypeError, "Method expects values to be framed in a"
+                            " float32 numpy.array", device.write, 
                             word_incomplete_register, dataToWrite)
     
     

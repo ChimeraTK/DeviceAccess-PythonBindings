@@ -56,6 +56,7 @@ class Device():
       elements starting from this element index. The elemnt at the index
       position is included in the read as well.
 
+
       
     Returns
     -------
@@ -116,7 +117,7 @@ class Device():
     
     return arrayToHoldReadInData
   
-  def write(self, registerName, dataToWrite, offsetFromRegisterBaseAddress=0):
+  def write(self, registerName, dataToWrite, elementIndexInRegister=0):
     """ Sets data into a desired register
     
     This method writes values into a register on the board. The method
@@ -135,11 +136,10 @@ class Device():
     array is expected to hold numpy.float32 values. Each value in this array
     represents an induvidual element of the register
        
-    offsetFromRegisterBaseAddress : int, optional
-      This is an offset from the start of the specified register's base address.
-      An offset of 1 represents 32 bits. When an offset is provided as a
-      parameter, the method starts to write elements from this address offset
-      within the register.
+    elementIndexInRegister : int, optional
+      This is a zero indexed offset from the first element of the register. When
+      an elementIndexInRegister parameter is specified, the method starts the
+      write from this index
     
     Returns
     -------
@@ -165,7 +165,14 @@ class Device():
     Device.writeRaw : Write 'raw' bit values to a device register
     
     """
-    return None
+    # get register accessor
+    registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
+    self.__checkIfArrayIsFloat32(dataToWrite)
+    self.__checkSuppliedIndex(registerAccessor, elementIndexInRegister)
+
+    numberOfElementsToWrite = dataToWrite.size
+    registerAccessor.write(dataToWrite, numberOfElementsToWrite,
+                            elementIndexInRegister)
   
   def readRaw(self, registerName, numberOfElementsToRead=1, 
               offsetFromRegisterBaseAddress=0):
@@ -289,6 +296,20 @@ class Device():
   def __checkSuppliedIndex(self, registerAccessor, elementIndexInRegister):
     registerSize = registerAccessor.getNumElements()
     if(elementIndexInRegister >= registerSize):
-      raise ValueError("Element index: %d incorrect. Valid index range"
-                       " is [0-%d]"%(elementIndexInRegister, registerSize-1)) 
+      if(registerSize == 1):
+        errorString = "Element index: {0} incorrect. Valid index is {1}"\
+        .format(elementIndexInRegister, registerSize-1)
+      else:
+        errorString = "Element index: {0} incorrect. Valid index range is [0-{1}]"\
+        .format(elementIndexInRegister, registerSize-1)
 
+      raise ValueError(errorString)
+      
+
+  def __checkIfArrayIsFloat32(self, dataToWrite):
+    if((type(dataToWrite) != numpy.ndarray) or 
+       (dataToWrite.dtype != numpy.float32)):
+      raise TypeError("Method expects values to be framed in a float32" 
+                      " numpy.array")
+    pass
+  

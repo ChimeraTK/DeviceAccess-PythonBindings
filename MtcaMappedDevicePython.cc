@@ -95,8 +95,9 @@ void readWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp::nu
   self.read<float>(dataLocation, arraySize, dataOffset);
 }
 
-void writeWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp::numeric::array& dataSpace,size_t arraySize, uint32_t dataOffset){
+void writeWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp::numeric::array& dataSpace,size_t arraySize, uint32_t elementIndexInRegister){
   float* dataLocation = extractDataPointer(dataSpace);
+  uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
   self.write<float>(dataLocation, arraySize, dataOffset);
 }
 
