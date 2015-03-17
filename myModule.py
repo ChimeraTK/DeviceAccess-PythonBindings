@@ -24,27 +24,18 @@ class Device():
   def __init__(self, deviceName, mapFile):
     """ Constructor for the Device class
     """
-  #exception handling is a kludge for now
-    try:
-      mtcamappeddevice.createDevice(5)
-    except Exception as self.__storedArgErrException:
-      pass
+    self.__openedDevice = mtcamappeddevice.createDevice(deviceName, mapFile)
 
-    try:
-      self.__openedDevice = mtcamappeddevice.createDevice(deviceName)
-    except Exception, e:            
-      if(e.__class__ == self.__storedArgErrException.__class__):
-        print "Device name and mapfile name are expected to be strings"
 
-  def read(self, registerName, numberOfElementsToRead=1,
-            offsetFromRegisterBaseAddress=0):
+  def read(self, registerName, numberOfElementsToRead=0,
+            elementIndexInRegister=0):
     """ Reads out Fixed point converted values from the opened mapped device
     
     This method uses the register mapping information to return Fixed Point
     converted versions of the values contained in a register. This method can be
     used to read in the whole register or an arbitary number of register
     elements from anywhere within the register (through the
-    'offsetFromRegisterBaseAddress' parameter).
+    'elementIndexInRegister' parameter).
     
     Parameters
     ----------
@@ -59,11 +50,12 @@ class Device():
       The method returns all elements in the register if this parameter is
       ommitted or when its value is set as 0.
       
-    offsetFromRegisterBaseAddress : int, optional
-      This is an offset from the start of the specified register's base address.
-      An offset of 1 represents 32 bits. When an offset is provided as a
-      parameter, the method reads out elements from this point in memory
-      (/address offset) onwards.
+    elementIndexInRegister : int, optional
+      This is a zero indexed offset from the first element of the register. When
+      an elementIndexInRegister parameter is specified, the method reads out
+      elements starting from this element index. The elemnt at the index
+      position is included in the read as well.
+
       
     Returns
     -------
@@ -97,10 +89,10 @@ class Device():
     >>> device.read("WORD_CLK_MUX", 0, 2 )
     array([13.0, 12.0], dtype = float32)
         
-    >>> device.read("WORD_CLK_MUX", numberOfElementsToRead=1, offsetFromRegisterBaseAddress=2 )
+    >>> device.read("WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
     array([13.0], dtype = float32)
     
-    >>> device.read("WORD_CLK_MUX", offsetFromRegisterBaseAddress=2 )
+    >>> device.read("WORD_CLK_MUX", elementIndexInRegister=2 )
     array([13.0, 12.0], dtype = float32)
     
     See Also
@@ -109,7 +101,20 @@ class Device():
 
     """
     
-    return numpy.array([0], dtype = numpy.float32)
+    registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
+    # throw if element index  exceeds register size
+    self.__checkSuppliedIndex(registerAccessor, elementIndexInRegister)
+    
+    if(numberOfElementsToRead == 0):
+      numberOfElementsToRead = registerAccessor.getNumElements() - \
+                               elementIndexInRegister
+    
+    arrayToHoldReadInData = numpy.zeros(numberOfElementsToRead, 
+                                        dtype = numpy.float32)
+    registerAccessor.read(arrayToHoldReadInData, numberOfElementsToRead, 
+                          elementIndexInRegister)
+    
+    return arrayToHoldReadInData
   
   def write(self, registerName, dataToWrite, offsetFromRegisterBaseAddress=0):
     """ Sets data into a desired register
@@ -281,3 +286,9 @@ class Device():
     """
     return None
   
+  def __checkSuppliedIndex(self, registerAccessor, elementIndexInRegister):
+    registerSize = registerAccessor.getNumElements()
+    if(elementIndexInRegister >= registerSize):
+      raise ValueError("Element index: %d incorrect. Valid index range"
+                       " is [0-%d]"%(elementIndexInRegister, registerSize-1)) 
+

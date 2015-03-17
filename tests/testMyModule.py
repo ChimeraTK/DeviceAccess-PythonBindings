@@ -10,7 +10,7 @@ sys.path.insert(0,os.path.abspath(os.curdir))
 import myModule
 
 class TestMappedPCIEDevice(unittest.TestCase):
-  
+  # TODO: Refactor to take care of the harcoded values used for comparisions
   def testRead(self):
     
     
@@ -36,11 +36,11 @@ class TestMappedPCIEDevice(unittest.TestCase):
     # check if function reads values correctly
     readInValues = device.read("WORD_INCOMPLETE_2")
     self.assertTrue(readInValues.dtype == numpy.float32)
-    self.assertTrue(readInValues.tolist() == [2.15])
+    self.assertTrue(readInValues.tolist() == [2.125])
     
     readInValues = device.read("WORD_CLK_MUX")
     self.assertTrue(readInValues.dtype == numpy.float32)
-    self.assertTrue(readInValues.tolist() == dataToSet.tolist())
+    self.assertTrue(readInValues.tolist() == [5.0, 4.0, 3213.0, 2.0])
     
     readInValues = device.read("WORD_CLK_MUX", 1)
     self.assertTrue(readInValues.tolist() == [5.0])
@@ -53,28 +53,36 @@ class TestMappedPCIEDevice(unittest.TestCase):
     
     # check for corner cases
     # Register Not Found
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.read, 
+    self.assertRaisesRegexp(RuntimeError, "Cannot find register"
+                            " BAD_REGISTER_NAME in map file:"
+                            " mapfiles/mtcadummy.map", device.read, 
                             "BAD_REGISTER_NAME")
+
 
     # Num of elements specified  is more than register size
     registerName = "WORD_CLK_MUX"
     elementsToRead = 5
     offset = 2
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.read, 
-                            registerName, elementsToRead)
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.read, 
-                            registerName, elementsToRead, offset)
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.read, 
-                            registerName, numberOfElementsToRead=-1)
+    self.assertRaisesRegexp(RuntimeError, "Data size exceed register size",
+                             device.read, registerName, elementsToRead)
+    self.assertRaisesRegexp(RuntimeError, "Data size exceed register size", 
+                            device.read, registerName, elementsToRead, offset)
+    self.assertRaisesRegexp(ValueError, "negative dimensions are not allowed",
+                             device.read, registerName, 
+                             numberOfElementsToRead=-1)
     
     # offset exceeds register size
     offset = 5
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.read, 
-                            registerName, offsetFromRegisterBaseAddress = offset) 
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.read, 
-                            registerName, numberofElementsToRead, offset)
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.read, 
-                            registerName, offsetFromRegisterBaseAddress = -1)
+    elementsToRead = 5
+    self.assertRaisesRegexp(ValueError, "Element index: 5 incorrect. Valid index"
+                            " range is \[0-3\]", device.read, 
+                            registerName, elementIndexInRegister = offset) 
+    self.assertRaisesRegexp(ValueError, "Element index: 5 incorrect. Valid index"
+                            " range is \[0-3\]", device.read, 
+                            registerName, elementsToRead, offset)
+    self.assertRaisesRegexp(OverflowError, "can't convert negative value to"
+                            " unsigned", device.read, 
+                            registerName, elementIndexInRegister = -1)
     
 
   def testWrite(self):
@@ -95,8 +103,8 @@ class TestMappedPCIEDevice(unittest.TestCase):
     dataToWrite = numpy.array([8732, 789], dtype = numpy.float32)
     device.write(word_clk_mux_register, dataToWrite, 
                  offsetFromRegisterBaseAddress = 2)
-    readInValue = device.read(word_incomplete_register,
-                              offsetFromRegisterBaseAddress = 2)
+    readInValue = device.read(word_clk_mux_register,
+                              elementIndexInRegister = 2)
     self.assertTrue(readInValue.dtype == numpy.float32)
     self.assertTrue(readInValue.tolist() == dataToWrite.tolist())
      

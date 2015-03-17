@@ -89,8 +89,9 @@ float* extractDataPointer(const bp::numeric::array& Buffer) {
   return (reinterpret_cast<float*>(pointerToNumPyArrayMemory->data));
 }
 
-void readWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp::numeric::array& dataSpace,size_t arraySize, uint32_t dataOffset){
+void readWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp::numeric::array& dataSpace,size_t arraySize, uint32_t elementIndexInRegister){
   float* dataLocation = extractDataPointer(dataSpace);
+  uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t); // This is assuming that the PCIE mapped memory increments as a 32 bit word for each element
   self.read<float>(dataLocation, arraySize, dataOffset);
 }
 
