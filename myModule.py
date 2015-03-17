@@ -195,10 +195,10 @@ class Device():
       ommitted or when its value is set as 0.
     
      elementIndexInRegister : int, optional
-      This is an offset from the start of the specified register's base address.
-      An offset of 1 represents 32 bits. When an offset is provided as a
-      parameter, the method reads out elements from this point in memory
-      (/address offset) onwards.
+      This is a zero indexed offset from the first element of the register. When
+      an elementIndexInRegister parameter is specified, the method reads out
+      elements starting from this element index. The elemnt at the index
+      position is included in the read as well.
     
     Returns
     -------
@@ -261,7 +261,7 @@ class Device():
     return arrayToHoldReadInData
   
   def writeRaw(self, registerName, dataToWrite,
-      offsetFromRegisterBaseAddress=0):
+      elementIndexInRegister=0):
     """ Write raw bit values into the register
     
     Provides a way to put in a desired bit value into individual register
@@ -276,11 +276,10 @@ class Device():
      The array holding the bit values to be written into the register. The numpy
      array is expected to contain numpy.int32 values
      
-    offsetFromRegisterBaseAddress : int, optional
-      This is an offset from the start of the specified register's base address.
-      An offset of 1 represents 32 bits. When an offset is provided as a
-      parameter, the method starts to write elements from this address offset
-      within the register.  
+    elementIndexInRegister : int, optional
+      This is a zero indexed offset from the first element of the register. When
+      an elementIndexInRegister parameter is specified, the method starts the
+      write from this index
     
     Returns
     -------
@@ -306,7 +305,13 @@ class Device():
     Device.write : Write values that get fixed point converted to the device
     
     """
-    return None
+    registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
+    self.__checkIfArrayIsInt32(dataToWrite)
+    self.__checkSuppliedIndex(registerAccessor, elementIndexInRegister)
+
+    numberOfElementsToWrite = dataToWrite.size
+    registerAccessor.writeRaw(dataToWrite, numberOfElementsToWrite,
+                               elementIndexInRegister)
   
   def __checkSuppliedIndex(self, registerAccessor, elementIndexInRegister):
     registerSize = registerAccessor.getNumElements()
@@ -326,5 +331,11 @@ class Device():
        (dataToWrite.dtype != numpy.float32)):
       raise TypeError("Method expects values to be framed in a float32" 
                       " numpy.array")
-    pass
+      
+  def __checkIfArrayIsInt32(self, dataToWrite):
+    if((type(dataToWrite) != numpy.ndarray) or 
+       (dataToWrite.dtype != numpy.int32)):
+      raise TypeError("Method expects values to be framed in a int32" 
+                      " numpy.array")
+
   

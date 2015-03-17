@@ -108,6 +108,12 @@ void readRawWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp:
   self.readReg(reinterpret_cast<int32_t*>(dataLocation), dataSize, dataOffset);
 }
 
+void writeRawWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp::numeric::array& dataSpace,size_t arraySize, uint32_t elementIndexInRegister){
+  float* dataLocation = extractDataPointer(dataSpace);
+  uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
+  size_t dataSize = arraySize * sizeof(uint32_t);
+  self.writeReg(reinterpret_cast<int32_t*>(dataLocation), dataSize, dataOffset);
+}
 
 
 uint32_t sizeWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self){
@@ -133,6 +139,7 @@ BOOST_PYTHON_MODULE(mtcamappeddevice) {
         	   .def("read", readWrapper)
 		   .def("write", writeWrapper)
 		   .def("readRaw", readRawWrapper)
+		   .def("writeRaw", writeRawWrapper)
 		   .def("getNumElements", sizeWrapper);
 
   bp::def("createDevice", createDevice);

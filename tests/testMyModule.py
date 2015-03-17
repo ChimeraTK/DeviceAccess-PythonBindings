@@ -203,34 +203,49 @@ class TestMappedPCIEDevice(unittest.TestCase):
     self.assertTrue(readInValue.dtype == numpy.int32)
     self.assertTrue(readInValue.tolist() == dataToWrite.tolist())
     
+    # verify if register with frac bits
+    word_incomplete_register = "WORD_INCOMPLETE_2"
+    dataToWrite = numpy.array([546], dtype = numpy.int32)
+    device.writeRaw(word_incomplete_register, dataToWrite)
+    readinData = device.read(word_incomplete_register)
+    self.assertTrue(readinData.tolist() == [2.1328125]) #FP conv version of 546
+                                                        # in WORD_INCOMPLETE_2 
+                                                        # (has 8 frac bits)
+                                                                                                                                                                
+    
     # check offset functionality
     dataToWrite = numpy.array([5698, 2354], dtype = numpy.int32)
     device.writeRaw(word_clk_mux_register, dataToWrite, 
-                 offsetFromRegisterBaseAddress=2)
-    readInValue = device.readRaw(word_clk_mux_register)
+                 elementIndexInRegister=2)
+    readInValue = device.readRaw(word_clk_mux_register, elementIndexInRegister=2)
     self.assertTrue(readInValue.dtype == numpy.int32)
     self.assertTrue(readInValue.tolist() == dataToWrite.tolist())
     
 
     # corner cases:
     # bogus register
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", 
+    self.assertRaisesRegexp(RuntimeError, "Cannot find register"
+                            " BAD_REGISTER_NAME in map file:"
+                            " mapfiles/mtcadummy.map", 
                             device.writeRaw, "BAD_REGISTER_NAME", 
                             numpy.array([2], dtype = numpy.int32))
     # array size exceeds register capacity
     dataToWrite = numpy.array([2, 5, 5, 3, 4], dtype = numpy.int32)
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.writeRaw, 
-                            word_clk_mux_register, dataToWrite)
+    self.assertRaisesRegexp(RuntimeError, "Data size exceed register size", 
+                            device.writeRaw, word_clk_mux_register, dataToWrite)
     # offset is bogus
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.writeRaw, 
+    self.assertRaisesRegexp(ValueError, "Element index: 4 incorrect."
+                            " Valid index range is \[0-3\]", device.writeRaw, 
                             word_clk_mux_register, dataToWrite, 
-                            offsetFromRegisterBaseAddress=4)
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.writeRaw, 
+                            elementIndexInRegister=4)
+    self.assertRaisesRegexp(OverflowError, "can't convert negative value"
+                            " to unsigned", device.writeRaw, 
                             word_clk_mux_register, dataToWrite, 
-                            offsetFromRegisterBaseAddress=-1)
+                            elementIndexInRegister=-1)
     # array dtype not int32
     dataToWrite = numpy.array([2, 3, 4, 5], dtype = numpy.float32)
-    self.assertRaisesRegexp(RuntimeError, "Fill this in", device.write, 
+    self.assertRaisesRegexp(TypeError, "Method expects values to be framed"
+                            " in a int32 numpy.array", device.writeRaw, 
                             word_clk_mux_register, dataToWrite)
 
 if __name__ == '__main__':
