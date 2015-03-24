@@ -103,16 +103,6 @@ class TestDummyDevice(unittest.TestCase):
 
         self.assertTrue(readInArray.tolist() == dataArray.tolist())
 
-    def testReadDMAUsingRegName(self):
-        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map")
-        dmaRegName = "AREA_DMAABLE"
-        dataToRead = numpy.zeros(10, dtype = numpy.int32)
-        bytesToRead = 10 * 4
-        offset = 0
-        self.assertRaisesRegexp(RuntimeError, "This method is not available for"
-                " this device", device.readDMA, dmaRegName, dataToRead,
-                bytesToRead, offset)
-
     def testWriteDMA(self):
         device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map")
         dmaAreaAddress = 0

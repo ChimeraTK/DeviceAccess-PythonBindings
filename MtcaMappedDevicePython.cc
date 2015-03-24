@@ -54,9 +54,7 @@ static void (mtca4upy::PythonDevice::*readDMAUsingRegisterOffset)(
 static void (mtca4upy::PythonDevice::*writeDMAUsingRegisterOffset)(
     uint32_t, bp::numeric::array, size_t) =
     &mtca4upy::PythonDevice::writeDMA;
-static void (mtca4upy::PythonDevice::*readDMAUsingRegisterName)(
-    const std::string&, bp::numeric::array, size_t, uint32_t) =
-    &mtca4upy::PythonDevice::readDMA;
+
 static void (mtca4upy::PythonDevice::*writeDMAUsingRegisterName)(
     const std::string&, bp::numeric::array, size_t, uint32_t) =
     &mtca4upy::PythonDevice::writeDMA;
@@ -80,7 +78,6 @@ BOOST_PYTHON_MODULE(mtcamappeddevice) {
       .def("readRaw", bp::pure_virtual(readRawUsingRegisterOffset))
       .def("writeRaw", bp::pure_virtual(writeRawUsingRegisterOffset))
       .def("readDMA", bp::pure_virtual(readDMAUsingRegisterOffset))
-      .def("readDMA", bp::pure_virtual(readDMAUsingRegisterName))
       .def("writeDMA", bp::pure_virtual(writeDMAUsingRegisterOffset))
       .def("writeDMA", bp::pure_virtual(writeDMAUsingRegisterName))
       .def("getRegisterAccessor", bp::pure_virtual(&mtca4upy::PythonDevice::getRegisterAccessor));

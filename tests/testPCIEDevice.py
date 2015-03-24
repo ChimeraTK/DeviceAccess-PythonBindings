@@ -108,19 +108,6 @@ class TestPCIEDevice(unittest.TestCase):
 
         self.assertTrue(readInArray.tolist() == expectedDataArray.tolist())
 
-
-    def testReadDMAUsingRegName(self):
-        device = mtcamappeddevice.createDevice("/dev/llrfdummys4")
-        dmaRegName = "AREA_DMAABLE"
-        dataToRead = numpy.zeros(10, dtype = numpy.int32)
-        bytesToRead = 10 * 4
-        offset = 0
-        self.assertRaisesRegexp(RuntimeError, "This method is not available for"
-                " this device", device.readDMA, dmaRegName, dataToRead,
-                bytesToRead, offset)
-
-
-
     def testWriteDMA(self):
         device = mtcamappeddevice.createDevice("/dev/llrfdummys4")
         #TODO: Use loop later

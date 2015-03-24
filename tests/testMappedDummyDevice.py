@@ -110,35 +110,6 @@ class TestDummyDevice(unittest.TestCase):
         device.readDMA(WORD_CLK_MUX_OFFSET, spaceForValuesTobeReadIn, bytesToRead)
         self.assertTrue(spaceForValuesTobeReadIn.tolist() == dataArray.tolist())
 
-    def testReadDMAUsingRegName(self):
-        # The test content should be similar to readDMA(/readRaw - because internally
-        # both methods does the same thing)
-        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map",
-                "mapfiles/mtcadummy.map")
-
-        # Since readDMA is the
-        # same as readRaw from a register, we test this on a normal multiword
-        # register WORD_CLK_MUX
-        registerName = "AREA_DMA_VIA_DMA"
-        AREA_DMA_VIA_DMA_OFFSET = 0
-        dataToSetInRegister = numpy.array([85, 94, 23, 12], dtype = numpy.int32)
-        bytesToWrite = 4 * 4 # 4 words
-        offset = 13
-
-        # use writeRaw to put in the test values to AREA_DMA_VIA_DMA.
-        device.writeRaw(AREA_DMA_VIA_DMA_OFFSET, dataToSetInRegister,
-                bytesToWrite, offset)
-
-        # readIn what was written and verify contents:
-        spaceToReadInRegister = numpy.zeros(4, dtype = numpy.int32)
-        bytesToRead = 4 * 4 # we would want to read only the first 4 words, not
-                            # the whole register (AREA_DMA_VIA_DMA is 4096 bytes long)
-        offset = 0
-        device.readDMA(registerName, spaceToReadInRegister, bytesToRead,
-                offset)
-
-        self.assertTrue(dataToSetInRegister.tolist() == spaceToReadInRegister.tolist())
-
     def testWriteDMA(self):
         device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map",
                 "mapfiles/mtcadummy.map")

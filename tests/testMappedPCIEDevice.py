@@ -123,30 +123,6 @@ class TestMappedPCIEDevice(unittest.TestCase):
 
         self.assertTrue(readInArray.tolist() == expectedDataArray.tolist())
 
-
-    def testReadDMAUsingRegName(self):
-        device = mtcamappeddevice.createDevice("/dev/llrfdummys4",
-        "mapfiles/mtcadummy.map")
-
-        wordAdcEnaRegOffset = 68
-        bytesToWrite = 4 # i.e one word
-        registerBar = 0
-        dataArray = numpy.array([1], dtype = numpy.int32)
-        device.writeRaw(wordAdcEnaRegOffset, dataArray, bytesToWrite,
-               registerBar) # the DMA area would be set after this
-
-        dmaRegName = "AREA_DMA_VIA_DMA"
-        dataToRead = numpy.zeros(25, dtype = numpy.int32)
-        bytesToRead = 25 * 4
-        offset = 0
-        device.readDMA(dmaRegName, dataToRead, bytesToRead, offset)
-
-        expectedDataArray = numpy.array([0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100,
-            121, 144, 169, 196, 225, 256,  289, 324, 361, 400, 441, 484, 529,
-            576], dtype = numpy.int32)
-
-        self.assertTrue(dataToRead.tolist() == expectedDataArray.tolist())
-
     def testWriteDMA(self):
         device = mtcamappeddevice.createDevice("/dev/llrfdummys4",
         "mapfiles/mtcadummy.map")
