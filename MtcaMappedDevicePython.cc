@@ -90,6 +90,7 @@ BOOST_PYTHON_MODULE(mtcamappeddevice) {
       .def("readDMA", bp::pure_virtual(readDMAUsingRegisterOffset))
       .def("readDMA", bp::pure_virtual(readDMAUsingRegisterName))
       .def("writeDMA", bp::pure_virtual(writeDMAUsingRegisterOffset))
+      .def("writeDMA", bp::pure_virtual(writeDMAUsingRegisterName))
       .def("getRegisterAccessor", bp::pure_virtual(&mtca4upy::PythonInterface::getRegisterAccessor));
 
   bp::class_<mtca4u::devMap<mtca4u::devBase>::RegisterAccessor>(

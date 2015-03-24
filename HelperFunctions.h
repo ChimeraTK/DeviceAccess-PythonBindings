@@ -6,8 +6,10 @@ namespace bp = boost::python;
 
 namespace mtca4upy{
 
-  float* extractDataPointer(const bp::numeric::array& Buffer);
-
+  int32_t* extractDataPointer(const bp::numeric::array& Buffer);
+  void throwExceptionIfOutOfBounds(const bp::numeric::array &dataToWrite,
+                                   const size_t &bytesToWrite);
+  size_t extractNumberOfElements(const bp::numeric::array &dataToWrite);
 }
 
 

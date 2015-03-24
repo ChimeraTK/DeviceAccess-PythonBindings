@@ -5,9 +5,9 @@ mtca4upy::readWrapper (mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self,
 		       bp::numeric::array& dataSpace, size_t arraySize,
 		       uint32_t elementIndexInRegister)
 		       {
-  float* dataLocation = extractDataPointer(dataSpace);
+  int32_t* dataLocation = extractDataPointer(dataSpace);
   uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t); // This is assuming that the PCIE mapped memory increments as a 32 bit word for each element
-  self.read<float>(dataLocation, arraySize, dataOffset);
+  self.read<float>(reinterpret_cast<float*>(dataLocation), arraySize, dataOffset);
 }
 
 void
@@ -15,9 +15,9 @@ mtca4upy::writeWrapper (mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self,
 			bp::numeric::array& dataSpace, size_t arraySize,
 			uint32_t elementIndexInRegister)
 			{
-  float* dataLocation = extractDataPointer(dataSpace);
+  int32_t* dataLocation = extractDataPointer(dataSpace);
   uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
-  self.write<float>(dataLocation, arraySize, dataOffset);
+  self.write<float>(reinterpret_cast<float*>(dataLocation), arraySize, dataOffset);
 }
 
 void
@@ -26,10 +26,10 @@ mtca4upy::readRawWrapper (
     bp::numeric::array& dataSpace, size_t arraySize,
     uint32_t elementIndexInRegister)
     {
-  float* dataLocation = extractDataPointer(dataSpace);
+  int32_t* dataLocation = extractDataPointer(dataSpace);
   uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
   size_t dataSize = arraySize * sizeof(uint32_t);
-  self.readReg(reinterpret_cast<int32_t*>(dataLocation), dataSize, dataOffset);
+  self.readReg(dataLocation, dataSize, dataOffset);
 }
 
 void
@@ -38,10 +38,10 @@ mtca4upy::writeRawWrapper (
     bp::numeric::array& dataSpace, size_t arraySize,
     uint32_t elementIndexInRegister)
     {
-  float* dataLocation = extractDataPointer(dataSpace);
+  int32_t* dataLocation = extractDataPointer(dataSpace);
   uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
   size_t dataSize = arraySize * sizeof(uint32_t);
-  self.writeReg(reinterpret_cast<int32_t*>(dataLocation), dataSize, dataOffset);
+  self.writeReg(dataLocation, dataSize, dataOffset);
 }
 
 void
@@ -50,10 +50,10 @@ mtca4upy::readDMARawWrapper (
     bp::numeric::array& dataSpace, size_t arraySize,
     uint32_t elementIndexInRegister)
     {
-  float* dataLocation = extractDataPointer(dataSpace);
+  int32_t* dataLocation = extractDataPointer(dataSpace);
   uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
   size_t dataSize = arraySize * sizeof(uint32_t);
-  self.readDMA(reinterpret_cast<int32_t*>(dataLocation), dataSize, dataOffset);
+  self.readDMA(dataLocation, dataSize, dataOffset);
 
 }
 

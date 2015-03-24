@@ -3,8 +3,10 @@
 
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
+#include "HelperFunctions.h"
 #include "PythonExceptions.h"
-#include <MtcaMappedDevice/devMap.h>
+#include <MtcaMappedDevice/devMap.h> // ideally should'nt be here; exclusive for acquiring register accesor
+
 
 namespace bp = boost::python; // TODO: remove this definition from other files
                               // once this has been derived and used in
@@ -65,12 +67,6 @@ public:
 
   virtual ~PythonInterface() {};
 
-protected:
-  void throwExceptionIfOutOfBounds(const bp::numeric::array &dataToWrite,
-                                   const size_t &bytesToWrite);
-  // Helper functions for conversions on bp::numeric::array
-  int32_t *extractDataPointer(const bp::numeric::array &Buffer);
-  size_t extractNumberOfElements(const bp::numeric::array &dataToWrite);
 };
 
 } /* namespace mtcapy */

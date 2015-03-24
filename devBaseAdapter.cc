@@ -1,5 +1,6 @@
 #include "devBaseAdapter.h"
 
+
 namespace mtca4upy {
 
 devBaseAdapter::devBaseAdapter(mtca4u::devBase* mtcaDevice)
