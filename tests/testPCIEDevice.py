@@ -80,17 +80,6 @@ class TestPCIEDevice(unittest.TestCase):
 
         # test of write done in the above testcase TODO: make this proper
 
-
-    def testWriteRawUsingRegName(self):
-        device = mtcamappeddevice.createDevice("/dev/llrfdummys4")
-        registerName = "WORD_CLK_MUX"
-        spaceToReadIn = numpy.zeros(4, dtype = numpy.int32)
-        bytesToReadIn = 0 # 0 => read in the whole register
-        offset = 0 # start reading from the begining of the register
-        self.assertRaisesRegexp(RuntimeError, "This method is not available for"
-                " this device", device.writeRaw, registerName, spaceToReadIn,
-                bytesToReadIn, offset)
-
     def testReadDMA(self):
         device = mtcamappeddevice.createDevice("/dev/llrfdummys4")
         # Set the WORD_ADC_ENA reg to 1; This sets the first 25 words of the

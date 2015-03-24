@@ -50,14 +50,6 @@ public:
    void writeRaw(uint32_t regOffset, bp::numeric::array dataToWite,
                         size_t bytesToWrite, uint8_t bar);
 
-  /**
-   * This method searches for the register name in regName and if found, writes
-   * to it with the data in Buffer;
-   */
-   void writeRaw(const std::string &regName, bp::numeric::array Buffer,
-                        size_t dataSize = 0, uint32_t addRegOffset = 0);
-
-
   mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(const std::string &regName);
 
   void readDMA(uint32_t regOffset, bp::numeric::array Buffer, size_t size);

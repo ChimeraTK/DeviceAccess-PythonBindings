@@ -94,14 +94,6 @@ class TestMappedPCIEDevice(unittest.TestCase):
         bytesToSet = 4 * 4 # 4 words
         bar = 0
 
-        spaceToReadIn = numpy.zeros(4, dtype = numpy.int32)
-        bytesToReadIn = 0 # 0 => read in the whole register
-        offset = 0 # start reading from the begining of the register
-        device.writeRaw(registerName, dataToSetInRegister, bytesToReadIn, offset)
-        device.readRaw(registerOffset, spaceToReadIn, bytesToSet, bar)
-
-        self.assertTrue(spaceToReadIn.tolist() == dataToSetInRegister.tolist())
-
     def testReadDMA(self):
         device = mtcamappeddevice.createDevice("/dev/llrfdummys4",
         "mapfiles/mtcadummy.map")

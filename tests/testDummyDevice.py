@@ -85,16 +85,6 @@ class TestDummyDevice(unittest.TestCase):
         , device.readRaw, badRegOffset,
         infoToWrite, bytesToWrite, registerBar)
 
-    def testWriteRawUsingRegName(self):
-        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map")
-        registerName = "WORD_CLK_MUX"
-        spaceToReadIn = numpy.zeros(4, dtype = numpy.int32)
-        bytesToReadIn = 0 # 0 => read in the whole register
-        offset = 0 # start reading from the begining of the register
-        self.assertRaisesRegexp(RuntimeError, "This method is not available for"
-                " this device", device.writeRaw, registerName, spaceToReadIn,
-                bytesToReadIn, offset)
-
     def testreadDMA(self):
         # Read DMA internally a wrapper around readArea in the API
         # Repeat the same tests as for readRaw

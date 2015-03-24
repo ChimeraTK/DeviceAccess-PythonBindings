@@ -35,15 +35,6 @@ public:
   virtual void writeRaw(uint32_t regOffset, bp::numeric::array dataToWite,
                         size_t bytesToWrite, uint8_t bar) = 0;
 
-  /**
-   * This method searches for the register name in regName and if found, writes
-   * to it with the data in Buffer; TODO: Bad part is user has to be aware of
-   * the reg size + have to prevent user from writing out of bounds
-   */
-  virtual void writeRaw(const std::string &regName, bp::numeric::array Buffer,
-                        size_t dataSize, uint32_t addRegOffset) = 0;
-
-
   virtual mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(const std::string &regName) = 0;
   virtual void readDMA(uint32_t regOffset, bp::numeric::array Buffer,
                        size_t size) = 0;

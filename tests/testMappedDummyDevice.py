@@ -83,27 +83,6 @@ class TestDummyDevice(unittest.TestCase):
         , device.readRaw, badRegOffset,
         infoToWrite, bytesToWrite, registerBar)
 
-    def testWriteRawUsingRegName(self):
-        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map",
-                "mapfiles/mtcadummy.map")
-
-        # Set data into the multiword register: WORD_CLK_MUX
-        registerName = "WORD_CLK_MUX"
-        dataToSetInRegister = numpy.array([15, 14, 13, 12], dtype = numpy.int32)
-        setAllWordsInRegister = 0
-        offset = 0
-        device.writeRaw(registerName, dataToSetInRegister,
-                setAllWordsInRegister, offset)
-
-        # Verify if the values have been written
-        WORD_CLK_MUX_OFFSET = 32
-        spaceToReadIn = numpy.zeros(4, dtype = numpy.int32)
-        bytesToReadIn = 4  * 4 # 0 => read in the whole register
-        bar = 0 # start reading from the begining of the register
-        device.readRaw(WORD_CLK_MUX_OFFSET, spaceToReadIn, bytesToReadIn, bar)
-
-        self.assertTrue(spaceToReadIn.tolist() == dataToSetInRegister.tolist())
-
     def testreadDMA(self):
         device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map",
                 "mapfiles/mtcadummy.map")
