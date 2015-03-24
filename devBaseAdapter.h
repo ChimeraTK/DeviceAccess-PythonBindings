@@ -1,7 +1,7 @@
 #ifndef DEVBASEADAPTER_H_
 #define DEVBASEADAPTER_H_
 
-#include "PythonInterface.h"
+#include "PythonDevice.h"
 #include <MtcaMappedDevice/devBase.h>
 
 namespace mtca4upy {

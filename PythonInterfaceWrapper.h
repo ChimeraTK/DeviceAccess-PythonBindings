@@ -4,7 +4,7 @@
 #include <boost/python.hpp>
 #include <MtcaMappedDevice/devBase.h>
 #include <MtcaMappedDevice/devConfigBase.h>
-#include "PythonInterface.h"
+#include "PythonDevice.h"
 
 namespace mtca4upy { // TODO: Refactor to a better name
 

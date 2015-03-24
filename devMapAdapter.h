@@ -1,7 +1,7 @@
 #ifndef SOURCE_DIRECTORY__DEVMAPADAPTER_H_
 #define SOURCE_DIRECTORY__DEVMAPADAPTER_H_
 
-#include "PythonInterface.h"
+#include "PythonDevice.h"
 #include <MtcaMappedDevice/devMap.h>
 #include <MtcaMappedDevice/devBase.h>
 #include <MtcaMappedDevice/DummyDevice.h>

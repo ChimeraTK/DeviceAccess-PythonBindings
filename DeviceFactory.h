@@ -2,7 +2,7 @@
 #define DEVICEFACTORY_H_
 
 #include <boost/shared_ptr.hpp>
-#include "PythonInterface.h"
+#include "PythonDevice.h"
 
 namespace mtca4upy {
 
