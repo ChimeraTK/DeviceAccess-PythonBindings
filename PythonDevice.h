@@ -18,23 +18,12 @@ public:
   PythonDevice() {};
 
   /**
-   * Intent of this method is to read a block of specified size starting from
-   * the specified address offset, on the specified address bar
-   */
-  virtual void readRaw(uint32_t regOffset, bp::numeric::array Buffer,
-                       size_t size, uint8_t bar) = 0;
-
-  /**
    * This method lets the user write a block of data to the offset specified
    */
   virtual void writeRaw(uint32_t regOffset, bp::numeric::array dataToWite,
                         size_t bytesToWrite, uint8_t bar) = 0;
 
   virtual mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(const std::string &regName) = 0;
-  virtual void readDMA(uint32_t regOffset, bp::numeric::array Buffer,
-                       size_t size) = 0;
-  virtual void writeDMA(uint32_t regOffset, bp::numeric::array dataToWrite,
-                        size_t size) = 0;
 
   virtual ~PythonDevice() {};
 

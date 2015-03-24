@@ -48,13 +48,7 @@ boost::shared_ptr<mtca4upy::PythonDevice> createDevice(
 } /* namespace mtca4upy */
 
 // This section defines function pointers used for overloading methods//
-//**********************************************************************************//
-static void (mtca4upy::PythonDevice::*readDMAUsingRegisterOffset)(
-    uint32_t, bp::numeric::array, size_t) = &mtca4upy::PythonDevice::readDMA;
-
-static void (mtca4upy::PythonDevice::*writeDMAUsingRegisterOffset)(
-    uint32_t, bp::numeric::array, size_t) =
-    &mtca4upy::PythonDevice::writeDMA;
+//****************************************************************************//
 
 static boost::shared_ptr<mtca4upy::PythonDevice>(*createDevice)(
     const std::string&) = &mtca4upy::createDevice;
@@ -62,22 +56,11 @@ static boost::shared_ptr<mtca4upy::PythonDevice>(*createDevice)(
 static boost::shared_ptr<mtca4upy::PythonDevice>(*createMappedDevice)(
     const std::string&, const std::string&) = &mtca4upy::createDevice;
 
-static void (mtca4upy::PythonDevice::*readRawUsingRegisterOffset)(
-    uint32_t, bp::numeric::array, size_t, uint8_t) =
-    &mtca4upy::PythonDevice::readRaw;
-
-static void (mtca4upy::PythonDevice::*writeRawUsingRegisterOffset)(
-    uint32_t, bp::numeric::array, size_t, uint8_t) =
-    &mtca4upy::PythonDevice::writeRaw;
-
-//**********************************************************************************//
+//****************************************************************************//
 
 BOOST_PYTHON_MODULE(mtcamappeddevice) {
   bp::class_<mtca4upy::PythonDeviceWrapper, boost::noncopyable>("Device")
-      .def("readRaw", bp::pure_virtual(readRawUsingRegisterOffset))
-      .def("writeRaw", bp::pure_virtual(writeRawUsingRegisterOffset))
-      .def("readDMA", bp::pure_virtual(readDMAUsingRegisterOffset))
-      .def("writeDMA", bp::pure_virtual(writeDMAUsingRegisterOffset))
+      .def("writeRaw", bp::pure_virtual(&mtca4upy::PythonDevice::writeRaw))
       .def("getRegisterAccessor", bp::pure_virtual(&mtca4upy::PythonDevice::getRegisterAccessor));
 
   bp::class_<mtca4u::devMap<mtca4u::devBase>::RegisterAccessor>(
