@@ -248,5 +248,35 @@ class TestMappedPCIEDevice(unittest.TestCase):
                             " in a int32 numpy.array", device.writeRaw, 
                             word_clk_mux_register, dataToWrite)
 
+  def testreadDMARaw(self):
+    # Set the parabolic values in the DMA region by writing 1 to WORD_ADC_ENA
+    # register
+    device = myModule.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    device.write("WORD_ADC_ENA", numpy.array([1], dtype = numpy.float32))
+                  
+    # Read in the parabolic values from the function
+    readInValues = device.readDMARaw("AREA_DMA_VIA_DMA", 
+                                     numberOfElementsToRead= 10)
+    self.assertTrue(readInValues.dtype == numpy.int32)
+    self.assertTrue(readInValues.tolist() == [0, 1, 4, 9, 16, 25, 36, 49, 64, 81])
+  
+    # Check offset read
+    readInValues = device.readDMARaw("AREA_DMA_VIA_DMA", 
+                                     numberOfElementsToRead=10,
+                                     elementIndexInRegister=3)
+    self.assertTrue(readInValues.dtype == numpy.int32)
+    self.assertTrue(readInValues.tolist() == [9, 16, 25, 36, 49, 64, 81, 100, \
+                                             121, 144])
+  
+    # corner cases:
+    # bad register name
+    self.assertRaisesRegexp(RuntimeError, "Cannot find register"
+                            " BAD_REGISTER_NAME in" 
+                            " map file: mapfiles/mtcadummy.map",
+                             device.readDMARaw, "BAD_REGISTER_NAME")
+    # bad element size
+    # bad offset
+    # FIXME: Not checking this; size of  AREA_DMA_VIA_DMA is big 1024 elements
+
 if __name__ == '__main__':
     unittest.main()     

@@ -243,7 +243,6 @@ class Device():
     register
 
     """
-    # gety register accessor for size
     # use wrapper aroung readreg
     registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
     # throw if element index  exceeds register size
@@ -313,6 +312,69 @@ class Device():
     registerAccessor.writeRaw(dataToWrite, numberOfElementsToWrite,
                                elementIndexInRegister)
   
+  
+  def readDMARaw(self, DMARegisterName, numberOfElementsToRead=0, 
+                 elementIndexInRegister=0):
+    """ Read in Data from the DMA region of the card
+    
+    This method can be used to fetch data copied to a dma memory block. The
+    method assumes that the device maps the DMA memory block to a register made
+    up of 32 bit elements
+    
+    Parameters
+    ----------
+    DMARegisterName : str
+      The register name to which the DMA memory region is mapped
+    
+    numberOfElementsToRead : int, optional  
+    This optional parameter specifies the number of 32 bit elements that have to
+    be returned from the mapped dma register. When this parameter is not
+    specified or is provided with a value of 0,  every  element in the dma
+    memory block is returned.
+    
+    elementIndexInRegister : int, optional
+      This parameter specifies the index from which the read should commence.
+      
+    Returns  
+    numpy.array, dtype == numpy.int32
+      The method returns a numpy.int32 array containing the raw bit values
+      contained in the DMA register elements. The length of the array either
+      equals the number of 32 bit elements that make up the whole DMA region or
+      the number specified through the numberOfElementsToRead parameter
+    
+    Examples
+    --------
+    In the example, register "WORD_CLK_MUX" is 4 elements long.
+    >>> device = Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    
+    >>> device.read("AREA_DMA_VIA_DMA", 10)
+    array([0, 1, 4, 9, 16, 25, 36, 49, 64, 81], dtype = int32)
+
+    >>> device.read("AREA_DMA_VIA_DMA", 10, 2 )
+    array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype = int32)
+        
+    >>> device.read("AREA_DMA_VIA_DMA", numberOfElementsToRead=10, elementIndexInRegister=2 )
+    array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype = int32)
+
+    """
+    
+        # use wrapper aroung readreg
+    registerAccessor = self.__openedDevice.getRegisterAccessor(DMARegisterName)
+    # throw if element index  exceeds register size
+    self.__checkSuppliedIndex(registerAccessor, elementIndexInRegister)
+    
+    if(numberOfElementsToRead == 0):
+      numberOfElementsToRead = registerAccessor.getNumElements() - \
+                               elementIndexInRegister
+    
+    arrayToHoldReadInData = numpy.zeros(numberOfElementsToRead, 
+                                        dtype = numpy.int32)
+    registerAccessor.readDMARaw(arrayToHoldReadInData, numberOfElementsToRead, 
+                          elementIndexInRegister)
+    
+    return arrayToHoldReadInData
+    
+    
   def __checkSuppliedIndex(self, registerAccessor, elementIndexInRegister):
     registerSize = registerAccessor.getNumElements()
     if(elementIndexInRegister >= registerSize):
@@ -326,6 +388,7 @@ class Device():
       raise ValueError(errorString)
       
 
+# TODO: usea template for both these functions? Code is similar
   def __checkIfArrayIsFloat32(self, dataToWrite):
     if((type(dataToWrite) != numpy.ndarray) or 
        (dataToWrite.dtype != numpy.float32)):
