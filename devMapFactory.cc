@@ -10,7 +10,7 @@ namespace mtca4upy {
 devMapFactory::devMapFactory(mtca4upy::DeviceInformation* deviceDetails)
     : mtca4upy::DeviceFactory(deviceDetails) {}
 
-boost::shared_ptr<mtca4upy::PythonInterface> devMapFactory::createDevice() {
+boost::shared_ptr<mtca4upy::PythonDevice> devMapFactory::createDevice() {
   mtca4u::devMap<mtca4u::devBase>* mappedDevice;
   if (isDummyDevice() == true) {
     checkDummyDeviceParameters();
@@ -18,7 +18,7 @@ boost::shared_ptr<mtca4upy::PythonInterface> devMapFactory::createDevice() {
   } else {
     mappedDevice = createMappedDevice(new mtca4u::devPCIE());
   }
-  return boost::shared_ptr<mtca4upy::PythonInterface>(
+  return boost::shared_ptr<mtca4upy::PythonDevice>(
       new mtca4upy::devMapAdapter(mappedDevice));
 }
 

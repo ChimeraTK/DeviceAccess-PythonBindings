@@ -12,7 +12,7 @@ namespace mtca4upy {
  * allocated version of a devBase device. It is expected to open the _mtcaDevice
  * before passing it into the devBaseAdapter
  */
-class devBaseAdapter : public mtca4upy::PythonInterface {
+class devBaseAdapter : public mtca4upy::PythonDevice {
   boost::shared_ptr<mtca4u::devBase> _mtcaDevice;
 
 public:

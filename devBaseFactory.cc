@@ -8,14 +8,14 @@ namespace mtca4upy {
 devBaseFactory::devBaseFactory(mtca4upy::DeviceInformation* deviceDetails)
     : mtca4upy::DeviceFactory(deviceDetails) {}
 
-boost::shared_ptr<mtca4upy::PythonInterface> devBaseFactory::createDevice() {
+boost::shared_ptr<mtca4upy::PythonDevice> devBaseFactory::createDevice() {
   mtca4u::devBase* device;
   if (isDummyDevice() == true) {
     device = openDevice(new mtca4u::DummyDevice());
   } else {
     device = openDevice(new mtca4u::devPCIE());
   }
-  return boost::shared_ptr<mtca4upy::PythonInterface>(
+  return boost::shared_ptr<mtca4upy::PythonDevice>(
       new mtca4upy::devBaseAdapter(device));
 }
 

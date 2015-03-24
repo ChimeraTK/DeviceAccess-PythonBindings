@@ -18,9 +18,9 @@ namespace mtca4upy {
  * This is the supported interface on the python side. This class may be
  * inherited to create an adapter for any device that wants to hook into python.
  */
-class PythonInterface {
+class PythonDevice {
 public:
-  PythonInterface() {};
+  PythonDevice() {};
 
   /**
    * Intent of this method is to read a block of specified size starting from
@@ -65,7 +65,7 @@ public:
                         bp::numeric::array dataToWrite, size_t dataSize,
                         uint32_t addRegOffset) = 0;
 
-  virtual ~PythonInterface() {};
+  virtual ~PythonDevice() {};
 
 };
 

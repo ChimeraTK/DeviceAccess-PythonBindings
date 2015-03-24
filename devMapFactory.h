@@ -28,7 +28,7 @@ public:
    * The register mapping file is expected to be ASCII encoded and end with the
    * ".map" extension.
    */
-  boost::shared_ptr<mtca4upy::PythonInterface> createDevice();
+  boost::shared_ptr<mtca4upy::PythonDevice> createDevice();
   ~devMapFactory();
 
 private:

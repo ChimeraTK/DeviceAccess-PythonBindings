@@ -9,7 +9,7 @@
 
 namespace mtca4upy {
 
-class devMapAdapter : public PythonInterface {
+class devMapAdapter : public PythonDevice {
 
   boost::shared_ptr<mtca4u::devMap<mtca4u::devBase> > _mappedDevice; // TODO:
                                                                      // This has

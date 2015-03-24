@@ -24,7 +24,7 @@ public:
    * map file. The Map file is expected to be ASCII encoded and end in the
    * ".map" extension.
    */
-  boost::shared_ptr<mtca4upy::PythonInterface> createDevice();
+  boost::shared_ptr<mtca4upy::PythonDevice> createDevice();
   ~devBaseFactory();
 
 private:

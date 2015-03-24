@@ -22,7 +22,7 @@ protected:
 
 public:
   DeviceFactory(mtca4upy::DeviceInformation* deviceDetails);
-  virtual boost::shared_ptr<mtca4upy::PythonInterface> createDevice() = 0;
+  virtual boost::shared_ptr<mtca4upy::PythonDevice> createDevice() = 0;
   virtual ~DeviceFactory();
 
 protected:

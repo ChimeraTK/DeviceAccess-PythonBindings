@@ -9,8 +9,8 @@
 namespace mtca4upy { // TODO: Refactor to a better name
 
 class PythonInterfaceWrapper
-    : public mtca4upy::PythonInterface,
-      public boost::python::wrapper<mtca4upy::PythonInterface> {
+    : public mtca4upy::PythonDevice,
+      public boost::python::wrapper<mtca4upy::PythonDevice> {
 public:
   PythonInterfaceWrapper() {};
 
