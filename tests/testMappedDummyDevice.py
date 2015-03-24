@@ -120,17 +120,5 @@ class TestDummyDevice(unittest.TestCase):
                 " implemented yet.", device.writeDMA, dmaAreaAddress,
                 dataToWrite, bytesToWrite)
 
-
-    def testWriteDMAThroughRegisterName(self):
-        device = mtcamappeddevice.createDevice("mapfiles/mtcadummy.map",
-                "mapfiles/mtcadummy.map")
-        registerName = "AREA_DMA_VIA_DMA"
-        dataArray = numpy.zeros(1, dtype = numpy.int32)
-        bytesToRead = 1 * 4 # one word
-        offset = 0
-        self.assertRaisesRegexp(RuntimeError, "DummyDevice::writeDMA is not"
-                " implemented yet.", device.writeDMA, registerName, dataArray,
-                bytesToRead, offset)
-
 if __name__ == '__main__':
     unittest.main()

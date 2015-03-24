@@ -131,17 +131,5 @@ class TestPCIEDevice(unittest.TestCase):
         self.assertRaisesRegexp(RuntimeError, "Operation not supported yet",
                 device.writeDMA, dmaAreaAddress, dataToWrite, bytesToWrite)
 
-
-    def testWriteDMAThroughRegisterName(self):
-        device = mtcamappeddevice.createDevice("/dev/llrfdummys4")
-        registerName = "AREA_DMAABLE"
-        dataArray = numpy.zeros(1, dtype = numpy.int32)
-        bytesToRead = 1 * 4 # one word
-        offset = 0
-        self.assertRaisesRegexp(RuntimeError, "This method is not available for"
-                " this device", device.writeDMA, registerName, dataArray,
-                bytesToRead, offset)
-
-
 if __name__ == '__main__':
     unittest.main()

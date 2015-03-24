@@ -41,9 +41,6 @@ public:
   void readDMA(uint32_t regOffset, bp::numeric::array Buffer, size_t size);
   void writeDMA(uint32_t regOffset, bp::numeric::array dataToWrite, size_t size);
 
-  void writeDMA(const std::string &regName, bp::numeric::array dataToWrite,
-                size_t dataSize = 0, uint32_t addRegOffset = 0);
-
   ~devBaseAdapter();
 };
 

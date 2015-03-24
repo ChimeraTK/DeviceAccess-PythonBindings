@@ -32,15 +32,6 @@ void devMapAdapter::writeDMA(uint32_t regOffset, bp::numeric::array dataToWrite,
                           bytesToWrite, dummyDMABar);
 }
 
-
-void devMapAdapter::writeDMA(const std::string& regName,
-                             bp::numeric::array dataToWrite, size_t dataSize,
-                             uint32_t addRegOffset) {
-  throwExceptionIfOutOfBounds(dataToWrite, dataSize);
-  _mappedDevice->writeDMA(regName, mtca4upy::extractDataPointer(dataToWrite), dataSize,
-                          addRegOffset);
-}
-
 devMapAdapter::devMapAdapter(mtca4u::devMap<mtca4u::devBase>* mappedDevice)
     : _mappedDevice(mappedDevice) {}
 

@@ -5,12 +5,7 @@
 #include <boost/shared_ptr.hpp>
 #include "HelperFunctions.h"
 #include "PythonExceptions.h"
-#include <MtcaMappedDevice/devMap.h> // ideally should'nt be here; exclusive for acquiring register accesor
-
-
-namespace bp = boost::python; // TODO: remove this definition from other files
-                              // once this has been derived and used in
-                              // MtcaMappedDevicePython.cc
+#include <MtcaMappedDevice/devMap.h> // ideally should'nt be here; exclusive for acquiring register accessor
 
 namespace mtca4upy {
 
@@ -40,10 +35,6 @@ public:
                        size_t size) = 0;
   virtual void writeDMA(uint32_t regOffset, bp::numeric::array dataToWrite,
                         size_t size) = 0;
-
-  virtual void writeDMA(const std::string &regName,
-                        bp::numeric::array dataToWrite, size_t dataSize,
-                        uint32_t addRegOffset) = 0;
 
   virtual ~PythonDevice() {};
 
