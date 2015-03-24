@@ -76,25 +76,25 @@ class Device():
     >>> device = Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
     >>> device.read("WORD_CLK_MUX")
-    array([15.0, 14.0, 13.0, 12.0], dtype = float32)#TODO fill in the output
+    array([15.0, 14.0, 13.0, 12.0], dtype=float32)
     
     >>> device.read("WORD_CLK_MUX", 0)
-    array([15.0, 14.0, 13.0, 12.0], dtype = float32)#TODO fill in the output
+    array([15.0, 14.0, 13.0, 12.0], dtype=float32)
         
     >>> device.read("WORD_CLK_MUX", 1)
-    array([15.0], dtype = float32)#TODO fill in the output
+    array([15.0], dtype=float32)
     
     >>> device.read("WORD_CLK_MUX", 1, 2 )
-    array([13.0], dtype = float32)
+    array([13.0], dtype=float32)
 
     >>> device.read("WORD_CLK_MUX", 0, 2 )
-    array([13.0, 12.0], dtype = float32)
+    array([13.0, 12.0], dtype=float32)
         
     >>> device.read("WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
-    array([13.0], dtype = float32)
+    array([13.0], dtype=float32)
     
     >>> device.read("WORD_CLK_MUX", elementIndexInRegister=2 )
-    array([13.0, 12.0], dtype = float32)
+    array([13.0, 12.0], dtype=float32)
     
     See Also
     --------
@@ -154,10 +154,10 @@ class Device():
     In the examples, register "WORD_CLK_MUX" is 4 elements long.
     >>> device = Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
-    >>> dataToWrite = numpy.array([15.0, 14.0, 13.0, 12.0], dtype = float32)
+    >>> dataToWrite = numpy.array([15.0, 14.0, 13.0, 12.0], dtype=float32)
     >>> device.write("WORD_CLK_MUX", dataToWrite)
     
-    >>> dataToWrite = numpy.array([13.0, 12.0], dtype = float32)
+    >>> dataToWrite = numpy.array([13.0, 12.0], dtype=float32)
     >>> device.write("WORD_CLK_MUX", dataToWrite, 2)
     
     See Also
@@ -217,25 +217,25 @@ class Device():
     >>> device = Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
     >>> device.read("WORD_CLK_MUX")
-    array([15, 14, 13, 12], dtype = int32)#TODO fill in the output
+    array([15, 14, 13, 12], dtype=int32)
     
     >>> device.read("WORD_CLK_MUX", 0)
-    array([15, 14, 13, 12], dtype = int32)#TODO fill in the output
+    array([15, 14, 13, 12], dtype=int32)
         
     >>> device.read("WORD_CLK_MUX", 1)
-    array([15], dtype = int32)#TODO fill in the output
+    array([15], dtype=int32)#TODO fill in the output
     
     >>> device.read("WORD_CLK_MUX", 1, 2 )
     array([13], dtype = int32)
 
     >>> device.read("WORD_CLK_MUX", 0, 2 )
-    array([13, 12], dtype = int32)
+    array([13, 12], dtype=int32)
         
     >>> device.read("WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
-    array([13], dtype = int32)
+    array([13], dtype=int32)
     
     >>> device.read("WORD_CLK_MUX", elementIndexInRegister=2 )
-    array([13, 12], dtype = int32)
+    array([13, 12], dtype=int32)
     
     See Also
     --------
@@ -293,10 +293,10 @@ class Device():
     In the examples, register "WORD_CLK_MUX" is 4 elements long.
     >>> device = Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
-    >>> dataToWrite = numpy.array([15, 14, 13, 12], dtype = float32)
+    >>> dataToWrite = numpy.array([15, 14, 13, 12], dtype=float32)
     >>> device.write("WORD_CLK_MUX", dataToWrite)
     
-    >>> dataToWrite = numpy.array([13, 12], dtype = float32)
+    >>> dataToWrite = numpy.array([13, 12], dtype=float32)
     >>> device.write("WORD_CLK_MUX", dataToWrite, 2)
         
     See Also
@@ -348,13 +348,13 @@ class Device():
     >>> device = Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
     >>> device.read("AREA_DMA_VIA_DMA", 10)
-    array([0, 1, 4, 9, 16, 25, 36, 49, 64, 81], dtype = int32)
+    array([0, 1, 4, 9, 16, 25, 36, 49, 64, 81], dtype=int32)
 
     >>> device.read("AREA_DMA_VIA_DMA", 10, 2 )
-    array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype = int32)
+    array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype=int32)
         
     >>> device.read("AREA_DMA_VIA_DMA", numberOfElementsToRead=10, elementIndexInRegister=2 )
-    array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype = int32)
+    array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype=int32)
 
     """
     
