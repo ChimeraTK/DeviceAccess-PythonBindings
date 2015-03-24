@@ -69,10 +69,6 @@ static void (mtca4upy::PythonDevice::*readRawUsingRegisterOffset)(
     uint32_t, bp::numeric::array, size_t, uint8_t) =
     &mtca4upy::PythonDevice::readRaw;
 
-static void (mtca4upy::PythonDevice::*readRawUsingRegisterName)(
-    const std::string&, bp::numeric::array, size_t, uint32_t) =
-    &mtca4upy::PythonDevice::readRaw;
-
 static void (mtca4upy::PythonDevice::*writeRawUsingRegisterOffset)(
     uint32_t, bp::numeric::array, size_t, uint8_t) =
     &mtca4upy::PythonDevice::writeRaw;
@@ -85,7 +81,6 @@ static void (mtca4upy::PythonDevice::*writeRawUsingRegisterName)(
 BOOST_PYTHON_MODULE(mtcamappeddevice) {
   bp::class_<mtca4upy::PythonDeviceWrapper, boost::noncopyable>("Device")
       .def("readRaw", bp::pure_virtual(readRawUsingRegisterOffset))
-      .def("readRaw", bp::pure_virtual(readRawUsingRegisterName))
       .def("writeRaw", bp::pure_virtual(writeRawUsingRegisterOffset))
       .def("writeRaw", bp::pure_virtual(writeRawUsingRegisterName))
       .def("readDMA", bp::pure_virtual(readDMAUsingRegisterOffset))

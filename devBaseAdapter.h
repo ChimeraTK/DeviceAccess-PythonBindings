@@ -31,14 +31,6 @@ public:
                        size_t size, uint8_t bar);
 
   /**
-   * This method searches for the register specified in 'regName' and returns
-   * its contents. Right now responsibility is on the user to pass in a 'Buffer'
-   * that is large enough to accommodate contents of the register
-   */
-   void readRaw(const std::string &regName, bp::numeric::array Buffer,
-                       size_t dataSize = 0, uint32_t addRegOffset = 0);
-
-  /**
    * This method lets the user write a block of data to the offset specified
    */
    void writeRaw(uint32_t regOffset, bp::numeric::array dataToWite,

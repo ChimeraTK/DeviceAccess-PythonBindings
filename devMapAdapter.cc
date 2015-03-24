@@ -48,22 +48,6 @@ void devMapAdapter::writeDMA(const std::string& regName,
                           addRegOffset);
 }
 
-void devMapAdapter::readRaw(const std::string& regName,
-                            bp::numeric::array Buffer, size_t dataSize,
-                            uint32_t addRegOffset) {
-  // if dataSize == 0 then we are supposed to read the whole register. In this
-  // case find the size of the 'Buffer' parameter and use this size. This should
-  // trigger a runtime error if the space of 'Buffer' is not enough to hold the
-  // register content
-  size_t bytesToRead = dataSize;
-  if (dataSize == 0) {
-    bytesToRead = mtca4upy::extractNumberOfElements(Buffer) * sizeof(int32_t);
-  }
-  throwExceptionIfOutOfBounds(Buffer, bytesToRead);
-  _mappedDevice->readReg(regName, mtca4upy::extractDataPointer(Buffer), bytesToRead ,
-                         addRegOffset);
-}
-
 void devMapAdapter::writeRaw(const std::string& regName,
                              bp::numeric::array Buffer, size_t dataSize,
                              uint32_t addRegOffset) {

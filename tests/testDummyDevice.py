@@ -95,20 +95,6 @@ class TestDummyDevice(unittest.TestCase):
                 " this device", device.writeRaw, registerName, spaceToReadIn,
                 bytesToReadIn, offset)
 
-    def testReadRawUsingRegName(self):
-        device = mtcamappeddevice.createDevice("/dev/llrfdummys4")
-
-        registerName = "WORD_CLK_MUX"
-        # array big enough to hold the whole register
-        spaceToReadIn = numpy.zeros(4, dtype = numpy.int32)
-        bytesToReadIn = 0 # 0 => read in the whole register
-        offset = 0 # start reading from the begining of the register
-
-        # read in the register (4 words long) using its name
-        self.assertRaisesRegexp(RuntimeError, "This method is not available for"
-        " this device", device.readRaw, registerName, spaceToReadIn,
-        bytesToReadIn, offset)
-
     def testreadDMA(self):
         # Read DMA internally a wrapper around readArea in the API
         # Repeat the same tests as for readRaw

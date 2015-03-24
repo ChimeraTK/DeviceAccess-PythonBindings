@@ -57,18 +57,6 @@ void devBaseAdapter::writeDMA(const std::string& regName,
 
   throw MethodNotImplementedException();
 }
-void
-devBaseAdapter::readRaw (const std::string& regName,
-				   bp::numeric::array Buffer, size_t dataSize,
-				   uint32_t addRegOffset) {
-  // Workaround to compiler warning: unused parameter
-  (void)(regName);
-  (void)(Buffer);
-  (void)(dataSize);
-  (void)(addRegOffset);
-
-  throw MethodNotImplementedException();
-}
 
 void
 devBaseAdapter::writeRaw (const std::string& regName,
