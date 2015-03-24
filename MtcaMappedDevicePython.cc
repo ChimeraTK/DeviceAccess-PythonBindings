@@ -3,8 +3,7 @@
 #include "PythonInterfaceWrapper.h"
 #include "devBaseFactory.h"
 #include "devMapFactory.h"
-#include "MtcaMappedDevice/exDevPCIE.h"
-#include <numpy/arrayobject.h>
+#include "RegisterAccessorWrapperFunctions.h"
 
 namespace mtca4upy {
 /**
@@ -82,51 +81,6 @@ static void (mtca4upy::PythonInterface::*writeRawUsingRegisterName)(
 
 //**********************************************************************************//
 
-//wrapper methods for read and write
-float* extractDataPointer(const bp::numeric::array& Buffer) {
-  PyArrayObject* pointerToNumPyArrayMemory =
-      reinterpret_cast<PyArrayObject*>(Buffer.ptr());
-  return (reinterpret_cast<float*>(pointerToNumPyArrayMemory->data));
-}
-
-void readWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp::numeric::array& dataSpace,size_t arraySize, uint32_t elementIndexInRegister){
-  float* dataLocation = extractDataPointer(dataSpace);
-  uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t); // This is assuming that the PCIE mapped memory increments as a 32 bit word for each element
-  self.read<float>(dataLocation, arraySize, dataOffset);
-}
-
-void writeWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp::numeric::array& dataSpace,size_t arraySize, uint32_t elementIndexInRegister){
-  float* dataLocation = extractDataPointer(dataSpace);
-  uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
-  self.write<float>(dataLocation, arraySize, dataOffset);
-}
-
-void readRawWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp::numeric::array& dataSpace,size_t arraySize, uint32_t elementIndexInRegister){
-  float* dataLocation = extractDataPointer(dataSpace);
-  uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
-  size_t dataSize = arraySize * sizeof(uint32_t);
-  self.readReg(reinterpret_cast<int32_t*>(dataLocation), dataSize, dataOffset);
-}
-
-void writeRawWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp::numeric::array& dataSpace,size_t arraySize, uint32_t elementIndexInRegister){
-  float* dataLocation = extractDataPointer(dataSpace);
-  uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
-  size_t dataSize = arraySize * sizeof(uint32_t);
-  self.writeReg(reinterpret_cast<int32_t*>(dataLocation), dataSize, dataOffset);
-}
-
-void readDMARawWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self, bp::numeric::array& dataSpace,size_t arraySize, uint32_t elementIndexInRegister){
-  float* dataLocation = extractDataPointer(dataSpace);
-  uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
-  size_t dataSize = arraySize * sizeof(uint32_t);
-  self.readDMA(reinterpret_cast<int32_t*>(dataLocation), dataSize, dataOffset);
-}
-
-uint32_t sizeWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self){
-  mtca4u::mapFile::mapElem mapelem = self.getRegisterInfo();
-  return(mapelem.reg_elem_nr);
-}
-
 BOOST_PYTHON_MODULE(mtcamappeddevice) {
   bp::class_<mtca4upy::PythonInterfaceWrapper, boost::noncopyable>("Device")
       .def("readRaw", bp::pure_virtual(readRawUsingRegisterOffset))
@@ -142,12 +96,12 @@ BOOST_PYTHON_MODULE(mtcamappeddevice) {
       "RegisterAccessor",
       bp::init<const std::string, const mtca4u::mapFile::mapElem,
                boost::shared_ptr<mtca4u::devBase> >())
-        	   .def("read", readWrapper)
-		   .def("write", writeWrapper)
-		   .def("readRaw", readRawWrapper)
-		   .def("writeRaw", writeRawWrapper)
-		   .def("readDMARaw", readDMARawWrapper)
-		   .def("getNumElements", sizeWrapper);
+        	   .def("read", mtca4upy::readWrapper)
+		   .def("write", mtca4upy::writeWrapper)
+		   .def("readRaw", mtca4upy::readRawWrapper)
+		   .def("writeRaw", mtca4upy::writeRawWrapper)
+		   .def("readDMARaw", mtca4upy::readDMARawWrapper)
+		   .def("getNumElements", mtca4upy::sizeWrapper);
 
   bp::def("createDevice", createDevice);
   bp::def("createDevice", createMappedDevice);

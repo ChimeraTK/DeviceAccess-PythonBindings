@@ -33,7 +33,10 @@ add_library(${python_module_name} SHARED MtcaMappedDevicePython.cc
                                          devBaseFactory.cc
                                          DeviceFactory.cc
                                          devMapFactory.cc
-                                         PythonInterface.cc)
+                                         PythonInterface.cc
+                                         HelperFunctions.cc
+                                         RegisterAccessorWrapperFunctions.cc)
+                                         
                                          
                                          
 target_link_libraries(${python_module_name} ${MtcaMappedDevice_LIBRARIES}
