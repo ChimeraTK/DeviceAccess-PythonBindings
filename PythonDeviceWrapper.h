@@ -8,11 +8,11 @@
 
 namespace mtca4upy { // TODO: Refactor to a better name
 
-class PythonInterfaceWrapper
+class PythonDeviceWrapper
     : public mtca4upy::PythonDevice,
       public boost::python::wrapper<mtca4upy::PythonDevice> {
 public:
-  PythonInterfaceWrapper() {};
+  PythonDeviceWrapper() {};
 
   inline void readRaw(uint32_t regOffset, bp::numeric::array Buffer,
                        size_t size, uint8_t bar) {
@@ -59,7 +59,7 @@ public:
   inline mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(const std::string &regName){
     return(this->get_override("getRegisterAccessor")(regName));
   }
-  ~PythonInterfaceWrapper() {};
+  ~PythonDeviceWrapper() {};
 };
 }
 #endif /* SOURCE_DIRECTORY__DEVBASEWRAPPER_H_ */

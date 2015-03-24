@@ -1,8 +1,9 @@
 #include <MtcaMappedDevice/devPCIE.h>
 #include <MtcaMappedDevice/DummyDevice.h>
-#include "PythonInterfaceWrapper.h"
-#include "devBaseFactory.h"
 #include "devMapFactory.h"
+#include "devBaseFactory.h"
+#include "PythonDeviceWrapper.h"
+#include "PythonDeviceWrapper.h"
 #include "RegisterAccessorWrapperFunctions.h"
 
 namespace mtca4upy {
@@ -82,7 +83,7 @@ static void (mtca4upy::PythonDevice::*writeRawUsingRegisterName)(
 //**********************************************************************************//
 
 BOOST_PYTHON_MODULE(mtcamappeddevice) {
-  bp::class_<mtca4upy::PythonInterfaceWrapper, boost::noncopyable>("Device")
+  bp::class_<mtca4upy::PythonDeviceWrapper, boost::noncopyable>("Device")
       .def("readRaw", bp::pure_virtual(readRawUsingRegisterOffset))
       .def("readRaw", bp::pure_virtual(readRawUsingRegisterName))
       .def("writeRaw", bp::pure_virtual(writeRawUsingRegisterOffset))
