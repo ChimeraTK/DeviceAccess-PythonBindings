@@ -12,11 +12,16 @@ devMapFactory::devMapFactory(mtca4upy::DeviceInformation* deviceDetails)
 
 boost::shared_ptr<mtca4upy::PythonDevice> devMapFactory::createDevice() {
   mtca4u::devMap<mtca4u::devBase>* mappedDevice;
+  // TODO: Refactor the checks for the device. Maybe later introduce a return
+  // type as an enum which indicate the type of method (instead of the
+  // individual checks?)
   if (isDummyDevice() == true) {
     checkDummyDeviceParameters();
     mappedDevice = createMappedDevice(new mtca4u::DummyDevice());
-  } else {
+  } else if(isPCIEDevice() == true) {
     mappedDevice = createMappedDevice(new mtca4u::devPCIE());
+  } else {
+      throw mtca4upy::DeviceNotSupported();
   }
   return boost::shared_ptr<mtca4upy::PythonDevice>(
       new mtca4upy::devMapAdapter(mappedDevice));
@@ -58,3 +63,10 @@ void devMapFactory::checkDummyDeviceParameters() {
 
 } /* namespace mtcapy */
 
+bool mtca4upy::devMapFactory::isPCIEDevice () {
+  std::string deviceNameExtension =
+      extractExtension(_deviceDetails->deviceName);
+  std::string mapFileExtension =
+      extractExtension(_deviceDetails->deviceMapFileLocation);
+  return ((deviceNameExtension != ".map") && (mapFileExtension == ".map"));
+}

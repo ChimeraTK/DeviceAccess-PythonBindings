@@ -35,6 +35,7 @@ private:
   mtca4u::devMap<mtca4u::devBase>* createMappedDevice(
       mtca4u::devBase* baseDevice);
   bool isDummyDevice();
+  bool isPCIEDevice();
   void checkDummyDeviceParameters();
 };
 

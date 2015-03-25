@@ -19,6 +19,14 @@ public:
   }
 };
 
+
+class DeviceNotSupported : public std::exception {
+public:
+  inline virtual const char *what() const throw() {
+    return "Unable to identify device";
+  }
+};
+
 class DummyDeviceBadParameterException : public std::exception {
 public:
   inline virtual const char* what() const throw() {

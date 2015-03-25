@@ -12,8 +12,8 @@ import mtcamappeddevice
 class TestMappedPCIEDevice(unittest.TestCase):
 
     def testCreateMappedPCIEDevice(self):
-        self.assertRaisesRegexp(RuntimeError, "Cannot open device: : No such "
-                "file or directory", mtcamappeddevice.createDevice, "", "")
+        self.assertRaisesRegexp(RuntimeError, "Unable to identify device",
+                                 mtcamappeddevice.createDevice, "", "")
 
 if __name__ == '__main__':
     unittest.main()
