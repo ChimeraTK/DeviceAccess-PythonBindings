@@ -15,11 +15,12 @@ public:
   PythonDeviceWrapper() {};
 
   inline void writeRaw(uint32_t regOffset, bp::numeric::array dataToWite,
-                        size_t bytesToWrite, uint8_t bar) {
+                       size_t bytesToWrite, uint8_t bar) {
     this->get_override("writeArea")(regOffset, dataToWite, bytesToWrite, bar);
   }
-  inline mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(const std::string &regName){
-    return(this->get_override("getRegisterAccessor")(regName));
+  inline mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(
+      const std::string &regName) {
+    return (this->get_override("getRegisterAccessor")(regName));
   }
   ~PythonDeviceWrapper() {};
 };

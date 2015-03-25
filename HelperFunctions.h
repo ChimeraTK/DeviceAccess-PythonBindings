@@ -4,13 +4,19 @@
 
 namespace bp = boost::python;
 
-namespace mtca4upy{
+namespace mtca4upy {
 
-  int32_t* extractDataPointer(const bp::numeric::array& Buffer);
-  void throwExceptionIfOutOfBounds(const bp::numeric::array &dataToWrite,
-                                   const size_t &bytesToWrite);
-  size_t extractNumberOfElements(const bp::numeric::array &dataToWrite);
+/**
+ * Careful when using this. Ensure that type 'T' is a 32 bit datatype
+ * TODO: Refactor to something safer/hard to abuse
+ * TODO: fix / Write up new documentation for the helper functions
+ */
+template <typename T> T *extractDataPointer(const bp::numeric::array &Buffer);
+
+void throwExceptionIfOutOfBounds(const bp::numeric::array &dataToWrite,
+                                 const size_t &bytesToWrite);
+
+size_t extractNumberOfElements(const bp::numeric::array &dataToWrite);
 }
-
 
 #endif /* HELPERFUNCTIONS_H_ */

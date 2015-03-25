@@ -23,10 +23,10 @@ public:
   virtual void writeRaw(uint32_t regOffset, bp::numeric::array dataToWite,
                         size_t bytesToWrite, uint8_t bar) = 0;
 
-  virtual mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(const std::string &regName) = 0;
+  virtual mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(
+      const std::string &regName) = 0;
 
   virtual ~PythonDevice() {};
-
 };
 
 } /* namespace mtcapy */

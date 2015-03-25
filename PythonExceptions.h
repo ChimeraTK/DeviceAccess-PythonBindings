@@ -21,7 +21,7 @@ public:
 
 class DummyDeviceBadParameterException : public std::exception {
 public:
-  inline virtual const char *what() const throw() {
+  inline virtual const char* what() const throw() {
     return "Mapped Dummy Device expects first and second parameters to be the "
            "same map file";
   }

@@ -60,7 +60,8 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # Copy mymodule.py to the build directory. TODO: This is supposed to be a 
     # temporary thing. Will have to structure into something better later
     #
-    configure_file( myModule.py  ${PROJECT_BINARY_DIR} 
+    #TODO: Fix this hardcode later
+    configure_file( mtca4upy.py  ${PROJECT_BINARY_DIR} 
                     copyonly)
 
 

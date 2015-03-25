@@ -5,9 +5,9 @@ import  unittest
 import numpy
 
 # This is a hack for nw. What this does is, add the build directory to python's
-# path, so that it can find the module myModule. 
+# path, so that it can find the module mtca4upy. 
 sys.path.insert(0,os.path.abspath(os.curdir))
-import myModule
+import mtca4upy
 
 class TestMappedPCIEDevice(unittest.TestCase):
   # TODO: Refactor to take care of the harcoded values used for comparisions
@@ -15,7 +15,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
     
     
     # Set up WORD_CLK_MUX register with predefined values
-    device = myModule.mtcamappeddevice.createDevice("/dev/llrfdummys4",
+    device = mtca4upy.mtcamappeddevice.createDevice("/dev/llrfdummys4",
                                            "mapfiles/mtcadummy.map")
     WORD_CLK_MUX_REG_Offset = 32
     dataToSet = numpy.array([5, 4, 3213, 2], dtype = numpy.int32)
@@ -31,7 +31,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
     device.writeRaw(WORD_INCOMPLETE_2_REG_OFFSET, dataToSet, bytesToWrite, bar)
     
     # This section checks the read register code for the Device class
-    device = myModule.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
     # check if function reads values correctly
     readInValues = device.read("WORD_INCOMPLETE_2")
@@ -91,7 +91,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
     # fractional bits
     word_incomplete_register = "WORD_INCOMPLETE_2"
     # check the write functionality
-    device = myModule.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     device.write(word_incomplete_register, 
                numpy.array([2.125], dtype = numpy.float32))
     readInValue = device.read(word_incomplete_register)
@@ -139,7 +139,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
     
   def testreadRaw(self):
     # write some raw values in
-    device = myModule.mtcamappeddevice.createDevice("/dev/llrfdummys4",
+    device = mtca4upy.mtcamappeddevice.createDevice("/dev/llrfdummys4",
                                                "mapfiles/mtcadummy.map")
     WORD_CLK_MUX_REG_Offset = 32
     dataToSet = numpy.array([698, 244, 3223, 213], dtype=numpy.int32)
@@ -148,7 +148,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
     device.writeRaw(WORD_CLK_MUX_REG_Offset, dataToSet, bytesToWrite, bar)
 
     # read them in and verify
-    device = myModule.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     readInValues = device.readRaw("WORD_CLK_MUX")
     self.assertTrue(readInValues.dtype == numpy.int32)
     self.assertTrue(readInValues.tolist() == dataToSet.tolist())
@@ -195,7 +195,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
 
   def testwriteRaw(self):
     # write to WORD_CLK_MUX register and verify the read
-    device = myModule.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     word_clk_mux_register = "WORD_CLK_MUX"
     dataToWrite = numpy.array([456, 3445, 8732, 789], dtype = numpy.int32)
     device.writeRaw(word_clk_mux_register, dataToWrite)
@@ -251,7 +251,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
   def testreadDMARaw(self):
     # Set the parabolic values in the DMA region by writing 1 to WORD_ADC_ENA
     # register
-    device = myModule.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     device.write("WORD_ADC_ENA", numpy.array([1], dtype = numpy.float32))
                   
     # Read in the parabolic values from the function

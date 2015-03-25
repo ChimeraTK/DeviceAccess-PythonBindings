@@ -25,11 +25,11 @@ public:
   /**
    * This method lets the user write a block of data to the offset specified
    */
-   void writeRaw(uint32_t regOffset, bp::numeric::array dataToWite,
-                        size_t bytesToWrite, uint8_t bar);
+  void writeRaw(uint32_t regOffset, bp::numeric::array dataToWite,
+                size_t bytesToWrite, uint8_t bar);
 
-   mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(const std::string &regName);
-
+  mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(
+      const std::string &regName);
 
   ~devBaseAdapter();
 };

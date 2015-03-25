@@ -58,21 +58,26 @@ static boost::shared_ptr<mtca4upy::PythonDevice>(*createMappedDevice)(
 
 //****************************************************************************//
 
-BOOST_PYTHON_MODULE(mtcamappeddevice) {
-  bp::class_<mtca4upy::PythonDeviceWrapper, boost::noncopyable>("Device")
+BOOST_PYTHON_MODULE(mtcamappeddevice) { // TODO: find a better name for
+                                        // mtcamappeddevice. This module is
+                                        // actally accessed through mtca4upy.py
+                                        // and not directly
+  bp::class_<mtca4upy::PythonDeviceWrapper, boost::noncopyable>(
+      "Device") // TODO: Find and change "Device" to a suitable name
       .def("writeRaw", bp::pure_virtual(&mtca4upy::PythonDevice::writeRaw))
-      .def("getRegisterAccessor", bp::pure_virtual(&mtca4upy::PythonDevice::getRegisterAccessor));
+      .def("getRegisterAccessor",
+           bp::pure_virtual(&mtca4upy::PythonDevice::getRegisterAccessor));
 
   bp::class_<mtca4u::devMap<mtca4u::devBase>::RegisterAccessor>(
       "RegisterAccessor",
       bp::init<const std::string, const mtca4u::mapFile::mapElem,
                boost::shared_ptr<mtca4u::devBase> >())
-        	   .def("read", mtca4upy::readWrapper)
-		   .def("write", mtca4upy::writeWrapper)
-		   .def("readRaw", mtca4upy::readRawWrapper)
-		   .def("writeRaw", mtca4upy::writeRawWrapper)
-		   .def("readDMARaw", mtca4upy::readDMARawWrapper)
-		   .def("getNumElements", mtca4upy::sizeWrapper);
+      .def("read", mtca4upy::readWrapper)
+      .def("write", mtca4upy::writeWrapper)
+      .def("readRaw", mtca4upy::readRawWrapper)
+      .def("writeRaw", mtca4upy::writeRawWrapper)
+      .def("readDMARaw", mtca4upy::readDMARawWrapper)
+      .def("getNumElements", mtca4upy::sizeWrapper);
 
   bp::def("createDevice", createDevice);
   bp::def("createDevice", createMappedDevice);
