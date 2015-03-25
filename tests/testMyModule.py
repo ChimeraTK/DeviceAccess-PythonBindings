@@ -63,10 +63,11 @@ class TestMappedPCIEDevice(unittest.TestCase):
     registerName = "WORD_CLK_MUX"
     elementsToRead = 5
     offset = 2
-    self.assertRaisesRegexp(RuntimeError, "Data size exceed register size",
-                             device.read, registerName, elementsToRead)
-    self.assertRaisesRegexp(RuntimeError, "Data size exceed register size", 
-                            device.read, registerName, elementsToRead, offset)
+    readInValues = device.read(registerName, elementsToRead, offset)
+    self.assertTrue(readInValues.dtype == numpy.float32)
+    self.assertTrue(readInValues.tolist() == [3213.0, 2.0])
+    
+    # bad value for number of elements
     self.assertRaisesRegexp(ValueError, "negative dimensions are not allowed",
                              device.read, registerName, 
                              numberOfElementsToRead=-1)
@@ -131,9 +132,9 @@ class TestMappedPCIEDevice(unittest.TestCase):
     
     # dtype of input array not float32
     dataToWrite = numpy.array([2], dtype = numpy.int32)
-    self.assertRaisesRegexp(TypeError, "Method expects values to be framed in a"
-                            " float32 numpy.array", device.write, 
-                            word_incomplete_register, dataToWrite)
+    self.assertRaisesRegexp(TypeError, "Method expects values in a"
+                            " <type 'numpy.float32'>  numpy.array",
+                            device.write, word_incomplete_register, dataToWrite)
     
     
   def testreadRaw(self):
@@ -172,11 +173,10 @@ class TestMappedPCIEDevice(unittest.TestCase):
     registerName = "WORD_CLK_MUX"
     elementsToRead = 5
     offset = 2
-    self.assertRaisesRegexp(RuntimeError, "Data size exceed register size", 
-                            device.readRaw, registerName, elementsToRead)
-    self.assertRaisesRegexp(RuntimeError, "Data size exceed register size", 
-                            device.readRaw, registerName, elementsToRead, 
-                            offset)
+    readInValues = device.readRaw(registerName, elementsToRead, offset)
+    self.assertTrue(readInValues.dtype == numpy.int32)
+    self.assertTrue(readInValues.tolist() == [3223, 213])
+    
     self.assertRaisesRegexp(ValueError, "negative dimensions are not allowed", 
                             device.readRaw, registerName, 
                             numberOfElementsToRead=-1)
@@ -244,9 +244,9 @@ class TestMappedPCIEDevice(unittest.TestCase):
                             elementIndexInRegister=-1)
     # array dtype not int32
     dataToWrite = numpy.array([2, 3, 4, 5], dtype = numpy.float32)
-    self.assertRaisesRegexp(TypeError, "Method expects values to be framed"
-                            " in a int32 numpy.array", device.writeRaw, 
-                            word_clk_mux_register, dataToWrite)
+    self.assertRaisesRegexp(TypeError, "Method expects values in a"
+                            " <type 'numpy.int32'>  numpy.array",
+                             device.writeRaw, word_clk_mux_register, dataToWrite)
 
   def testreadDMARaw(self):
     # Set the parabolic values in the DMA region by writing 1 to WORD_ADC_ENA

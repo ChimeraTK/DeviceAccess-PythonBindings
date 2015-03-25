@@ -48,7 +48,10 @@ class Device():
       element are internally obtained from the mapping file.
       
       The method returns all elements in the register if this parameter is
-      ommitted or when its value is set as 0.
+      ommitted or when its value is set as 0. 
+      
+      If the value provided as this parameter exceeds the register size, an
+      array will all elements upto the last element is returned
       
     elementIndexInRegister : int, optional
       This is a zero indexed offset from the first element of the register. When
@@ -80,7 +83,10 @@ class Device():
     
     >>> device.read("WORD_CLK_MUX", 0)
     array([15.0, 14.0, 13.0, 12.0], dtype=float32)
-        
+    
+    >>> device.read("WORD_CLK_MUX", 5)
+    array([15.0, 14.0, 13.0, 12.0], dtype=float32)
+     
     >>> device.read("WORD_CLK_MUX", 1)
     array([15.0], dtype=float32)
     
@@ -89,7 +95,10 @@ class Device():
 
     >>> device.read("WORD_CLK_MUX", 0, 2 )
     array([13.0, 12.0], dtype=float32)
-        
+    
+    >>> device.read("WORD_CLK_MUX", 5, 2 )
+    array([13.0, 12.0], dtype=float32)
+     
     >>> device.read("WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
     array([13.0], dtype=float32)
     
@@ -104,18 +113,14 @@ class Device():
     
     registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
     # throw if element index  exceeds register size
-    self.__checkSuppliedIndex(registerAccessor, elementIndexInRegister)
-    
-    if(numberOfElementsToRead == 0):
-      numberOfElementsToRead = registerAccessor.getNumElements() - \
-                               elementIndexInRegister
-    
-    arrayToHoldReadInData = numpy.zeros(numberOfElementsToRead, 
-                                        dtype = numpy.float32)
-    registerAccessor.read(arrayToHoldReadInData, numberOfElementsToRead, 
+    self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
+    array = self.__createArray(numpy.float32, registerAccessor,
+                                               numberOfElementsToRead,
+                                               elementIndexInRegister)
+    registerAccessor.read(array, array.size, 
                           elementIndexInRegister)
     
-    return arrayToHoldReadInData
+    return array
   
   def write(self, registerName, dataToWrite, elementIndexInRegister=0):
     """ Sets data into a desired register
@@ -167,8 +172,8 @@ class Device():
     """
     # get register accessor
     registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
-    self.__checkIfArrayIsFloat32(dataToWrite)
-    self.__checkSuppliedIndex(registerAccessor, elementIndexInRegister)
+    self.__checkAndExitIfArrayNotFloat32(dataToWrite)
+    self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
 
     numberOfElementsToWrite = dataToWrite.size
     registerAccessor.write(dataToWrite, numberOfElementsToWrite,
@@ -193,6 +198,9 @@ class Device():
       
       The method returns all elements in the register if this parameter is
       ommitted or when its value is set as 0.
+      
+      If the value provided as this parameter exceeds the register size, an
+      array will all elements upto the last element is returned
     
      elementIndexInRegister : int, optional
       This is a zero indexed offset from the first element of the register. When
@@ -221,7 +229,10 @@ class Device():
     
     >>> device.read("WORD_CLK_MUX", 0)
     array([15, 14, 13, 12], dtype=int32)
-        
+    
+    >>> device.read("WORD_CLK_MUX", 5)
+    array([15, 14, 13, 12], dtype=int32)
+    
     >>> device.read("WORD_CLK_MUX", 1)
     array([15], dtype=int32)#TODO fill in the output
     
@@ -229,6 +240,9 @@ class Device():
     array([13], dtype = int32)
 
     >>> device.read("WORD_CLK_MUX", 0, 2 )
+    array([13, 12], dtype=int32)
+    
+    >>> device.read("WORD_CLK_MUX", 5, 2 )
     array([13, 12], dtype=int32)
         
     >>> device.read("WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
@@ -246,18 +260,12 @@ class Device():
     # use wrapper aroung readreg
     registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
     # throw if element index  exceeds register size
-    self.__checkSuppliedIndex(registerAccessor, elementIndexInRegister)
+    self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
+    array = self.__createArray(numpy.int32, registerAccessor, 
+                               numberOfElementsToRead, elementIndexInRegister) 
+    registerAccessor.readRaw(array, array.size, elementIndexInRegister)
     
-    if(numberOfElementsToRead == 0):
-      numberOfElementsToRead = registerAccessor.getNumElements() - \
-                               elementIndexInRegister
-    
-    arrayToHoldReadInData = numpy.zeros(numberOfElementsToRead, 
-                                        dtype = numpy.int32)
-    registerAccessor.readRaw(arrayToHoldReadInData, numberOfElementsToRead, 
-                          elementIndexInRegister)
-    
-    return arrayToHoldReadInData
+    return array
   
   def writeRaw(self, registerName, dataToWrite,
       elementIndexInRegister=0):
@@ -305,8 +313,8 @@ class Device():
     
     """
     registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
-    self.__checkIfArrayIsInt32(dataToWrite)
-    self.__checkSuppliedIndex(registerAccessor, elementIndexInRegister)
+    self.__checkAndExitIfArrayNotInt32(dataToWrite)
+    self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
 
     numberOfElementsToWrite = dataToWrite.size
     registerAccessor.writeRaw(dataToWrite, numberOfElementsToWrite,
@@ -327,10 +335,13 @@ class Device():
       The register name to which the DMA memory region is mapped
     
     numberOfElementsToRead : int, optional  
-    This optional parameter specifies the number of 32 bit elements that have to
-    be returned from the mapped dma register. When this parameter is not
-    specified or is provided with a value of 0,  every  element in the dma
-    memory block is returned.
+      This optional parameter specifies the number of 32 bit elements that have
+      to be returned from the mapped dma register. When this parameter is not
+      specified or is provided with a value of 0,  every  element in the dma
+      memory block is returned.
+    
+      If the value provided as this parameter exceeds the register size, an
+      array will all elements upto the last element is returned
     
     elementIndexInRegister : int, optional
       This parameter specifies the index from which the read should commence.
@@ -361,21 +372,19 @@ class Device():
         # use wrapper aroung readreg
     registerAccessor = self.__openedDevice.getRegisterAccessor(DMARegisterName)
     # throw if element index  exceeds register size
-    self.__checkSuppliedIndex(registerAccessor, elementIndexInRegister)
-    
-    if(numberOfElementsToRead == 0):
-      numberOfElementsToRead = registerAccessor.getNumElements() - \
-                               elementIndexInRegister
-    
-    arrayToHoldReadInData = numpy.zeros(numberOfElementsToRead, 
-                                        dtype = numpy.int32)
-    registerAccessor.readDMARaw(arrayToHoldReadInData, numberOfElementsToRead, 
+    self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
+    array = self.__createArray(numpy.int32, registerAccessor, 
+                               numberOfElementsToRead, elementIndexInRegister)
+    registerAccessor.readDMARaw(array, array.size, 
                           elementIndexInRegister)
     
-    return arrayToHoldReadInData
+    return array
     
     
-  def __checkSuppliedIndex(self, registerAccessor, elementIndexInRegister):
+
+# Helper methods below    
+    
+  def __exitIfSuppliedIndexIncorrect(self, registerAccessor, elementIndexInRegister):
     registerSize = registerAccessor.getNumElements()
     if(elementIndexInRegister >= registerSize):
       if(registerSize == 1):
@@ -388,17 +397,31 @@ class Device():
       raise ValueError(errorString)
       
 
-# TODO: usea template for both these functions? Code is similar
-  def __checkIfArrayIsFloat32(self, dataToWrite):
-    if((type(dataToWrite) != numpy.ndarray) or 
-       (dataToWrite.dtype != numpy.float32)):
-      raise TypeError("Method expects values to be framed in a float32" 
-                      " numpy.array")
+  def __checkAndExitIfArrayNotFloat32(self, dataToWrite):
+    self.__raiseExceptionIfNumpyArraydTypeIncorrect(dataToWrite, numpy.float32)
       
-  def __checkIfArrayIsInt32(self, dataToWrite):
-    if((type(dataToWrite) != numpy.ndarray) or 
-       (dataToWrite.dtype != numpy.int32)):
-      raise TypeError("Method expects values to be framed in a int32" 
-                      " numpy.array")
-
   
+  def __checkAndExitIfArrayNotInt32(self, dataToWrite):
+    self.__raiseExceptionIfNumpyArraydTypeIncorrect(dataToWrite, numpy.int32)
+      
+  
+  def __raiseExceptionIfNumpyArraydTypeIncorrect(self, numpyArray, dType):
+    if((type(numpyArray) != numpy.ndarray) or 
+       (numpyArray.dtype != dType)):
+      raise TypeError("Method expects values in a {0} " 
+                      " numpy.array".format(dType))  
+  
+  def __getCorrectedElementCount(self, registerAccessor, numberOfelements,
+                                  elementOffset):
+    elementCountInRegister =  registerAccessor.getNumElements()
+    maxFetchableElements = elementCountInRegister - elementOffset
+    correctedElementCount = numberOfelements if (numberOfelements != 0 and numberOfelements <= maxFetchableElements) else maxFetchableElements
+    return correctedElementCount
+
+  def __createArray(self, dType, registerAccessor, numberOfElementsToRead, 
+                    elementIndexInRegister):
+    size = self.__getCorrectedElementCount(registerAccessor, 
+                                           numberOfElementsToRead, 
+                                           elementIndexInRegister)
+    array = numpy.zeros(size, dtype = dType)
+    return array
