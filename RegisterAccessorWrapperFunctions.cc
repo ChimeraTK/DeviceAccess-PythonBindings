@@ -21,6 +21,28 @@ void mtca4upy::writeWrapper(
   uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
   self.write<float>(dataLocation, arraySize, dataOffset);
 }
+void mtca4upy::writeWrapper(
+    mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self,
+    bp::numeric::array& dataSpace, size_t arraySize,
+    uint32_t elementIndexInRegister) {
+
+    if (arraySize==0){
+      return;
+    }
+  
+    std::vector<int32_t> rawDataBuffer(nWords); 
+    for(size_t i=0; i < nWords; ++i){
+      rawDataBuffer[i] = _fixedPointConverter.toFixedPoint( dataSpace[i] );
+    }
+    self.writeReg(&(rawDataBuffer[0]), nWords*sizeof(int32_t), offsetInBytes);
+}
+ 
+  
+
+  float* dataLocation = extractDataPointer<float>(dataSpace);
+  uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
+  self.write<float>(dataLocation, arraySize, dataOffset);
+}
 
 void mtca4upy::readRawWrapper(
     mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self,
