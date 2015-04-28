@@ -45,6 +45,13 @@ target_link_libraries(${python_module_name} ${MtcaMappedDevice_LIBRARIES}
 set_target_properties(${python_module_name} PROPERTIES PREFIX "")
 
 
+# Copy mymodule.py to the build directory. TODO: This is supposed to be a 
+# temporary thing. Will have to structure into something better later
+#
+#TODO: Fix this hardcode later
+configure_file( mtca4upy.py  ${PROJECT_BINARY_DIR} 
+                copyonly)
+
 #
 # For now tests and coverage are enabled in the debug Mode only
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -56,14 +63,6 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     #
     # Copy the test scripts to the build directory:
     COPY_CONTENT_TO_BUILD_DIR("tests;tests/mapfiles")
-
-    # Copy mymodule.py to the build directory. TODO: This is supposed to be a 
-    # temporary thing. Will have to structure into something better later
-    #
-    #TODO: Fix this hardcode later
-    configure_file( mtca4upy.py  ${PROJECT_BINARY_DIR} 
-                    copyonly)
-
 
     #
     # Add the scripts as ctests.
