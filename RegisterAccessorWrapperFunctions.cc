@@ -31,13 +31,16 @@ void mtca4upy::writeWrapper(
   char* dataPointerInArray = extractDataPointer(numpyArray);
 
   if(wordSizeInArray <= SIZE_32_BITS){
-      float* data = reinterpret_cast<float*>(dataPointerInArray);
+      int* data = reinterpret_cast<int*>(dataPointerInArray);
+      //float* data = reinterpret_cast<float*>(dataPointerInArray);
       for(size_t i=0; i < numElements; ++i){
+	  std::cout<<"Data Rxvd to Write: "<< (int)data[i] << std::endl;
 	  rawData[i] = fPConvrter.toFixedPoint(data[i]);
       }
   } else if(wordSizeInArray == SIZE_64_BITS){
       double* data = reinterpret_cast<double*>(dataPointerInArray);
       for(size_t i=0; i < numElements; ++i){
+	  std::cout<<"Data Rxvd to Write: "<< data[i] << std::endl;
 	  rawData[i] = fPConvrter.toFixedPoint(data[i]);
       }
   } else {
@@ -61,29 +64,6 @@ void mtca4upy::writeWrapper(
 */
 
 }
-void mtca4upy::writeWrapper(
-    mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self,
-    bp::numeric::array& dataSpace, size_t arraySize,
-    uint32_t elementIndexInRegister) {
-
-    if (arraySize==0){
-      return;
-    }
-  
-    std::vector<int32_t> rawDataBuffer(nWords); 
-    for(size_t i=0; i < nWords; ++i){
-      rawDataBuffer[i] = _fixedPointConverter.toFixedPoint( dataSpace[i] );
-    }
-    self.writeReg(&(rawDataBuffer[0]), nWords*sizeof(int32_t), offsetInBytes);
-}
- 
-  
-
-  float* dataLocation = extractDataPointer<float>(dataSpace);
-  uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
-  self.write<float>(dataLocation, arraySize, dataOffset);
-}
-
 void mtca4upy::readRawWrapper(
     mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self,
     bp::numeric::array& numpyArray, size_t arraySize,

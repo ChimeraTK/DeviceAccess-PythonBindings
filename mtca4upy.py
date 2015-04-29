@@ -165,7 +165,6 @@ class Device():
     """
     # get register accessor
     registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
-    #self.__checkAndExitIfArrayNotFloat32(dataToWrite)
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
 
     numberOfElementsToWrite = dataToWrite.size

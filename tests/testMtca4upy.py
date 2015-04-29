@@ -89,14 +89,38 @@ class TestMappedPCIEDevice(unittest.TestCase):
   def testWrite(self):
     # write to WORD_INCOMPLETE_2, this is 13 bits wide and supports 8
     # fractional bits
-    word_incomplete_register = "WORD_INCOMPLETE_2"
-    # check the write functionality
     device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    word_incomplete_register = "WORD_INCOMPLETE_2"
+    
+    # check the write functionality
+    # check functionalty when using dtype numpy.float32
     device.write(word_incomplete_register, 
                numpy.array([2.125], dtype = numpy.float32))
     readInValue = device.read(word_incomplete_register)
     self.assertTrue(readInValue.dtype == numpy.float32)
     self.assertTrue(readInValue.tolist() == [2.125])
+    
+    # check functionalty when using dtype numpy.float64
+    device.write(word_incomplete_register, 
+               numpy.array([3.125], dtype = numpy.float64))
+    readInValue = device.read(word_incomplete_register)
+    self.assertTrue(readInValue.dtype == numpy.float32)
+    self.assertTrue(readInValue.tolist() == [3.125])
+    
+    # check functionalty when using dtype numpy.int32
+    device.write(word_incomplete_register, 
+               numpy.array([2], dtype = numpy.int32))
+    readInValue = device.read(word_incomplete_register)
+    self.assertTrue(readInValue.dtype == numpy.float32)
+    self.assertTrue(readInValue.tolist() == [2.])
+    
+    # check functionalty when using dtype numpy.int64
+    device.write(word_incomplete_register, 
+               numpy.array([2], dtype = numpy.int64))
+    readInValue = device.read(word_incomplete_register)
+    self.assertTrue(readInValue.dtype == numpy.int64)
+    self.assertTrue(readInValue.tolist() == [2.])
+
     
     
     # check offset functionality
@@ -129,13 +153,6 @@ class TestMappedPCIEDevice(unittest.TestCase):
                             " Valid index is 0", device.write, 
                             word_incomplete_register, dataToWrite,
                             elementIndexInRegister=1)
-    
-    # dtype of input array not float32
-    dataToWrite = numpy.array([2], dtype = numpy.int32)
-    self.assertRaisesRegexp(TypeError, "Method expects values in a"
-                            " <type 'numpy.float32'>  numpy.array",
-                            device.write, word_incomplete_register, dataToWrite)
-    
     
   def testreadRaw(self):
     # write some raw values in
