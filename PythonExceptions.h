@@ -19,7 +19,6 @@ public:
   }
 };
 
-
 class DeviceNotSupported : public std::exception {
 public:
   inline virtual const char *what() const throw() {
@@ -29,7 +28,7 @@ public:
 
 class DummyDeviceBadParameterException : public std::exception {
 public:
-  inline virtual const char* what() const throw() {
+  inline virtual const char *what() const throw() {
     return "Mapped Dummy Device expects first and second parameters to be the "
            "same map file";
   }
@@ -41,8 +40,6 @@ public:
     return "Numpy array dtype used is not supported for this method";
   }
 };
-
-
 }
 
 #endif /* SOURCE_DIRECTORY__PYTHONEXCEPTION_H_ */

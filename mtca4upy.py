@@ -133,10 +133,11 @@ class Device():
     registerName : str
       Mapped name of the register to which write access is sought
       
-    dataToWrite : numpy.array(dtype = numpy.float32)  
-    A numpy array holding the  the values to be written in to the register. The
-    array is expected to hold numpy.float32 values. Each value in this array
-    represents an induvidual element of the register
+    dataToWrite : numpy.array(dtype = numpy.float32/64)
+                  numpy.array(dtype = numpy.int32/64) 
+    A numpy array holding the  the values to be written in to the register. it
+    may be a numpy.float32/64 or a numpy.int32/64 array. Each value in this
+    array represents an induvidual element of the register
        
     elementIndexInRegister : int, optional
       This is a zero indexed offset from the first element of the register. When
@@ -152,10 +153,10 @@ class Device():
     In the examples, register "WORD_CLK_MUX" is 4 elements long.
     >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
-    >>> dataToWrite = numpy.array([15.0, 14.0, 13.0, 12.0], dtype=float32)
+    >>> dataToWrite = numpy.array([15.0, 14.0, 13.0, 12.0])
     >>> device.write("WORD_CLK_MUX", dataToWrite)
     
-    >>> dataToWrite = numpy.array([13.0, 12.0], dtype=float32)
+    >>> dataToWrite = numpy.array([13, 12])
     >>> device.write("WORD_CLK_MUX", dataToWrite, 2)
     
     See Also

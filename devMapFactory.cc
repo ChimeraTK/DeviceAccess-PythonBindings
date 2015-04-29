@@ -18,10 +18,10 @@ boost::shared_ptr<mtca4upy::PythonDevice> devMapFactory::createDevice() {
   if (isDummyDevice() == true) {
     checkDummyDeviceParameters();
     mappedDevice = createMappedDevice(new mtca4u::DummyDevice());
-  } else if(isPCIEDevice() == true) {
+  } else if (isPCIEDevice() == true) {
     mappedDevice = createMappedDevice(new mtca4u::devPCIE());
   } else {
-      throw mtca4upy::DeviceNotSupported();
+    throw mtca4upy::DeviceNotSupported();
   }
   return boost::shared_ptr<mtca4upy::PythonDevice>(
       new mtca4upy::devMapAdapter(mappedDevice));
@@ -63,7 +63,7 @@ void devMapFactory::checkDummyDeviceParameters() {
 
 } /* namespace mtcapy */
 
-bool mtca4upy::devMapFactory::isPCIEDevice () {
+bool mtca4upy::devMapFactory::isPCIEDevice() {
   std::string deviceNameExtension =
       extractExtension(_deviceDetails->deviceName);
   std::string mapFileExtension =
