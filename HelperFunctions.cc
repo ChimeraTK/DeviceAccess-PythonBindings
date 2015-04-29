@@ -3,9 +3,9 @@
 #include "PythonExceptions.h"
 
 char* mtca4upy::extractDataPointer(const bp::numeric::array& Buffer) {
-  PyArrayObject* pointerToNumPyArrayMemory =
+  PyArrayObject* numpyArrayObj =
       reinterpret_cast<PyArrayObject*>(Buffer.ptr());
-  return (pointerToNumPyArrayMemory->data);
+  return (numpyArrayObj->data);
 }
 
 
@@ -18,23 +18,24 @@ void mtca4upy::throwExceptionIfOutOfBounds(
   }
 }
 
-mtca4upy::numpyArrayWordSize mtca4upy::extractWordSizeInArray (const bp::numeric::array& Buffer){
+mtca4upy::numpyDataTypes mtca4upy::extractDataType (const bp::numeric::array& Buffer){
 
-  PyArrayObject* pointerToNumPyArrayMemory =
+  PyArrayObject* numpyArrayObj =
     reinterpret_cast<PyArrayObject*>(Buffer.ptr());
- int wordSizeInBytes = *(pointerToNumPyArrayMemory->strides);
+ int type_number = PyArray_TYPE(numpyArrayObj);
 
- if (wordSizeInBytes == sizeof(uint64_t)){
-   return SIZE_64_BITS;
- } else if (wordSizeInBytes == sizeof(uint32_t)) {
-     return SIZE_32_BITS;
- } else if (wordSizeInBytes == sizeof(uint8_t)) {
-     return SIZE_8_BITS;
- } else if (wordSizeInBytes == sizeof(uint16_t)) {
-     return SIZE_16_BITS;
+ if(type_number == NPY_INT32){
+   return INT32;
+ } else if (type_number == NPY_INT64){
+     return INT64;
+ } else if(type_number == NPY_FLOAT32){
+     return FLOAT32;
+ } else if(type_number == NPY_FLOAT64){
+     return FLOAT64;
  } else {
-     return USUPPORTED_SIZE;
+     return USUPPORTED_TYPE;
  }
+
 }
 
 size_t mtca4upy::extractNumberOfElements(

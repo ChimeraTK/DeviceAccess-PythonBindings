@@ -116,12 +116,19 @@ class TestMappedPCIEDevice(unittest.TestCase):
     
     # check functionalty when using dtype numpy.int64
     device.write(word_incomplete_register, 
-               numpy.array([2], dtype = numpy.int64))
+               numpy.array([25], dtype = numpy.int64))
     readInValue = device.read(word_incomplete_register)
-    self.assertTrue(readInValue.dtype == numpy.int64)
-    self.assertTrue(readInValue.tolist() == [2.])
+    self.assertTrue(readInValue.dtype == numpy.float32)
+    self.assertTrue(readInValue.tolist() == [15.99609375])  # This is the 
+                                                            # valid fp converted
+                                                            # value of int 25 
+                                                            # for this reg
 
-    
+   # Test for Unsupported dtype eg. dtype = numpy.int8 
+    self.assertRaisesRegexp(RuntimeError, "Numpy array dtype used"
+                            " is not supported for this method", 
+                            device.write, word_incomplete_register,  
+                            numpy.array([2], dtype = numpy.int8))
     
     # check offset functionality
     word_clk_mux_register = "WORD_CLK_MUX"

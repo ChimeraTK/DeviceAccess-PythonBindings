@@ -5,7 +5,7 @@ namespace mtca4upy {
 void devMapAdapter::writeRaw(uint32_t regOffset, bp::numeric::array dataToWrite,
                              size_t bytesToWrite, uint8_t bar) {
   throwExceptionIfOutOfBounds(dataToWrite, bytesToWrite);
-  if(extractWordSizeInArray(dataToWrite) == SIZE_32_BITS ){
+  if(extractDataType(dataToWrite) == INT32 ){
    int32_t* dataPointer = reinterpret_cast<int32_t*>(extractDataPointer(dataToWrite));
    _mappedDevice->writeArea(regOffset,
  			   dataPointer,

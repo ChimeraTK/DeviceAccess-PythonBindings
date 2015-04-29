@@ -6,17 +6,17 @@ namespace bp = boost::python;
 
 namespace mtca4upy {
 
-enum numpyArrayWordSize{
-  SIZE_8_BITS,
-  SIZE_16_BITS,
-  SIZE_32_BITS,
-  SIZE_64_BITS,
-  USUPPORTED_SIZE
+enum numpyDataTypes{
+  INT32,
+  INT64,
+  FLOAT32,
+  FLOAT64,
+  USUPPORTED_TYPE
 };
 
 char* extractDataPointer(const bp::numeric::array &Buffer);
 
-numpyArrayWordSize extractWordSizeInArray(const bp::numeric::array &Buffer);
+numpyDataTypes extractDataType(const bp::numeric::array &Buffer);
 
 void throwExceptionIfOutOfBounds(const bp::numeric::array &dataToWrite,
                                  const size_t &bytesToWrite);

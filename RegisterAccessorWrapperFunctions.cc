@@ -9,7 +9,7 @@ void mtca4upy::readWrapper(
     bp::numeric::array& numpyArray, size_t arraySize,
     uint32_t elementIndexInRegister) {
 
-  if(extractWordSizeInArray(numpyArray) == SIZE_32_BITS){
+  if(extractDataType(numpyArray) == FLOAT32){
       float* dataLocation = reinterpret_cast<float*>(extractDataPointer(numpyArray));
         uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
         self.read<float>(dataLocation, arraySize, dataOffset);
@@ -27,20 +27,27 @@ void mtca4upy::writeWrapper(
   uint32_t offsetInBytes = elementIndexInRegister * sizeof(uint32_t);
   mtca4u::FixedPointConverter fPConvrter =  self.getFixedPointConverter();
 
-  numpyArrayWordSize wordSizeInArray = extractWordSizeInArray(numpyArray);
+  numpyDataTypes dTypeNumpyArray = extractDataType(numpyArray);
   char* dataPointerInArray = extractDataPointer(numpyArray);
 
-  if(wordSizeInArray <= SIZE_32_BITS){
+  if(dTypeNumpyArray == INT32){
       int* data = reinterpret_cast<int*>(dataPointerInArray);
-      //float* data = reinterpret_cast<float*>(dataPointerInArray);
       for(size_t i=0; i < numElements; ++i){
-	  std::cout<<"Data Rxvd to Write: "<< (int)data[i] << std::endl;
 	  rawData[i] = fPConvrter.toFixedPoint(data[i]);
       }
-  } else if(wordSizeInArray == SIZE_64_BITS){
+  } else if(dTypeNumpyArray == INT64){
+      long int* data = reinterpret_cast<long int*>(dataPointerInArray);
+      for(size_t i=0; i < numElements; ++i){
+	  rawData[i] = fPConvrter.toFixedPoint(data[i]);
+      }
+  } else if(dTypeNumpyArray == FLOAT32){
+      float* data = reinterpret_cast<float*>(dataPointerInArray);
+      for(size_t i=0; i < numElements; ++i){
+	  rawData[i] = fPConvrter.toFixedPoint(data[i]);
+      }
+  } else if(dTypeNumpyArray == FLOAT64){
       double* data = reinterpret_cast<double*>(dataPointerInArray);
       for(size_t i=0; i < numElements; ++i){
-	  std::cout<<"Data Rxvd to Write: "<< data[i] << std::endl;
 	  rawData[i] = fPConvrter.toFixedPoint(data[i]);
       }
   } else {
@@ -68,7 +75,7 @@ void mtca4upy::readRawWrapper(
     mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self,
     bp::numeric::array& numpyArray, size_t arraySize,
     uint32_t elementIndexInRegister) {
-  if(extractWordSizeInArray(numpyArray) == SIZE_32_BITS){
+  if(extractDataType(numpyArray) == INT32){
       int32_t* dataLocation = reinterpret_cast<int32_t*>(extractDataPointer(numpyArray));
   uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
   size_t dataSize = arraySize * sizeof(uint32_t);
@@ -83,7 +90,7 @@ void mtca4upy::writeRawWrapper(
     mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self,
     bp::numeric::array& numpyArray, size_t arraySize,
     uint32_t elementIndexInRegister) {
-  if(extractWordSizeInArray(numpyArray) == SIZE_32_BITS){
+  if(extractDataType(numpyArray) == INT32){
       int32_t* dataLocation = reinterpret_cast<int32_t*> (extractDataPointer(numpyArray));
       uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
       size_t dataSize = arraySize * sizeof(uint32_t);
@@ -98,7 +105,7 @@ void mtca4upy::readDMARawWrapper(
     mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self,
     bp::numeric::array& numpyArray, size_t arraySize,
     uint32_t elementIndexInRegister) {
-  if(extractWordSizeInArray(numpyArray) == SIZE_32_BITS){
+  if(extractDataType(numpyArray) == INT32){
       int32_t* dataLocation = reinterpret_cast<int32_t*>(extractDataPointer(numpyArray));
       uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
       size_t dataSize = arraySize * sizeof(uint32_t);
