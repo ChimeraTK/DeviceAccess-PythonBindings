@@ -34,6 +34,15 @@ public:
            "same map file";
   }
 };
+
+class ArrayElementTypeNotSupported : public std::exception {
+public:
+  inline virtual const char *what() const throw() {
+    return "Numpy array dtype used is not supported for this method";
+  }
+};
+
+
 }
 
 #endif /* SOURCE_DIRECTORY__PYTHONEXCEPTION_H_ */

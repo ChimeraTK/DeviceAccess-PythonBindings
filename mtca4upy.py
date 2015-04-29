@@ -18,7 +18,7 @@ class Device():
   
   Examples
   --------
-  >>> device = Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+  >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
   """
   
   def __init__(self, deviceName, mapFile):
@@ -69,14 +69,11 @@ class Device():
       elements in the register or only the number specified by the
       numberOfElementsToRead parameter
      
-    Raises
-    ------
-    
     Examples
     --------
     In the examples  register "WORD_CLK_MUX" is 4 elements long.
     
-    >>> device = Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
     >>> device.read("WORD_CLK_MUX")
     array([15.0, 14.0, 13.0, 12.0], dtype=float32)
@@ -150,14 +147,10 @@ class Device():
     -------
     None
     
-    Raises
-    ------
-    datatype #TODO
-    
     Examples
     --------
     In the examples, register "WORD_CLK_MUX" is 4 elements long.
-    >>> device = Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
     >>> dataToWrite = numpy.array([15.0, 14.0, 13.0, 12.0], dtype=float32)
     >>> device.write("WORD_CLK_MUX", dataToWrite)
@@ -172,7 +165,7 @@ class Device():
     """
     # get register accessor
     registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
-    self.__checkAndExitIfArrayNotFloat32(dataToWrite)
+    #self.__checkAndExitIfArrayNotFloat32(dataToWrite)
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
 
     numberOfElementsToWrite = dataToWrite.size
@@ -216,13 +209,10 @@ class Device():
       elements that make up the register or the number specified through the
       numberOfElementsToRead parameter
     
-    Raises
-    ------
-    
     Examples
     --------
     In the example, register "WORD_CLK_MUX" is 4 elements long.
-    >>> device = Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
     >>> device.read("WORD_CLK_MUX")
     array([15, 14, 13, 12], dtype=int32)
@@ -292,14 +282,10 @@ class Device():
     -------
     None
     
-    Raises
-    ------
-    datatype #TODO
-    
     Examples
     --------
     In the examples, register "WORD_CLK_MUX" is 4 elements long.
-    >>> device = Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
     >>> dataToWrite = numpy.array([15, 14, 13, 12], dtype=float32)
     >>> device.write("WORD_CLK_MUX", dataToWrite)
@@ -356,7 +342,7 @@ class Device():
     Examples
     --------
     In the example, register "WORD_CLK_MUX" is 4 elements long.
-    >>> device = Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
     >>> device.read("AREA_DMA_VIA_DMA", 10)
     array([0, 1, 4, 9, 16, 25, 36, 49, 64, 81], dtype=int32)

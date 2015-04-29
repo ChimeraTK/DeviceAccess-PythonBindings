@@ -9,8 +9,14 @@ void devBaseAdapter::writeRaw(uint32_t regOffset,
                               bp::numeric::array dataToWrite,
                               size_t bytesToWrite, uint8_t bar) {
   throwExceptionIfOutOfBounds(dataToWrite, bytesToWrite);
-  _mtcaDevice->writeArea(regOffset, extractDataPointer<int32_t>(dataToWrite),
-                         bytesToWrite, bar);
+  if(extractWordSizeInArray(dataToWrite) == SIZE_32_BITS ){
+   int32_t* dataPointer = reinterpret_cast<int32_t*>(extractDataPointer(dataToWrite));
+   _mtcaDevice->writeArea(regOffset,
+ 			   dataPointer,
+                            bytesToWrite, bar);
+  } else {
+      throw mtca4upy::ArrayElementTypeNotSupported();
+  }
 }
 
 mtca4u::devMap<mtca4u::devBase>::RegisterAccessor

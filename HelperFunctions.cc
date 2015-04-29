@@ -2,22 +2,12 @@
 #include <numpy/arrayobject.h>
 #include "PythonExceptions.h"
 
-/**
- * Careful when using this. Ensure that type 'T' is a 32 bit datatype
- */
-template <typename T>
-T* mtca4upy::extractDataPointer(const bp::numeric::array& Buffer) {
+char* mtca4upy::extractDataPointer(const bp::numeric::array& Buffer) {
   PyArrayObject* pointerToNumPyArrayMemory =
       reinterpret_cast<PyArrayObject*>(Buffer.ptr());
-  return (reinterpret_cast<T*>(pointerToNumPyArrayMemory->data));
+  return (pointerToNumPyArrayMemory->data);
 }
 
-// Explicit instantiation to work around undefined symbol error in the compiled
-// shared library
-template int32_t* mtca4upy::extractDataPointer<int32_t>(
-    const bp::numeric::array& Buffer);
-template float* mtca4upy::extractDataPointer<float>(
-    const bp::numeric::array& Buffer);
 
 void mtca4upy::throwExceptionIfOutOfBounds(
     const bp::numeric::array& dataToWrite, const size_t& bytesToWrite) {
@@ -28,8 +18,26 @@ void mtca4upy::throwExceptionIfOutOfBounds(
   }
 }
 
+mtca4upy::numpyArrayWordSize mtca4upy::extractWordSizeInArray (const bp::numeric::array& Buffer){
+
+  PyArrayObject* pointerToNumPyArrayMemory =
+    reinterpret_cast<PyArrayObject*>(Buffer.ptr());
+ int wordSizeInBytes = *(pointerToNumPyArrayMemory->strides);
+
+ if (wordSizeInBytes == sizeof(uint64_t)){
+   return SIZE_64_BITS;
+ } else if (wordSizeInBytes == sizeof(uint32_t)) {
+     return SIZE_32_BITS;
+ } else if (wordSizeInBytes == sizeof(uint8_t)) {
+     return SIZE_8_BITS;
+ } else if (wordSizeInBytes == sizeof(uint16_t)) {
+     return SIZE_16_BITS;
+ } else {
+     return USUPPORTED_SIZE;
+ }
+}
+
 size_t mtca4upy::extractNumberOfElements(
     const bp::numeric::array& dataToWrite) {
   return (boost::python::extract<long>(dataToWrite.attr("size")));
 }
-

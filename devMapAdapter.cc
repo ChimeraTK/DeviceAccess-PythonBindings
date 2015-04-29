@@ -5,9 +5,14 @@ namespace mtca4upy {
 void devMapAdapter::writeRaw(uint32_t regOffset, bp::numeric::array dataToWrite,
                              size_t bytesToWrite, uint8_t bar) {
   throwExceptionIfOutOfBounds(dataToWrite, bytesToWrite);
-  _mappedDevice->writeArea(regOffset,
-                           mtca4upy::extractDataPointer<int32_t>(dataToWrite),
-                           bytesToWrite, bar);
+  if(extractWordSizeInArray(dataToWrite) == SIZE_32_BITS ){
+   int32_t* dataPointer = reinterpret_cast<int32_t*>(extractDataPointer(dataToWrite));
+   _mappedDevice->writeArea(regOffset,
+ 			   dataPointer,
+                            bytesToWrite, bar);
+  } else {
+      throw mtca4upy::ArrayElementTypeNotSupported();
+  }
 }
 
 devMapAdapter::devMapAdapter(mtca4u::devMap<mtca4u::devBase>* mappedDevice)
