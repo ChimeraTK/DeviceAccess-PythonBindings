@@ -214,31 +214,31 @@ class Device():
     In the example, register "WORD_CLK_MUX" is 4 elements long.
     >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
-    >>> device.read("WORD_CLK_MUX")
+    >>> device.readRaw("WORD_CLK_MUX")
     array([15, 14, 13, 12], dtype=int32)
     
-    >>> device.read("WORD_CLK_MUX", 0)
+    >>> device.readRaw("WORD_CLK_MUX", 0)
     array([15, 14, 13, 12], dtype=int32)
     
-    >>> device.read("WORD_CLK_MUX", 5)
+    >>> device.readRaw("WORD_CLK_MUX", 5)
     array([15, 14, 13, 12], dtype=int32)
     
-    >>> device.read("WORD_CLK_MUX", 1)
+    >>> device.readRaw("WORD_CLK_MUX", 1)
     array([15], dtype=int32)#TODO fill in the output
     
-    >>> device.read("WORD_CLK_MUX", 1, 2 )
+    >>> device.readRaw("WORD_CLK_MUX", 1, 2 )
     array([13], dtype = int32)
 
-    >>> device.read("WORD_CLK_MUX", 0, 2 )
+    >>> device.readRaw("WORD_CLK_MUX", 0, 2 )
     array([13, 12], dtype=int32)
     
-    >>> device.read("WORD_CLK_MUX", 5, 2 )
+    >>> device.readRaw("WORD_CLK_MUX", 5, 2 )
     array([13, 12], dtype=int32)
         
-    >>> device.read("WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
+    >>> device.readRaw("WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
     array([13], dtype=int32)
     
-    >>> device.read("WORD_CLK_MUX", elementIndexInRegister=2 )
+    >>> device.readRaw("WORD_CLK_MUX", elementIndexInRegister=2 )
     array([13, 12], dtype=int32)
     
     See Also
@@ -288,10 +288,10 @@ class Device():
     >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
     >>> dataToWrite = numpy.array([15, 14, 13, 12], dtype=float32)
-    >>> device.write("WORD_CLK_MUX", dataToWrite)
+    >>> device.writeRaw("WORD_CLK_MUX", dataToWrite)
     
     >>> dataToWrite = numpy.array([13, 12], dtype=float32)
-    >>> device.write("WORD_CLK_MUX", dataToWrite, 2)
+    >>> device.writeRaw("WORD_CLK_MUX", dataToWrite, 2)
         
     See Also
     --------
@@ -344,13 +344,13 @@ class Device():
     In the example, register "WORD_CLK_MUX" is 4 elements long.
     >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
-    >>> device.read("AREA_DMA_VIA_DMA", 10)
+    >>> device.readDMARaw("AREA_DMA_VIA_DMA", 10)
     array([0, 1, 4, 9, 16, 25, 36, 49, 64, 81], dtype=int32)
 
-    >>> device.read("AREA_DMA_VIA_DMA", 10, 2 )
+    >>> device.readDMARaw("AREA_DMA_VIA_DMA", 10, 2 )
     array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype=int32)
         
-    >>> device.read("AREA_DMA_VIA_DMA", numberOfElementsToRead=10, elementIndexInRegister=2 )
+    >>> device.readDMARaw("AREA_DMA_VIA_DMA", numberOfElementsToRead=10, elementIndexInRegister=2 )
     array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype=int32)
 
     """
