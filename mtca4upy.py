@@ -149,11 +149,15 @@ class Device():
     registerName : str
       Mapped name of the register to write to
       
-    dataToWrite : numpy.array(dtype = numpy.float32/64)
+    dataToWrite : int
+                  float
+                  list of int/float
+                  numpy.array(dtype = numpy.float32/64)
                   numpy.array(dtype = numpy.int32/64) 
-    A numpy array holding the  the values to be written in to the register. it
-    may be a numpy.float32/64 or a numpy.int32/64 array. Each value in this
-    array represents an induvidual element of the register
+    The data to be written in to the register. it may be a numpy.float32/64 or a
+    numpy.int32/64 array or a list with int or float values . Each value in this
+    array represents an induvidual element of the register. dataToWrite may also
+    take on int/float type when single vaues are passesed
        
     elementIndexInRegister : int, optional
       This is a zero indexed offset from the first element of the register. When

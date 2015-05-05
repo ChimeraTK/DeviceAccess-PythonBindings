@@ -150,6 +150,20 @@ class TestMappedPCIEDevice(unittest.TestCase):
                                                             # value of int 25 
                                                             # for this reg
 
+    # continue tests for checking if method accepts int/float/list/numpyarray as valid dataToWrite
+    # input a list
+    device.write("", "WORD_CLK_MUX", [89,1.2,3,8])
+    readInValues = device.read("", "WORD_STATUS")
+    self.assertTrue(readInValues.tolist() == [89,1.2,3,8])
+    
+    device.write("", "WORD_CLK_MUX", 1.2, 1)
+    readInValues = device.read("", "WORD_STATUS", 1, 1)
+    self.assertTrue(readInValues.tolist() == [1.2])
+    
+    device.write("", "WORD_CLK_MUX", 5)
+    readInValues = device.read("", "WORD_STATUS", 1, 0)
+    self.assertTrue(readInValues.tolist() == [5])
+    
    # Test for Unsupported dtype eg. dtype = numpy.int8 
     self.assertRaisesRegexp(RuntimeError, "Numpy array dtype used"
                             " is not supported for this method", 
