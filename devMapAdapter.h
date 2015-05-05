@@ -42,6 +42,7 @@ public:
                 size_t bytesToWrite, uint8_t bar);
 
   mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(
+      const std::string& moduleName,
       const std::string &regName);
 
   ~devMapAdapter();

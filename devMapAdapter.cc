@@ -18,8 +18,9 @@ devMapAdapter::devMapAdapter(mtca4u::devMap<mtca4u::devBase>* mappedDevice)
     : _mappedDevice(mappedDevice) {}
 
 mtca4u::devMap<mtca4u::devBase>::RegisterAccessor
-devMapAdapter::getRegisterAccessor(const std::string& regName) {
-  return (_mappedDevice->getRegisterAccessor(regName));
+devMapAdapter::getRegisterAccessor(const std::string& moduleName,
+				   const std::string& regName) {
+  return (_mappedDevice->getRegisterAccessor(regName, moduleName));
 }
 
 devMapAdapter::~devMapAdapter() {

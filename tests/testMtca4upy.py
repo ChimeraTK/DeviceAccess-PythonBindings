@@ -13,6 +13,23 @@ class TestMappedPCIEDevice(unittest.TestCase):
   # TODO: Refactor to take care of the harcoded values used for comparisions
   def testRead(self):
     
+    # Test Read from a module register
+    device = mtca4upy.mtcamappeddevice.createDevice("/dev/mtcadummys1",
+                                           "mapfiles/modular_mtcadummy.map")
+    WORD_STATUS_RegisterOffset = 8
+    # set up the register with a known value
+    dataToSet = numpy.array([3213], dtype = numpy.int32)
+    bytesToWrite = 4 * 1 #  1 32 bit word -> 1 element
+    bar = 0
+    device.writeRaw(WORD_STATUS_RegisterOffset, dataToSet, bytesToWrite, bar)
+    
+    # Test the read from module functionality 
+    device = mtca4upy.Device("/dev/mtcadummys1","mapfiles/modular_mtcadummy.map")
+    readInValues = device.read("BOARD", "WORD_STATUS")
+    self.assertTrue(readInValues.dtype == numpy.float32)
+    self.assertTrue(readInValues.tolist() == [3213.])
+    
+    
     
     # Set up WORD_CLK_MUX register with predefined values
     device = mtca4upy.mtcamappeddevice.createDevice("/dev/llrfdummys4",
@@ -34,28 +51,28 @@ class TestMappedPCIEDevice(unittest.TestCase):
     device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
     # check if function reads values correctly
-    readInValues = device.read("WORD_INCOMPLETE_2")
+    readInValues = device.read("", "WORD_INCOMPLETE_2")
     self.assertTrue(readInValues.dtype == numpy.float32)
     self.assertTrue(readInValues.tolist() == [2.125])
     
-    readInValues = device.read("WORD_CLK_MUX")
+    readInValues = device.read("", "WORD_CLK_MUX")
     self.assertTrue(readInValues.dtype == numpy.float32)
     self.assertTrue(readInValues.tolist() == [5.0, 4.0, 3213.0, 2.0])
     
-    readInValues = device.read("WORD_CLK_MUX", 1)
+    readInValues = device.read("", "WORD_CLK_MUX", 1)
     self.assertTrue(readInValues.tolist() == [5.0])
     
-    readInValues = device.read("WORD_CLK_MUX", 1, 2)
+    readInValues = device.read("", "WORD_CLK_MUX", 1, 2)
     self.assertTrue(readInValues.tolist() == [3213.0])
     
-    readInValues = device.read("WORD_CLK_MUX", 0, 2)
+    readInValues = device.read("", "WORD_CLK_MUX", 0, 2)
     self.assertTrue(readInValues.tolist() == [3213.0, 2.0])
     
     # check for corner cases
     # Register Not Found
     self.assertRaisesRegexp(RuntimeError, "Cannot find register"
                             " BAD_REGISTER_NAME in map file:"
-                            " mapfiles/mtcadummy.map", device.read, 
+                            " mapfiles/mtcadummy.map", device.read, "", 
                             "BAD_REGISTER_NAME")
 
 
@@ -63,30 +80,39 @@ class TestMappedPCIEDevice(unittest.TestCase):
     registerName = "WORD_CLK_MUX"
     elementsToRead = 5
     offset = 2
-    readInValues = device.read(registerName, elementsToRead, offset)
+    readInValues = device.read("" ,registerName, elementsToRead, offset)
     self.assertTrue(readInValues.dtype == numpy.float32)
     self.assertTrue(readInValues.tolist() == [3213.0, 2.0])
     
     # bad value for number of elements
     self.assertRaisesRegexp(ValueError, "negative dimensions are not allowed",
-                             device.read, registerName, 
+                             device.read, "", registerName, 
                              numberOfElementsToRead=-1)
     
     # offset exceeds register size
     offset = 5
     elementsToRead = 5
     self.assertRaisesRegexp(ValueError, "Element index: 5 incorrect. Valid index"
-                            " range is \[0-3\]", device.read, 
+                            " range is \[0-3\]", device.read,  "",
                             registerName, elementIndexInRegister = offset) 
     self.assertRaisesRegexp(ValueError, "Element index: 5 incorrect. Valid index"
-                            " range is \[0-3\]", device.read, 
+                            " range is \[0-3\]", device.read,  "",
                             registerName, elementsToRead, offset)
     self.assertRaisesRegexp(OverflowError, "can't convert negative value to"
-                            " unsigned", device.read, 
+                            " unsigned", device.read,  "",
                             registerName, elementIndexInRegister = -1)
     
 
   def testWrite(self):
+
+    # Test if write to a register in a module name works
+    deviceWithModules = mtca4upy.Device("/dev/mtcadummys1","mapfiles/modular_mtcadummy.map")
+    deviceWithModules.write("BOARD", "WORD_STATUS", numpy.array([2]))
+    readInValues = deviceWithModules.read("BOARD", "WORD_STATUS")
+    self.assertTrue(readInValues.dtype == numpy.float32)
+    self.assertTrue(readInValues.tolist() == [2])
+    
+    
     # write to WORD_INCOMPLETE_2, this is 13 bits wide and supports 8
     # fractional bits
     device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
@@ -94,30 +120,30 @@ class TestMappedPCIEDevice(unittest.TestCase):
     
     # check the write functionality
     # check functionalty when using dtype numpy.float32
-    device.write(word_incomplete_register, 
+    device.write("", word_incomplete_register, 
                numpy.array([2.125], dtype = numpy.float32))
-    readInValue = device.read(word_incomplete_register)
+    readInValue = device.read("", word_incomplete_register)
     self.assertTrue(readInValue.dtype == numpy.float32)
     self.assertTrue(readInValue.tolist() == [2.125])
     
     # check functionalty when using dtype numpy.float64
-    device.write(word_incomplete_register, 
+    device.write("", word_incomplete_register, 
                numpy.array([3.125], dtype = numpy.float64))
-    readInValue = device.read(word_incomplete_register)
+    readInValue = device.read("", word_incomplete_register)
     self.assertTrue(readInValue.dtype == numpy.float32)
     self.assertTrue(readInValue.tolist() == [3.125])
     
     # check functionalty when using dtype numpy.int32
-    device.write(word_incomplete_register, 
+    device.write("", word_incomplete_register, 
                numpy.array([2], dtype = numpy.int32))
-    readInValue = device.read(word_incomplete_register)
+    readInValue = device.read("", word_incomplete_register)
     self.assertTrue(readInValue.dtype == numpy.float32)
     self.assertTrue(readInValue.tolist() == [2.])
     
     # check functionalty when using dtype numpy.int64
-    device.write(word_incomplete_register, 
+    device.write("", word_incomplete_register, 
                numpy.array([25], dtype = numpy.int64))
-    readInValue = device.read(word_incomplete_register)
+    readInValue = device.read("", word_incomplete_register)
     self.assertTrue(readInValue.dtype == numpy.float32)
     self.assertTrue(readInValue.tolist() == [15.99609375])  # This is the 
                                                             # valid fp converted
@@ -127,15 +153,15 @@ class TestMappedPCIEDevice(unittest.TestCase):
    # Test for Unsupported dtype eg. dtype = numpy.int8 
     self.assertRaisesRegexp(RuntimeError, "Numpy array dtype used"
                             " is not supported for this method", 
-                            device.write, word_incomplete_register,  
+                            device.write, "",  word_incomplete_register, 
                             numpy.array([2], dtype = numpy.int8))
     
     # check offset functionality
     word_clk_mux_register = "WORD_CLK_MUX"
     dataToWrite = numpy.array([8732, 789], dtype = numpy.float32)
-    device.write(word_clk_mux_register, dataToWrite, 
+    device.write("", word_clk_mux_register, dataToWrite, 
                  elementIndexInRegister = 2)
-    readInValue = device.read(word_clk_mux_register,
+    readInValue = device.read("", word_clk_mux_register,
                               elementIndexInRegister = 2)
     self.assertTrue(readInValue.dtype == numpy.float32)
     self.assertTrue(readInValue.tolist() == dataToWrite.tolist())
@@ -144,24 +170,42 @@ class TestMappedPCIEDevice(unittest.TestCase):
     # Bogus register name
     self.assertRaisesRegexp(RuntimeError, "Cannot find register"
                             " BAD_REGISTER_NAME in map"
-                            " file: mapfiles/mtcadummy.map", device.write, 
+                            " file: mapfiles/mtcadummy.map", device.write, "",  
                             "BAD_REGISTER_NAME", 
                             numpy.array([2.125], dtype = numpy.float32))
     
     # supplied array size exceeds register capacity
     dataToWrite = numpy.array([2.125, 3, 4], dtype = numpy.float32)
     self.assertRaisesRegexp(RuntimeError, "Data size exceed register size",
-                             device.write, word_incomplete_register, 
+                             device.write, "", word_incomplete_register, 
                              dataToWrite)
     
     # supplied offset exceeds register span
     dataToWrite = numpy.array([2.125, 3, 4], dtype = numpy.float32)
     self.assertRaisesRegexp(ValueError, "Element index: 1 incorrect."
-                            " Valid index is 0", device.write, 
+                            " Valid index is 0", device.write, "",  
                             word_incomplete_register, dataToWrite,
                             elementIndexInRegister=1)
     
   def testreadRaw(self):
+    
+        # Test Read from a module register
+    deviceWithModules = mtca4upy.mtcamappeddevice.createDevice("/dev/mtcadummys1",
+                                           "mapfiles/modular_mtcadummy.map")
+    WORD_STATUS_RegisterOffset = 8
+    # set up the register with a known value
+    dataToSet = numpy.array([83], dtype = numpy.int32)
+    bytesToWrite = 4 * 1 #  1 32 bit word -> 1 element
+    bar = 0
+    deviceWithModules.writeRaw(WORD_STATUS_RegisterOffset, dataToSet, bytesToWrite, bar)
+    
+    # Test the read from module functionality 
+    deviceWithModules = mtca4upy.Device("/dev/mtcadummys1",
+                                        "mapfiles/modular_mtcadummy.map")
+    readInValues = deviceWithModules.read("BOARD", "WORD_STATUS")
+    self.assertTrue(readInValues.dtype == numpy.float32)
+    self.assertTrue(readInValues.tolist() == [83])
+    
     # write some raw values in
     device = mtca4upy.mtcamappeddevice.createDevice("/dev/llrfdummys4",
                                                "mapfiles/mtcadummy.map")
@@ -173,65 +217,73 @@ class TestMappedPCIEDevice(unittest.TestCase):
 
     # read them in and verify
     device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-    readInValues = device.readRaw("WORD_CLK_MUX")
+    readInValues = device.readRaw("", "WORD_CLK_MUX")
     self.assertTrue(readInValues.dtype == numpy.int32)
     self.assertTrue(readInValues.tolist() == dataToSet.tolist())
 
-    readInValues = device.readRaw("WORD_CLK_MUX", 1)
+    readInValues = device.readRaw("", "WORD_CLK_MUX", 1)
     self.assertTrue(readInValues.tolist() == [698])
 
-    readInValues = device.readRaw("WORD_CLK_MUX", 1, 2)
+    readInValues = device.readRaw("", "WORD_CLK_MUX", 1, 2)
     self.assertTrue(readInValues.tolist() == [3223])
 
-    readInValues = device.readRaw("WORD_CLK_MUX", 0, 2)
+    readInValues = device.readRaw("", "WORD_CLK_MUX", 0, 2)
     self.assertTrue(readInValues.tolist() == [3223, 213])
 
     # check corner cases
     # bad reg name
     self.assertRaisesRegexp(RuntimeError, "Cannot find register"
                             " BAD_REGISTER_NAME in map"
-                            " file: mapfiles/mtcadummy.map", device.readRaw, 
+                            " file: mapfiles/mtcadummy.map", device.readRaw,"",  
                             "BAD_REGISTER_NAME")
       
     # Num of elements specified  is more than register size
     registerName = "WORD_CLK_MUX"
     elementsToRead = 5
     offset = 2
-    readInValues = device.readRaw(registerName, elementsToRead, offset)
+    readInValues = device.readRaw("", registerName, elementsToRead, offset)
     self.assertTrue(readInValues.dtype == numpy.int32)
     self.assertTrue(readInValues.tolist() == [3223, 213])
     
     self.assertRaisesRegexp(ValueError, "negative dimensions are not allowed", 
-                            device.readRaw, registerName, 
+                            device.readRaw, "", registerName, 
                             numberOfElementsToRead=-1)
     
     # bad offset value
     offset = 5
     self.assertRaisesRegexp(ValueError, "Element index: 5 incorrect."
-                            " Valid index range is \[0-3\]", device.readRaw, 
+                            " Valid index range is \[0-3\]", device.readRaw,"",  
                             registerName, elementIndexInRegister = offset) 
     self.assertRaisesRegexp(ValueError, "Element index: 5 incorrect."
-                            " Valid index range is \[0-3\]", device.readRaw,
+                            " Valid index range is \[0-3\]", device.readRaw, "", 
                             registerName, elementsToRead, offset)
     self.assertRaisesRegexp(OverflowError, "can't convert negative value"
-                            " to unsigned", device.readRaw, 
+                            " to unsigned", device.readRaw,"", 
                             registerName, elementIndexInRegister = -1)
 
   def testwriteRaw(self):
+    # Test if write to a register in a module name works
+    deviceWithModules = mtca4upy.Device("/dev/mtcadummys1","mapfiles/modular_mtcadummy.map")
+    deviceWithModules.writeRaw("BOARD", "WORD_STATUS", 
+                               numpy.array([5], dtype = numpy.int32))
+    readInValues = deviceWithModules.readRaw("BOARD", "WORD_STATUS")
+    self.assertTrue(readInValues.dtype == numpy.int32)
+    self.assertTrue(readInValues.tolist() == [5])
+    
     # write to WORD_CLK_MUX register and verify the read
     device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     word_clk_mux_register = "WORD_CLK_MUX"
     dataToWrite = numpy.array([456, 3445, 8732, 789], dtype = numpy.int32)
-    device.writeRaw(word_clk_mux_register, dataToWrite)
-    readInValue = device.readRaw(word_clk_mux_register)
+    device.writeRaw("", word_clk_mux_register, dataToWrite)
+    readInValue = device.readRaw("", word_clk_mux_register)
     self.assertTrue(readInValue.dtype == numpy.int32)
     self.assertTrue(readInValue.tolist() == dataToWrite.tolist())
     
     # verify if register with frac bits
     word_incomplete_register = "WORD_INCOMPLETE_2"
     dataToWrite = numpy.array([546], dtype = numpy.int32)
-    device.writeRaw(word_incomplete_register, dataToWrite)
-    readinData = device.read(word_incomplete_register)
+    device.writeRaw("", word_incomplete_register, dataToWrite)
+    readinData = device.read("", word_incomplete_register)
     self.assertTrue(readinData.tolist() == [2.1328125]) #FP conv version of 546
                                                         # in WORD_INCOMPLETE_2 
                                                         # (has 8 frac bits)
@@ -239,9 +291,9 @@ class TestMappedPCIEDevice(unittest.TestCase):
     
     # check offset functionality
     dataToWrite = numpy.array([5698, 2354], dtype = numpy.int32)
-    device.writeRaw(word_clk_mux_register, dataToWrite, 
+    device.writeRaw("", word_clk_mux_register, dataToWrite, 
                  elementIndexInRegister=2)
-    readInValue = device.readRaw(word_clk_mux_register, elementIndexInRegister=2)
+    readInValue = device.readRaw("", word_clk_mux_register, elementIndexInRegister=2)
     self.assertTrue(readInValue.dtype == numpy.int32)
     self.assertTrue(readInValue.tolist() == dataToWrite.tolist())
     
@@ -251,32 +303,32 @@ class TestMappedPCIEDevice(unittest.TestCase):
     self.assertRaisesRegexp(RuntimeError, "Cannot find register"
                             " BAD_REGISTER_NAME in map file:"
                             " mapfiles/mtcadummy.map", 
-                            device.writeRaw, "BAD_REGISTER_NAME", 
+                            device.writeRaw, "", "BAD_REGISTER_NAME", 
                             numpy.array([2], dtype = numpy.int32))
     # array size exceeds register capacity
     dataToWrite = numpy.array([2, 5, 5, 3, 4], dtype = numpy.int32)
     self.assertRaisesRegexp(RuntimeError, "Data size exceed register size", 
-                            device.writeRaw, word_clk_mux_register, dataToWrite)
+                            device.writeRaw, "", word_clk_mux_register, dataToWrite)
     # offset is bogus
     self.assertRaisesRegexp(ValueError, "Element index: 4 incorrect."
                             " Valid index range is \[0-3\]", device.writeRaw, 
-                            word_clk_mux_register, dataToWrite, 
+                            "", word_clk_mux_register, dataToWrite, 
                             elementIndexInRegister=4)
     self.assertRaisesRegexp(OverflowError, "can't convert negative value"
                             " to unsigned", device.writeRaw, 
-                            word_clk_mux_register, dataToWrite, 
+                            "", word_clk_mux_register, dataToWrite, 
                             elementIndexInRegister=-1)
     # array dtype not int32
     dataToWrite = numpy.array([2, 3, 4, 5], dtype = numpy.float32)
     self.assertRaisesRegexp(TypeError, "Method expects values in a"
                             " <type 'numpy.int32'>  numpy.array",
-                             device.writeRaw, word_clk_mux_register, dataToWrite)
+                             device.writeRaw, "", word_clk_mux_register, dataToWrite)
 
   def testreadDMARaw(self):
     # Set the parabolic values in the DMA region by writing 1 to WORD_ADC_ENA
     # register
     device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-    device.write("WORD_ADC_ENA", numpy.array([1], dtype = numpy.float32))
+    device.write("", "WORD_ADC_ENA", numpy.array([1], dtype = numpy.float32))
                   
     # Read in the parabolic values from the function
     readInValues = device.readDMARaw("AREA_DMA_VIA_DMA", 

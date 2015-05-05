@@ -19,8 +19,8 @@ public:
     this->get_override("writeArea")(regOffset, dataToWite, bytesToWrite, bar);
   }
   inline mtca4u::devMap<mtca4u::devBase>::RegisterAccessor getRegisterAccessor(
-      const std::string &regName) {
-    return (this->get_override("getRegisterAccessor")(regName));
+      const std::string& moduleName, const std::string &regName) {
+    return (this->get_override("getRegisterAccessor")(moduleName, regName));
   }
   ~PythonDeviceWrapper() {};
 };

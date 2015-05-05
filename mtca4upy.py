@@ -27,7 +27,7 @@ class Device():
     self.__openedDevice = mtcamappeddevice.createDevice(deviceName, mapFile)
 
 
-  def read(self, registerName, numberOfElementsToRead=0,
+  def read(self, moduleName, registerName, numberOfElementsToRead=0,
             elementIndexInRegister=0):
     """ Reads out Fixed point converted values from the opened mapped device
     
@@ -39,8 +39,13 @@ class Device():
     
     Parameters
     ----------
+    moduleName : str
+      The name of the device module to which the register to read from belongs.
+      If module name is not applicable to the device, then provide an empty
+      string as the parameter value.
+       
     registerName : str
-      The name of the register (on the device) to which read access is sought.
+      The name of the register to read from.
       
     numberOfElementsToRead : int, optional 
       Optional parameter specifying the number of register elements that should
@@ -73,34 +78,39 @@ class Device():
     --------
     In the examples  register "WORD_CLK_MUX" is 4 elements long.
     
-    >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-    
-    >>> device.read("WORD_CLK_MUX")
-    array([15.0, 14.0, 13.0, 12.0], dtype=float32)
-    
-    >>> device.read("WORD_CLK_MUX", 0)
-    array([15.0, 14.0, 13.0, 12.0], dtype=float32)
-    
-    >>> device.read("WORD_CLK_MUX", 5)
-    array([15.0, 14.0, 13.0, 12.0], dtype=float32)
-     
-    >>> device.read("WORD_CLK_MUX", 1)
+    >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    >>> boardWithModules.read("BOARD", "WORD_CLK_MUX")
     array([15.0], dtype=float32)
     
-    >>> device.read("WORD_CLK_MUX", 1, 2 )
+    >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    
+    >>> device.read("", "WORD_CLK_MUX")
+    array([15.0, 14.0, 13.0, 12.0], dtype=float32)
+    
+    >>> device.read("", "WORD_CLK_MUX", 0)
+    array([15.0, 14.0, 13.0, 12.0], dtype=float32)
+    
+    >>> device.read("", "WORD_CLK_MUX", 5)
+    array([15.0, 14.0, 13.0, 12.0], dtype=float32)
+     
+    >>> device.read("", "WORD_CLK_MUX", 1)
+    array([15.0], dtype=float32)
+    
+    >>> device.read("", "WORD_CLK_MUX", 1, 2 )
     array([13.0], dtype=float32)
 
-    >>> device.read("WORD_CLK_MUX", 0, 2 )
+    >>> device.read("", "WORD_CLK_MUX", 0, 2 )
     array([13.0, 12.0], dtype=float32)
     
-    >>> device.read("WORD_CLK_MUX", 5, 2 )
+    >>> device.read("", "WORD_CLK_MUX", 5, 2 )
     array([13.0, 12.0], dtype=float32)
      
-    >>> device.read("WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
+    >>> device.read("", "WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
     array([13.0], dtype=float32)
     
-    >>> device.read("WORD_CLK_MUX", elementIndexInRegister=2 )
+    >>> device.read("", "WORD_CLK_MUX", elementIndexInRegister=2 )
     array([13.0, 12.0], dtype=float32)
+    
     
     See Also
     --------
@@ -108,7 +118,8 @@ class Device():
 
     """
     
-    registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
+    registerAccessor = self.__openedDevice.getRegisterAccessor(moduleName,
+                                                                registerName)
     # throw if element index  exceeds register size
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
     array = self.__createArray(numpy.float32, registerAccessor,
@@ -119,7 +130,7 @@ class Device():
     
     return array
   
-  def write(self, registerName, dataToWrite, elementIndexInRegister=0):
+  def write(self, moduleName, registerName, dataToWrite, elementIndexInRegister=0):
     """ Sets data into a desired register
     
     This method writes values into a register on the board. The method
@@ -130,8 +141,13 @@ class Device():
     
     Parameters
     ----------
+    moduleName : str
+      The name of the device module which has the register to write into.
+      If module name is not applicable to the device, then provide an empty
+      string as the parameter value.
+      
     registerName : str
-      Mapped name of the register to which write access is sought
+      Mapped name of the register to write to
       
     dataToWrite : numpy.array(dtype = numpy.float32/64)
                   numpy.array(dtype = numpy.int32/64) 
@@ -150,14 +166,19 @@ class Device():
     
     Examples
     --------
-    In the examples, register "WORD_CLK_MUX" is 4 elements long.
+    register "WORD_STATUS" is 1 element long.
+    >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    >>> dataToWrite = numpy.array([15.0])
+    >>> boardWithModules.write("BOARD", "WORD_STATUS")
+    
+    register "WORD_CLK_MUX" is 4 elements long.
     >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
     >>> dataToWrite = numpy.array([15.0, 14.0, 13.0, 12.0])
-    >>> device.write("WORD_CLK_MUX", dataToWrite)
+    >>> device.write("", "WORD_CLK_MUX", dataToWrite)
     
     >>> dataToWrite = numpy.array([13, 12])
-    >>> device.write("WORD_CLK_MUX", dataToWrite, 2)
+    >>> device.write("", "WORD_CLK_MUX", dataToWrite, 2)
     
     See Also
     --------
@@ -165,14 +186,15 @@ class Device():
     
     """
     # get register accessor
-    registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
+    registerAccessor = self.__openedDevice.getRegisterAccessor(moduleName, 
+                                                               registerName)
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
 
     numberOfElementsToWrite = dataToWrite.size
     registerAccessor.write(dataToWrite, numberOfElementsToWrite,
                             elementIndexInRegister)
   
-  def readRaw(self, registerName, numberOfElementsToRead=0, 
+  def readRaw(self, moduleName, registerName, numberOfElementsToRead=0, 
               elementIndexInRegister=0):
     """ Returns the raw values from a device's register
     
@@ -182,6 +204,11 @@ class Device():
     
     Parameters
     ----------
+    moduleName : str
+      The name of the device module to which the register to read from belongs.
+      If module name is not applicable to the device, then provide an empty
+      string as the parameter value.
+      
     registerName : str
       The name of the device register to read from
       
@@ -211,34 +238,41 @@ class Device():
     
     Examples
     --------
-    In the example, register "WORD_CLK_MUX" is 4 elements long.
+    register "WORD_STATUS" is 1 element long.
+    
+    >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    >>> boardWithModules.readRaw("BOARD", "WORD_STATUS")
+    array([15], dtype=int32)
+    
+    register "WORD_CLK_MUX" is 4 elements long.
+    
     >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
-    >>> device.readRaw("WORD_CLK_MUX")
+    >>> device.readRaw("", "WORD_CLK_MUX")
     array([15, 14, 13, 12], dtype=int32)
     
-    >>> device.readRaw("WORD_CLK_MUX", 0)
+    >>> device.readRaw("", "WORD_CLK_MUX", 0)
     array([15, 14, 13, 12], dtype=int32)
     
-    >>> device.readRaw("WORD_CLK_MUX", 5)
+    >>> device.readRaw("", "WORD_CLK_MUX", 5)
     array([15, 14, 13, 12], dtype=int32)
     
-    >>> device.readRaw("WORD_CLK_MUX", 1)
+    >>> device.readRaw("", "WORD_CLK_MUX", 1)
     array([15], dtype=int32)#TODO fill in the output
     
-    >>> device.readRaw("WORD_CLK_MUX", 1, 2 )
+    >>> device.readRaw("", "WORD_CLK_MUX", 1, 2 )
     array([13], dtype = int32)
 
-    >>> device.readRaw("WORD_CLK_MUX", 0, 2 )
+    >>> device.readRaw("", "WORD_CLK_MUX", 0, 2 )
     array([13, 12], dtype=int32)
     
-    >>> device.readRaw("WORD_CLK_MUX", 5, 2 )
+    >>> device.readRaw("", "WORD_CLK_MUX", 5, 2 )
     array([13, 12], dtype=int32)
         
-    >>> device.readRaw("WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
+    >>> device.readRaw("", "WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
     array([13], dtype=int32)
     
-    >>> device.readRaw("WORD_CLK_MUX", elementIndexInRegister=2 )
+    >>> device.readRaw("", "WORD_CLK_MUX", elementIndexInRegister=2 )
     array([13, 12], dtype=int32)
     
     See Also
@@ -248,7 +282,8 @@ class Device():
 
     """
     # use wrapper aroung readreg
-    registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
+    registerAccessor = self.__openedDevice.getRegisterAccessor(moduleName, 
+                                                               registerName)
     # throw if element index  exceeds register size
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
     array = self.__createArray(numpy.int32, registerAccessor, 
@@ -257,7 +292,7 @@ class Device():
     
     return array
   
-  def writeRaw(self, registerName, dataToWrite,
+  def writeRaw(self, moduleName, registerName, dataToWrite,
       elementIndexInRegister=0):
     """ Write raw bit values into the register
     
@@ -265,7 +300,12 @@ class Device():
     elements. 
     
     Parameters
-    ----------
+    ----------      
+    moduleName : str
+      The name of the device module that has the register we intend to write to.
+      If module name is not applicable to the device, then provide an empty
+      string as the parameter value.
+      
     registerName : str
       The name of the desired register to write into.
       
@@ -284,13 +324,18 @@ class Device():
     
     Examples
     --------
-    In the examples, register "WORD_CLK_MUX" is 4 elements long.
+    register "WORD_STATUS" is 1 element long.
+    >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    >>> dataToWrite = numpy.array([15], dtype=int32)
+    >>> boardWithModules.writeRaw("BOARD", "WORD_STATUS")
+    
+    register "WORD_CLK_MUX" is 4 elements long.
     >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
     
-    >>> dataToWrite = numpy.array([15, 14, 13, 12], dtype=float32)
+    >>> dataToWrite = numpy.array([15, 14, 13, 12], dtype=int32)
     >>> device.writeRaw("WORD_CLK_MUX", dataToWrite)
     
-    >>> dataToWrite = numpy.array([13, 12], dtype=float32)
+    >>> dataToWrite = numpy.array([13, 12], dtype=int32)
     >>> device.writeRaw("WORD_CLK_MUX", dataToWrite, 2)
         
     See Also
@@ -298,7 +343,8 @@ class Device():
     Device.write : Write values that get fixed point converted to the device
     
     """
-    registerAccessor = self.__openedDevice.getRegisterAccessor(registerName)
+    registerAccessor = self.__openedDevice.getRegisterAccessor(moduleName,  
+                                                               registerName)
     self.__checkAndExitIfArrayNotInt32(dataToWrite)
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
 
@@ -356,7 +402,8 @@ class Device():
     """
     
         # use wrapper aroung readreg
-    registerAccessor = self.__openedDevice.getRegisterAccessor(DMARegisterName)
+    registerAccessor = self.__openedDevice.getRegisterAccessor("", 
+                                                               DMARegisterName)
     # throw if element index  exceeds register size
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
     array = self.__createArray(numpy.int32, registerAccessor, 
