@@ -49,7 +49,7 @@ set_target_properties(${python_module_name} PROPERTIES PREFIX "")
 # temporary thing. Will have to structure into something better later
 #
 #TODO: Fix this hardcode later
-configure_file( mtca4upy.py  ${PROJECT_BINARY_DIR} 
+configure_file( mtca4u.py  ${PROJECT_BINARY_DIR} 
                 copyonly)
 
 #
