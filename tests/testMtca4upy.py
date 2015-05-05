@@ -152,21 +152,38 @@ class TestMappedPCIEDevice(unittest.TestCase):
 
     # continue tests for checking if method accepts int/float/list/numpyarray as valid dataToWrite
     # input a list
-    device.write("", "WORD_CLK_MUX", [89,1.2,3,8])
-    readInValues = device.read("", "WORD_STATUS")
-    self.assertTrue(readInValues.tolist() == [89,1.2,3,8])
+    device.write("", "WORD_CLK_MUX", [89,1,3,8])
+    readInValues = device.read("", "WORD_CLK_MUX")
+    self.assertTrue(readInValues.tolist() == [89,1,3,8])
     
     device.write("", "WORD_CLK_MUX", 1.2, 1)
-    readInValues = device.read("", "WORD_STATUS", 1, 1)
-    self.assertTrue(readInValues.tolist() == [1.2])
+    readInValues = device.read("", "WORD_CLK_MUX", 1, 1)
+    self.assertTrue(readInValues.tolist() == [1])
+    
+    device.write("", word_incomplete_register,[2.5])
+    readInValues = device.read("", word_incomplete_register)
+    self.assertTrue(readInValues.tolist() == [2.5])
+    
+    device.write("", word_incomplete_register, 3.5)
+    readInValues = device.read("", word_incomplete_register)
+    self.assertTrue(readInValues.tolist() == [3.5])
+    
+    device.write("", word_incomplete_register, 14)
+    readInValues = device.read("", word_incomplete_register)
+    self.assertTrue(readInValues.tolist() == [14])
     
     device.write("", "WORD_CLK_MUX", 5)
-    readInValues = device.read("", "WORD_STATUS", 1, 0)
+    readInValues = device.read("", "WORD_CLK_MUX", 1, 0)
     self.assertTrue(readInValues.tolist() == [5])
     
+    self.assertRaisesRegexp(RuntimeError, "Data format used is unsupported",
+                            device.write, "",  word_incomplete_register, 
+                            "")
+
+    
+    
    # Test for Unsupported dtype eg. dtype = numpy.int8 
-    self.assertRaisesRegexp(RuntimeError, "Numpy array dtype used"
-                            " is not supported for this method", 
+    self.assertRaisesRegexp(RuntimeError, "Data format used is unsupported",
                             device.write, "",  word_incomplete_register, 
                             numpy.array([2], dtype = numpy.int8))
     

@@ -37,7 +37,7 @@ public:
 class ArrayElementTypeNotSupported : public std::exception {
 public:
   inline virtual const char *what() const throw() {
-    return "Numpy array dtype used is not supported for this method";
+    return "Data format used is unsupported";
   }
 };
 }

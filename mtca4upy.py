@@ -193,9 +193,9 @@ class Device():
     registerAccessor = self.__openedDevice.getRegisterAccessor(moduleName, 
                                                                registerName)
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
-
-    numberOfElementsToWrite = dataToWrite.size
-    registerAccessor.write(dataToWrite, numberOfElementsToWrite,
+    arrayToHoldData = numpy.array(dataToWrite)
+    numberOfElementsToWrite = arrayToHoldData.size
+    registerAccessor.write(arrayToHoldData, numberOfElementsToWrite,
                             elementIndexInRegister)
   
   def readRaw(self, moduleName, registerName, numberOfElementsToRead=0, 
