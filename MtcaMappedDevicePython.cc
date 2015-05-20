@@ -27,9 +27,9 @@ namespace mtca4upy {
 
 boost::shared_ptr<mtca4upy::PythonDevice> createDevice(
     const std::string& cardName) {
-  mtca4upy::devBaseFactory deviceFactory(
+  mtca4upy::devBaseFactory baseDevice(
       new mtca4upy::DeviceInformation(cardName, ""));
-  return (deviceFactory.createDevice());
+  return (baseDevice.createDevice());
 }
 
 /**

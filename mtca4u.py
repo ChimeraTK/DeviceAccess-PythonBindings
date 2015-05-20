@@ -64,11 +64,9 @@ class Device():
       elements starting from this element index. The elemnt at the index
       position is included in the read as well.
 
-
-      
     Returns
     -------
-    numpy.array, dtype == numpy.float32
+    readoutValues: numpy.array, dtype == numpy.float32
       The return type for the method is a 1-Dimensional numpy array with
       datatype numpy.float32. The returned numpy.array would either contain all
       elements in the register or only the number specified by the
@@ -76,40 +74,32 @@ class Device():
      
     Examples
     --------
-    In the examples  register "WORD_CLK_MUX" is 4 elements long.
+    register "WORD_STATUS" is 1 element long..
+      >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4", "mapfiles/mtcadummy.map")
+      >>> boardWithModules.read("BOARD", "WORD_CLK_MUX")
+      array([15.0], dtype=float32)
+      
     
-    >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-    >>> boardWithModules.read("BOARD", "WORD_CLK_MUX")
-    array([15.0], dtype=float32)
-    
-    >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-    
-    >>> device.read("", "WORD_CLK_MUX")
-    array([15.0, 14.0, 13.0, 12.0], dtype=float32)
-    
-    >>> device.read("", "WORD_CLK_MUX", 0)
-    array([15.0, 14.0, 13.0, 12.0], dtype=float32)
-    
-    >>> device.read("", "WORD_CLK_MUX", 5)
-    array([15.0, 14.0, 13.0, 12.0], dtype=float32)
-     
-    >>> device.read("", "WORD_CLK_MUX", 1)
-    array([15.0], dtype=float32)
-    
-    >>> device.read("", "WORD_CLK_MUX", 1, 2 )
-    array([13.0], dtype=float32)
-
-    >>> device.read("", "WORD_CLK_MUX", 0, 2 )
-    array([13.0, 12.0], dtype=float32)
-    
-    >>> device.read("", "WORD_CLK_MUX", 5, 2 )
-    array([13.0, 12.0], dtype=float32)
-     
-    >>> device.read("", "WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
-    array([13.0], dtype=float32)
-    
-    >>> device.read("", "WORD_CLK_MUX", elementIndexInRegister=2 )
-    array([13.0, 12.0], dtype=float32)
+    register "WORD_CLK_MUX" is 4 elements long.
+      >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> device.read("", "WORD_CLK_MUX")
+      array([15.0, 14.0, 13.0, 12.0], dtype=float32)
+      >>> device.read("", "WORD_CLK_MUX", 0)
+      array([15.0, 14.0, 13.0, 12.0], dtype=float32)
+      >>> device.read("", "WORD_CLK_MUX", 5)
+      array([15.0, 14.0, 13.0, 12.0], dtype=float32)
+      >>> device.read("", "WORD_CLK_MUX", 1)
+      array([15.0], dtype=float32)
+      >>> device.read("", "WORD_CLK_MUX", 1, 2 )
+      array([13.0], dtype=float32)
+      >>> device.read("", "WORD_CLK_MUX", 0, 2 )
+      array([13.0, 12.0], dtype=float32)
+      >>> device.read("", "WORD_CLK_MUX", 5, 2 )
+      array([13.0, 12.0], dtype=float32)
+      >>> device.read("", "WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
+      array([13.0], dtype=float32)
+      >>> device.read("", "WORD_CLK_MUX", elementIndexInRegister=2 )
+      array([13.0, 12.0], dtype=float32)
     
     
     See Also
@@ -149,15 +139,13 @@ class Device():
     registerName : str
       Mapped name of the register to write to
       
-    dataToWrite : int
-                  float
-                  list of int/float
-                  numpy.array(dtype = numpy.float32/64)
-                  numpy.array(dtype = numpy.int32/64) 
-    The data to be written in to the register. it may be a numpy.float32/64 or a
-    numpy.int32/64 array or a list with int or float values . Each value in this
-    array represents an induvidual element of the register. dataToWrite may also
-    take on int/float type when single vaues are passesed
+    dataToWrite : int, float, \
+    list of int/float, numpy.array(dtype numpy.float32/64), \
+    numpy.array(dtype = numpy.int32/64) 
+      The data to be written in to the register. it may be a numpy.float32/64 or a
+      numpy.int32/64 array or a list with int or float values . Each value in this
+      array represents an induvidual element of the register. dataToWrite may also
+      take on int/float type when single vaues are passesed
        
     elementIndexInRegister : int, optional
       This is a zero indexed offset from the first element of the register. When
@@ -166,23 +154,21 @@ class Device():
     
     Returns
     -------
-    None
+      None: None
     
     Examples
     --------
     register "WORD_STATUS" is 1 element long.
-    >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-    >>> dataToWrite = numpy.array([15.0])
-    >>> boardWithModules.write("BOARD", "WORD_STATUS")
+      >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> dataToWrite = numpy.array([15.0])
+      >>> boardWithModules.write("BOARD", "WORD_STATUS")
     
     register "WORD_CLK_MUX" is 4 elements long.
-    >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-    
-    >>> dataToWrite = numpy.array([15.0, 14.0, 13.0, 12.0])
-    >>> device.write("", "WORD_CLK_MUX", dataToWrite)
-    
-    >>> dataToWrite = numpy.array([13, 12])
-    >>> device.write("", "WORD_CLK_MUX", dataToWrite, 2)
+      >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> dataToWrite = numpy.array([15.0, 14.0, 13.0, 12.0])
+      >>> device.write("", "WORD_CLK_MUX", dataToWrite)
+      >>> dataToWrite = numpy.array([13, 12])
+      >>> device.write("", "WORD_CLK_MUX", dataToWrite, 2)
     
     See Also
     --------
@@ -216,7 +202,7 @@ class Device():
     registerName : str
       The name of the device register to read from
       
-     numberOfElementsToRead : int, optional
+    numberOfElementsToRead : int, optional
       Optional parameter specifying the number of register elements that should
       be read out.
       
@@ -226,7 +212,7 @@ class Device():
       If the value provided as this parameter exceeds the register size, an
       array will all elements upto the last element is returned
     
-     elementIndexInRegister : int, optional
+    elementIndexInRegister : int, optional
       This is a zero indexed offset from the first element of the register. When
       an elementIndexInRegister parameter is specified, the method reads out
       elements starting from this element index. The elemnt at the index
@@ -234,7 +220,7 @@ class Device():
     
     Returns
     -------
-    numpy.array, dtype == numpy.int32
+    readInRawValues: numpy.array, dtype == numpy.int32
       The method returns a numpy.int32 array containing the raw bit values of
       the register elements. The length of the array either equals the number of
       elements that make up the register or the number specified through the
@@ -243,46 +229,34 @@ class Device():
     Examples
     --------
     register "WORD_STATUS" is 1 element long.
-    
-    >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-    >>> boardWithModules.readRaw("BOARD", "WORD_STATUS")
-    array([15], dtype=int32)
+      >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> boardWithModules.readRaw("BOARD", "WORD_STATUS")
+      array([15], dtype=int32)
     
     register "WORD_CLK_MUX" is 4 elements long.
-    
-    >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-    
-    >>> device.readRaw("", "WORD_CLK_MUX")
-    array([15, 14, 13, 12], dtype=int32)
-    
-    >>> device.readRaw("", "WORD_CLK_MUX", 0)
-    array([15, 14, 13, 12], dtype=int32)
-    
-    >>> device.readRaw("", "WORD_CLK_MUX", 5)
-    array([15, 14, 13, 12], dtype=int32)
-    
-    >>> device.readRaw("", "WORD_CLK_MUX", 1)
-    array([15], dtype=int32)#TODO fill in the output
-    
-    >>> device.readRaw("", "WORD_CLK_MUX", 1, 2 )
-    array([13], dtype = int32)
-
-    >>> device.readRaw("", "WORD_CLK_MUX", 0, 2 )
-    array([13, 12], dtype=int32)
-    
-    >>> device.readRaw("", "WORD_CLK_MUX", 5, 2 )
-    array([13, 12], dtype=int32)
-        
-    >>> device.readRaw("", "WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
-    array([13], dtype=int32)
-    
-    >>> device.readRaw("", "WORD_CLK_MUX", elementIndexInRegister=2 )
-    array([13, 12], dtype=int32)
+      >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> device.readRaw("", "WORD_CLK_MUX")
+      array([15, 14, 13, 12], dtype=int32)
+      >>> device.readRaw("", "WORD_CLK_MUX", 0)
+      array([15, 14, 13, 12], dtype=int32)
+      >>> device.readRaw("", "WORD_CLK_MUX", 5)
+      array([15, 14, 13, 12], dtype=int32)
+      >>> device.readRaw("", "WORD_CLK_MUX", 1)
+      array([15], dtype=int32)#TODO fill in the output
+      >>> device.readRaw("", "WORD_CLK_MUX", 1, 2 )
+      array([13], dtype = int32)
+      >>> device.readRaw("", "WORD_CLK_MUX", 0, 2 )
+      array([13, 12], dtype=int32)
+      >>> device.readRaw("", "WORD_CLK_MUX", 5, 2 )
+      array([13, 12], dtype=int32)
+      >>> device.readRaw("", "WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
+      array([13], dtype=int32)
+      >>> device.readRaw("", "WORD_CLK_MUX", elementIndexInRegister=2 )
+      array([13, 12], dtype=int32)
     
     See Also
     --------
-    Device.read : Read in Fixed Point converted bit values from a device
-    register
+    Device.read : Read in Fixed Point converted bit values from a device register
 
     """
     # use wrapper aroung readreg
@@ -324,23 +298,21 @@ class Device():
     
     Returns
     -------
-    None
+    None: None
     
     Examples
     --------
     register "WORD_STATUS" is 1 element long.
-    >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-    >>> dataToWrite = numpy.array([15], dtype=int32)
-    >>> boardWithModules.writeRaw("BOARD", "WORD_STATUS")
+      >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> dataToWrite = numpy.array([15], dtype=int32)
+      >>> boardWithModules.writeRaw("BOARD", "WORD_STATUS")
     
     register "WORD_CLK_MUX" is 4 elements long.
-    >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-    
-    >>> dataToWrite = numpy.array([15, 14, 13, 12], dtype=int32)
-    >>> device.writeRaw("WORD_CLK_MUX", dataToWrite)
-    
-    >>> dataToWrite = numpy.array([13, 12], dtype=int32)
-    >>> device.writeRaw("WORD_CLK_MUX", dataToWrite, 2)
+      >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> dataToWrite = numpy.array([15, 14, 13, 12], dtype=int32)
+      >>> device.writeRaw("WORD_CLK_MUX", dataToWrite)
+      >>> dataToWrite = numpy.array([13, 12], dtype=int32)
+      >>> device.writeRaw("WORD_CLK_MUX", dataToWrite, 2)
         
     See Also
     --------
@@ -382,8 +354,9 @@ class Device():
     elementIndexInRegister : int, optional
       This parameter specifies the index from which the read should commence.
       
-    Returns  
-    numpy.array, dtype == numpy.int32
+    Returns
+    -------
+    arrayOfRawValues: numpy.array, dtype == numpy.int32
       The method returns a numpy.int32 array containing the raw bit values
       contained in the DMA register elements. The length of the array either
       equals the number of 32 bit elements that make up the whole DMA region or
@@ -392,16 +365,13 @@ class Device():
     Examples
     --------
     In the example, register "WORD_CLK_MUX" is 4 elements long.
-    >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-    
-    >>> device.readDMARaw("AREA_DMA_VIA_DMA", 10)
-    array([0, 1, 4, 9, 16, 25, 36, 49, 64, 81], dtype=int32)
-
-    >>> device.readDMARaw("AREA_DMA_VIA_DMA", 10, 2 )
-    array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype=int32)
-        
-    >>> device.readDMARaw("AREA_DMA_VIA_DMA", numberOfElementsToRead=10, elementIndexInRegister=2 )
-    array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype=int32)
+      >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> device.readDMARaw("AREA_DMA_VIA_DMA", 10)
+      array([0, 1, 4, 9, 16, 25, 36, 49, 64, 81], dtype=int32)
+      >>> device.readDMARaw("AREA_DMA_VIA_DMA", 10, 2 )
+      array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype=int32)
+      >>> device.readDMARaw("AREA_DMA_VIA_DMA", numberOfElementsToRead=10, elementIndexInRegister=2 )
+      array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype=int32)
 
     """
     

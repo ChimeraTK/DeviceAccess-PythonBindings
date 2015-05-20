@@ -11,8 +11,7 @@ void mtca4upy::readWrapper(
   if (extractDataType(numpyArray) == FLOAT32) {
     float* dataLocation =
         reinterpret_cast<float*>(extractDataPointer(numpyArray));
-    uint32_t dataOffset = elementIndexInRegister * sizeof(uint32_t);
-    self.read<float>(dataLocation, arraySize, dataOffset);
+    self.read<float>(dataLocation, arraySize, elementIndexInRegister);
   } else {
     throw mtca4upy::ArrayElementTypeNotSupported();
   }
@@ -25,7 +24,7 @@ void mtca4upy::writeWrapper(
 
   std::vector<int32_t> rawData(numElements);
   uint32_t offsetInBytes = elementIndexInRegister * sizeof(uint32_t);
-  mtca4u::FixedPointConverter fPConvrter = self.getFixedPointConverter();
+  const mtca4u::FixedPointConverter &fPConvrter = self.getFixedPointConverter();
 
   numpyDataTypes dTypeNumpyArray = extractDataType(numpyArray);
   char* dataPointerInArray = extractDataPointer(numpyArray);
@@ -57,17 +56,6 @@ void mtca4upy::writeWrapper(
   self.writeReg(&(rawData[0]), numElements * sizeof(int32_t), offsetInBytes);
 
   /*
-   <ipython-input-9-63df3c0b7e83> in <module>()
-   ----> 1 device.write("WORD_CLK_MUX", numpy.array([1.2], dtype=numpy.float32))
-
-   /space/build/pyTrunk/mtca4upy.pyc in write(self, registerName, dataToWrite,
-   elementIndexInRegister)
-       178     numberOfElementsToWrite = dataToWrite.size
-       179     registerAccessor.write(dataToWrite, numberOfElementsToWrite,
-   --> 180                             elementIndexInRegister)
-       181
-       182   def readRaw(self, registerName, numberOfElementsToRead=0,
-
    TypeError: No registered converter was able to produce a C++ rvalue of type
    float from this Python object of type numpy.float32
  */
@@ -119,6 +107,6 @@ void mtca4upy::readDMARawWrapper(
 
 uint32_t mtca4upy::sizeWrapper(
     mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self) {
-  mtca4u::mapFile::mapElem mapelem = self.getRegisterInfo();
+  const mtca4u::mapFile::mapElem &mapelem = self.getRegisterInfo();
   return (mapelem.reg_elem_nr);
 }
