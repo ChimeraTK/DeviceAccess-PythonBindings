@@ -76,7 +76,7 @@ class Device():
     --------
     register "WORD_STATUS" is 1 element long..
       >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4", "mapfiles/mtcadummy.map")
-      >>> boardWithModules.read("BOARD", "WORD_CLK_MUX")
+      >>> boardWithModules.read("BOARD", "WORD_STATUS")
       array([15.0], dtype=float32)
       
     
@@ -86,8 +86,10 @@ class Device():
       array([15.0, 14.0, 13.0, 12.0], dtype=float32)
       >>> device.read("", "WORD_CLK_MUX", 0)
       array([15.0, 14.0, 13.0, 12.0], dtype=float32)
+    reading beyond a valid register size returns all values:  
       >>> device.read("", "WORD_CLK_MUX", 5)
       array([15.0, 14.0, 13.0, 12.0], dtype=float32)
+    read out select number of elements from specified locations:  
       >>> device.read("", "WORD_CLK_MUX", 1)
       array([15.0], dtype=float32)
       >>> device.read("", "WORD_CLK_MUX", 1, 2 )
@@ -126,8 +128,8 @@ class Device():
     This method writes values into a register on the board. The method
     internally uses a fixed point converter that is aware of the register width
     on the device and its fractional representation. This Fixed point converter
-    converts the double input into corresponding Fixed Point representaions that
-    fit into the decive register.
+    converts the input into corresponding Fixed Point representaions that fit
+    into the decive register.
     
     Parameters
     ----------
@@ -158,7 +160,7 @@ class Device():
     
     Examples
     --------
-    register "WORD_STATUS" is 1 element long.
+    register "WORD_STATUS" is 1 element long and belongs to module "BOARD".
       >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> dataToWrite = numpy.array([15.0])
       >>> boardWithModules.write("BOARD", "WORD_STATUS")
@@ -169,7 +171,9 @@ class Device():
       >>> device.write("", "WORD_CLK_MUX", dataToWrite)
       >>> dataToWrite = numpy.array([13, 12])
       >>> device.write("", "WORD_CLK_MUX", dataToWrite, 2)
-    
+      >>> device.write("WORD_CLK_MUX", 2.78)
+      >>> device.write("WORD_CLK_MUX", 10, elementIndexInRegister=3)
+      
     See Also
     --------
     Device.writeRaw : Write 'raw' bit values to a device register
@@ -215,7 +219,7 @@ class Device():
     elementIndexInRegister : int, optional
       This is a zero indexed offset from the first element of the register. When
       an elementIndexInRegister parameter is specified, the method reads out
-      elements starting from this element index. The elemnt at the index
+      elements starting from this element index. The element at the index
       position is included in the read as well.
     
     Returns
@@ -242,7 +246,7 @@ class Device():
       >>> device.readRaw("", "WORD_CLK_MUX", 5)
       array([15, 14, 13, 12], dtype=int32)
       >>> device.readRaw("", "WORD_CLK_MUX", 1)
-      array([15], dtype=int32)#TODO fill in the output
+      array([15], dtype=int32)
       >>> device.readRaw("", "WORD_CLK_MUX", 1, 2 )
       array([13], dtype = int32)
       >>> device.readRaw("", "WORD_CLK_MUX", 0, 2 )
@@ -302,7 +306,7 @@ class Device():
     
     Examples
     --------
-    register "WORD_STATUS" is 1 element long.
+    register "WORD_STATUS" is 1 element long and is part of the module "BOARD".
       >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> dataToWrite = numpy.array([15], dtype=int32)
       >>> boardWithModules.writeRaw("BOARD", "WORD_STATUS")
@@ -345,11 +349,11 @@ class Device():
     numberOfElementsToRead : int, optional  
       This optional parameter specifies the number of 32 bit elements that have
       to be returned from the mapped dma register. When this parameter is not
-      specified or is provided with a value of 0,  every  element in the dma
+      specified or is provided with a value of 0,  every  element in the DMA
       memory block is returned.
     
       If the value provided as this parameter exceeds the register size, an
-      array will all elements upto the last element is returned
+      array with all elements upto the last element is returned
     
     elementIndexInRegister : int, optional
       This parameter specifies the index from which the read should commence.
@@ -364,7 +368,8 @@ class Device():
     
     Examples
     --------
-    In the example, register "WORD_CLK_MUX" is 4 elements long.
+    In the example, register "AREA_DMA_VIA_DMA" is the DMA mapped memory made up
+    of 32 bit elements.
       >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> device.readDMARaw("AREA_DMA_VIA_DMA", 10)
       array([0, 1, 4, 9, 16, 25, 36, 49, 64, 81], dtype=int32)
