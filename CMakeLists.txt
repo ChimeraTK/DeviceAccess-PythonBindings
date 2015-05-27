@@ -4,16 +4,18 @@ project(MtcaMappedDevicePythonBindings)
 set(python_module_name "mtcamappeddevice")
 
 #
-# Check project dependencies are met
+# This location has some of the modules that we are using below
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
+include(helperMacros)
+
+#
+# Check if project dependencies are met
 find_package(Boost REQUIRED COMPONENTS python)
 find_package(PythonLibs REQUIRED)
 find_package(MtcaMappedDevice REQUIRED)
+find_package(NumPy REQUIRED)
 
 
-#
-# This location has some of the macros that we are using below
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
-include(helperMacros)
 
 #
 # Set the compiler flags.
