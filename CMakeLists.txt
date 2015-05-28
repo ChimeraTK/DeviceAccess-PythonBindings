@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(MtcaMappedDevicePythonBindings)
+project(mtca4uPy)
 
 # variables 
 set(python_module_name "mtcamappeddevice")
