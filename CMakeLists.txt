@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(MtcaMappedDevicePythonBindings)
-set(python_module_name "mtcamappeddevice")
 
+# variables 
+set(python_module_name "mtcamappeddevice")
+set(sphinx_build_confg_in "${PROJECT_SOURCE_DIR}/cmake/conf.py.in")
+set(location_of_rst_source_files "${PROJECT_SOURCE_DIR}/doc")
+set(location_of_built_html_files "${PROJECT_BINARY_DIR}/html")
+set(sphinx_build_config_file "${PROJECT_BINARY_DIR}/conf.py")
+set(author "MSK")
 #
 # This location has some of the modules that we are using below
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
@@ -14,6 +20,13 @@ find_package(Boost REQUIRED COMPONENTS python)
 find_package(PythonLibs REQUIRED)
 find_package(MtcaMappedDevice REQUIRED)
 find_package(NumPy REQUIRED)
+
+#
+# add target for documentation if sphinx v1.3+ is available. 
+CHECK_FOR_SPHINX_BUILD()
+if(SUPPORTED_SPHINX_BUILD_VERSION)
+  ADD_HTML_DOCUMENTATION_SUPPORT()
+endif(SUPPORTED_SPHINX_BUILD_VERSION)
 
 
 
@@ -75,7 +88,7 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     #
     # Enable code coverage when cmake build configured -DCMAKE_BUILD_TYPE=Debug.
     # lcov gets run by the target defined in Makefile.coverage
-      CONFIGURE_FILE(cmake/Makefile.coverage
+      CONFIGURE_FILE(cmake/Makefile.coverage.in
         ${PROJECT_BINARY_DIR}/Makefile.coverage @ONLY)
       ADD_CUSTOM_TARGET(coverage
         make -f Makefile.coverage
