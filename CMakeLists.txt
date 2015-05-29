@@ -36,9 +36,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -Wextra -Wshadow -pedantic -
 
 #
 # Set header file locations
-include_directories(${Boost_INCLUDE_DIRS} 
-                    ${PYTHON_INCLUDE_DIR}
-                    ${MtcaMappedDevice_INCLUDE_DIRS})
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS} 
+                            ${PYTHON_INCLUDE_DIR}
+                            ${MtcaMappedDevice_INCLUDE_DIRS})
 
 #
 # Define the build target for python module 
