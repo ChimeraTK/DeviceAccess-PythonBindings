@@ -32,7 +32,7 @@ endif(SUPPORTED_SPHINX_BUILD_VERSION)
 
 #
 # Set the compiler flags.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -Wextra -Wshadow -pedantic -Wuninitialized")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -Weffc++ -Wextra -Wshadow -pedantic -Wuninitialized")
 
 #
 # Set header file locations
