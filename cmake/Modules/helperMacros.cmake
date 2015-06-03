@@ -94,8 +94,6 @@ FUNCTION(CHECK_SPHINX_BUILD_VERSION)
         "Variable indicates if a suitable version of sphinx build is available"
         FORCE) 
       endif()    
-    else()
-      message(STATUS "Sphinx Build Version < 1.3.0;")  
     endif()
   endif()
 ENDFUNCTION()

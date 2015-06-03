@@ -14,7 +14,7 @@ namespace mtca4upy { // TODO: Refactor to a better name
 //http://dbp-consulting.com/tutorials/SuppressingGCCWarnings.html
 // should temporarily disable the -Weffc++ flag
 // needed because boost::python::wrapper<mtca4upy::PythonDevice> throws a warning
-// for non virtual destructor with -Weffc++
+// for not having a virtual destructor with -Weffc++
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
 class PythonDeviceWrapper
