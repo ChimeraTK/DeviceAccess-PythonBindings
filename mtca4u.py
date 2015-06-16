@@ -18,7 +18,7 @@ class Device():
   
   Examples
   --------
-  >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+  >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
   """
   
   def __init__(self, deviceName, mapFile):
@@ -75,13 +75,13 @@ class Device():
     Examples
     --------
     register "WORD_STATUS" is 1 element long..
-      >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4", "mapfiles/mtcadummy.map")
+      >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4", "mapfiles/mtcadummy.map")
       >>> boardWithModules.read("BOARD", "WORD_STATUS")
       array([15.0], dtype=float32)
       
     
     register "WORD_CLK_MUX" is 4 elements long.
-      >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> device.read("", "WORD_CLK_MUX")
       array([15.0, 14.0, 13.0, 12.0], dtype=float32)
       >>> device.read("", "WORD_CLK_MUX", 0)
@@ -161,12 +161,12 @@ class Device():
     Examples
     --------
     register "WORD_STATUS" is 1 element long and belongs to module "BOARD".
-      >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> dataToWrite = numpy.array([15.0])
       >>> boardWithModules.write("BOARD", "WORD_STATUS")
     
     register "WORD_CLK_MUX" is 4 elements long.
-      >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> dataToWrite = numpy.array([15.0, 14.0, 13.0, 12.0])
       >>> device.write("", "WORD_CLK_MUX", dataToWrite)
       >>> dataToWrite = numpy.array([13, 12])
@@ -233,12 +233,12 @@ class Device():
     Examples
     --------
     register "WORD_STATUS" is 1 element long.
-      >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> boardWithModules.readRaw("BOARD", "WORD_STATUS")
       array([15], dtype=int32)
     
     register "WORD_CLK_MUX" is 4 elements long.
-      >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> device.readRaw("", "WORD_CLK_MUX")
       array([15, 14, 13, 12], dtype=int32)
       >>> device.readRaw("", "WORD_CLK_MUX", 0)
@@ -307,12 +307,12 @@ class Device():
     Examples
     --------
     register "WORD_STATUS" is 1 element long and is part of the module "BOARD".
-      >>> boardWithModules = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> dataToWrite = numpy.array([15], dtype=int32)
       >>> boardWithModules.writeRaw("BOARD", "WORD_STATUS")
     
     register "WORD_CLK_MUX" is 4 elements long.
-      >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> dataToWrite = numpy.array([15, 14, 13, 12], dtype=int32)
       >>> device.writeRaw("WORD_CLK_MUX", dataToWrite)
       >>> dataToWrite = numpy.array([13, 12], dtype=int32)
@@ -368,9 +368,8 @@ class Device():
     
     Examples
     --------
-    In the example, register "AREA_DMA_VIA_DMA" is the DMA mapped memory made up
-    of 32 bit elements.
-      >>> device = mtca4upy.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+    In the example, register "AREA_DMA_VIA_DMA" is the DMA mapped memory made up of 32 bit elements.
+      >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> device.readDMARaw("AREA_DMA_VIA_DMA", 10)
       array([0, 1, 4, 9, 16, 25, 36, 49, 64, 81], dtype=int32)
       >>> device.readDMARaw("AREA_DMA_VIA_DMA", 10, 2 )

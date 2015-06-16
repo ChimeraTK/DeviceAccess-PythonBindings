@@ -27,7 +27,8 @@ CHECK_FOR_SPHINX_BUILD()
 if(SUPPORTED_SPHINX_BUILD_VERSION)
   ADD_HTML_DOCUMENTATION_SUPPORT()
 else()
-  message(STATUS "Please install Sphinx > v1.3.0 to get html documentation support")
+    message(STATUS "Html doumentation support will not be enabled")
+    message(STATUS "Please install working sphinx-doc version (1.3.0+) for html documentation support")
 endif(SUPPORTED_SPHINX_BUILD_VERSION)
 
 
