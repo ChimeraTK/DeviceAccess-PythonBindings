@@ -24,7 +24,7 @@ void mtca4upy::writeWrapper(
 
   std::vector<int32_t> rawData(numElements);
   uint32_t offsetInBytes = elementIndexInRegister * sizeof(uint32_t);
-  const mtca4u::FixedPointConverter &fPConvrter = self.getFixedPointConverter();
+  const mtca4u::FixedPointConverter& fPConvrter = self.getFixedPointConverter();
 
   numpyDataTypes dTypeNumpyArray = extractDataType(numpyArray);
   char* dataPointerInArray = extractDataPointer(numpyArray);
@@ -107,6 +107,6 @@ void mtca4upy::readDMARawWrapper(
 
 uint32_t mtca4upy::sizeWrapper(
     mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self) {
-  const mtca4u::mapFile::mapElem &mapelem = self.getRegisterInfo();
+  const mtca4u::mapFile::mapElem& mapelem = self.getRegisterInfo();
   return (mapelem.reg_elem_nr);
 }

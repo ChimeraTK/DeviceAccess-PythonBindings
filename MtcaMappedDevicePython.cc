@@ -68,7 +68,9 @@ BOOST_PYTHON_MODULE(mtcamappeddevice) { // TODO: find a better name for
       .def("getRegisterAccessor",
            bp::pure_virtual(&mtca4upy::PythonDevice::getRegisterAccessor));
 
-  bp::class_<mtca4u::devMap<mtca4u::devBase>::RegisterAccessor>(
+  bp::class_<
+      mtca4u::devMap<mtca4u::devBase>::RegisterAccessor,
+      boost::shared_ptr<mtca4u::devMap<mtca4u::devBase>::RegisterAccessor> >(
       "RegisterAccessor",
       bp::init<const std::string, const mtca4u::mapFile::mapElem,
                boost::shared_ptr<mtca4u::devBase> >())

@@ -17,9 +17,9 @@ void devMapAdapter::writeRaw(uint32_t regOffset, bp::numeric::array dataToWrite,
 devMapAdapter::devMapAdapter(mtca4u::devMap<mtca4u::devBase>* mappedDevice)
     : _mappedDevice(mappedDevice) {}
 
-mtca4u::devMap<mtca4u::devBase>::RegisterAccessor
+boost::shared_ptr<mtca4u::devMap<mtca4u::devBase>::RegisterAccessor>
 devMapAdapter::getRegisterAccessor(const std::string& moduleName,
-				   const std::string& regName) {
+                                   const std::string& regName) {
   return (_mappedDevice->getRegisterAccessor(regName, moduleName));
 }
 

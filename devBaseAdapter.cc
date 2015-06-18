@@ -18,9 +18,9 @@ void devBaseAdapter::writeRaw(uint32_t regOffset,
   }
 }
 
-mtca4u::devMap<mtca4u::devBase>::RegisterAccessor
+boost::shared_ptr<mtca4u::devMap<mtca4u::devBase>::RegisterAccessor>
 devBaseAdapter::getRegisterAccessor(const std::string& moduleName,
-				    const std::string& regName) {
+                                    const std::string& regName) {
   (void)(moduleName);
   (void)(regName);
   throw MethodNotImplementedException();
