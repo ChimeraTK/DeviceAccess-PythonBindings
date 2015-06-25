@@ -2,7 +2,17 @@ cmake_minimum_required(VERSION 2.8)
 
 project(mtca4uPy)
 
-# variables 
+# version Information for the project
+# bump up the version numbers in this section when creating new tags 
+set(${PROJECT_NAME}_MAJOR_VERSION 00)
+set(${PROJECT_NAME}_MINOR_VERSION 01)
+set(${PROJECT_NAME}_PATCH_VERSION 00)
+set(min_req_mtcamappeddev_version 00.17)
+
+set(${PROJECT_NAME}_VERSION
+  ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_VERSION})
+
+# other variables 
 set(python_module_name "mtcamappeddevice")
 set(sphinx_build_confg_in "${PROJECT_SOURCE_DIR}/cmake/conf.py.in")
 set(location_of_rst_source_files "${PROJECT_SOURCE_DIR}/doc")
@@ -18,7 +28,7 @@ include(helperMacros)
 # Check if project dependencies are met
 find_package(Boost REQUIRED COMPONENTS python)
 find_package(PythonLibs REQUIRED)
-find_package(MtcaMappedDevice REQUIRED)
+find_package(MtcaMappedDevice ${min_req_mtcamappeddev_version} REQUIRED)
 find_package(NumPy REQUIRED)
 
 #
@@ -100,3 +110,5 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
       )
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
+# cmake instructions for packaging:
+include(${CMAKE_SOURCE_DIR}/cmake/prepare_debian_package.cmake)

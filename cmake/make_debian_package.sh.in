@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# put variables from the cmake build system as local variables
+prj_version=${${PROJECT_NAME}_VERSION}
+pkg_name=${PACKAGE_NAME}
+pkg_build_dir=${pD}{pkg_name}_${pD}{prj_version}
+prj_tag_repository="https://svnsrv.desy.de/desy/mtca4u/PythonBindings/MtcaMappedDevice/tags/${pD}{prj_version}"
+
+#Create a working directory in order not to merge with the rest in the build directory
+mkdir debian_package
+cd debian_package
+
+
+#Check out the correct tag from the svn repository.
+#The local directory name has to follow the debian convention
+# lowecasepackagenname_package.ver.sion
+#As we have to make a tar-file, and tags don't change anyway, we use export
+#instead of checkout.
+svn export ${pD}{prj_tag_repository} ${pD}{pkg_build_dir}
+#Debian convention: file has to end on .orig.tar.gz
+tar -czf ${pD}{pkg_build_dir}.orig.tar.gz  ${pD}{pkg_build_dir}
+
+#Copy the prepared debian packaging config files to the source code 
+#directroy
+cp -r ../debian_from_template  ${pD}{pkg_build_dir}/debian
+cd ${pD}{pkg_build_dir}
+
+#The package versions for doocs / Ubuntu contain the codename of the distribution. Get it from the system.
+CODENAME=`lsb_release -c | sed "{s/Codename:\s*//}"`
+
+#Before building the package we will update the changelog. This is easier from a shell script
+#because debchange does the right format and the current date, user name and email automatically for us.
+#Use the NAME and EMAIL environment variables to get correct values if needed (usually the email is
+# user@host instead of first.last@institute, for instance killenb@mskpcx18571.desy.de instead of martin.killenberg@desy.de).
+debchange --create --package ${pD}{pkg_name} -v ${pD}{prj_version}-${pD}{CODENAME}1 --distribution ${pD}{CODENAME} Debian package for MTCA4U QtHardMon ${pD}{prj_version}
+
+#Now everything is prepared and we can actually build the package.
+#If you have a gpg signature you can remove the -us and -uc flags and sign the package.
+dpkg-buildpackage -rfakeroot -us -uc
