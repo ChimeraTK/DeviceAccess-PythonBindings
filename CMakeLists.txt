@@ -13,7 +13,8 @@ set(${PROJECT_NAME}_VERSION
   ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_VERSION})
 
 # other variables 
-set(python_module_name "mtcamappeddevice")
+set(boost_python_core_module "mtcamappeddevice")
+set(python_module "mtca4u.py")
 set(sphinx_build_confg_in "${PROJECT_SOURCE_DIR}/cmake/conf.py.in")
 set(location_of_rst_source_files "${PROJECT_SOURCE_DIR}/doc")
 set(location_of_built_html_files "${PROJECT_BINARY_DIR}/html")
@@ -55,7 +56,7 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIRS}
 
 #
 # Define the build target for python module 
-add_library(${python_module_name} SHARED MtcaMappedDevicePython.cc 
+add_library(${boost_python_core_module} SHARED MtcaMappedDevicePython.cc 
                                          devMapAdapter.cc
                                          devBaseAdapter.cc
                                          devBaseFactory.cc
@@ -66,18 +67,18 @@ add_library(${python_module_name} SHARED MtcaMappedDevicePython.cc
                                          
                                          
                                          
-target_link_libraries(${python_module_name} ${MtcaMappedDevice_LIBRARIES}
+target_link_libraries(${boost_python_core_module} ${MtcaMappedDevice_LIBRARIES}
                                             ${PYTHON_LIBRARIES} 
                                             ${Boost_LIBRARIES})
 # donot prefix lib to the generated so:
-set_target_properties(${python_module_name} PROPERTIES PREFIX "")
+set_target_properties(${boost_python_core_module} PROPERTIES PREFIX "")
 
 
 # Copy mymodule.py to the build directory. TODO: This is supposed to be a 
 # temporary thing. Will have to structure into something better later
 #
 #TODO: Fix this hardcode later
-configure_file( mtca4u.py  ${PROJECT_BINARY_DIR} 
+configure_file( ${python_module}  ${PROJECT_BINARY_DIR} 
                 copyonly)
 
 #
@@ -109,6 +110,17 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
         COMMENT "Generating test coverage documentation" VERBATIM
       )
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+
+
+# Install the shared obhect and the python module in "proper" places?
+install(TARGETS ${boost_python_core_module}
+        LIBRARY DESTINATION bin)
+        install(TARGETS ${boost_python_core_module}
+        LIBRARY DESTINATION bin)
+install(FILES ${python_module}
+        DESTINATION bin)
+
+
 
 # cmake instructions for packaging:
 include(${CMAKE_SOURCE_DIR}/cmake/prepare_debian_package.cmake)
