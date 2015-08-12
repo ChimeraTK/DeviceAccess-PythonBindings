@@ -28,6 +28,6 @@ include(${mtca4uPy_DIR}/mtca4uPyConfig.cmake)
 #and set mtca4uPy_FOUND accordingly
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(mtca4uPy 
-        REQUIRED_VARS mtca4uPy_LIBRARIES mtca4uPy_INCLUDE_DIRS
-	VERSION_VAR mtca4uPy_VERSION )
+        REQUIRED_VARS mtca4uPy_INCLUDE_DIRS
+	    VERSION_VAR mtca4uPy_VERSION )
 

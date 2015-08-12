@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(mtca4uPy)
 #==============================================================================#
-# CMake modules stuff needed for things to work:
+# CMake modules needed for things to work:
 
 # This location has some of the modules that we are using below
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
@@ -109,41 +109,39 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
       )
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
+#
+# Make a list of the header files u would want to distribute with the dev
+# package
+set(headers_for_devpackage ${CMAKE_SOURCE_DIR}/HelperFunctions.h 
+                           ${CMAKE_SOURCE_DIR}/PythonExceptions.h)
+string(TOLOWER include/${PROJECT_NAME} header_install_location)
 
-# Install the shared obhect and the python module(Assumes they are copied to the
-# build directory already) in "proper" places?
-install(TARGETS ${boost_python_core_module}
-        LIBRARY DESTINATION /usr/lib/python2.7/dist-packages)
+# These are cmake modules that would be installed to enable find_package command
+# on the target system
+configure_file(cmake/Config.cmake.in
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
+configure_file(cmake/ConfigVersion.cmake.in
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
+
+
+# Installation targets for:
+# - Pure python module
+# - c++ python module
+# - Headers fro the dev package
+# - cmake modules for enabling find_package on this project 
 install(FILES ${python_module}
-        DESTINATION /usr/lib/python2.7/dist-packages)
-
-
-#all include files go into include/PROJECT_NAME
-set(${PROJECT_NAME}_INCLUDE_DIRS ${${PROJECT_NAME}_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/)
-install(DIRECTORY ${${PROJECT_NAME}_INCLUDE_DIRS} DESTINATION include/${PROJECT_NAME}
-          FILES_MATCHING PATTERN "*.h" 
-          PATTERN ".svn" EXCLUDE)
-
-#create the config files by filling the correct variables into the template (*.cmake.in)
-#All variables @VARIABLE@ are replaced with the current values
-
-#We have nested @-statements, so we have to parse twice
-configure_file(cmake/${PROJECT_NAME}Config.cmake.in.in
-  "${PROJECT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake.in" @ONLY)
-configure_file(${PROJECT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake.in
-  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" @ONLY)
-
-configure_file(cmake/${PROJECT_NAME}ConfigVersion.cmake.in.in
-  "${PROJECT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake.in" @ONLY)
-configure_file(${PROJECT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake.in
-  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake" @ONLY)
- 
-# Install the ..Config.cmake and ..ConfigVersion.cmake
+        DESTINATION lib/python2.7/dist-packages)
+install(TARGETS ${boost_python_core_module}
+        LIBRARY DESTINATION lib/python2.7/dist-packages)
+install(FILES ${headers_for_devpackage}
+        DESTINATION ${header_install_location})
 install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" 
-  "${CMAKE_SOURCE_DIR}/cmake/Find${PROJECT_NAME}.cmake"
-  DESTINATION . COMPONENT dev)
+              "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" 
+               "${CMAKE_SOURCE_DIR}/cmake/Find${PROJECT_NAME}.cmake"
+        DESTINATION . 
+        COMPONENT dev)
 
-
-# cmake instructions for packaging:
-include(${CMAKE_SOURCE_DIR}/cmake/prepare_debian_package.cmake)
+# cmake instructions for packaging; picked from
+# ${CMAKE_SOURCE_DIR}/cmake/Modules, which has been appended to the 
+# CMAKE_MODULE_PATH:
+include(prepare_debian_package)

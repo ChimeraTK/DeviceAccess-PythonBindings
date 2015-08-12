@@ -15,3 +15,10 @@ Description: This package provides python bindings to the mtcamappeddevice libra
    will be extended.
 
   
+Package: ${PACKAGE_NAME}-dev
+Architecture: any
+Depends: ${Dollar}{python:Depends}, ${Dollar}{python:Provides}, python-numpy
+Description: This package provides python bindings to the mtcamappeddevice library
+   The initial version of the bindings. Lacking in full features of the
+   mtcamappeddevice c++ library. But functionality me
+   will be extended.

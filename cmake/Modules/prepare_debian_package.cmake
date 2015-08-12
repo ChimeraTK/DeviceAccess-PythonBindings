@@ -9,12 +9,15 @@ string(TOLOWER python-${PROJECT_NAME} PACKAGE_NAME)
 file(COPY ${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/compat
            ${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/rules
      DESTINATION debian_from_template)
-
 file(COPY ${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/source/format
      DESTINATION debian_from_template/source)
 
 configure_file(${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/control.in
                debian_from_template/control)
+configure_file(${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/package.install.in
+               debian_from_template/${PACKAGE_NAME}.install)
+configure_file(${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/package-dev.install.in
+               debian_from_template/${PACKAGE_NAME}-dev.install)
                
 
 #Set the version number
