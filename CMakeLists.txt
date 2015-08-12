@@ -137,7 +137,7 @@ install(FILES ${headers_for_devpackage}
         DESTINATION ${header_install_location})
 install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
               "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" 
-               "${CMAKE_SOURCE_DIR}/cmake/Find${PROJECT_NAME}.cmake"
+              "${CMAKE_SOURCE_DIR}/cmake/Modules/Find${PROJECT_NAME}.cmake"
         DESTINATION . 
         COMPONENT dev)
 
