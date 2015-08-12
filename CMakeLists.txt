@@ -120,9 +120,9 @@ ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 # Install the shared obhect and the python module in "proper" places?
 install(TARGETS ${boost_python_core_module}
-        LIBRARY DESTINATION usr/lib/)
+        LIBRARY DESTINATION /usr/lib/python2.7/dist-packages)
 install(FILES ${python_module}
-        DESTINATION usr/lib/)
+        DESTINATION /usr/lib/python2.7/dist-packages)
 
 
 # cmake instructions for packaging:
