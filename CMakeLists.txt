@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(mtca4uPy)
-
+#==============================================================================#
+# This is a hack to get escape ${} as the variable expansion in the files copied
+# through configure_file. This is handy when copying shell scripts.
+# TODO: move this to a better location
+set(Dollar "$")
+#==============================================================================#
 # version Information for the project
 # bump up the version numbers in this section when creating new tags 
 set(${PROJECT_NAME}_MAJOR_VERSION 00)
@@ -115,11 +120,9 @@ ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 # Install the shared obhect and the python module in "proper" places?
 install(TARGETS ${boost_python_core_module}
-        LIBRARY DESTINATION bin)
-        install(TARGETS ${boost_python_core_module}
-        LIBRARY DESTINATION bin)
+        LIBRARY DESTINATION usr/lib/)
 install(FILES ${python_module}
-        DESTINATION bin)
+        DESTINATION usr/lib/)
 
 #all include files go into include/PROJECT_NAME
 set(${PROJECT_NAME}_INCLUDE_DIRS ${${PROJECT_NAME}_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/)

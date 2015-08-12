@@ -1,25 +1,17 @@
 Source: ${PACKAGE_NAME}
 Priority: extra
-Maintainer: Martin Killenberg <martin.killenberg@desy.de>
-Build-Depends: debhelper (>= 7), cmake (>= 2.8), dev-mtcamappeddevice (>=${min_req_mtcamappeddev_version})
-Standards-Version: 3.8.3
+Maintainer: Martin Killenberg <geogin.varghese@desy.de>
+Build-Depends: debhelper (>= 8.0.0), cmake (>= 2.8), dev-mtcamappeddevice (>=${min_req_mtcamappeddev_version})
+Standards-Version: 3.9.2
 Section: utils
-#Homepage: <insert the upstream URL, if relevant>
-
-Package: ${PACKAGE_NAME}-empty
-#The section is intentionally not set. Like this the package
-#cannot be (accidentally) installed on the repository server.
-#Section: 
-Architecture: all
-Depends: ${PACKAGE_NAME} (= ${pD}{binary:Version})
-Description: Empty package to trick dpkg-buildpackage.
- I use this package so the qthardmon.install works. This somehow is only
- the case if at least two packages are build. Just ignore it.
+X-Python-Version: >= 2.7
 
 Package: ${PACKAGE_NAME}
-Section: utils
 Architecture: any
-Depends: ${pD}{shlibs:Depends}, ${pD}{misc:Depends}
-# expand the description later
-Description: Provides access to a devMap object from python.
+Depends: ${Dollar}{python:Depends}, ${Dollar}{python:Provides}, python-numpy
+Description: This package provides python bindings to the mtcamappeddevice library
+   The initial version of the bindings. Lacking in full features of the
+   mtcamappeddevice c++ library. But functionality me
+   will be extended.
+
   

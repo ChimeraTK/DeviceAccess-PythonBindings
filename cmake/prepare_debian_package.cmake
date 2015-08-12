@@ -3,13 +3,7 @@
 #Basically this is setting the correct version number in most of the files
 
 
-string(TOLOWER ${PROJECT_NAME} PACKAGE_NAME)
-
-# This is a hack to get escape ${} as the variable expansion in the files copied
-# through configure_file
-set(pD "$")
-
-
+string(TOLOWER python-${PROJECT_NAME} PACKAGE_NAME)
 
 #Nothing to change, just copy
 file(COPY ${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/compat
@@ -22,14 +16,6 @@ file(COPY ${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/source/format
 configure_file(${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/control.in
                debian_from_template/control)
                
-configure_file(${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/pkg.install.in
-               debian_from_template/${PACKAGE_NAME}.install)
-
-configure_file(${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/pkg-empty.install.in
-               debian_from_template/${PACKAGE_NAME}-empty.install)
-
-
-
 
 #Set the version number
 configure_file(${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/copyright.in
