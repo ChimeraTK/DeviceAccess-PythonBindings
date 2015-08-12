@@ -124,32 +124,6 @@ install(TARGETS ${boost_python_core_module}
 install(FILES ${python_module}
         DESTINATION usr/lib/)
 
-#all include files go into include/PROJECT_NAME
-set(${PROJECT_NAME}_INCLUDE_DIRS ${${PROJECT_NAME}_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/)
-install(DIRECTORY ${${PROJECT_NAME}_INCLUDE_DIRS} DESTINATION include/${PROJECT_NAME}
-          FILES_MATCHING PATTERN "*.h" 
-          PATTERN ".svn" EXCLUDE)
-
-#create the config files by filling the correct variables into the template (*.cmake.in)
-#All variables @VARIABLE@ are replaced with the current values
-
-#We have nested @-statements, so we have to parse twice
-configure_file(cmake/${PROJECT_NAME}Config.cmake.in.in
-  "${PROJECT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake.in" @ONLY)
-configure_file(${PROJECT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake.in
-  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" @ONLY)
-
-configure_file(cmake/${PROJECT_NAME}ConfigVersion.cmake.in.in
-  "${PROJECT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake.in" @ONLY)
-configure_file(${PROJECT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake.in
-  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake" @ONLY)
- 
-# Install the ..Config.cmake and ..ConfigVersion.cmake
-install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" 
-  "${CMAKE_SOURCE_DIR}/cmake/Find${PROJECT_NAME}.cmake"
-  DESTINATION . COMPONENT dev)
-
 
 # cmake instructions for packaging:
 include(${CMAKE_SOURCE_DIR}/cmake/prepare_debian_package.cmake)
