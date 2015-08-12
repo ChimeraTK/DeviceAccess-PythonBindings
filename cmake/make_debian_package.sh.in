@@ -4,8 +4,7 @@
 prj_version=${${PROJECT_NAME}_VERSION}
 pkg_name=${PACKAGE_NAME}
 pkg_build_dir=${Dollar}{pkg_name}_${Dollar}{prj_version}
-#prj_tag_repository="https://svnsrv.desy.de/desy/mtca4u/PythonBindings/MtcaMappedDevice/tags/${Dollar}{prj_version}"
-prj_tag_repository="https://svnsrv.desy.de/desy/mtca4u/PythonBindings/MtcaMappedDevice/trunk"
+prj_tag_repository="https://svnsrv.desy.de/desy/mtca4u/PythonBindings/MtcaMappedDevice/tags/${Dollar}{prj_version}"
 
 #Create a working directory in order not to merge with the rest in the build directory
 mkdir debian_package
