@@ -10,7 +10,7 @@ void devMapAdapter::writeRaw(uint32_t regOffset, bp::numeric::array dataToWrite,
         reinterpret_cast<int32_t*>(extractDataPointer(dataToWrite));
     _mappedDevice->writeArea(regOffset, dataPointer, bytesToWrite, bar);
   } else {
-    throw mtca4upy::ArrayElementTypeNotSupported();
+    throw mtca4upy::ArrayElementTypeNotSupported("Data format used is unsupported");
   }
 }
 

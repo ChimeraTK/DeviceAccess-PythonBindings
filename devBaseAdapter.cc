@@ -14,7 +14,7 @@ void devBaseAdapter::writeRaw(uint32_t regOffset,
         reinterpret_cast<int32_t*>(extractDataPointer(dataToWrite));
     _mtcaDevice->writeArea(regOffset, dataPointer, bytesToWrite, bar);
   } else {
-    throw mtca4upy::ArrayElementTypeNotSupported();
+    throw mtca4upy::ArrayElementTypeNotSupported("Data format used is unsupported");
   }
 }
 
@@ -23,7 +23,7 @@ devBaseAdapter::getRegisterAccessor(const std::string& moduleName,
                                     const std::string& regName) {
   (void)(moduleName);
   (void)(regName);
-  throw MethodNotImplementedException();
+  throw MethodNotImplementedException("This method is not available for this device");
 }
 
 devBaseAdapter::~devBaseAdapter() {

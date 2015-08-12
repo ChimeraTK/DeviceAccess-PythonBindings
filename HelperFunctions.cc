@@ -12,7 +12,8 @@ void mtca4upy::throwExceptionIfOutOfBounds(
   size_t bytesInArray =
       (mtca4upy::extractNumberOfElements(dataToWrite) * sizeof(int32_t));
   if (bytesInArray < bytesToWrite) {
-    throw mtca4upy::ArrayOutOfBoundException();
+    throw mtca4upy::ArrayOutOfBoundException(
+        "size to write is more than the supplied array size");
   }
 }
 

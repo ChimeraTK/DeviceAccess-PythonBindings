@@ -1,4 +1,10 @@
 
+# This is a hack to get escape ${} as the variable expansion in the files copied
+# through configure_file. This is handy when copying shell scripts.
+# TODO: move this to a better location
+set(Dollar "$")
+
+
 # the directory parameter takes in a list of directories within the source
 # directory. The macro copies supported file extensions from these specified
 # directories into subdirectories in the build folder. The subdirectory will be
@@ -59,16 +65,16 @@ ENDMACRO( ADD_SCRIPTS_AS_TESTS )
 
 
 
-FUNCTION(CHECK_FOR_SPHINX_BUILD)
+FUNCTION(CHECK_FOR_SPHINX)
   if(NOT SPHINX_BUILD)
     # Assume there is no good version of sphinx-build on the build host 
-    set(SUPPORTED_SPHINX_BUILD_VERSION FALSE CACHE INTERNAL 
+    set(SUPPORTED_SPHINX_VERSION_AVAILABLE FALSE CACHE INTERNAL 
         "Variable indicates if a suitable version of sphinx build is available")
       
     # find if the sphinx-build executable is in the system path
     find_program(SPHINX_BUILD sphinx-build)
   
-    # set SUPPORTED_SPHINX_BUILD_VERSION to true if it is a suitable version
+    # set SUPPORTED_SPHINX_VERSION_AVAILABLE to true if it is a suitable version
     if(SPHINX_BUILD)
       CHECK_SPHINX_BUILD_VERSION()
     endif()
@@ -90,7 +96,7 @@ FUNCTION(CHECK_SPHINX_BUILD_VERSION)
       EXTRACTVERSION(${outputOfVersionCommand})
       MESSAGE(STATUS "Found Sphinx Build Version: ${extractedVersionNumber}")
       if(NOT (extractedVersionNumber LESS 1.3.0))
-        set(SUPPORTED_SPHINX_BUILD_VERSION TRUE CACHE INTERNAL 
+        set(SUPPORTED_SPHINX_VERSION_AVAILABLE TRUE CACHE INTERNAL 
         "Variable indicates if a suitable version of sphinx build is available"
         FORCE) 
       endif()    

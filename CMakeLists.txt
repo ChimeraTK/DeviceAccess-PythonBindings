@@ -2,11 +2,15 @@ cmake_minimum_required(VERSION 2.8)
 
 project(mtca4uPy)
 #==============================================================================#
-# This is a hack to get escape ${} as the variable expansion in the files copied
-# through configure_file. This is handy when copying shell scripts.
-# TODO: move this to a better location
-set(Dollar "$")
+# CMake modules stuff needed for things to work:
+
+# This location has some of the modules that we are using below
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
+include(helperMacros)
+
 #==============================================================================#
+
+
 # version Information for the project
 # bump up the version numbers in this section when creating new tags 
 set(${PROJECT_NAME}_MAJOR_VERSION 00)
@@ -14,10 +18,7 @@ set(${PROJECT_NAME}_MINOR_VERSION 01)
 set(${PROJECT_NAME}_PATCH_VERSION 00)
 set(min_req_mtcamappeddev_version 00.17)
 
-set(${PROJECT_NAME}_VERSION
-  ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_VERSION})
-set(${PROJECT_NAME}_SOVERSION ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION})
-
+#
 # other variables 
 set(boost_python_core_module "mtcamappeddevice")
 set(python_module "mtca4u.py")
@@ -26,11 +27,10 @@ set(location_of_rst_source_files "${PROJECT_SOURCE_DIR}/doc")
 set(location_of_built_html_files "${PROJECT_BINARY_DIR}/html")
 set(sphinx_build_config_file "${PROJECT_BINARY_DIR}/conf.py")
 set(author "MSK")
-#
-# This location has some of the modules that we are using below
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
-include(helperMacros)
 
+set(${PROJECT_NAME}_VERSION
+  ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_VERSION})
+set(${PROJECT_NAME}_SOVERSION ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION})
 #
 # Check if project dependencies are met
 find_package(Boost REQUIRED COMPONENTS python)
@@ -40,15 +40,13 @@ find_package(NumPy REQUIRED)
 
 #
 # add target for documentation if sphinx v1.3+ is available. 
-CHECK_FOR_SPHINX_BUILD()
-if(SUPPORTED_SPHINX_BUILD_VERSION)
+CHECK_FOR_SPHINX()
+if(SUPPORTED_SPHINX_VERSION_AVAILABLE)
   ADD_HTML_DOCUMENTATION_SUPPORT()
 else()
     message(STATUS "Html doumentation support will not be enabled")
     message(STATUS "Please install working sphinx-doc version (1.3.0+) for html documentation support")
-endif(SUPPORTED_SPHINX_BUILD_VERSION)
-
-
+endif(SUPPORTED_SPHINX_VERSION_AVAILABLE)
 
 #
 # Set the compiler flags.
@@ -70,9 +68,6 @@ add_library(${boost_python_core_module} SHARED MtcaMappedDevicePython.cc
                                          devMapFactory.cc
                                          HelperFunctions.cc
                                          RegisterAccessorWrapperFunctions.cc)
-                                         
-                                         
-                                         
 target_link_libraries(${boost_python_core_module} ${MtcaMappedDevice_LIBRARIES}
                                             ${PYTHON_LIBRARIES} 
                                             ${Boost_LIBRARIES})
@@ -80,10 +75,8 @@ target_link_libraries(${boost_python_core_module} ${MtcaMappedDevice_LIBRARIES}
 set_target_properties(${boost_python_core_module} PROPERTIES PREFIX "")
 
 
-# Copy mymodule.py to the build directory. TODO: This is supposed to be a 
-# temporary thing. Will have to structure into something better later
-#
-#TODO: Fix this hardcode later
+# Copy th e pure python module to the build directory. This is needed by the
+# tests
 configure_file( ${python_module}  ${PROJECT_BINARY_DIR} 
                 copyonly)
 
@@ -118,11 +111,39 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 
-# Install the shared obhect and the python module in "proper" places?
+# Install the shared obhect and the python module(Assumes they are copied to the
+# build directory already) in "proper" places?
 install(TARGETS ${boost_python_core_module}
         LIBRARY DESTINATION /usr/lib/python2.7/dist-packages)
 install(FILES ${python_module}
         DESTINATION /usr/lib/python2.7/dist-packages)
+
+
+#all include files go into include/PROJECT_NAME
+set(${PROJECT_NAME}_INCLUDE_DIRS ${${PROJECT_NAME}_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/)
+install(DIRECTORY ${${PROJECT_NAME}_INCLUDE_DIRS} DESTINATION include/${PROJECT_NAME}
+          FILES_MATCHING PATTERN "*.h" 
+          PATTERN ".svn" EXCLUDE)
+
+#create the config files by filling the correct variables into the template (*.cmake.in)
+#All variables @VARIABLE@ are replaced with the current values
+
+#We have nested @-statements, so we have to parse twice
+configure_file(cmake/${PROJECT_NAME}Config.cmake.in.in
+  "${PROJECT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake.in" @ONLY)
+configure_file(${PROJECT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake.in
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" @ONLY)
+
+configure_file(cmake/${PROJECT_NAME}ConfigVersion.cmake.in.in
+  "${PROJECT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake.in" @ONLY)
+configure_file(${PROJECT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake.in
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake" @ONLY)
+ 
+# Install the ..Config.cmake and ..ConfigVersion.cmake
+install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" 
+  "${CMAKE_SOURCE_DIR}/cmake/Find${PROJECT_NAME}.cmake"
+  DESTINATION . COMPONENT dev)
 
 
 # cmake instructions for packaging:

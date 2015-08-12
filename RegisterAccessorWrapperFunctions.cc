@@ -13,7 +13,7 @@ void mtca4upy::readWrapper(
         reinterpret_cast<float*>(extractDataPointer(numpyArray));
     self.read<float>(dataLocation, arraySize, elementIndexInRegister);
   } else {
-    throw mtca4upy::ArrayElementTypeNotSupported();
+    throw mtca4upy::ArrayElementTypeNotSupported("Data format used is unsupported");
   }
 }
 
@@ -50,7 +50,7 @@ void mtca4upy::writeWrapper(
       rawData[i] = fPConvrter.toFixedPoint(data[i]);
     }
   } else {
-    throw mtca4upy::ArrayElementTypeNotSupported();
+    throw mtca4upy::ArrayElementTypeNotSupported("Data format used is unsupported");
   }
 
   self.writeReg(&(rawData[0]), numElements * sizeof(int32_t), offsetInBytes);
@@ -71,7 +71,7 @@ void mtca4upy::readRawWrapper(
     size_t dataSize = arraySize * sizeof(uint32_t);
     self.readReg(dataLocation, dataSize, dataOffset);
   } else {
-    throw mtca4upy::ArrayElementTypeNotSupported();
+    throw mtca4upy::ArrayElementTypeNotSupported("Data format used is unsupported");
   };
 }
 
@@ -86,7 +86,8 @@ void mtca4upy::writeRawWrapper(
     size_t dataSize = arraySize * sizeof(uint32_t);
     self.writeReg(dataLocation, dataSize, dataOffset);
   } else {
-    throw mtca4upy::ArrayElementTypeNotSupported();
+    throw mtca4upy::ArrayElementTypeNotSupported(
+        "Data format used is unsupported");
   }
 }
 
@@ -101,7 +102,7 @@ void mtca4upy::readDMARawWrapper(
     size_t dataSize = arraySize * sizeof(uint32_t);
     self.readDMA(dataLocation, dataSize, dataOffset);
   } else {
-    throw mtca4upy::ArrayElementTypeNotSupported();
+    throw mtca4upy::ArrayElementTypeNotSupported("Data format used is unsupported");
   }
 }
 

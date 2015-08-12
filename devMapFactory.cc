@@ -21,7 +21,7 @@ boost::shared_ptr<mtca4upy::PythonDevice> devMapFactory::createDevice() {
   } else if (isPCIEDevice() == true) {
     mappedDevice = createMappedDevice(new mtca4u::devPCIE());
   } else {
-    throw mtca4upy::DeviceNotSupported();
+    throw mtca4upy::DeviceNotSupported("Unable to identify device");
   }
   return boost::shared_ptr<mtca4upy::PythonDevice>(
       new mtca4upy::devMapAdapter(mappedDevice));
@@ -57,7 +57,9 @@ bool devMapFactory::isDummyDevice() {
 
 void devMapFactory::checkDummyDeviceParameters() {
   if (_deviceDetails->deviceName != _deviceDetails->deviceMapFileLocation) {
-    throw DummyDeviceBadParameterException();
+    throw DummyDeviceBadParameterException("Mapped Dummy Device expects first "
+                                           "and second parameters to be the "
+                                           "same map file");
   }
 }
 
