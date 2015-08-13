@@ -8,7 +8,7 @@ X-Python-Version: >= 2.7
 
 Package: ${PACKAGE_NAME}
 Architecture: any
-Depends: ${Dollar}{python:Depends}, ${Dollar}{shlibs:Depends}, python-numpy, libboost-python (>= 1.46)
+Depends: ${Dollar}{python:Depends}, ${Dollar}{shlibs:Depends}, python-numpy 
 Description: This package provides python bindings to the mtcamappeddevice library
    The initial version of the bindings. Lacking in full features of the
    mtcamappeddevice c++ library. But functionality me
@@ -17,8 +17,6 @@ Description: This package provides python bindings to the mtcamappeddevice libra
   
 Package: ${PACKAGE_NAME}-dev
 Architecture: any
-Depends: ${Dollar}{python:Depends}, ${Dollar}{shlibs:Depends}, python-numpy, libboost-python (>= 1.46)
-Description: This package provides python bindings to the mtcamappeddevice library
-   The initial version of the bindings. Lacking in full features of the
-   mtcamappeddevice c++ library. But functionality me
-   will be extended.
+Depends: ${PACKAGE_NAME},
+Description: This package provides utility methods
+    The methods are provided as include files with this package
