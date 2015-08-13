@@ -75,7 +75,7 @@ set_target_properties(${boost_python_core_module} PROPERTIES PREFIX "")
 
 
 # Copy th e pure python module to the build directory. This is needed by the
-# tests
+# tests + packaging looks for it here
 configure_file( ${python_module}  ${PROJECT_BINARY_DIR} 
                 copyonly)
 
@@ -117,7 +117,7 @@ set(headers_for_devpackage ${CMAKE_SOURCE_DIR}/HelperFunctions.h
 string(TOLOWER include/${PROJECT_NAME} header_install_location)
 
 # These are cmake modules that would be installed to enable find_package command
-# on the target system
+# for this library on the target system
 configure_file(cmake/Config.cmake.in
   "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
 configure_file(cmake/ConfigVersion.cmake.in

@@ -6,8 +6,6 @@
 #                           the package was found
 #   mtca4uPy_VERSION      : the package version
 #   mtca4uPy_INCLUDE_DIRS : path to the include directory
-#   mtca4uPy_LIBRARY_DIRS : path to the library directory
-#   mtca4uPy_LIBRARY      : the provided libraries
 #
 # @author Martin Killenberg, DESY (modified for mtca4uPy by Martin Hierholzer, DESY)
 #
