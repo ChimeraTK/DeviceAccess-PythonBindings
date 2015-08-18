@@ -18,7 +18,7 @@ Description: This package provides python bindings to the mtcamappeddevice libra
    will be extended.
 
   
-Package: ${PACKAGE_NAME}-dev
+Package: ${PACKAGE_DEV_NAME}
 Architecture: any
 Depends: ${PACKAGE_NAME},
 Description: This package provides utility methods

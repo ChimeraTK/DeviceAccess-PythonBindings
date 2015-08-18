@@ -34,7 +34,7 @@ sg flash -c "umask 002; cp @PACKAGE_FILES_WILDCARDS@ /home/debian/${DEBIAN_CODEN
 
 # Step 3: Install to the repository
 for REPO in intern pub; do
-    for FILE in qthardmon_*.deb; do
+    for FILE in @PACKAGE_NAME@*.deb; do
 	ssh doocspkgs sudo -H reprepro --waitforlock 2 -Vb \
 	    /export/reprepro/${REPO}/doocs includedeb ${DEBIAN_CODENAME} \
 	    /home/debian/${DEBIAN_CODENAME}/stable/${FILE}

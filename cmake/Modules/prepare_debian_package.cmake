@@ -4,6 +4,7 @@
 
 
 string(TOLOWER python-${PROJECT_NAME} PACKAGE_NAME)
+set(PACKAGE_DEV_NAME "${PACKAGE_NAME}-dev")
 
 #Nothing to change, just copy
 file(COPY ${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/compat
@@ -35,7 +36,7 @@ add_custom_target(debian_package ${CMAKE_BINARY_DIR}/make_debian_package.sh
                   COMMENT Building debian package for tag ${MtcaMappedDevice_VERSION})
 
 #For convenience: Also create an install script for DESY
-set(PACKAGE_FILES_WILDCARDS "${PACKAGE_NAME}_*.deb ${PACKAGE_NAME}_*.changes")
+set(PACKAGE_FILES_WILDCARDS "${PACKAGE_NAME}*.deb ${PACKAGE_NAME}*.changes")
 
 configure_file(${CMAKE_SOURCE_DIR}/cmake/install_debian_package_at_DESY.sh.in
                install_debian_package_at_DESY.sh @ONLY)
