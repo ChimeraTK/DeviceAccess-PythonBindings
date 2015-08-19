@@ -80,22 +80,25 @@ configure_file( ${python_module}  ${PROJECT_BINARY_DIR}
                 copyonly)
 
 #
-# For now tests and coverage are enabled in the debug Mode only
+# set up test cases
+ENABLE_TESTING()
+#
+# Copy the test scripts to the build directory:
+COPY_CONTENT_TO_BUILD_DIR("tests;tests/mapfiles")
+#
+# Add the scripts as ctests.
+FILE(GLOB location_of_script_files 
+    "${PROJECT_BINARY_DIR}/tests/*.py")
+ADD_SCRIPTS_AS_TESTS( "${location_of_script_files}" )
+
+#
+# For now coverage is enabled in the debug Mode only
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    ENABLE_TESTING()
+
     #
     # Enable gdb and coverage report in the debug configuration.
     # (-DCMAKE_BUILD_TYPE=Debug)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 --coverage")
-    #
-    # Copy the test scripts to the build directory:
-    COPY_CONTENT_TO_BUILD_DIR("tests;tests/mapfiles")
-
-    #
-    # Add the scripts as ctests.
-    FILE(GLOB location_of_script_files 
-        "${PROJECT_BINARY_DIR}/tests/*.py")
-    ADD_SCRIPTS_AS_TESTS( "${location_of_script_files}" )
 
     #
     # Enable code coverage when cmake build configured -DCMAKE_BUILD_TYPE=Debug.
