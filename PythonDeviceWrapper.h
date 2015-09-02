@@ -32,8 +32,13 @@ public:
                       const std::string& regName) {
     return (this->get_override("getRegisterAccessor")(moduleName, regName));
   }
+  inline boost::shared_ptr<mtca4u::MultiplexedDataAccessor<float> >
+  getMultiplexedDataAccessor(const std::string& moduleName,
+                             const std::string& regionName) {
+    return (this->get_override("getMultiplexedDataAccessor")(moduleName,
+                                                             regionName));
+  }
   virtual ~PythonDeviceWrapper() {};
 };
 }
 #endif /* SOURCE_DIRECTORY__DEVBASEWRAPPER_H_ */
-

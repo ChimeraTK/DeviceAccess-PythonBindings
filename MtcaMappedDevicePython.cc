@@ -5,6 +5,7 @@
 #include "PythonDeviceWrapper.h"
 #include "PythonDeviceWrapper.h"
 #include "RegisterAccessorWrapperFunctions.h"
+#include "MultiplexedDataAccessorWrapper.h"
 
 namespace mtca4upy {
 /**
@@ -66,7 +67,9 @@ BOOST_PYTHON_MODULE(mtcamappeddevice) { // TODO: find a better name for
       "Device") // TODO: Find and change "Device" to a suitable name
       .def("writeRaw", bp::pure_virtual(&mtca4upy::PythonDevice::writeRaw))
       .def("getRegisterAccessor",
-           bp::pure_virtual(&mtca4upy::PythonDevice::getRegisterAccessor));
+           bp::pure_virtual(&mtca4upy::PythonDevice::getRegisterAccessor))
+      .def("getMultiplexedDataAccessor",
+           bp::pure_virtual(&mtca4upy::PythonDevice::getMultiplexedDataAccessor));
 
   bp::class_<
       mtca4u::devMap<mtca4u::devBase>::RegisterAccessor,
@@ -74,15 +77,36 @@ BOOST_PYTHON_MODULE(mtcamappeddevice) { // TODO: find a better name for
       "RegisterAccessor",
       bp::init<const std::string, const mtca4u::mapFile::mapElem,
                boost::shared_ptr<mtca4u::devBase> >())
-      .def("read", mtca4upy::readWrapper)
-      .def("write", mtca4upy::writeWrapper)
-      .def("readRaw", mtca4upy::readRawWrapper)
-      .def("writeRaw", mtca4upy::writeRawWrapper)
-      .def("readDMARaw", mtca4upy::readDMARawWrapper)
-      .def("getNumElements", mtca4upy::sizeWrapper);
+      .def("read", mtca4upy::RegisterAccessor::readWrapper)
+      .def("write", mtca4upy::RegisterAccessor::writeWrapper)
+      .def("readRaw", mtca4upy::RegisterAccessor::readRawWrapper)
+      .def("writeRaw", mtca4upy::RegisterAccessor::writeRawWrapper)
+      .def("readDMARaw", mtca4upy::RegisterAccessor::readDMARawWrapper)
+      .def("getNumElements", mtca4upy::RegisterAccessor::sizeWrapper);
+
+     /*
+     * define the multipleddataaccessor class in the module. here we specify its
+     * python interface in the boost generated python module.
+     *
+     * The MultiplexedDataAccessor is an abstract class. We would also need to
+     * register a shared pointer object to this type (because the factory we use
+     * to create it gives back a shared pointer). What we have below should take
+     * care of the abstract class part
+     */
+  bp::class_<mtca4upy::MultiplexedDataAccessorWrapper, boost::noncopyable>(
+      "MuxDataAccessor",
+      bp::init<const boost::shared_ptr<mtca4u::devBase>&,
+               const std::vector<mtca4u::FixedPointConverter>&>())
+      .def("initialize", mtca4upy::MuxDataAccessor::prepareAccessor)
+      .def("getSequenceCount", mtca4upy::MuxDataAccessor::getSequenceCount)
+      .def("getBlockCount", mtca4upy::MuxDataAccessor::getBlockCount)
+      .def("read", mtca4upy::MuxDataAccessor::read);
+
 
   bp::def("createDevice", createDevice);
   bp::def("createDevice", createMappedDevice);
   bp::register_ptr_to_python<boost::shared_ptr<mtca4upy::PythonDevice> >();
+  bp::register_ptr_to_python<
+      boost::shared_ptr<mtca4u::MultiplexedDataAccessor<float> > >();
   bp::numeric::array::set_module_and_type("numpy", "ndarray");
 }

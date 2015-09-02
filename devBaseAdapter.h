@@ -32,6 +32,10 @@ public:
   getRegisterAccessor(const std::string &moduleName,
                       const std::string &regName);
 
+  boost::shared_ptr<mtca4u::MultiplexedDataAccessor<float> >
+  getMultiplexedDataAccessor(const std::string &moduleName,
+                             const std::string &regionName);
+
   ~devBaseAdapter();
 };
 

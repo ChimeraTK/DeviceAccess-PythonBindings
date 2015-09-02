@@ -106,7 +106,7 @@ class Device():
     
     See Also
     --------
-    Device.readRaw : Read in 'raw' bit values from a device register 
+    Device.read_raw : Read in 'raw' bit values from a device register 
 
     """
     
@@ -114,10 +114,11 @@ class Device():
                                                                 registerName)
     # throw if element index  exceeds register size
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
-    array = self.__createArray(numpy.float32, registerAccessor,
+    registerSize = registerAccessor.getNumElements();
+    array = self.__createArray(numpy.float32, registerSize,
                                                numberOfElementsToRead,
                                                elementIndexInRegister)
-    registerAccessor.read(array, array.size, 
+    registerAccessor.read(array, array.size,
                           elementIndexInRegister)
     
     return array
@@ -176,7 +177,7 @@ class Device():
       
     See Also
     --------
-    Device.writeRaw : Write 'raw' bit values to a device register
+    Device.write_raw : Write 'raw' bit values to a device register
     
     """
     # get register accessor
@@ -188,7 +189,7 @@ class Device():
     registerAccessor.write(arrayToHoldData, numberOfElementsToWrite,
                             elementIndexInRegister)
   
-  def readRaw(self, moduleName, registerName, numberOfElementsToRead=0, 
+  def read_raw(self, moduleName, registerName, numberOfElementsToRead=0, 
               elementIndexInRegister=0):
     """ Returns the raw values from a device's register
     
@@ -234,28 +235,28 @@ class Device():
     --------
     register "WORD_STATUS" is 1 element long.
       >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-      >>> boardWithModules.readRaw("BOARD", "WORD_STATUS")
+      >>> boardWithModules.read_raw("BOARD", "WORD_STATUS")
       array([15], dtype=int32)
     
     register "WORD_CLK_MUX" is 4 elements long.
       >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-      >>> device.readRaw("", "WORD_CLK_MUX")
+      >>> device.read_raw("", "WORD_CLK_MUX")
       array([15, 14, 13, 12], dtype=int32)
-      >>> device.readRaw("", "WORD_CLK_MUX", 0)
+      >>> device.read_raw("", "WORD_CLK_MUX", 0)
       array([15, 14, 13, 12], dtype=int32)
-      >>> device.readRaw("", "WORD_CLK_MUX", 5)
+      >>> device.read_raw("", "WORD_CLK_MUX", 5)
       array([15, 14, 13, 12], dtype=int32)
-      >>> device.readRaw("", "WORD_CLK_MUX", 1)
+      >>> device.read_raw("", "WORD_CLK_MUX", 1)
       array([15], dtype=int32)
-      >>> device.readRaw("", "WORD_CLK_MUX", 1, 2 )
+      >>> device.read_raw("", "WORD_CLK_MUX", 1, 2 )
       array([13], dtype = int32)
-      >>> device.readRaw("", "WORD_CLK_MUX", 0, 2 )
+      >>> device.read_raw("", "WORD_CLK_MUX", 0, 2 )
       array([13, 12], dtype=int32)
-      >>> device.readRaw("", "WORD_CLK_MUX", 5, 2 )
+      >>> device.read_raw("", "WORD_CLK_MUX", 5, 2 )
       array([13, 12], dtype=int32)
-      >>> device.readRaw("", "WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
+      >>> device.read_raw("", "WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
       array([13], dtype=int32)
-      >>> device.readRaw("", "WORD_CLK_MUX", elementIndexInRegister=2 )
+      >>> device.read_raw("", "WORD_CLK_MUX", elementIndexInRegister=2 )
       array([13, 12], dtype=int32)
     
     See Also
@@ -268,13 +269,14 @@ class Device():
                                                                registerName)
     # throw if element index  exceeds register size
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
-    array = self.__createArray(numpy.int32, registerAccessor, 
+    registerSize = registerAccessor.getNumElements();
+    array = self.__createArray(numpy.int32, registerSize, 
                                numberOfElementsToRead, elementIndexInRegister) 
     registerAccessor.readRaw(array, array.size, elementIndexInRegister)
     
     return array
   
-  def writeRaw(self, moduleName, registerName, dataToWrite,
+  def write_raw(self, moduleName, registerName, dataToWrite,
       elementIndexInRegister=0):
     """ Write raw bit values into the register
     
@@ -309,14 +311,14 @@ class Device():
     register "WORD_STATUS" is 1 element long and is part of the module "BOARD".
       >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> dataToWrite = numpy.array([15], dtype=int32)
-      >>> boardWithModules.writeRaw("BOARD", "WORD_STATUS")
+      >>> boardWithModules.write_raw("BOARD", "WORD_STATUS")
     
     register "WORD_CLK_MUX" is 4 elements long.
       >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> dataToWrite = numpy.array([15, 14, 13, 12], dtype=int32)
-      >>> device.writeRaw("WORD_CLK_MUX", dataToWrite)
+      >>> device.write_raw("", "WORD_CLK_MUX", dataToWrite)
       >>> dataToWrite = numpy.array([13, 12], dtype=int32)
-      >>> device.writeRaw("WORD_CLK_MUX", dataToWrite, 2)
+      >>> device.write_raw("MODULE1", "WORD_CLK_MUX", dataToWrite, 2)
         
     See Also
     --------
@@ -333,7 +335,7 @@ class Device():
                                elementIndexInRegister)
   
   
-  def readDMARaw(self, DMARegisterName, numberOfElementsToRead=0, 
+  def read_dma_raw(self, moduleName, DMARegisterName, numberOfElementsToRead=0, 
                  elementIndexInRegister=0):
     """ Read in Data from the DMA region of the card
     
@@ -343,6 +345,11 @@ class Device():
     
     Parameters
     ----------
+    moduleName : str
+      The name of the device module that has the register we intend to write to.
+      If module name is not applicable to the device, then provide an empty
+      string as the parameter value.
+      
     DMARegisterName : str
       The register name to which the DMA memory region is mapped
     
@@ -370,21 +377,22 @@ class Device():
     --------
     In the example, register "AREA_DMA_VIA_DMA" is the DMA mapped memory made up of 32 bit elements.
       >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-      >>> device.readDMARaw("AREA_DMA_VIA_DMA", 10)
+      >>> device.read_dma_raw("", "AREA_DMA_VIA_DMA", 10)
       array([0, 1, 4, 9, 16, 25, 36, 49, 64, 81], dtype=int32)
-      >>> device.readDMARaw("AREA_DMA_VIA_DMA", 10, 2 )
+      >>> device.read_dma_raw("ModuleADC", "AREA_DMA_VIA_DMA", 10, 2 )
       array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype=int32)
-      >>> device.readDMARaw("AREA_DMA_VIA_DMA", numberOfElementsToRead=10, elementIndexInRegister=2 )
+      >>> device.read_dma_raw("", "AREA_DMA_VIA_DMA", numberOfElementsToRead=10, elementIndexInRegister=2 )
       array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype=int32)
 
     """
     
         # use wrapper aroung readreg
-    registerAccessor = self.__openedDevice.getRegisterAccessor("", 
+    registerAccessor = self.__openedDevice.getRegisterAccessor(moduleName, 
                                                                DMARegisterName)
     # throw if element index  exceeds register size
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
-    array = self.__createArray(numpy.int32, registerAccessor, 
+    registerSize = registerAccessor.getNumElements();
+    array = self.__createArray(numpy.int32, registerSize, 
                                numberOfElementsToRead, elementIndexInRegister)
     registerAccessor.readDMARaw(array, array.size, 
                           elementIndexInRegister)
@@ -392,6 +400,52 @@ class Device():
     return array
     
     
+  def read_sequences(self, moduleName, regionName):
+    """ Read in all sequences from a Multiplexed data Region
+    
+    This method returns the demultiplexed sequences in the memory area specified
+    by regionName. The data is returned as a 2D numpy array with the coulums
+    representing induvidual sequences
+    
+    Parameters
+    ----------
+    moduleName : str
+      The name of the device module that has the register we intend to write to.
+      If module name is not applicable to the device, then provide an empty
+      string as the parameter value.
+      
+    regionName : str
+      The name of the memory area containing the multiplexed data.
+    
+    Returns
+    -------
+    2DarrayOfValues: numpy.array, dtype == numpy.float32
+      The method returns a 2D numpy.float32 array containing extracted
+      induvidual sequences as the rows
+    
+    Examples
+    --------
+    In the example, register "AREA_DMA_VIA_DMA" is the DMA mapped memory made up of 32 bit elements.
+      >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> device.read_sequences("", "DMA")
+      array([[   0.,    1.,    4.,    9.,   16.],
+             [  25.,   36.,   49.,   64.,   81.],
+             [ 100.,  121.,  144.,  169.,  196.],
+             [ 225.,  256.,  289.,  324.,  361.]
+             [ 400.,  441.,  484.,  529.,  576.]], dtype=float32)
+             
+    """
+    muxedRegisterAccessor = self.__openedDevice.getMultiplexedDataAccessor(moduleName, 
+                                                                           regionName)
+
+    muxedRegisterAccessor.initialize();
+    numberOfSequences = muxedRegisterAccessor.getSequenceCount()
+    numberOfBlocks = muxedRegisterAccessor.getBlockCount()
+    array2D = self.__create2DArray(numpy.float32, numberOfBlocks,
+                                   numberOfSequences)
+    muxedRegisterAccessor.read(array2D)
+    return array2D
+
 
 # Helper methods below    
     
@@ -422,17 +476,21 @@ class Device():
       raise TypeError("Method expects values in a {0} " 
                       " numpy.array".format(dType))  
   
-  def __getCorrectedElementCount(self, registerAccessor, numberOfelements,
+  def __getCorrectedElementCount(self, elementCountInRegister, numberOfelements,
                                   elementOffset):
-    elementCountInRegister =  registerAccessor.getNumElements()
+    elementCountInRegister #=  registerAccessor.getNumElements()
     maxFetchableElements = elementCountInRegister - elementOffset
     correctedElementCount = numberOfelements if (numberOfelements != 0 and numberOfelements <= maxFetchableElements) else maxFetchableElements
     return correctedElementCount
 
-  def __createArray(self, dType, registerAccessor, numberOfElementsToRead, 
+  def __createArray(self, dType, numberOfElementsInRegister, numberOfElementsToRead, 
                     elementIndexInRegister):
-    size = self.__getCorrectedElementCount(registerAccessor, 
+    size = self.__getCorrectedElementCount(numberOfElementsInRegister, 
                                            numberOfElementsToRead, 
                                            elementIndexInRegister)
     array = numpy.zeros(size, dtype = dType)
     return array
+
+  def __create2DArray(self, dType, numberOfRows, numberOfColumns):
+      array2D = numpy.zeros((numberOfRows, numberOfColumns), dtype=dType)
+      return array2D

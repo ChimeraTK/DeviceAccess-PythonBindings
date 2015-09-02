@@ -4,7 +4,11 @@
 #include <MtcaMappedDevice/devMap.h>
 #include "HelperFunctions.h"
 
+// FIXME: extract 'size_t arraySize' from  bp::numeric array.
+
 namespace mtca4upy {
+namespace RegisterAccessor {
+
 void readWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self,
                  bp::numeric::array &numpyArray, size_t arraySize,
                  uint32_t elementIndexInRegister);
@@ -22,5 +26,16 @@ void readDMARawWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self,
                        uint32_t elementIndexInRegister);
 uint32_t sizeWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self);
 }
+
+namespace MuxDataAccessor {
+
+void prepareAccessor(mtca4u::MultiplexedDataAccessor<float> &self);
+size_t getSequenceCount(mtca4u::MultiplexedDataAccessor<float> &self);
+size_t getBlockCount(mtca4u::MultiplexedDataAccessor<float> &self);
+void read(mtca4u::MultiplexedDataAccessor<float> &self,
+          bp::numeric::array &numpyArray);
+
+} // namespace RegisterAccessor
+} // namespace mtca4upy
 
 #endif /* REGISTERACCESSORWRAPPERFUNCTIONS_H_ */

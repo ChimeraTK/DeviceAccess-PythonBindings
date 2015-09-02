@@ -3,7 +3,7 @@
 #include "MtcaMappedDevice/FixedPointConverter.h"
 
 // TODO: Reduce Boilerplate Code
-void mtca4upy::readWrapper(
+void mtca4upy::RegisterAccessor::readWrapper(
     mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self,
     bp::numeric::array& numpyArray, size_t arraySize,
     uint32_t elementIndexInRegister) {
@@ -13,11 +13,12 @@ void mtca4upy::readWrapper(
         reinterpret_cast<float*>(extractDataPointer(numpyArray));
     self.read<float>(dataLocation, arraySize, elementIndexInRegister);
   } else {
-    throw mtca4upy::ArrayElementTypeNotSupported("Data format used is unsupported");
+    throw mtca4upy::ArrayElementTypeNotSupported(
+        "Data format used is unsupported");
   }
 }
 
-void mtca4upy::writeWrapper(
+void mtca4upy::RegisterAccessor::writeWrapper(
     mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self,
     bp::numeric::array& numpyArray, size_t numElements,
     uint32_t elementIndexInRegister) {
@@ -50,7 +51,8 @@ void mtca4upy::writeWrapper(
       rawData[i] = fPConvrter.toFixedPoint(data[i]);
     }
   } else {
-    throw mtca4upy::ArrayElementTypeNotSupported("Data format used is unsupported");
+    throw mtca4upy::ArrayElementTypeNotSupported(
+        "Data format used is unsupported");
   }
 
   self.writeReg(&(rawData[0]), numElements * sizeof(int32_t), offsetInBytes);
@@ -60,10 +62,12 @@ void mtca4upy::writeWrapper(
    float from this Python object of type numpy.float32
  */
 }
-void mtca4upy::readRawWrapper(
+
+void mtca4upy::RegisterAccessor::readRawWrapper(
     mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self,
     bp::numeric::array& numpyArray, size_t arraySize,
     uint32_t elementIndexInRegister) {
+
   if (extractDataType(numpyArray) == INT32) {
     int32_t* dataLocation =
         reinterpret_cast<int32_t*>(extractDataPointer(numpyArray));
@@ -71,11 +75,12 @@ void mtca4upy::readRawWrapper(
     size_t dataSize = arraySize * sizeof(uint32_t);
     self.readReg(dataLocation, dataSize, dataOffset);
   } else {
-    throw mtca4upy::ArrayElementTypeNotSupported("Data format used is unsupported");
+    throw mtca4upy::ArrayElementTypeNotSupported(
+        "Data format used is unsupported");
   };
 }
 
-void mtca4upy::writeRawWrapper(
+void mtca4upy::RegisterAccessor::writeRawWrapper(
     mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self,
     bp::numeric::array& numpyArray, size_t arraySize,
     uint32_t elementIndexInRegister) {
@@ -91,10 +96,11 @@ void mtca4upy::writeRawWrapper(
   }
 }
 
-void mtca4upy::readDMARawWrapper(
+void mtca4upy::RegisterAccessor::readDMARawWrapper(
     mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self,
     bp::numeric::array& numpyArray, size_t arraySize,
     uint32_t elementIndexInRegister) {
+
   if (extractDataType(numpyArray) == INT32) {
     int32_t* dataLocation =
         reinterpret_cast<int32_t*>(extractDataPointer(numpyArray));
@@ -102,12 +108,50 @@ void mtca4upy::readDMARawWrapper(
     size_t dataSize = arraySize * sizeof(uint32_t);
     self.readDMA(dataLocation, dataSize, dataOffset);
   } else {
-    throw mtca4upy::ArrayElementTypeNotSupported("Data format used is unsupported");
+    throw mtca4upy::ArrayElementTypeNotSupported(
+        "Data format used is unsupported");
   }
 }
 
-uint32_t mtca4upy::sizeWrapper(
+uint32_t mtca4upy::RegisterAccessor::sizeWrapper(
     mtca4u::devMap<mtca4u::devBase>::RegisterAccessor& self) {
   const mtca4u::mapFile::mapElem& mapelem = self.getRegisterInfo();
   return (mapelem.reg_elem_nr);
+}
+
+void mtca4upy::MuxDataAccessor::prepareAccessor(
+    mtca4u::MultiplexedDataAccessor<float>& self) {
+  self.read();
+}
+
+size_t mtca4upy::MuxDataAccessor::getSequenceCount(
+    mtca4u::MultiplexedDataAccessor<float>& self) {
+  return (self.getNumberOfDataSequences());
+}
+
+size_t mtca4upy::MuxDataAccessor::getBlockCount(
+    mtca4u::MultiplexedDataAccessor<float>& self) {
+  // FIXME: Make sure prepareAccessor was called. check and throw an exception
+  // if
+  // it was not
+  return (self[0].size());
+}
+
+void mtca4upy::MuxDataAccessor::read(
+    mtca4u::MultiplexedDataAccessor<float>& self,
+    bp::numeric::array& numpyArray) {
+  // FIXME: Make sure prepareAccessor was called. check and throw an exception
+  // if
+  // it was not
+  float* data = reinterpret_cast<float*>(extractDataPointer(numpyArray));
+
+  size_t numSequences = self.getNumberOfDataSequences();
+  size_t numBlocks = self[0].size();
+
+  for (size_t rowCount = 0; rowCount < numSequences; ++rowCount) {
+    for (size_t columnCount = 0; columnCount < numBlocks; ++columnCount) {
+      data[(numBlocks * columnCount) + rowCount] = self[rowCount][columnCount];
+    }
+  }
+
 }

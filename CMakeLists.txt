@@ -66,7 +66,9 @@ add_library(${boost_python_core_module} SHARED MtcaMappedDevicePython.cc
                                          devBaseFactory.cc
                                          DeviceFactory.cc
                                          devMapFactory.cc
+                                         MultiplexedDataAccessorWrapper.cc
                                          RegisterAccessorWrapperFunctions.cc)
+                                         
 target_link_libraries(${boost_python_core_module} ${MtcaMappedDevice_LIBRARIES}
                                             ${PYTHON_LIBRARIES} 
                                             ${Boost_LIBRARIES})

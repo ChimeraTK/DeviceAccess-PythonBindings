@@ -14,7 +14,8 @@ void devBaseAdapter::writeRaw(uint32_t regOffset,
         reinterpret_cast<int32_t*>(extractDataPointer(dataToWrite));
     _mtcaDevice->writeArea(regOffset, dataPointer, bytesToWrite, bar);
   } else {
-    throw mtca4upy::ArrayElementTypeNotSupported("Data format used is unsupported");
+    throw mtca4upy::ArrayElementTypeNotSupported(
+        "Data format used is unsupported");
   }
 }
 
@@ -23,7 +24,8 @@ devBaseAdapter::getRegisterAccessor(const std::string& moduleName,
                                     const std::string& regName) {
   (void)(moduleName);
   (void)(regName);
-  throw MethodNotImplementedException("This method is not available for this device");
+  throw MethodNotImplementedException(
+      "This method is not available for this device");
 }
 
 devBaseAdapter::~devBaseAdapter() {
@@ -32,3 +34,9 @@ devBaseAdapter::~devBaseAdapter() {
 
 } /* namespace mtcapy */
 
+boost::shared_ptr<mtca4u::MultiplexedDataAccessor<float> >
+mtca4upy::devBaseAdapter::getMultiplexedDataAccessor(
+    const std::string& /*moduleName*/, const std::string& /*regionName*/) {
+  throw MethodNotImplementedException(
+      "MultiplexedDataAccessor creation not supported for this device");
+}
