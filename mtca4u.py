@@ -425,7 +425,8 @@ class Device():
     
     Examples
     --------
-    In the example, register "AREA_DMA_VIA_DMA" is the DMA mapped memory made up of 32 bit elements.
+    In the example, register "DMA" is the Multiplexed data region name. This
+    region is defined by 'AREA_MULTIPLEXED_SEQUENCE_DMA' in the mapfile.
       >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> device.read_sequences("", "DMA")
       array([[   0.,    1.,    4.,    9.,   16.],
