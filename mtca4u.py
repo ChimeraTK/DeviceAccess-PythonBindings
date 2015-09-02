@@ -421,7 +421,7 @@ class Device():
     -------
     2DarrayOfValues: numpy.array, dtype == numpy.float32
       The method returns a 2D numpy.float32 array containing extracted
-      induvidual sequences as the rows
+      induvidual sequences as the columns
     
     Examples
     --------
