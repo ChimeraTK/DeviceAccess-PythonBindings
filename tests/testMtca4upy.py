@@ -8,6 +8,7 @@ import numpy
 # path, so that it can find the module mtca4u. 
 sys.path.insert(0,os.path.abspath(os.curdir))
 import mtca4u
+import versionnumbers as vn
 
 class TestMappedPCIEDevice(unittest.TestCase):
   # TODO: Refactor to take care of the harcoded values used for comparisions
@@ -414,6 +415,15 @@ class TestMappedPCIEDevice(unittest.TestCase):
       self.assertTrue(numpy.array_equiv(readInMatrix, expectedMatrix))
       self.assertTrue(readInMatrix.dtype == numpy.float32)
 
-
+# http://stackoverflow.com/questions/4219717/how-to-assert-output-with-nosetest-unittest-in-python
+  def testReadSequences(self):
+      from StringIO import StringIO
+      expectedString = "mtca4uPy v" +vn.moduleVersion + ", linked with mtcamappeddevice v"+ vn.mappedDeviceVersion
+      outStream = StringIO()
+      mtca4u.get_info(outStream)
+      returnedString = outStream.getvalue().strip()
+      self.assertTrue(expectedString == returnedString)
+      
+      
 if __name__ == '__main__':
     unittest.main()     

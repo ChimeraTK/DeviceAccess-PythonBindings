@@ -76,10 +76,14 @@ target_link_libraries(${boost_python_core_module} ${MtcaMappedDevice_LIBRARIES}
 set_target_properties(${boost_python_core_module} PROPERTIES PREFIX "")
 
 
-# Copy th e pure python module to the build directory. This is needed by the
-# tests + packaging looks for it here
-configure_file( ${python_module}  ${PROJECT_BINARY_DIR} 
-                copyonly)
+# Copy the pure python module to the build directory. This is needed by the
+# tests. Packaging looks for it in this location. The version information in the
+# pure python module is filled out by cmake(configure_file). Ideally the python
+# module name should end with a .py.in. However not sticking to this convention.
+# The Module will end with .py though it will be processed by configure_file.
+# Reason: would like to have py editor support on the file in the source
+# directory.
+configure_file( ${python_module}  ${PROJECT_BINARY_DIR})
 
 #
 # set up test cases
@@ -87,6 +91,7 @@ ENABLE_TESTING()
 #
 # Copy the test scripts to the build directory:
 COPY_CONTENT_TO_BUILD_DIR("tests;tests/mapfiles")
+configure_file( ${CMAKE_SOURCE_DIR}/cmake/versionnumbers.py.in  ${PROJECT_BINARY_DIR}/versionnumbers.py)
 #
 # Add the scripts as ctests.
 FILE(GLOB location_of_script_files 

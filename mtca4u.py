@@ -1,6 +1,30 @@
 import mtcamappeddevice 
 import numpy
+import sys
 
+__version__ = "${${PROJECT_NAME}_VERSION}"
+
+#http://stackoverflow.com/questions/4219717/how-to-assert-output-with-nosetest-unittest-in-python
+def get_info(outputStream=sys.stdout):
+  """ prints details about the module and the mtcamappeddevice core library
+  against which it was linked
+  
+  Parameters
+  ----------
+  outputStream: optional
+    default: sys.stdout
+  
+  Returns
+  -------
+  None
+  
+  Examples
+  --------
+  >>> mtca4u.get_info
+  mtca4uPy v00.02.00, linked with mtcamappeddevice v00.17
+    
+  """
+  outputStream.write("mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtcamappeddevice v${MtcaMappedDevice_VERSION}")
 
 class Device():
   """ This class represents the hardware device to access 
@@ -425,8 +449,7 @@ class Device():
     
     Examples
     --------
-    In the example, register "DMA" is the Multiplexed data region name. This
-    region is defined by 'AREA_MULTIPLEXED_SEQUENCE_DMA' in the mapfile.
+    "DMA" is the Multiplexed data region name. This region is defined by 'AREA_MULTIPLEXED_SEQUENCE_DMA' in the mapfile.
       >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> device.read_sequences("", "DMA")
       array([[   0.,    1.,    4.,    9.,   16.],
