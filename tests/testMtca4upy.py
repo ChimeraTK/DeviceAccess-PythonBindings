@@ -411,9 +411,8 @@ class TestMappedPCIEDevice(unittest.TestCase):
                                     [15, 16, 17, 18, 19],
                                     [20, 21, 22, 23, 24]], dtype=numpy.float32)
       readInMatrix = device.read_sequences('', 'DMA')
-      print(readInMatrix)
-      print(expectedMatrix)
       self.assertTrue(numpy.array_equiv(readInMatrix, expectedMatrix))
+      self.assertTrue(readInMatrix.dtype == numpy.float32)
 
 
 if __name__ == '__main__':
