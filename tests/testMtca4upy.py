@@ -416,14 +416,13 @@ class TestMappedPCIEDevice(unittest.TestCase):
       self.assertTrue(readInMatrix.dtype == numpy.float32)
 
 # http://stackoverflow.com/questions/4219717/how-to-assert-output-with-nosetest-unittest-in-python
-  def testReadSequences(self):
+  def testGetInfo(self):
       from StringIO import StringIO
       expectedString = "mtca4uPy v" +vn.moduleVersion + ", linked with mtcamappeddevice v"+ vn.mappedDeviceVersion
       outStream = StringIO()
       mtca4u.get_info(outStream)
       returnedString = outStream.getvalue().strip()
       self.assertTrue(expectedString == returnedString)
-      
       
 if __name__ == '__main__':
     unittest.main()     
