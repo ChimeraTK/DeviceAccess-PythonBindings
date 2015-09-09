@@ -14,7 +14,7 @@ include(helperMacros)
 # version Information for the project
 # bump up the version numbers in this section when creating new tags 
 set(${PROJECT_NAME}_MAJOR_VERSION 00)
-set(${PROJECT_NAME}_MINOR_VERSION 02)
+set(${PROJECT_NAME}_MINOR_VERSION 03)
 set(${PROJECT_NAME}_PATCH_VERSION 00)
 set(min_req_mtcamappeddev_version 00.17)
 

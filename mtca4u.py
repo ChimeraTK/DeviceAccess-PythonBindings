@@ -21,7 +21,7 @@ def get_info(outputStream=sys.stdout):
   Examples
   --------
   >>> mtca4u.get_info
-  mtca4uPy v00.02.00, linked with mtcamappeddevice v00.17
+  mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtcamappeddevice v${MtcaMappedDevice_VERSION}
     
   """
   outputStream.write("mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtcamappeddevice v${MtcaMappedDevice_VERSION}")
