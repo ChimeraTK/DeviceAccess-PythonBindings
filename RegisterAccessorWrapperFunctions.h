@@ -29,10 +29,10 @@ uint32_t sizeWrapper(mtca4u::devMap<mtca4u::devBase>::RegisterAccessor &self);
 
 namespace MuxDataAccessor {
 
-void prepareAccessor(mtca4u::MultiplexedDataAccessor<float> &self);
+void readInDataFromCard(mtca4u::MultiplexedDataAccessor<float> &self);
 size_t getSequenceCount(mtca4u::MultiplexedDataAccessor<float> &self);
 size_t getBlockCount(mtca4u::MultiplexedDataAccessor<float> &self);
-void read(mtca4u::MultiplexedDataAccessor<float> &self,
+void copyReadInData(mtca4u::MultiplexedDataAccessor<float> &self,
           bp::numeric::array &numpyArray);
 
 } // namespace RegisterAccessor

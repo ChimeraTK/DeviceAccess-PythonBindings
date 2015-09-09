@@ -462,12 +462,15 @@ class Device():
     muxedRegisterAccessor = self.__openedDevice.getMultiplexedDataAccessor(moduleName, 
                                                                            regionName)
 
-    muxedRegisterAccessor.initialize();
+    # readFromDevice fetches data from the card to its intenal buffer. This
+    # method however does not return the read data
+    muxedRegisterAccessor.readFromDevice();
     numberOfSequences = muxedRegisterAccessor.getSequenceCount()
     numberOfBlocks = muxedRegisterAccessor.getBlockCount()
     array2D = self.__create2DArray(numpy.float32, numberOfBlocks,
                                    numberOfSequences)
-    muxedRegisterAccessor.read(array2D)
+    # Copy the data read in from the card into the prepared 2D numpy array
+    muxedRegisterAccessor.populateArray(array2D)
     return array2D
 
 
