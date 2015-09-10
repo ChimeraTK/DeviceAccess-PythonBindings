@@ -97,10 +97,10 @@ BOOST_PYTHON_MODULE(mtcamappeddevice) { // TODO: find a better name for
       "MuxDataAccessor",
       bp::init<const boost::shared_ptr<mtca4u::devBase>&,
                const std::vector<mtca4u::FixedPointConverter>&>())
-      .def("initialize", mtca4upy::MuxDataAccessor::prepareAccessor)
+      .def("readFromDevice", mtca4upy::MuxDataAccessor::readInDataFromCard)
       .def("getSequenceCount", mtca4upy::MuxDataAccessor::getSequenceCount)
       .def("getBlockCount", mtca4upy::MuxDataAccessor::getBlockCount)
-      .def("read", mtca4upy::MuxDataAccessor::read);
+      .def("populateArray", mtca4upy::MuxDataAccessor::copyReadInData);
 
 
   bp::def("createDevice", createDevice);

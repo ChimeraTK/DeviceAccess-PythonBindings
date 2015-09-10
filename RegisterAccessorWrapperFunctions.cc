@@ -119,7 +119,7 @@ uint32_t mtca4upy::RegisterAccessor::sizeWrapper(
   return (mapelem.reg_elem_nr);
 }
 
-void mtca4upy::MuxDataAccessor::prepareAccessor(
+void mtca4upy::MuxDataAccessor::readInDataFromCard(
     mtca4u::MultiplexedDataAccessor<float>& self) {
   self.read();
 }
@@ -137,7 +137,7 @@ size_t mtca4upy::MuxDataAccessor::getBlockCount(
   return (self[0].size());
 }
 
-void mtca4upy::MuxDataAccessor::read(
+void mtca4upy::MuxDataAccessor::copyReadInData(
     mtca4u::MultiplexedDataAccessor<float>& self,
     bp::numeric::array& numpyArray) {
   // FIXME: Make sure prepareAccessor was called. check and throw an exception
@@ -148,10 +148,12 @@ void mtca4upy::MuxDataAccessor::read(
   size_t numSequences = self.getNumberOfDataSequences();
   size_t numBlocks = self[0].size();
 
-  for (size_t rowCount = 0; rowCount < numSequences; ++rowCount) {
-    for (size_t columnCount = 0; columnCount < numBlocks; ++columnCount) {
-      data[(numBlocks * columnCount) + rowCount] = self[rowCount][columnCount];
+  size_t pyArrayRowStride = numSequences;
+  for (size_t pyArrayCol = 0; pyArrayCol < numSequences; ++pyArrayCol) {
+    for (size_t pyArrrayRow = 0; pyArrrayRow < numBlocks; ++pyArrrayRow) {
+      // pyArrayCol corresponds to the sequence numbers and pyArrrayRow to each
+      // element of the sequence
+      data[(pyArrayRowStride * pyArrrayRow) + pyArrayCol] = self[pyArrayCol][pyArrrayRow];
     }
   }
-
 }

@@ -405,11 +405,12 @@ class TestMappedPCIEDevice(unittest.TestCase):
                                         0x00ff0018], dtype=numpy.int32)
       device.write_raw('', 'AREA_DMAABLE', predefinedSequence)
       
-      expectedMatrix = numpy.array([[0,  1,  2,  3,  4 ],
-                                    [5,  6,  7,  8,  9 ],
-                                    [10, 11, 12, 13, 14],
-                                    [15, 16, 17, 18, 19],
-                                    [20, 21, 22, 23, 24]], dtype=numpy.float32)
+      expectedMatrix = numpy.array([[0,  1,  2,  3],
+                                    [4,  5,  6,  7],
+                                    [8, 9, 10, 11],
+                                    [12, 13, 14, 15],
+                                    [16, 17, 18, 19],
+                                    [20, 21, 22, 23]], dtype=numpy.float32)
       readInMatrix = device.read_sequences('', 'DMA')
       print(readInMatrix)
       print(expectedMatrix)
