@@ -492,9 +492,9 @@ class Device():
     size = self.__getCorrectedElementCount(numberOfElementsInRegister, 
                                            numberOfElementsToRead, 
                                            elementIndexInRegister)
-    array = numpy.zeros(size, dtype = dType)
+    array = numpy.empty(size, dtype = dType)
     return array
 
   def __create2DArray(self, dType, numberOfRows, numberOfColumns):
-      array2D = numpy.zeros((numberOfRows, numberOfColumns), dtype=dType)
+      array2D = numpy.empty((numberOfRows, numberOfColumns), dtype=dType)
       return array2D
