@@ -49,6 +49,11 @@ class Device():
     """ Constructor for the Device class
     """
     self.__openedDevice = mtcamappeddevice.createDevice(deviceName, mapFile)
+    # define a dictionary to hold multiplexed data accessors
+    # TODO: Limit the number of entries this dictionary can hold, because
+    # multiplexed data accessors are currently memory expensive. We do not want
+    # to hold on to too much memory
+    self.__accsessor_dictionary = {}
 
 
   def read(self, moduleName, registerName, numberOfElementsToRead=0,
@@ -459,11 +464,18 @@ class Device():
              [ 400.,  441.,  484.,  529.,  576.]], dtype=float32)
              
     """
-    muxedRegisterAccessor = self.__openedDevice.getMultiplexedDataAccessor(moduleName, 
-                                                                           regionName)
+    
+    # this key goes into the dictionary
+    key = moduleName + "." + regionName
+    muxedRegisterAccessor = self.__accsessor_dictionary.get(key)
+    
+    if (muxedRegisterAccessor == None):
+      # This accsessor is not in our dictionary, created and add
+      muxedRegisterAccessor = self.__openedDevice.getMultiplexedDataAccessor(moduleName, regionName)
+      self.__accsessor_dictionary.update({key: muxedRegisterAccessor})
 
-    # readFromDevice fetches data from the card to its intenal buffer. This
-    # method however does not return the read data
+    # readFromDevice fetches data from the card to its intenal buffer of the
+    # c++ accessor
     muxedRegisterAccessor.readFromDevice();
     numberOfSequences = muxedRegisterAccessor.getSequenceCount()
     numberOfBlocks = muxedRegisterAccessor.getBlockCount()
