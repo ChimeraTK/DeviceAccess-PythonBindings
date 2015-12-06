@@ -34,7 +34,7 @@ CODENAME=`lsb_release -c | sed "{s/Codename:\s*//}"`
 #because debchange does the right format and the current date, user name and email automatically for us.
 #Use the NAME and EMAIL environment variables to get correct values if needed (usually the email is
 # user@host instead of first.last@institute, for instance killenb@mskpcx18571.desy.de instead of martin.killenberg@desy.de).
-debchange --create --package ${Dollar}{pkg_name} -v ${Dollar}{prj_version}-${Dollar}{CODENAME}1 --distribution ${Dollar}{CODENAME} Debian package for MTCA4U mappedDevicePythonBindings ${Dollar}{prj_version}
+debchange --create --package ${Dollar}{pkg_name} -v ${Dollar}{prj_version}-${Dollar}{CODENAME}1 --distribution ${Dollar}{CODENAME} Debian package for MTCA4U deviceaccess python bindings ${Dollar}{prj_version}
 
 #Now everything is prepared and we can actually build the package.
 #If you have a gpg signature you can remove the -us and -uc flags and sign the package.
