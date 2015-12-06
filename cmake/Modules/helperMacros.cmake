@@ -31,7 +31,7 @@ MACRO( COPY_SUPPORTED_CONTENT directory )
   get_filename_component(parent_directory ${directory} NAME) # Kind of a hack
     # as we are actually picking the directory name and not the filename.
     # (because ${directory} contains path to a directory and not a file)
-    set(source_directory "${CMAKE_SOURCE_DIR}/${directory}" )
+    set(source_directory "${directory}" )
     set(target_directory "${PROJECT_BINARY_DIR}/${parent_directory}")
     file( MAKE_DIRECTORY "${target_directory}" )
     COPY_SOURCE_TO_TARGET( ${source_directory} ${target_directory} )

@@ -1,12 +1,13 @@
-import mtcamappeddevice 
+import mtca4ucore 
 import numpy
 import sys
+import os
 
 __version__ = "${${PROJECT_NAME}_VERSION}"
 
 #http://stackoverflow.com/questions/4219717/how-to-assert-output-with-nosetest-unittest-in-python
 def get_info(outputStream=sys.stdout):
-  """ prints details about the module and the mtcamappeddevice core library
+  """ prints details about the module and the device access core library
   against which it was linked
   
   Parameters
@@ -20,72 +21,105 @@ def get_info(outputStream=sys.stdout):
   
   Examples
   --------
-  >>> mtca4u.get_info
-  mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtcamappeddevice v${MtcaMappedDevice_VERSION}
+  >>> mtca4u.get_info()
+  mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtca4u-deviceaccess v${mtca4u-deviceaccess_VERSION}
     
   """
-  outputStream.write("mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtcamappeddevice v${MtcaMappedDevice_VERSION}")
+  outputStream.write("mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtca4u-deviceaccess v${mtca4u-deviceaccess_VERSION}")
 
-class Device():
-  """ This class represents the hardware device to access 
+def set_dmap_location(dmapFileLocation):
+  """ Sets the location of the dmap file to use
   
-  This class can be used to open and acess the registers of a mapped device
+  The library will check the user specified device Alias names (when creating
+  devices) in this dmap file.
   
   Parameters
   ----------
-  deviceName : str
-    The device file identifier for the hardware
+  dmapFileLocation: (str)
+  
+  Returns
+  -------
+  None
+  
+  Examples
+  --------
+   >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
+   >>> device = mtca4u.Device("my_card") # my_card is a alias in my_example_dmap_file.dmap
+   
+  See Also
+  --------
+  Device : Open device using specified alias names or using device id and mapfile 
+
+  """
+  #os.environ["DMAP_FILE"] = dmapFileLocation
+  mtca4ucore.setDmapFile(dmapFileLocation)
+  
+class Device():
+  """ Construct Device from user provided device information
+  
+  This constructor is used to open a PCIE device, when the device 
+  identifier and the desired map file are available
+  
+  Parameters
+  ----------
+  deviceFile/Alias : str
+    The device file for the hardware
 
   mapFile : str
     The location of the register mapped file for the hardware under
     consideration
-  
+
   Examples
   --------
-  >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+   >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
   """
-  
-  def __init__(self, deviceName, mapFile):
-    """ Constructor for the Device class
-    """
-    self.__openedDevice = mtcamappeddevice.createDevice(deviceName, mapFile)
-    # define a dictionary to hold multiplexed data accessors
-    # TODO: Limit the number of entries this dictionary can hold, because
-    # multiplexed data accessors are currently memory expensive. We do not want
-    # to hold on to too much memory
+  def __init__(self, *args):
+    # define a dictiWe do not wantonary to hold multiplexed data accessors
+    # TODO: Limit the number of entries this dictionary can hold,
+    # We do not want to hold on to too much ram
     self.__accsessor_dictionary = {}
-
+    
+    if len(args) == 2:
+      deviceFile = args[0]
+      mapFile = args[1]
+      self.__openedDevice = mtca4ucore.createDevice(deviceFile, mapFile)
+      #self.__printDeprecationWarning() FIXME: This will come in once the
+      # documentation is in place
+    elif len(args) == 1:
+      cardAlias = args[0]
+      self.__openedDevice = mtca4ucore.createDevice(cardAlias)
+    else:
+      raise SyntaxError("Device called with incorrect number of parameters.") 
 
   def read(self, moduleName, registerName, numberOfElementsToRead=0,
             elementIndexInRegister=0):
-    """ Reads out Fixed point converted values from the opened mapped device
+    """ Reads out Fixed point converted values from the opened device
     
-    This method uses the register mapping information to return Fixed Point
-    converted versions of the values contained in a register. This method can be
-    used to read in the whole register or an arbitary number of register
-    elements from anywhere within the register (through the
-    'elementIndexInRegister' parameter).
+    This method uses the map file to return Fixed Point converted values from a
+    register. It can read the whole register or an arbitary number of register
+    elements. Data can also be read from an offset within the register (through
+    the 'elementIndexInRegister' parameter).
     
     Parameters
     ----------
     moduleName : str
-      The name of the device module to which the register to read from belongs.
-      If module name is not applicable to the device, then provide an empty
-      string as the parameter value.
+      The name of the device module to which the register belongs to. If the
+      register is not contained in a  module, then provide an empty string as
+      the parameter value.
        
     registerName : str
       The name of the register to read from.
       
     numberOfElementsToRead : int, optional 
-      Optional parameter specifying the number of register elements that should
+      Specifies the number of register elements that should
       be read out. The width and fixed point representation of the register
-      element are internally obtained from the mapping file.
+      element are internally obtained from the map file.
       
       The method returns all elements in the register if this parameter is
-      ommitted or when its value is set as 0. 
-      
+      ommitted or when its value is set as 0.
+       
       If the value provided as this parameter exceeds the register size, an
-      array will all elements upto the last element is returned
+      array with all elements upto the last element is returned
       
     elementIndexInRegister : int, optional
       This is a zero indexed offset from the first element of the register. When
@@ -165,7 +199,7 @@ class Device():
     ----------
     moduleName : str
       The name of the device module which has the register to write into.
-      If module name is not applicable to the device, then provide an empty
+      If module name is not applicable to the register, then provide an empty
       string as the parameter value.
       
     registerName : str
@@ -192,8 +226,12 @@ class Device():
     --------
     register "WORD_STATUS" is 1 element long and belongs to module "BOARD".
       >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> boardWithModules.write("BOARD", "WORD_STATUS", 15)
+      >>> boardWithModules.write("BOARD", "WORD_STATUS", 15.0)
+      >>> boardWithModules.write("BOARD", "WORD_STATUS", [15])
+      >>> boardWithModules.write("BOARD", "WORD_STATUS", [15.0])
       >>> dataToWrite = numpy.array([15.0])
-      >>> boardWithModules.write("BOARD", "WORD_STATUS")
+      >>> boardWithModules.write("BOARD", "WORD_STATUS", dataToWrite)
     
     register "WORD_CLK_MUX" is 4 elements long.
       >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
@@ -201,8 +239,8 @@ class Device():
       >>> device.write("", "WORD_CLK_MUX", dataToWrite)
       >>> dataToWrite = numpy.array([13, 12])
       >>> device.write("", "WORD_CLK_MUX", dataToWrite, 2)
-      >>> device.write("WORD_CLK_MUX", 2.78)
-      >>> device.write("WORD_CLK_MUX", 10, elementIndexInRegister=3)
+      >>> device.write("", "WORD_CLK_MUX", 2.78) # writes value to first element of register
+      >>> device.write("", "WORD_CLK_MUX", 10, elementIndexInRegister=3)
       
     See Also
     --------
@@ -214,13 +252,16 @@ class Device():
                                                                registerName)
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
     arrayToHoldData = numpy.array(dataToWrite)
+    # The core library checks for incorrect register size.
     numberOfElementsToWrite = arrayToHoldData.size
+    if numberOfElementsToWrite == 0:
+      return
     registerAccessor.write(arrayToHoldData, numberOfElementsToWrite,
                             elementIndexInRegister)
   
   def read_raw(self, moduleName, registerName, numberOfElementsToRead=0, 
               elementIndexInRegister=0):
-    """ Returns the raw values from a device's register
+    """ Returns 'raw values' (Without fixed point conversion applied) from a device's register
     
     This method returns the raw bit values contained in the queried register.
     The returned values are not Fixed Point converted, but direct binary values
@@ -230,19 +271,16 @@ class Device():
     ----------
     moduleName : str
       The name of the device module to which the register to read from belongs.
-      If module name is not applicable to the device, then provide an empty
+      If module name is not applicable to the register, then provide an empty
       string as the parameter value.
       
     registerName : str
-      The name of the device register to read from
+      The name of the device register to read from.
       
     numberOfElementsToRead : int, optional
-      Optional parameter specifying the number of register elements that should
-      be read out.
-      
+      Specifies the number of register elements that should be read out.
       The method returns all elements in the register if this parameter is
       ommitted or when its value is set as 0.
-      
       If the value provided as this parameter exceeds the register size, an
       array will all elements upto the last element is returned
     
@@ -307,7 +345,7 @@ class Device():
   
   def write_raw(self, moduleName, registerName, dataToWrite,
       elementIndexInRegister=0):
-    """ Write raw bit values into the register
+    """ Write raw bit values (no fixed point conversion applied) into the register
     
     Provides a way to put in a desired bit value into individual register
     elements. 
@@ -316,7 +354,7 @@ class Device():
     ----------      
     moduleName : str
       The name of the device module that has the register we intend to write to.
-      If module name is not applicable to the device, then provide an empty
+      If module name is not applicable to the register, then provide an empty
       string as the parameter value.
       
     registerName : str
@@ -340,7 +378,7 @@ class Device():
     register "WORD_STATUS" is 1 element long and is part of the module "BOARD".
       >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> dataToWrite = numpy.array([15], dtype=int32)
-      >>> boardWithModules.write_raw("BOARD", "WORD_STATUS")
+      >>> boardWithModules.write_raw("BOARD", "WORD_STATUS", dataToWrite)
     
     register "WORD_CLK_MUX" is 4 elements long.
       >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
@@ -360,6 +398,8 @@ class Device():
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
 
     numberOfElementsToWrite = dataToWrite.size
+    if numberOfElementsToWrite == 0:
+        return
     registerAccessor.writeRaw(dataToWrite, numberOfElementsToWrite,
                                elementIndexInRegister)
   
@@ -492,6 +532,8 @@ class Device():
     registerSize = registerAccessor.getNumElements()
     if(elementIndexInRegister >= registerSize):
       if(registerSize == 1):
+        # did this for displaying specific error string without the range when
+        # there is only one element in the register
         errorString = "Element index: {0} incorrect. Valid index is {1}"\
         .format(elementIndexInRegister, registerSize-1)
       else:
@@ -533,3 +575,13 @@ class Device():
   def __create2DArray(self, dType, numberOfRows, numberOfColumns):
       array2D = numpy.empty((numberOfRows, numberOfColumns), dtype=dType)
       return array2D
+
+  def __printDeprecationWarning(self):
+    print ""
+    print "Warning: Creating devices through Device(deviceFile, mapFile) will"
+    print "         be phased out in future versions."
+    print "         Use Device(\"cardAlias\") instead."
+    print "         Type help(mtca4u.Device) to get more info on usage."
+    print ""
+    
+    

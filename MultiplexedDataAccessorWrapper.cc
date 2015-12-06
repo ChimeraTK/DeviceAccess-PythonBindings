@@ -9,7 +9,7 @@ MultiplexedDataAccessorWrapper::~MultiplexedDataAccessorWrapper() {
 } // namespace mtca4upy
 
 mtca4upy::MultiplexedDataAccessorWrapper::MultiplexedDataAccessorWrapper(
-    const boost::shared_ptr<mtca4u::devBase>& ioDevice,
+    const boost::shared_ptr<mtca4u::DeviceBackend>& ioDevice,
     const std::vector<mtca4u::FixedPointConverter>& converters)
     : mtca4u::MultiplexedDataAccessor<float>(ioDevice, converters) {}
 

@@ -1,8 +1,8 @@
 Source: ${PACKAGE_NAME}
 Priority: extra
-Maintainer: Martin Killenberg <geogin.varghese@desy.de>
+Maintainer: Geogin Varghese <geogin.varghese@desy.de>
 Build-Depends: debhelper (>= 8.0.0), cmake (>= 2.8), 
- dev-mtcamappeddevice (>=${min_req_mtcamappeddev_version}), 
+ dev-mtcamappeddevice (>=${min_req_mtca4u-deviceaccess_version}), 
  python-numpy (>= 1.6), 
  libboost-python-dev (>= 1.48)
 Standards-Version: 3.9.2

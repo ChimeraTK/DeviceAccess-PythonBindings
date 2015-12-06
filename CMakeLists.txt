@@ -16,11 +16,16 @@ include(helperMacros)
 set(${PROJECT_NAME}_MAJOR_VERSION 00)
 set(${PROJECT_NAME}_MINOR_VERSION 03)
 set(${PROJECT_NAME}_PATCH_VERSION 00)
-set(min_req_mtcamappeddev_version 00.17)
+set(min_req_mtca4u-deviceaccess_version 00.00)
+
+#
+# Build up the project version name
+set(${PROJECT_NAME}_VERSION
+  ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_VERSION})
 
 #
 # other variables 
-set(boost_python_core_module "mtcamappeddevice")
+set(boost_python_core_module "mtca4ucore")
 set(python_module "mtca4u.py")
 set(sphinx_build_confg_in "${PROJECT_SOURCE_DIR}/cmake/conf.py.in")
 set(location_of_rst_source_files "${PROJECT_SOURCE_DIR}/doc")
@@ -28,15 +33,12 @@ set(location_of_built_html_files "${PROJECT_BINARY_DIR}/html")
 set(sphinx_build_config_file "${PROJECT_BINARY_DIR}/conf.py")
 set(author "MSK")
 
-set(${PROJECT_NAME}_VERSION
-  ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_VERSION})
-set(${PROJECT_NAME}_SOVERSION ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION})
-#
 # Check if project dependencies are met
 find_package(Boost REQUIRED COMPONENTS python)
 find_package(PythonLibs REQUIRED)
-find_package(MtcaMappedDevice ${min_req_mtcamappeddev_version} REQUIRED)
+find_package(mtca4u-deviceaccess ${min_req_mtca4u-deviceaccess_version} REQUIRED)
 find_package(NumPy REQUIRED)
+#
 
 #
 # add target for documentation if sphinx v1.3+ is available. 
@@ -56,20 +58,18 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -Weffc++ -Wextra -Wshadow -p
 # Set header file locations
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS} 
                             ${PYTHON_INCLUDE_DIR}
-                            ${MtcaMappedDevice_INCLUDE_DIRS})
+                            ${mtca4u-deviceaccess_INCLUDE_DIRS})
 
 #
 # Define the build target for python module 
 add_library(${boost_python_core_module} SHARED MtcaMappedDevicePython.cc 
-                                         devMapAdapter.cc
-                                         devBaseAdapter.cc
-                                         devBaseFactory.cc
-                                         DeviceFactory.cc
-                                         devMapFactory.cc
                                          MultiplexedDataAccessorWrapper.cc
-                                         RegisterAccessorWrapperFunctions.cc)
+                                         CreateDevice.cc
+                                         DeviceAccess.cc
+                                         MuxDataAccessor.cc
+                                         RegisterAccessor.cc)
                                          
-target_link_libraries(${boost_python_core_module} ${MtcaMappedDevice_LIBRARIES}
+target_link_libraries(${boost_python_core_module} ${mtca4u-deviceaccess_LIBRARIES}
                                             ${PYTHON_LIBRARIES} 
                                             ${Boost_LIBRARIES})
 # donot prefix lib to the generated so:
@@ -90,7 +90,7 @@ configure_file( ${python_module}  ${PROJECT_BINARY_DIR})
 ENABLE_TESTING()
 #
 # Copy the test scripts to the build directory:
-COPY_CONTENT_TO_BUILD_DIR("tests;tests/mapfiles")
+COPY_CONTENT_TO_BUILD_DIR("${CMAKE_SOURCE_DIR}/tests;${CMAKE_SOURCE_DIR}/tests/deviceInformation")
 configure_file( ${CMAKE_SOURCE_DIR}/cmake/versionnumbers.py.in  ${PROJECT_BINARY_DIR}/versionnumbers.py)
 #
 # Add the scripts as ctests.
