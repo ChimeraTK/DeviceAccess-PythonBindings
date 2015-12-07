@@ -139,7 +139,7 @@ configure_file(cmake/ConfigVersion.cmake.in
 # - c++ python module
 # - Headers fro the dev package
 # - cmake modules for enabling find_package on this project 
-install(FILES ${python_module}
+install(FILES ${PROJECT_BINARY_DIR}/${python_module}
         DESTINATION lib/python2.7/dist-packages)
 install(TARGETS ${boost_python_core_module}
         LIBRARY DESTINATION lib/python2.7/dist-packages)
