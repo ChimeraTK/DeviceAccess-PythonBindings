@@ -95,6 +95,12 @@ class TestMappedPCIEDevice(unittest.TestCase):
       returnedString = outStream.getvalue().strip()
       self.assertTrue(expectedString == returnedString)
 
+  def testException(self):
+    device = mtca4u.mtca4ucore.createDevice("/dev/mtcadummys1",
+                                           "deviceInformation/modular_mtcadummy.map")
+    array = numpy.array([1, 2, 3, 4], dtype = numpy.int32)
+    self.assertRaisesRegexp(RuntimeError, "size to write is more than the supplied array size", 
+                        device.writeRaw, 8, array, (array.size * 4) + 1 , 0)
 
   def testDeviceCreation(self):
     self.assertRaisesRegexp(RuntimeError, "Unknown device alias", mtca4u.Device, "NON_EXISTENT_ALIAS_NAME") 
@@ -106,6 +112,8 @@ class TestMappedPCIEDevice(unittest.TestCase):
                             mtca4u.Device)
     self.assertRaisesRegexp(SyntaxError, "Device called with incorrect number of parameters.", 
                             mtca4u.Device, "BogusText", "BogusText", "BogusText")
+    self.assertRaisesRegexp(RuntimeError, "Unable to identify device", 
+                        mtca4u.Device, "BogusText.map", "BogusText.map.map")
     
   """
   The idea here is to preset data on registers that is then  read in and

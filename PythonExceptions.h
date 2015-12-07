@@ -20,9 +20,7 @@ public:
   virtual ~Exception() throw() {}
 };
 MTCA4U_PYTHON_EXCEPTION(ArrayOutOfBoundException)
-MTCA4U_PYTHON_EXCEPTION(MethodNotImplementedException)
 MTCA4U_PYTHON_EXCEPTION(DeviceNotSupported)
-MTCA4U_PYTHON_EXCEPTION(DummyDeviceBadParameterException)
 MTCA4U_PYTHON_EXCEPTION(ArrayElementTypeNotSupported)
 }
 
