@@ -12,18 +12,9 @@ import mtca4ucore
 class TestDummyDevice(unittest.TestCase):
 
     def testCreateDummyDevice(self):
-        pass
-        # commenting out these tests as they are no longer applicable. We do not
-        # have a version of create device that takes in just the card alias name
-        # yet
-#         self.assertRaisesRegexp(RuntimeError, "Functionality not available yet"
-#                 , mtca4ucore.createDevice, "")
-#         self.assertRaisesRegexp(RuntimeError, "Functionality not available yet"
-#                 , mtca4ucore.createDevice,
-#                 "some_non_existent_device")
-#         self.assertRaisesRegexp(RuntimeError, "Functionality not available yet"
-#                 , mtca4ucore.createDevice,
-#                 "../deviceInformation/mtcadummy.map1")
+        self.assertRaisesRegexp(RuntimeError, "Unable to identify device"
+                , mtca4ucore.createDevice,
+                "deviceInformation/mtcadummy.map", "someBogusMapFile.map")
 
 if __name__ == '__main__':
     unittest.main()
