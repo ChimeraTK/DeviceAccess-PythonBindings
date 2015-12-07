@@ -78,14 +78,14 @@ class TestMappedPCIEDevice(unittest.TestCase):
 
   def testReadSequences(self):      
     device = mtca4u.Device("/dev/mtcadummys1","deviceInformation/mtcadummy.map")
-    self.__testreadDMARaw(device, "")
+    self.__testSequences(device, "")
     device = mtca4u.Device("/dev/mtcadummys1","deviceInformation/modular_mtcadummy.map")
-    self.__testreadDMARaw(device, "BOARD")
+    self.__testSequences(device, "BOARD")
 
     device = mtca4u.Device("CARD_WITH_OUT_MODULES")
-    self.__testreadDMARaw(device, "")
+    self.__testSequences(device, "")
     device = mtca4u.Device("CARD_WITH_MODULES")
-    self.__testreadDMARaw(device, "BOARD")
+    self.__testSequences(device, "BOARD")
 # http://stackoverflow.com/questions/4219717/how-to-assert-output-with-nosetest-unittest-in-python
   def testGetInfo(self):
       from StringIO import StringIO
@@ -404,7 +404,6 @@ class TestMappedPCIEDevice(unittest.TestCase):
   def __testSequences(self, device, module):
     module = str(module)
     # Basic Interface: Currently supports read of all sequences only
-    device = mtca4u.Device("/dev/llrfdummys4","deviceInformation/mtcadummy.map")
     #device.write("", "WORD_ADC_ENA", 1)
     # Arrange the data on the card:
     predefinedSequence = numpy.array([0x00010000,
