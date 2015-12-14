@@ -12,7 +12,7 @@ import mtca4ucore
 class TestDummyDevice(unittest.TestCase):
 
     def testCreateDummyDevice(self):
-        self.assertRaisesRegexp(RuntimeError, "Unable to identify device"
+        self.assertRaisesRegexp(RuntimeError, "Cannot open file \"someBogusMapFile.map\""
                 , mtca4ucore.createDevice,
                 "deviceInformation/mtcadummy.map", "someBogusMapFile.map")
 

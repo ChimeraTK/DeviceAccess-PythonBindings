@@ -104,16 +104,13 @@ class TestMappedPCIEDevice(unittest.TestCase):
 
   def testDeviceCreation(self):
     self.assertRaisesRegexp(RuntimeError, "Unknown device alias", mtca4u.Device, "NON_EXISTENT_ALIAS_NAME") 
-    self.assertRaisesRegexp(RuntimeError, "Unable to identify device", mtca4u.Device,
-                            "NON_EXISTENT_DEVICE_FILE", "NON_EXISTENT_MAPFILE") 
+
     self.assertRaisesRegexp(RuntimeError, "Cannot open file \"NON_EXISTENT_MAPFILE\"", mtca4u.Device,
                             "NON_EXISTENT_MAPFILE", "NON_EXISTENT_MAPFILE") 
     self.assertRaisesRegexp(SyntaxError, "Device called with incorrect number of parameters.", 
                             mtca4u.Device)
     self.assertRaisesRegexp(SyntaxError, "Device called with incorrect number of parameters.", 
                             mtca4u.Device, "BogusText", "BogusText", "BogusText")
-    self.assertRaisesRegexp(RuntimeError, "Unable to identify device", 
-                        mtca4u.Device, "BogusText.map", "BogusText.map.map")
     
   """
   The idea here is to preset data on registers that is then  read in and
