@@ -112,8 +112,6 @@ class TestMappedPCIEDevice(unittest.TestCase):
                             mtca4u.Device)
     self.assertRaisesRegexp(SyntaxError, "Device called with incorrect number of parameters.", 
                             mtca4u.Device, "BogusText", "BogusText", "BogusText")
-    self.assertRaisesRegexp(RuntimeError, "Unable to identify device", 
-                        mtca4u.Device, "BogusText.map", "BogusText.map.map")
     
   """
   The idea here is to preset data on registers that is then  read in and
