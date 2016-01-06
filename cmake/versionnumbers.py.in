@@ -1,2 +1,2 @@
 moduleVersion = "${${PROJECT_NAME}_VERSION}"
-mappedDeviceVersion = "${mtca4u-deviceaccess_VERSION}"
+deviceaccessVersion = "${mtca4u-deviceaccess_VERSION}"

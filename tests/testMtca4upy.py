@@ -12,7 +12,7 @@ import versionnumbers as vn
 
 mtca4u.set_dmap_location("deviceInformation/exampleCrate.dmap")
 
-class TestMappedPCIEDevice(unittest.TestCase):
+class TestPCIEDevice(unittest.TestCase):
   # TODO: Refactor to take care of the harcoded values used for comparisions
   def testRead(self):
     self.__prepareDataOnCards()
@@ -89,7 +89,7 @@ class TestMappedPCIEDevice(unittest.TestCase):
 # http://stackoverflow.com/questions/4219717/how-to-assert-output-with-nosetest-unittest-in-python
   def testGetInfo(self):
       from StringIO import StringIO
-      expectedString = "mtca4uPy v" +vn.moduleVersion + ", linked with mtca4u-deviceaccess v"+ vn.mappedDeviceVersion
+      expectedString = "mtca4uPy v" +vn.moduleVersion + ", linked with mtca4u-deviceaccess v"+ vn.deviceaccessVersion
       outStream = StringIO()
       mtca4u.get_info(outStream)
       returnedString = outStream.getvalue().strip()

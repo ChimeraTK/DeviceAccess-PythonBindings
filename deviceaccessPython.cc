@@ -6,9 +6,9 @@
 // This section defines function pointers used for overloading methods//
 //****************************************************************************//
 
-static boost::shared_ptr<mtca4u::Device>(*createMappedDevice)(
+static boost::shared_ptr<mtca4u::Device>(*createDevice)(
     const std::string&, const std::string&) = &mtca4upy::createDevice;
-static boost::shared_ptr<mtca4u::Device>(*createMappedDeviceFromCardAlias)(
+static boost::shared_ptr<mtca4u::Device>(*createDeviceFromCardAlias)(
     const std::string&) = &mtca4upy::createDevice;
 
 //****************************************************************************//
@@ -52,8 +52,8 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) {// This module is
       .def("getBlockCount", mtca4upy::MuxDataAccessor::getBlockCount)
       .def("populateArray", mtca4upy::MuxDataAccessor::copyReadInData);
 
-  bp::def("createDevice", createMappedDevice);
-  bp::def("createDevice", createMappedDeviceFromCardAlias);
+  bp::def("createDevice", createDevice);
+  bp::def("createDevice", createDeviceFromCardAlias);
   bp::def("setDmapFile", mtca4upy::setDmapFile);
   bp::register_ptr_to_python<boost::shared_ptr<mtca4u::Device> >();
   bp::register_ptr_to_python<
