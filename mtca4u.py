@@ -1,4 +1,4 @@
-import mtca4ucore 
+import mtca4udeviceaccess 
 import numpy
 import sys
 import os
@@ -7,7 +7,7 @@ __version__ = "${${PROJECT_NAME}_VERSION}"
 
 #http://stackoverflow.com/questions/4219717/how-to-assert-output-with-nosetest-unittest-in-python
 def get_info(outputStream=sys.stdout):
-  """ prints details about the module and the device access core library
+  """ prints details about the module and the deviceaccess library
   against which it was linked
   
   Parameters
@@ -52,7 +52,7 @@ def set_dmap_location(dmapFileLocation):
 
   """
   #os.environ["DMAP_FILE"] = dmapFileLocation
-  mtca4ucore.setDmapFile(dmapFileLocation)
+  mtca4udeviceaccess.setDmapFile(dmapFileLocation)
   
 class Device():
   """ Construct Device from user provided device information
@@ -82,12 +82,12 @@ class Device():
     if len(args) == 2:
       deviceFile = args[0]
       mapFile = args[1]
-      self.__openedDevice = mtca4ucore.createDevice(deviceFile, mapFile)
+      self.__openedDevice = mtca4udeviceaccess.createDevice(deviceFile, mapFile)
       #self.__printDeprecationWarning() FIXME: This will come in once the
       # documentation is in place
     elif len(args) == 1:
       cardAlias = args[0]
-      self.__openedDevice = mtca4ucore.createDevice(cardAlias)
+      self.__openedDevice = mtca4udeviceaccess.createDevice(cardAlias)
     else:
       raise SyntaxError("Device called with incorrect number of parameters.") 
 
@@ -252,7 +252,7 @@ class Device():
                                                                registerName)
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
     arrayToHoldData = numpy.array(dataToWrite)
-    # The core library checks for incorrect register size.
+    # The deviceaccess library checks for incorrect register size.
     numberOfElementsToWrite = arrayToHoldData.size
     if numberOfElementsToWrite == 0:
       return

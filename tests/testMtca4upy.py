@@ -96,8 +96,8 @@ class TestMappedPCIEDevice(unittest.TestCase):
       self.assertTrue(expectedString == returnedString)
 
   def testException(self):
-    device = mtca4u.mtca4ucore.createDevice("/dev/mtcadummys1",
-                                           "deviceInformation/modular_mtcadummy.map")
+    device = mtca4u.mtca4udeviceaccess.createDevice("/dev/mtcadummys1",
+                                                    "deviceInformation/modular_mtcadummy.map")
     array = numpy.array([1, 2, 3, 4], dtype = numpy.int32)
     self.assertRaisesRegexp(RuntimeError, "size to write is more than the supplied array size", 
                         device.writeRaw, 8, array, (array.size * 4) + 1 , 0)
@@ -139,11 +139,11 @@ class TestMappedPCIEDevice(unittest.TestCase):
   def __writeDataToDevices(self):
         # Test Read from a module register
     # set up the register with a known values
-    device = mtca4u.mtca4ucore.createDevice("/dev/mtcadummys1",
-                                           "deviceInformation/modular_mtcadummy.map")
+    device = mtca4u.mtca4udeviceaccess.createDevice("/dev/mtcadummys1",
+                                                    "deviceInformation/modular_mtcadummy.map")
     self.__preSetValuesOnCard(device)
-    device = mtca4u.mtca4ucore.createDevice("/dev/llrfdummys4",
-                                           "deviceInformation/mtcadummy.map")
+    device = mtca4u.mtca4udeviceaccess.createDevice("/dev/llrfdummys4",
+                                                    "deviceInformation/mtcadummy.map")
     self.__preSetValuesOnCard(device)
   
   def __createRandomArray(self, arrayLength):

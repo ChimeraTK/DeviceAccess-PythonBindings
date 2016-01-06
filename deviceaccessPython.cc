@@ -13,10 +13,9 @@ static boost::shared_ptr<mtca4u::Device>(*createMappedDeviceFromCardAlias)(
 
 //****************************************************************************//
 
-BOOST_PYTHON_MODULE(mtca4ucore) { // TODO: find a better name for
-                                        // mtcamappeddevice. This module is
-                                        // actually accessed through mtca4upy.py
-                                        // and not directly
+BOOST_PYTHON_MODULE(mtca4udeviceaccess) {// This module is
+                                         // actually accessed through mtca4upy.py
+                                         // and not directly
   bp::class_<mtca4u::Device>(
       "Device") // TODO: Find and change "Device" to a suitable name
       .def("writeRaw", mtca4upy::DeviceAccess::writeRaw)

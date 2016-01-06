@@ -25,7 +25,7 @@ set(${PROJECT_NAME}_VERSION
 
 #
 # other variables 
-set(boost_python_core_module "mtca4ucore")
+set(boost_python_core_module "mtca4udeviceaccess")
 set(python_module "mtca4u.py")
 set(sphinx_build_confg_in "${PROJECT_SOURCE_DIR}/cmake/conf.py.in")
 set(location_of_rst_source_files "${PROJECT_SOURCE_DIR}/doc")
@@ -62,7 +62,7 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIRS}
 
 #
 # Define the build target for python module 
-add_library(${boost_python_core_module} SHARED MtcaMappedDevicePython.cc 
+add_library(${boost_python_core_module} SHARED deviceaccessPython.cc 
                                          MultiplexedDataAccessorWrapper.cc
                                          CreateDevice.cc
                                          DeviceAccess.cc

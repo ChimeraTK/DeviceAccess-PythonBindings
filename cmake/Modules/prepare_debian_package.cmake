@@ -33,7 +33,7 @@ configure_file(${CMAKE_SOURCE_DIR}/cmake/make_debian_package.sh.in
 #A custom target so you can just run make debian_package
 #(You could instead run make_debian_package.sh yourself, hm...)
 add_custom_target(debian_package ${CMAKE_BINARY_DIR}/make_debian_package.sh
-                  COMMENT Building debian package for tag ${MtcaMappedDevice_VERSION})
+                  COMMENT Building debian package for tag ${mtca4u-deviceaccess_VERSION})
 
 #For convenience: Also create an install script for DESY
 set(PACKAGE_FILES_WILDCARDS "${PACKAGE_NAME}*.deb ${PACKAGE_NAME}*.changes")
