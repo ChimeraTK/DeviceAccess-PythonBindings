@@ -21,6 +21,7 @@ def get_info(outputStream=sys.stdout):
   
   Examples
   --------
+  >>> import mtca4u
   >>> mtca4u.get_info()
   mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtca4u-deviceaccess v${mtca4u-deviceaccess_VERSION}
     
@@ -43,8 +44,9 @@ def set_dmap_location(dmapFileLocation):
   
   Examples
   --------
-   >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
-   >>> device = mtca4u.Device("my_card") # my_card is a alias in my_example_dmap_file.dmap
+    >>> import mtca4u
+    >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
+    >>> device = mtca4u.Device("my_card") # my_card is a alias in my_example_dmap_file.dmap
    
   See Also
   --------
@@ -71,7 +73,13 @@ class Device():
 
   Examples
   --------
-   >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+  Creating device with device id and mapfile:
+    >>> import mtca4u
+    >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+  Creating a device using dmap file:
+    >>> import mtca4u
+    >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
+    >>> device = mtca4u.Device("my_card") # my_card is a alias in my_example_dmap_file.dmap
   """
   def __init__(self, *args):
     # define a dictiWe do not wantonary to hold multiplexed data accessors
@@ -138,12 +146,14 @@ class Device():
     Examples
     --------
     register "WORD_STATUS" is 1 element long..
+      >>> import mtca4u
       >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4", "mapfiles/mtcadummy.map")
       >>> boardWithModules.read("BOARD", "WORD_STATUS")
       array([15.0], dtype=float32)
       
     
     register "WORD_CLK_MUX" is 4 elements long.
+      >>> import mtca4u
       >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> device.read("", "WORD_CLK_MUX")
       array([15.0, 14.0, 13.0, 12.0], dtype=float32)
@@ -225,6 +235,7 @@ class Device():
     Examples
     --------
     register "WORD_STATUS" is 1 element long and belongs to module "BOARD".
+      >>> import mtca4u
       >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> boardWithModules.write("BOARD", "WORD_STATUS", 15)
       >>> boardWithModules.write("BOARD", "WORD_STATUS", 15.0)
@@ -234,6 +245,7 @@ class Device():
       >>> boardWithModules.write("BOARD", "WORD_STATUS", dataToWrite)
     
     register "WORD_CLK_MUX" is 4 elements long.
+      >>> import mtca4u
       >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> dataToWrite = numpy.array([15.0, 14.0, 13.0, 12.0])
       >>> device.write("", "WORD_CLK_MUX", dataToWrite)
@@ -301,11 +313,13 @@ class Device():
     Examples
     --------
     register "WORD_STATUS" is 1 element long.
+      >>> import mtca4u
       >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> boardWithModules.read_raw("BOARD", "WORD_STATUS")
       array([15], dtype=int32)
     
     register "WORD_CLK_MUX" is 4 elements long.
+      >>> import mtca4u
       >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> device.read_raw("", "WORD_CLK_MUX")
       array([15, 14, 13, 12], dtype=int32)
@@ -376,11 +390,13 @@ class Device():
     Examples
     --------
     register "WORD_STATUS" is 1 element long and is part of the module "BOARD".
+      >>> import mtca4u
       >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> dataToWrite = numpy.array([15], dtype=int32)
       >>> boardWithModules.write_raw("BOARD", "WORD_STATUS", dataToWrite)
     
     register "WORD_CLK_MUX" is 4 elements long.
+      >>> import mtca4u
       >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> dataToWrite = numpy.array([15, 14, 13, 12], dtype=int32)
       >>> device.write_raw("", "WORD_CLK_MUX", dataToWrite)
@@ -445,6 +461,7 @@ class Device():
     Examples
     --------
     In the example, register "AREA_DMA_VIA_DMA" is the DMA mapped memory made up of 32 bit elements.
+      >>> import mtca4u
       >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> device.read_dma_raw("", "AREA_DMA_VIA_DMA", 10)
       array([0, 1, 4, 9, 16, 25, 36, 49, 64, 81], dtype=int32)
@@ -495,6 +512,7 @@ class Device():
     Examples
     --------
     "DMA" is the Multiplexed data region name. This region is defined by 'AREA_MULTIPLEXED_SEQUENCE_DMA' in the mapfile.
+      >>> import mtca4u
       >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> device.read_sequences("", "DMA")
       array([[   0.,    1.,    4.,    9.,   16.],
