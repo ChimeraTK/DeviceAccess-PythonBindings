@@ -133,7 +133,6 @@ configure_file(cmake/Config.cmake.in
 configure_file(cmake/ConfigVersion.cmake.in
   "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
 
-
 # Installation targets for:
 # - Pure python module
 # - c++ python module
@@ -141,6 +140,10 @@ configure_file(cmake/ConfigVersion.cmake.in
 # - cmake modules for enabling find_package on this project 
 install(FILES ${PROJECT_BINARY_DIR}/${python_module}
         DESTINATION lib/python2.7/dist-packages)
+# do not remove runtime path to libmtca-deviceaccess location  from
+# ${boost_python_core_module}  when installing
+set_property(TARGET ${boost_python_core_module} 
+	PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 install(TARGETS ${boost_python_core_module}
         LIBRARY DESTINATION lib/python2.7/dist-packages)
 install(FILES ${headers_for_devpackage}
