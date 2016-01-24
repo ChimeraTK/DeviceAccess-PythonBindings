@@ -58,6 +58,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -Weffc++ -Wextra -Wshadow -p
 # Set header file locations
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS} 
                             ${PYTHON_INCLUDE_DIR}
+			    ${NUMPY_INCLUDE_DIRS}
                             ${mtca4u-deviceaccess_INCLUDE_DIRS})
 
 #
