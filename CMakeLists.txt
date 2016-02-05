@@ -64,7 +64,6 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIRS}
 #
 # Define the build target for python module 
 add_library(${boost_python_core_module} SHARED deviceaccessPython.cc 
-                                         MultiplexedDataAccessorWrapper.cc
                                          CreateDevice.cc
                                          DeviceAccess.cc
                                          MuxDataAccessor.cc

@@ -1,7 +1,6 @@
 #include <mtca4u/DummyBackend.h>
 #include <mtca4u/PcieBackend.h>
 #include "PythonModuleMethods.h"
-#include "MultiplexedDataAccessorWrapper.h"
 
 // This section defines function pointers used for overloading methods//
 //****************************************************************************//

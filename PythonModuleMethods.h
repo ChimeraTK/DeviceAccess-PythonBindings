@@ -2,7 +2,6 @@
 #define REGISTERACCESSORWRAPPERFUNCTIONS_H_
 
 #include <mtca4u/Device.h>
-#include <mtca4u/MultiplexedDataAccessor.h>
 #include <mtca4u/TwoDRegisterAccessor.h>
 #include "HelperFunctions.h"
 
