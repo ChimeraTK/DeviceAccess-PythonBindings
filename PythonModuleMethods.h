@@ -3,6 +3,7 @@
 
 #include <mtca4u/Device.h>
 #include <mtca4u/MultiplexedDataAccessor.h>
+#include <mtca4u/TwoDRegisterAccessor.h>
 #include "HelperFunctions.h"
 
 namespace mtca4upy {
@@ -52,13 +53,13 @@ namespace RegisterAccessor {
 
 namespace MuxDataAccessor {
 
-  void readInDataFromCard(mtca4u::MultiplexedDataAccessor<float> &self);
+  void readInDataFromCard(mtca4u::TwoDRegisterAccessor<float> &self);
 
-  size_t getSequenceCount(mtca4u::MultiplexedDataAccessor<float> &self);
+  size_t getSequenceCount(mtca4u::TwoDRegisterAccessor<float> &self);
 
-  size_t getBlockCount(mtca4u::MultiplexedDataAccessor<float> &self);
+  size_t getBlockCount(mtca4u::TwoDRegisterAccessor<float> &self);
 
-  void copyReadInData(mtca4u::MultiplexedDataAccessor<float> &self,
+  void copyReadInData(mtca4u::TwoDRegisterAccessor<float> &self,
                       bp::numeric::array &numpyArray);
 
 } // namespace mtca4upy::MuxDataAccessor
@@ -71,7 +72,7 @@ namespace DeviceAccess {
       const mtca4u::Device &self, const std::string &moduleName,
       const std::string &regName);
 
-  boost::shared_ptr<mtca4u::MultiplexedDataAccessor<float> >
+  mtca4u::TwoDRegisterAccessor<float>
   getMultiplexedDataAccessor(const mtca4u::Device &self,
                              const std::string &moduleName,
                              const std::string &regionName);

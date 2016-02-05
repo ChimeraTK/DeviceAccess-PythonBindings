@@ -1,5 +1,6 @@
 #include "PythonModuleMethods.h"
 #include "PythonExceptions.h"
+#include <mtca4u/Device.h>
 
 namespace mtca4upy {
 namespace DeviceAccess {
@@ -9,12 +10,11 @@ namespace DeviceAccess {
     return (self.getRegisterAccessor(regName, moduleName));
   }
 
-  boost::shared_ptr<mtca4u::MultiplexedDataAccessor<float> >
+  mtca4u::TwoDRegisterAccessor<float>
   getMultiplexedDataAccessor(const mtca4u::Device& self,
                              const std::string& moduleName,
                              const std::string& regionName) {
-    return (self.getCustomAccessor<mtca4u::MultiplexedDataAccessor<float> >(
-        regionName, moduleName));
+    return (self.getRegisterAccessor2D<float>(moduleName, regionName));
   }
 
   void writeRaw(mtca4u::Device& self, uint32_t regOffset,
