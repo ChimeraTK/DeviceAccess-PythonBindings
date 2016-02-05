@@ -6,16 +6,14 @@
 // This section defines function pointers used for overloading methods//
 //****************************************************************************//
 
-static boost::shared_ptr<mtca4u::Device>(*createDevice)(
-    const std::string&, const std::string&) = &mtca4upy::createDevice;
-static boost::shared_ptr<mtca4u::Device>(*createDeviceFromCardAlias)(
-    const std::string&) = &mtca4upy::createDevice;
+static boost::shared_ptr<mtca4u::Device>(*createDevice)(const std::string&, const std::string&) = &mtca4upy::createDevice;
+static boost::shared_ptr<mtca4u::Device>(*createDeviceFromCardAlias)( const std::string&) = &mtca4upy::createDevice;
 
 //****************************************************************************//
 
-BOOST_PYTHON_MODULE(mtca4udeviceaccess) {// This module is
-                                         // actually accessed through mtca4upy.py
-                                         // and not directly
+BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
+  // actually accessed through mtca4upy.py
+  // and not directly
   bp::class_<mtca4u::Device>(
       "Device") // TODO: Find and change "Device" to a suitable name
       .def("writeRaw", mtca4upy::DeviceAccess::writeRaw)
@@ -23,9 +21,9 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) {// This module is
       .def("getMultiplexedDataAccessor",
            mtca4upy::DeviceAccess::getMultiplexedDataAccessor);
 
-  bp::class_< mtca4u::Device::RegisterAccessor, boost::shared_ptr<mtca4u::Device::RegisterAccessor>,
-              boost::noncopyable >(
-      "RegisterAccessor", bp::no_init)
+  bp::class_<mtca4u::Device::RegisterAccessor,
+             boost::shared_ptr<mtca4u::Device::RegisterAccessor>,
+             boost::noncopyable>("RegisterAccessor", bp::no_init)
       .def("read", mtca4upy::RegisterAccessor::read)
       .def("write", mtca4upy::RegisterAccessor::write)
       .def("readRaw", mtca4upy::RegisterAccessor::readRaw)
