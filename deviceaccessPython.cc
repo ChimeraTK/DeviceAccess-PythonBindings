@@ -23,10 +23,9 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) {// This module is
       .def("getMultiplexedDataAccessor",
            mtca4upy::DeviceAccess::getMultiplexedDataAccessor);
 
-  bp::class_<mtca4u::Device::RegisterAccessor,
-             boost::shared_ptr<mtca4u::Device::RegisterAccessor> >(
-      "RegisterAccessor", bp::init<const mtca4u::RegisterInfoMap::RegisterInfo,
-                                   boost::shared_ptr<mtca4u::DeviceBackend> >())
+  bp::class_< mtca4u::Device::RegisterAccessor, boost::shared_ptr<mtca4u::Device::RegisterAccessor>,
+              boost::noncopyable >(
+      "RegisterAccessor", bp::no_init)
       .def("read", mtca4upy::RegisterAccessor::read)
       .def("write", mtca4upy::RegisterAccessor::write)
       .def("readRaw", mtca4upy::RegisterAccessor::readRaw)
