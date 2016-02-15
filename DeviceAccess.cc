@@ -14,7 +14,7 @@ namespace DeviceAccess {
   getMultiplexedDataAccessor(const mtca4u::Device& self,
                              const std::string& moduleName,
                              const std::string& regionName) {
-    return (self.getRegisterAccessor2D<float>(moduleName, regionName));
+    return (self.getTwoDRegisterAccessor<float>(moduleName, regionName));
   }
 
   void writeRaw(mtca4u::Device& self, uint32_t regOffset,
