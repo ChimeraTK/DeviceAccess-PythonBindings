@@ -36,7 +36,6 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
   bp::class_<mtca4u::TwoDRegisterAccessor<float> >(
       "MuxDataAccessor",
       bp::init<boost::shared_ptr<mtca4u::TwoDRegisterAccessorImpl<float> > >())
-      .def("readFromDevice", mtca4upy::MuxDataAccessor::readInDataFromCard)
       .def("getSequenceCount", mtca4upy::MuxDataAccessor::getSequenceCount)
       .def("getBlockCount", mtca4upy::MuxDataAccessor::getBlockCount)
       .def("populateArray", mtca4upy::MuxDataAccessor::copyReadInData);

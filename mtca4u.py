@@ -534,7 +534,6 @@ class Device():
 
     # readFromDevice fetches data from the card to its intenal buffer of the
     # c++ accessor
-    muxedRegisterAccessor.readFromDevice();
     numberOfSequences = muxedRegisterAccessor.getSequenceCount()
     numberOfBlocks = muxedRegisterAccessor.getBlockCount()
     array2D = self.__create2DArray(numpy.float32, numberOfBlocks,

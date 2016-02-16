@@ -4,30 +4,24 @@
 namespace mtca4upy {
 namespace MuxDataAccessor {
 
-  void readInDataFromCard(mtca4u::TwoDRegisterAccessor<float>& self) {
-    self.read();
-  }
-
   size_t getSequenceCount(mtca4u::TwoDRegisterAccessor<float>& self) {
     return (self.getNumberOfDataSequences());
   }
 
   size_t getBlockCount(mtca4u::TwoDRegisterAccessor<float>& self) {
-    // FIXME: Make sure prepareAccessor was called. check and throw an exception
-    // if
-    // it was not
     return (self[0].size());
   }
 
   void copyReadInData(mtca4u::TwoDRegisterAccessor<float>& self,
                       bp::numeric::array& numpyArray) {
-    // FIXME: Make sure prepareAccessor was called. check and throw an exception
-    // if
-    // it was not
+
+
     float* data = reinterpret_cast<float*>(extractDataPointer(numpyArray));
 
     size_t numSequences = self.getNumberOfDataSequences();
     size_t numBlocks = self[0].size();
+    // Read in data to copy to the numpy array.
+    self.read();
 
     size_t pyArrayRowStride = numSequences;
     for (size_t pyArrayCol = 0; pyArrayCol < numSequences; ++pyArrayCol) {
