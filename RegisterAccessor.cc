@@ -8,10 +8,10 @@ namespace RegisterAccessor {
             bp::numeric::array& numpyArray, size_t numberOfElementsToRead,
             uint32_t startIndexInRegister) {
 
-    if (extractDataType(numpyArray) == FLOAT32) {
-      float* allocatedSpace =
-          reinterpret_cast<float*>(extractDataPointer(numpyArray));
-      self.read<float>(allocatedSpace, numberOfElementsToRead,
+    if (extractDataType(numpyArray) == FLOAT64) {
+      double* allocatedSpace =
+          reinterpret_cast<double*>(extractDataPointer(numpyArray));
+      self.read<double>(allocatedSpace, numberOfElementsToRead,
                        startIndexInRegister);
     } else {
       throw mtca4upy::ArrayElementTypeNotSupported(

@@ -137,9 +137,9 @@ class Device():
 
     Returns
     -------
-    readoutValues: numpy.array, dtype == numpy.float32
+    readoutValues: numpy.array, dtype == numpy.float64
       The return type for the method is a 1-Dimensional numpy array with
-      datatype numpy.float32. The returned numpy.array would either contain all
+      datatype numpy.float64. The returned numpy.array would either contain all
       elements in the register or only the number specified by the
       numberOfElementsToRead parameter
      
@@ -149,32 +149,32 @@ class Device():
       >>> import mtca4u
       >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4", "mapfiles/mtcadummy.map")
       >>> boardWithModules.read("BOARD", "WORD_STATUS")
-      array([15.0], dtype=float32)
+      array([15.0], dtype=float64)
       
     
     register "WORD_CLK_MUX" is 4 elements long.
       >>> import mtca4u
       >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
       >>> device.read("", "WORD_CLK_MUX")
-      array([15.0, 14.0, 13.0, 12.0], dtype=float32)
+      array([15.0, 14.0, 13.0, 12.0], dtype=float64)
       >>> device.read("", "WORD_CLK_MUX", 0)
-      array([15.0, 14.0, 13.0, 12.0], dtype=float32)
+      array([15.0, 14.0, 13.0, 12.0], dtype=float64)
     reading beyond a valid register size returns all values:  
       >>> device.read("", "WORD_CLK_MUX", 5)
-      array([15.0, 14.0, 13.0, 12.0], dtype=float32)
+      array([15.0, 14.0, 13.0, 12.0], dtype=float64)
     read out select number of elements from specified locations:  
       >>> device.read("", "WORD_CLK_MUX", 1)
-      array([15.0], dtype=float32)
+      array([15.0], dtype=float64)
       >>> device.read("", "WORD_CLK_MUX", 1, 2 )
-      array([13.0], dtype=float32)
+      array([13.0], dtype=float64)
       >>> device.read("", "WORD_CLK_MUX", 0, 2 )
-      array([13.0, 12.0], dtype=float32)
+      array([13.0, 12.0], dtype=float64)
       >>> device.read("", "WORD_CLK_MUX", 5, 2 )
-      array([13.0, 12.0], dtype=float32)
+      array([13.0, 12.0], dtype=float64)
       >>> device.read("", "WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
-      array([13.0], dtype=float32)
+      array([13.0], dtype=float64)
       >>> device.read("", "WORD_CLK_MUX", elementIndexInRegister=2 )
-      array([13.0, 12.0], dtype=float32)
+      array([13.0, 12.0], dtype=float64)
     
     
     See Also
@@ -188,9 +188,9 @@ class Device():
     # throw if element index  exceeds register size
     self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
     registerSize = registerAccessor.getNumElements();
-    array = self.__createArray(numpy.float32, registerSize,
-                                               numberOfElementsToRead,
-                                               elementIndexInRegister)
+    array = self.__createArray(numpy.double, registerSize,
+                                             numberOfElementsToRead,
+                                             elementIndexInRegister)
     registerAccessor.read(array, array.size,
                           elementIndexInRegister)
     

@@ -269,7 +269,7 @@ class TestPCIEDevice(unittest.TestCase):
       writeCommand(module, word_incomplete_register, 
                  numpy.array([2.125], dtype))
       readInValue = readCommand(module, word_incomplete_register)
-      self.assertTrue(readInValue.dtype == numpy.float32)
+      self.assertTrue(readInValue.dtype == numpy.float64)
       self.assertTrue(readInValue.tolist() == [2.125])
      
      # check functionalty when using dtype numpy.float64
@@ -375,7 +375,7 @@ class TestPCIEDevice(unittest.TestCase):
                     " in map file: deviceInformation/modular_mtcadummy.map"
   def __getDtypeToUse(self, device, command):
     if command == device.read or command == device.write:
-      return numpy.float32
+      return numpy.float64
     elif command == device.read_raw or command == device.write_raw:
       return numpy.int32
     
