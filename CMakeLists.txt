@@ -151,7 +151,7 @@ install(FILES ${headers_for_devpackage}
 install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
               "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" 
               "${CMAKE_SOURCE_DIR}/cmake/Modules/Find${PROJECT_NAME}.cmake"
-        DESTINATION . 
+        DESTINATION share/cmake-${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}/Modules
         COMPONENT dev)
 
 # cmake instructions for packaging; picked from
