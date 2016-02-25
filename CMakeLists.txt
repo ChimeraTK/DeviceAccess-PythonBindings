@@ -124,7 +124,7 @@ ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 # package
 set(headers_for_devpackage ${CMAKE_SOURCE_DIR}/HelperFunctions.h 
                            ${CMAKE_SOURCE_DIR}/PythonExceptions.h)
-string(TOLOWER include/${PROJECT_NAME} header_install_location)
+string(TOLOWER include/mtca4u/${PROJECT_NAME} header_install_location)
 
 # These are cmake modules that would be installed to enable find_package command
 # for this library on the target system
