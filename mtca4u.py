@@ -91,8 +91,8 @@ class Device():
       deviceFile = args[0]
       mapFile = args[1]
       self.__openedDevice = mtca4udeviceaccess.createDevice(deviceFile, mapFile)
-      #self.__printDeprecationWarning() FIXME: This will come in once the
-      # documentation is in place
+      self.__printDeprecationWarning(deviceFile, mapFile) 
+      
     elif len(args) == 1:
       cardAlias = args[0]
       self.__openedDevice = mtca4udeviceaccess.createDevice(cardAlias)
@@ -593,12 +593,28 @@ class Device():
       array2D = numpy.empty((numberOfRows, numberOfColumns), dtype=dType)
       return array2D
 
-  def __printDeprecationWarning(self):
-    print ""
-    print "Warning: Creating devices through Device(deviceFile, mapFile) will"
-    print "         be phased out in future versions."
-    print "         Use Device(\"cardAlias\") instead."
-    print "         Type help(mtca4u.Device) to get more info on usage."
-    print ""
+  def __printDeprecationWarning(self, deviceFile, mapFile):
+      deviceFileName = self.__extractNameFromDeviceFile(deviceFile)
+      
+      print "*************************************************************************************************"
+      print " This usage for device creation will be phased out. Please consider using a "
+      print " dmap file instead.                                                         "
+      print "                                                                            "
+      print " Instructions:                                                              "
+      print " - Create dmap file: <your_dmapfile_name_goes_here>.dmap                    "
+      print "                                                                            "
+      print " - Add this line to your dmap file:                                         "
+      print "     <your_card_alias_goes_here> sdm://./pci:" + deviceFileName + "; " + mapFile
+      print "                                                                            "
+      print " - Tell the library about the dmap file                                     "
+      print "     mtca4u.set_dmap_location('your_dmapfile_name.dmap')                    "
+      print "                                                                            "
+      print " - Create your device                                                       "
+      print "     device = mtca4u.Device('your_card_alias')                              "
+      print "*************************************************************************************************"
     
+
     
+  def __extractNameFromDeviceFile(self, deviceFile):
+      index = (deviceFile.rfind('/')) + 1
+      return deviceFile[index:]
