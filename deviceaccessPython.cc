@@ -34,8 +34,7 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
       .def("getNumElements", mtca4upy::RegisterAccessor::size);
 
   bp::class_<mtca4u::TwoDRegisterAccessor<float> >(
-      "MuxDataAccessor",
-      bp::init<boost::shared_ptr<mtca4u::TwoDRegisterAccessorImpl<float> > >())
+      "MuxDataAccessor")
       .def("getSequenceCount", mtca4upy::MuxDataAccessor::getSequenceCount)
       .def("getBlockCount", mtca4upy::MuxDataAccessor::getBlockCount)
       .def("populateArray", mtca4upy::MuxDataAccessor::copyReadInData);
