@@ -103,7 +103,7 @@ class TestPCIEDevice(unittest.TestCase):
                         device.writeRaw, 8, array, (array.size * 4) + 1 , 0)
 
   def testDeviceCreation(self):
-    self.assertRaisesRegexp(RuntimeError, "Unknown device alias", mtca4u.Device, "NON_EXISTENT_ALIAS_NAME") 
+    self.assertRaisesRegexp(RuntimeError, "Could not find 'NON_EXISTENT_ALIAS_NAME' in dmapFile: deviceInformation/exampleCrate.dmap", mtca4u.Device, "NON_EXISTENT_ALIAS_NAME") 
 
     self.assertRaisesRegexp(RuntimeError, "Cannot open file \"NON_EXISTENT_MAPFILE\"", mtca4u.Device,
                             "NON_EXISTENT_MAPFILE", "NON_EXISTENT_MAPFILE") 
