@@ -10,10 +10,12 @@ sys.path.insert(0,os.path.abspath(os.curdir))
 import mtca4u
 import versionnumbers as vn
 
-mtca4u.set_dmap_location("deviceInformation/exampleCrate.dmap")
-
 class TestPCIEDevice(unittest.TestCase):
   # TODO: Refactor to take care of the harcoded values used for comparisions
+  
+  def setUp(self):
+      mtca4u.set_dmap_location("deviceInformation/exampleCrate.dmap")
+  
   def testRead(self):
     self.__prepareDataOnCards()
     
@@ -107,10 +109,21 @@ class TestPCIEDevice(unittest.TestCase):
 
     self.assertRaisesRegexp(RuntimeError, "Cannot open file \"NON_EXISTENT_MAPFILE\"", mtca4u.Device,
                             "NON_EXISTENT_MAPFILE", "NON_EXISTENT_MAPFILE") 
-    self.assertRaisesRegexp(SyntaxError, "Device called with incorrect number of parameters.", 
+    self.assertRaisesRegexp(SyntaxError, "Syntax Error: please see help\(mtca4u.Device\) for usage instructions.", 
                             mtca4u.Device)
-    self.assertRaisesRegexp(SyntaxError, "Device called with incorrect number of parameters.", 
+    self.assertRaisesRegexp(SyntaxError, "Syntax Error: please see help\(mtca4u.Device\) for usage instructions.", 
                             mtca4u.Device, "BogusText", "BogusText", "BogusText")
+    
+    dmapFilePath = mtca4u.get_dmap_location()
+    mtca4u.set_dmap_location("")
+    self.assertRaisesRegexp(RuntimeError, "Could not find a dmapfile. Please specify a dmap file to use.\n Can be done using mtca4u.set_dmap_location. See help\(mtca4u.set_dmap_location\).", 
+                            mtca4u.Device, "CARD_WITH_OUT_MODULES")
+    mtca4u.set_dmap_location(dmapFilePath)
+    
+    
+  def testSetGetDmapfile(self):
+    # set by the test setUp method  
+    self.assertTrue(mtca4u.get_dmap_location() == "deviceInformation/exampleCrate.dmap")
     
   """
   The idea here is to preset data on registers that is then  read in and

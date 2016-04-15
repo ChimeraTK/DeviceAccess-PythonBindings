@@ -17,7 +17,6 @@ def get_info(outputStream=sys.stdout):
   
   Returns
   -------
-  None
   
   Examples
   --------
@@ -32,15 +31,17 @@ def set_dmap_location(dmapFileLocation):
   """ Sets the location of the dmap file to use
   
   The library will check the user specified device Alias names (when creating
-  devices) in this dmap file.
+  devices) in this dmap file. Once set, the library will look at this dmap file
+  through out the program lifetime. This is true until a new dmap file is
+  set again using set_dmap_location
   
   Parameters
   ----------
-  dmapFileLocation: (str)
+  dmapFileLocation: string
+    Path to the desired dmap file.
   
   Returns
   -------
-  None
   
   Examples
   --------
@@ -50,11 +51,44 @@ def set_dmap_location(dmapFileLocation):
    
   See Also
   --------
+  get_dmap_location: View the current dmap file which the library uses for device name (alias) lookup.
   Device : Open device using specified alias names or using device id and mapfile 
 
   """
   #os.environ["DMAP_FILE"] = dmapFileLocation
   mtca4udeviceaccess.setDmapFile(dmapFileLocation)
+  
+  
+  
+def get_dmap_location():
+  """ Get the dmap file which is currently in use by the library.
+  
+  Method returns the file path of the dmap file the library currently uses.
+  This is the dmap file the library uses to look up the device name(alias) and
+  its details
+    
+  Parameters
+  ----------
+  
+  Returns
+  -------
+  string: File path of the dmap file the library currently uses.
+  
+  Examples
+  --------
+    >>> import mtca4u
+    >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
+    >>> dmapPath = mtca4u.get_dmap_location()
+    >>> print dmapPath # prints '../my_example_dmap_file.dmap'
+    
+  See Also
+  --------
+  set_dmap_location : set dmap file path for the library.
+  Device : Open device using specified alias names or using device id and mapfile
+   
+  """
+  return mtca4udeviceaccess.getDmapFile()
+
   
 class Device():
   """ Construct Device from user provided device information
@@ -95,9 +129,12 @@ class Device():
       
     elif len(args) == 1:
       cardAlias = args[0]
+      if(get_dmap_location() == ''):
+          self.__throwDmapFilePathNotSetException(cardAlias)
       self.__openedDevice = mtca4udeviceaccess.createDevice(cardAlias)
+            
     else:
-      raise SyntaxError("Device called with incorrect number of parameters.") 
+      raise SyntaxError("Syntax Error: please see help(mtca4u.Device) for usage instructions.")
 
   def read(self, moduleName, registerName, numberOfElementsToRead=0,
             elementIndexInRegister=0):
@@ -230,7 +267,6 @@ class Device():
     
     Returns
     -------
-      None: None
     
     Examples
     --------
@@ -385,7 +421,6 @@ class Device():
     
     Returns
     -------
-    None: None
     
     Examples
     --------
@@ -619,3 +654,9 @@ class Device():
   def __extractNameFromDeviceFile(self, deviceFile):
       index = (deviceFile.rfind('/')) + 1
       return deviceFile[index:]
+  
+  def __throwDmapFilePathNotSetException(self, cardAlias):
+      exceptionMessage = "Could not find a dmapfile. Please specify a dmap file to use.\n Can be done using mtca4u.set_dmap_location. See help(mtca4u.set_dmap_location)." 
+      
+      raise RuntimeError(exceptionMessage)
+  

@@ -42,6 +42,7 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
   bp::def("createDevice", createDevice);
   bp::def("createDevice", createDeviceFromCardAlias);
   bp::def("setDmapFile", mtca4upy::setDmapFile);
+  bp::def("getDmapFile", mtca4upy::getDmapFile);
   bp::register_ptr_to_python<boost::shared_ptr<mtca4u::Device> >();
   bp::numeric::array::set_module_and_type("numpy", "ndarray");
 }

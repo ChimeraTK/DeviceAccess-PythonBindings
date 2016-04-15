@@ -82,6 +82,8 @@ namespace DeviceAccess {
 } // namespace mtca4upy::deviceAccess
 
 void setDmapFile(const std::string &dmapFile);
+std::string getDmapFile();
+
 } // namespace mtca4upy
 
 #endif /* REGISTERACCESSORWRAPPERFUNCTIONS_H_ */

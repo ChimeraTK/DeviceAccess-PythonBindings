@@ -1,5 +1,6 @@
 #include "PythonModuleMethods.h"
 #include "PythonExceptions.h"
+#include <mtca4u/Utilities.h>
 
 namespace mtca4upy {
 namespace RegisterAccessor {
@@ -107,6 +108,9 @@ namespace RegisterAccessor {
 }
 
 void mtca4upy::setDmapFile(const std::string& dmapFile) {
-  mtca4u::BackendFactory &factoryInstance = mtca4u::BackendFactory::getInstance();
-  factoryInstance.setDMapFilePath(dmapFile);
+  mtca4u::setDMapFilePath(dmapFile);
+}
+
+std::string mtca4upy::getDmapFile() {
+  return (mtca4u::getDMapFilePath());
 }

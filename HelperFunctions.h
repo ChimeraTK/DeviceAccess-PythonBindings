@@ -1,7 +1,6 @@
 #ifndef HELPERFUNCTIONS_H_
 #define HELPERFUNCTIONS_H_
 #include <boost/python.hpp>
-#include "HelperFunctions.h"
 #include <numpy/arrayobject.h>
 #include "PythonExceptions.h"
 namespace bp = boost::python;
