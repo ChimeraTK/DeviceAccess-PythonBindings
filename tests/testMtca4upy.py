@@ -364,7 +364,7 @@ class TestPCIEDevice(unittest.TestCase):
                             numpy.array([2.125], dtype = dtype))
     
     # supplied array size exceeds register capacity
-    self.assertRaisesRegexp(RuntimeError, "Requested number of words exceed the size of the register!",
+    self.assertRaisesRegexp(RuntimeError, "RegisterAccessor::write.* Error: writing exceeds the end of register",
                              writeCommand, module, word_incomplete_register, 
                              word_clk_mux_content)
      
