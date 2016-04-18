@@ -105,11 +105,6 @@ class TestPCIEDevice(unittest.TestCase):
                         device.writeRaw, 8, array, (array.size * 4) + 1 , 0)
 
   def testDeviceCreation(self):
-      
-    try:
-      mtca4u.Device("NON_EXISTENT_ALIAS_NAME")
-    except Exception as ex:
-        exceptionMessage = ex.message
         
     with self.assertRaises(RuntimeError):
       mtca4u.Device("NON_EXISTENT_ALIAS_NAME") # Not testing for the printed
