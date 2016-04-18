@@ -10,11 +10,11 @@ sys.path.insert(0,os.path.abspath(os.curdir))
 import mtca4u
 import versionnumbers as vn
 
+mtca4u.set_dmap_location("deviceInformation/exampleCrate.dmap")
+      
 class TestPCIEDevice(unittest.TestCase):
   # TODO: Refactor to take care of the harcoded values used for comparisions
   
-  def setUp(self):
-      mtca4u.set_dmap_location("deviceInformation/exampleCrate.dmap")
   
   def testRead(self):
     self.__prepareDataOnCards()
@@ -105,7 +105,22 @@ class TestPCIEDevice(unittest.TestCase):
                         device.writeRaw, 8, array, (array.size * 4) + 1 , 0)
 
   def testDeviceCreation(self):
-    self.assertRaisesRegexp(RuntimeError, "Could not find 'NON_EXISTENT_ALIAS_NAME' in dmapFile: deviceInformation/exampleCrate.dmap", mtca4u.Device, "NON_EXISTENT_ALIAS_NAME") 
+      
+    try:
+      mtca4u.Device("NON_EXISTENT_ALIAS_NAME")
+    except Exception as ex:
+        exceptionMessage = ex.message
+        
+    with self.assertRaises(RuntimeError):
+      mtca4u.Device("NON_EXISTENT_ALIAS_NAME") # Not testing for the printed
+                                               # message. This comes from the
+                                               # device access library and the
+                                               # text has been chainging to
+                                               # often/ can change in the
+                                               # future. What is being
+                                               # prioritized is to check that we
+                                               # have an exception for an
+                                               # incorrect usage.
 
     self.assertRaisesRegexp(RuntimeError, "Cannot open file \"NON_EXISTENT_MAPFILE\"", mtca4u.Device,
                             "NON_EXISTENT_MAPFILE", "NON_EXISTENT_MAPFILE") 
