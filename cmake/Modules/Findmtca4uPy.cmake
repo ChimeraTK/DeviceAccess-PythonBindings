@@ -10,7 +10,7 @@
 # @author Martin Killenberg, DESY (modified for mtca4uPy by Martin Hierholzer, DESY)
 #
 
-SET(mtca4uPy_FOUND 0)
+SET(MTCA4UPY_FOUND 0)
 
 #FIXME: the search path for the device config has to be extended/generalised/improved
 FIND_PATH(mtca4uPy_DIR
