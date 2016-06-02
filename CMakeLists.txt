@@ -22,6 +22,8 @@ set(min_req_mtca4u-deviceaccess_version 00.12)
 # Build up the project version name
 set(${PROJECT_NAME}_VERSION
   ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_VERSION})
+set(${PROJECT_NAME}_SOVERSION
+  ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION})
 
 #
 # other variables 
