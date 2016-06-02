@@ -16,7 +16,7 @@ include(helperMacros)
 set(${PROJECT_NAME}_MAJOR_VERSION 00)
 set(${PROJECT_NAME}_MINOR_VERSION 07)
 set(${PROJECT_NAME}_PATCH_VERSION 00)
-set(min_req_mtca4u-deviceaccess_version 00.10)
+set(min_req_mtca4u-deviceaccess_version 00.12)
 
 #
 # Build up the project version name
@@ -33,12 +33,18 @@ set(location_of_built_html_files "${PROJECT_BINARY_DIR}/html")
 set(sphinx_build_config_file "${PROJECT_BINARY_DIR}/conf.py")
 set(author "MSK")
 
-# Check if project dependencies are met
+# Search for BOOST python library
 find_package(Boost REQUIRED COMPONENTS python)
+
+# Search for PythonLibs
 find_package(PythonLibs REQUIRED)
-find_package(mtca4u-deviceaccess ${min_req_mtca4u-deviceaccess_version} REQUIRED)
+
+# Search for NumPy
 find_package(NumPy REQUIRED)
-#
+
+# Search for DeviceAccess
+find_package(mtca4u-deviceaccess ${min_req_mtca4u-deviceaccess_version} REQUIRED)
+set(${PROJECT_NAME}_CXX_FLAGS "${${PROJECT_NAME}_CXX_FLAGS} ${mtca4u-deviceaccess_CXX_FLAGS}")
 
 #
 # add target for documentation if sphinx v1.3+ is available. 
@@ -46,32 +52,27 @@ CHECK_FOR_SPHINX()
 if(SUPPORTED_SPHINX_VERSION_AVAILABLE)
   ADD_HTML_DOCUMENTATION_SUPPORT()
 else()
-    message(STATUS "Html doumentation support will not be enabled")
-    message(STATUS "Please install working sphinx-doc version (1.3.0+) for html documentation support")
+  message(STATUS "Html doumentation support will not be enabled")
+  message(STATUS "Please install working sphinx-doc version (1.3.0+) for html documentation support")
 endif(SUPPORTED_SPHINX_VERSION_AVAILABLE)
 
 #
 # Set the compiler flags.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -Weffc++ -Wextra -Wshadow -pedantic -Wuninitialized")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${PROJECT_NAME}_CXX_FLAGS} -Wall -fPIC -Weffc++ -Wextra -Wshadow -pedantic -Wuninitialized")
 
 #
 # Set header file locations
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS} 
-                            ${PYTHON_INCLUDE_DIR}
-			    ${NUMPY_INCLUDE_DIRS}
-                            ${mtca4u-deviceaccess_INCLUDE_DIRS})
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIR} ${NUMPY_INCLUDE_DIRS} ${mtca4u-deviceaccess_INCLUDE_DIRS})
 
 #
 # Define the build target for python module 
 add_library(${boost_python_core_module} SHARED deviceaccessPython.cc 
-                                         CreateDevice.cc
-                                         DeviceAccess.cc
-                                         MuxDataAccessor.cc
-                                         RegisterAccessor.cc)
+                                               CreateDevice.cc
+                                               DeviceAccess.cc
+                                               MuxDataAccessor.cc
+                                               RegisterAccessor.cc)
                                          
-target_link_libraries(${boost_python_core_module} ${mtca4u-deviceaccess_LIBRARIES}
-                                            ${PYTHON_LIBRARIES} 
-                                            ${Boost_LIBRARIES})
+target_link_libraries(${boost_python_core_module} ${mtca4u-deviceaccess_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES})
 # donot prefix lib to the generated so:
 set_target_properties(${boost_python_core_module} PROPERTIES PREFIX "")
 
@@ -102,21 +103,18 @@ ADD_SCRIPTS_AS_TESTS( "${location_of_script_files}" )
 # For now coverage is enabled in the debug Mode only
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
-    #
-    # Enable gdb and coverage report in the debug configuration.
-    # (-DCMAKE_BUILD_TYPE=Debug)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 --coverage")
+  #
+  # Enable gdb and coverage report in the debug configuration.
+  # (-DCMAKE_BUILD_TYPE=Debug)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 --coverage")
 
-    #
-    # Enable code coverage when cmake build configured -DCMAKE_BUILD_TYPE=Debug.
-    # lcov gets run by the target defined in Makefile.coverage
-      CONFIGURE_FILE(cmake/Makefile.coverage.in
-        ${PROJECT_BINARY_DIR}/Makefile.coverage @ONLY)
-      ADD_CUSTOM_TARGET(coverage
-        make -f Makefile.coverage
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Generating test coverage documentation" VERBATIM
-      )
+  #
+  # Enable code coverage when cmake build configured -DCMAKE_BUILD_TYPE=Debug.
+  # lcov gets run by the target defined in Makefile.coverage
+  CONFIGURE_FILE(cmake/Makefile.coverage.in ${PROJECT_BINARY_DIR}/Makefile.coverage @ONLY)
+  ADD_CUSTOM_TARGET(coverage make -f Makefile.coverage WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                    COMMENT "Generating test coverage documentation" VERBATIM)
+
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 #
@@ -126,33 +124,39 @@ set(headers_for_devpackage ${CMAKE_SOURCE_DIR}/HelperFunctions.h
                            ${CMAKE_SOURCE_DIR}/PythonExceptions.h)
 string(TOLOWER include/mtca4u/${PROJECT_NAME} header_install_location)
 
-# These are cmake modules that would be installed to enable find_package command
-# for this library on the target system
-configure_file(cmake/Config.cmake.in
-  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
-configure_file(cmake/ConfigVersion.cmake.in
-  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
+#Create the config files by filling the correct variables into the template (*.cmake.in).
+#All variables @VARIABLE@ are replaced with the current values, but they have to be set first....
+#Only the reference header is needed. The other variables are for dependencies of this library,
+#but there are none.
+set(${PROJECT_NAME}_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include
+                                  ${Boost_INCLUDE_DIRS}
+                                  ${PYTHON_INCLUDE_DIR}
+                                  ${NUMPY_INCLUDE_DIRS}
+                                  ${mtca4u-deviceaccess_INCLUDE_DIRS}")
+set(${PROJECT_NAME}_LIBRARIES "${mtca4u-deviceaccess_LIBRARIES}
+                               ${PYTHON_LIBRARIES}
+                               ${NUMPY_LIBRARIES}
+                               ${Boost_LIBRARIES}")
+set(${PROJECT_NAME}_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib
+                                  ${mtca4u-deviceaccess_LIBRARY_DIRS}
+                                  ${PYTHON_LIBRARY_DIRS}
+                                  ${NUMPY_LIBRARY_DIRS}
+                                  ${Boost_LIBRARY_DIRS}")
+# already set: ${PROJECT_NAME}_CXX_FLAGS
+set(${PROJECT_NAME}_LINKER_FLAGS "-Wl,-rpath=${CMAKE_INSTALL_PREFIX}/lib,--enable-new-dtags")
+include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
 
 # Installation targets for:
 # - Pure python module
 # - c++ python module
 # - Headers fro the dev package
 # - cmake modules for enabling find_package on this project 
-install(FILES ${PROJECT_BINARY_DIR}/${python_module}
-        DESTINATION lib/python2.7/dist-packages)
+install(FILES ${PROJECT_BINARY_DIR}/${python_module} DESTINATION lib/python2.7/dist-packages)
 # do not remove runtime path to libmtca-deviceaccess location  from
 # ${boost_python_core_module}  when installing
-set_property(TARGET ${boost_python_core_module} 
-	PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
-install(TARGETS ${boost_python_core_module}
-        LIBRARY DESTINATION lib/python2.7/dist-packages)
-install(FILES ${headers_for_devpackage}
-        DESTINATION ${header_install_location})
-install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-              "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" 
-              "${CMAKE_SOURCE_DIR}/cmake/Modules/Find${PROJECT_NAME}.cmake"
-        DESTINATION share/cmake-${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}/Modules
-        COMPONENT dev)
+set_property(TARGET ${boost_python_core_module} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
+install(TARGETS ${boost_python_core_module} LIBRARY DESTINATION lib/python2.7/dist-packages)
+install(FILES ${headers_for_devpackage} DESTINATION ${header_install_location})
 
 # cmake instructions for packaging; picked from
 # ${CMAKE_SOURCE_DIR}/cmake/Modules, which has been appended to the 

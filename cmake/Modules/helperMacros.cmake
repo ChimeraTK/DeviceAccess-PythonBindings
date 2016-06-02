@@ -50,7 +50,7 @@ MACRO( COPY_SOURCE_TO_TARGET source_directory target_directory)
         "${source_directory}/*[!~].map" 
         "${source_directory}/*[!~].txt") 
     foreach( file ${list_of_files_to_copy} )
-        configure_file( ${file} ${target_directory} copyonly )
+        file( COPY "${file}" DESTINATION "${target_directory}" )
     endforeach( file )
 ENDMACRO( COPY_SOURCE_TO_TARGET )
 
