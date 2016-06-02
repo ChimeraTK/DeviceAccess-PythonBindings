@@ -130,7 +130,7 @@ string(TOLOWER include/mtca4u/${PROJECT_NAME} header_install_location)
 #All variables @VARIABLE@ are replaced with the current values, but they have to be set first....
 #Only the reference header is needed. The other variables are for dependencies of this library,
 #but there are none.
-set(${PROJECT_NAME}_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/${header_install_location}
+set(${PROJECT_NAME}_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/mtca4u
                                   ${Boost_INCLUDE_DIRS}
                                   ${PYTHON_INCLUDE_DIR}
                                   ${NUMPY_INCLUDE_DIRS}
