@@ -22,6 +22,7 @@ set(PACKAGE_MESSAGE "Debian package for MTCA4U deviceaccess python bindings ${${
 #Nothing to change, just copy
 file(COPY ${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/compat
            ${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/rules
+           ${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/copyright
      DESTINATION debian_from_template)
 file(COPY ${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/source/format
      DESTINATION debian_from_template/source)
@@ -33,11 +34,6 @@ configure_file(${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/package.instal
 configure_file(${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/package-dev.install.in
                debian_from_template/${PACKAGE_NAME}-dev.install)
                
-
-#Set the version number
-configure_file(${CMAKE_SOURCE_DIR}/cmake/debian_package_templates/copyright.in
-               debian_from_template/copyright @ONLY)
-
 #Copy and configure the shell script which performs the actual
 #building of the package
 configure_file(${CMAKE_SOURCE_DIR}/cmake/make_debian_package.sh.in
