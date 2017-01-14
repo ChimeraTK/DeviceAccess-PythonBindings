@@ -39,7 +39,7 @@ set(boost_python_core_module "mtca4udeviceaccess")
 set(python_module "mtca4u.py")
 set(sphinx_build_confg_in "${PROJECT_SOURCE_DIR}/cmake/conf.py.in")
 set(location_of_rst_source_files "${PROJECT_SOURCE_DIR}/doc")
-set(location_of_built_html_files "${PROJECT_BINARY_DIR}/html")
+set(location_of_built_html_files "${PROJECT_BINARY_DIR}/doc/html")
 set(sphinx_build_config_file "${PROJECT_BINARY_DIR}/conf.py")
 set(author "MSK")
 

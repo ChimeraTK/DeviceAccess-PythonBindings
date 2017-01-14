@@ -114,12 +114,12 @@ endfunction()
 FUNCTION(ADD_HTML_DOCUMENTATION_SUPPORT)
   configure_file(${sphinx_build_confg_in} ${sphinx_build_config_file})
   # copy the config file to the build directory
-  message(STATUS "Html documentation support enabled; use 'make html'") 
+  message(STATUS "Html documentation support enabled; use 'make doc'") 
   get_filename_component(sphinx_config_parent_dir ${sphinx_build_config_file} PATH)
-  add_custom_target(html
+  add_custom_target(doc
                     COMMAND ${SPHINX_BUILD} -c ${sphinx_config_parent_dir} -b html ${location_of_rst_source_files} ${location_of_built_html_files}
                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                     COMMENT "Generating html documentation" VERBATIM)
                        
-  set(HTML_TARGET_ADDED TRUE CACHE INTERNAL "Html target has already been configured")
+  set(DOC_TARGET_ADDED TRUE CACHE INTERNAL "Doc target has been configured")
 ENDFUNCTION()
