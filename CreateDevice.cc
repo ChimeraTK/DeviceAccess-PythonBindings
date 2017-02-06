@@ -1,6 +1,7 @@
 #include "PythonModuleMethods.h"
 #include <mtca4u/MapFileParser.h>
 #include <mtca4u/DummyBackend.h>
+#include <mtca4u/PcieBackend.h>
 #include "PythonExceptions.h"
 
 namespace mtca4upy {
