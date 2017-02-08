@@ -47,10 +47,11 @@ set(author "MSK")
 find_package(Boost REQUIRED COMPONENTS python)
 
 # Search for PythonLibs
-find_package(PythonLibs REQUIRED)
+find_package(PythonLibs 2.7 REQUIRED)
 
 # Search for NumPy
 find_package(NumPy REQUIRED)
+
 
 # Search for DeviceAccess
 find_package(mtca4u-deviceaccess ${min_req_mtca4u-deviceaccess_version} REQUIRED)
@@ -69,6 +70,17 @@ endif(SUPPORTED_SPHINX_VERSION_AVAILABLE)
 #
 # Set the compiler flags.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${PROJECT_NAME}_CXX_FLAGS} -Wall -fPIC -Weffc++ -Wextra -Wshadow -pedantic -Wuninitialized")
+
+
+#
+# Reference: 
+#   https://docs.scipy.org/doc/numpy-dev/reference/c-api.deprecations.html
+#
+# Defing NPY_NO_DEPRECATED_API as NPY_1_11_API_VERSION, should ensure that the
+# compilation does not go through if the code uses API's marked as deprecated in
+# numpy v1.11's documentation.
+
+add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_11_API_VERSION)
 
 #
 # Set header file locations
