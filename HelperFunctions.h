@@ -21,7 +21,7 @@ inline size_t extractNumberOfElements(const bp::numeric::array& dataToWrite) {
 
 inline char* extractDataPointer(const bp::numeric::array& Buffer) {
   PyArrayObject* numpyArrayObj = reinterpret_cast<PyArrayObject*>(Buffer.ptr());
-  return (numpyArrayObj->data);
+  return PyArray_BYTES(numpyArrayObj);
 }
 
 inline void throwExceptionIfOutOfBounds(const bp::numeric::array& dataToWrite,
