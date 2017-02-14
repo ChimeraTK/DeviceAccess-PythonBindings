@@ -80,7 +80,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${PROJECT_NAME}_CXX_FLAGS} -Wall -fPIC
 # compilation does not go through if the code uses API's marked as deprecated in
 # numpy v1.11's documentation.
 
-add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_11_API_VERSION)
+add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 
 #
 # Set header file locations
