@@ -78,7 +78,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${PROJECT_NAME}_CXX_FLAGS} -Wall -fPIC
 #
 # Defing NPY_NO_DEPRECATED_API as NPY_1_11_API_VERSION, should ensure that the
 # compilation does not go through if the code uses API's marked as deprecated in
-# numpy v1.11's documentation.
+# numpy v1.7's documentation.
 
 add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 
