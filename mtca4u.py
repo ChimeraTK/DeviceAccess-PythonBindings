@@ -93,23 +93,15 @@ def get_dmap_location():
 class Device():
   """ Construct Device from user provided device information
   
-  This constructor is used to open a PCIE device, when the device 
-  identifier and the desired map file are available
+  This constructor is used to open a device listed in the dmap file.
   
   Parameters
   ----------
-  deviceFile/Alias : str
-    The device file for the hardware
-
-  mapFile : str
-    The location of the register mapped file for the hardware under
-    consideration
+  alias : str
+    The device alias/name in the dmap file for the hardware
 
   Examples
   --------
-  Creating device with device id and mapfile:
-    >>> import mtca4u
-    >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
   Creating a device using dmap file:
     >>> import mtca4u
     >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
@@ -184,20 +176,18 @@ class Device():
     --------
     register "WORD_STATUS" is 1 element long..
       >>> import mtca4u
-      >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4", "mapfiles/mtcadummy.map")
+      >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
+      >>> boardWithModules = mtca4u.Device("device_name")
       >>> boardWithModules.read("BOARD", "WORD_STATUS")
       array([15.0], dtype=float64)
       
     
     register "WORD_CLK_MUX" is 4 elements long.
       >>> import mtca4u
-      >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> device = mtca4u.Device("device_name")
       >>> device.read("", "WORD_CLK_MUX")
       array([15.0, 14.0, 13.0, 12.0], dtype=float64)
       >>> device.read("", "WORD_CLK_MUX", 0)
-      array([15.0, 14.0, 13.0, 12.0], dtype=float64)
-    reading beyond a valid register size returns all values:  
-      >>> device.read("", "WORD_CLK_MUX", 5)
       array([15.0, 14.0, 13.0, 12.0], dtype=float64)
     read out select number of elements from specified locations:  
       >>> device.read("", "WORD_CLK_MUX", 1)
@@ -220,16 +210,14 @@ class Device():
 
     """
     
-    registerAccessor = self.__openedDevice.getRegisterAccessor(moduleName,
-                                                                registerName)
-    # throw if element index  exceeds register size
-    self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
+    registerPath = moduleName + '/' + registerName 
+    registerAccessor = self.__openedDevice.get1DAccessor_double(registerPath, 
+                                                                numberOfElementsToRead,
+                                                                elementIndexInRegister)
+    
     registerSize = registerAccessor.getNumElements();
-    array = self.__createArray(numpy.double, registerSize,
-                                             numberOfElementsToRead,
-                                             elementIndexInRegister)
-    registerAccessor.read(array, array.size,
-                          elementIndexInRegister)
+    array = numpy.empty(registerSize, numpy.double)
+    registerAccessor.read(array)
     
     return array
   
@@ -272,7 +260,8 @@ class Device():
     --------
     register "WORD_STATUS" is 1 element long and belongs to module "BOARD".
       >>> import mtca4u
-      >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
+      >>> boardWithModules = mtca4u.Device("device_name")
       >>> boardWithModules.write("BOARD", "WORD_STATUS", 15)
       >>> boardWithModules.write("BOARD", "WORD_STATUS", 15.0)
       >>> boardWithModules.write("BOARD", "WORD_STATUS", [15])
@@ -282,7 +271,8 @@ class Device():
     
     register "WORD_CLK_MUX" is 4 elements long.
       >>> import mtca4u
-      >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
+      >>> device = mtca4u.Device("device_name")
       >>> dataToWrite = numpy.array([15.0, 14.0, 13.0, 12.0])
       >>> device.write("", "WORD_CLK_MUX", dataToWrite)
       >>> dataToWrite = numpy.array([13, 12])
@@ -296,16 +286,32 @@ class Device():
     
     """
     # get register accessor
-    registerAccessor = self.__openedDevice.getRegisterAccessor(moduleName, 
-                                                               registerName)
-    self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
-    arrayToHoldData = numpy.array(dataToWrite)
-    # The deviceaccess library checks for incorrect register size.
-    numberOfElementsToWrite = arrayToHoldData.size
+    data = numpy.array(dataToWrite)
+    numberOfElementsToWrite = data.size
     if numberOfElementsToWrite == 0:
       return
-    registerAccessor.write(arrayToHoldData, numberOfElementsToWrite,
-                            elementIndexInRegister)
+    
+    registerPath = moduleName + '/' + registerName
+    arguments = (registerPath, 
+                 numberOfElementsToWrite,
+                 elementIndexInRegister)
+
+
+    device = self.__openedDevice
+    dtype = data.dtype
+    if(dtype == numpy.int32):
+        accessor = device.get1DAccessor_int32(*arguments)
+    elif(dtype == numpy.int64):
+        accessor = device.get1DAccessor_int64(*arguments)
+    elif(dtype == numpy.float32):
+        accessor = device.get1DAccessor_float(*arguments)
+    elif(dtype == numpy.float64):
+        accessor = device.get1DAccessor_double(*arguments)
+    else:
+        raise RuntimeError("Data format used is unsupported")
+
+    accessor.write(data)
+    
   
   def read_raw(self, moduleName, registerName, numberOfElementsToRead=0, 
               elementIndexInRegister=0):
@@ -350,26 +356,24 @@ class Device():
     --------
     register "WORD_STATUS" is 1 element long.
       >>> import mtca4u
-      >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
+      >>> boardWithModules = mtca4u.Device("device_name")
       >>> boardWithModules.read_raw("BOARD", "WORD_STATUS")
       array([15], dtype=int32)
     
     register "WORD_CLK_MUX" is 4 elements long.
       >>> import mtca4u
-      >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
+      >>> device = mtca4u.Device("device_name")
       >>> device.read_raw("", "WORD_CLK_MUX")
       array([15, 14, 13, 12], dtype=int32)
       >>> device.read_raw("", "WORD_CLK_MUX", 0)
-      array([15, 14, 13, 12], dtype=int32)
-      >>> device.read_raw("", "WORD_CLK_MUX", 5)
       array([15, 14, 13, 12], dtype=int32)
       >>> device.read_raw("", "WORD_CLK_MUX", 1)
       array([15], dtype=int32)
       >>> device.read_raw("", "WORD_CLK_MUX", 1, 2 )
       array([13], dtype = int32)
       >>> device.read_raw("", "WORD_CLK_MUX", 0, 2 )
-      array([13, 12], dtype=int32)
-      >>> device.read_raw("", "WORD_CLK_MUX", 5, 2 )
       array([13, 12], dtype=int32)
       >>> device.read_raw("", "WORD_CLK_MUX", numberOfElementsToRead=1, elementIndexInRegister=2 )
       array([13], dtype=int32)
@@ -381,16 +385,14 @@ class Device():
     Device.read : Read in Fixed Point converted bit values from a device register
 
     """
-    # use wrapper aroung readreg
-    registerAccessor = self.__openedDevice.getRegisterAccessor(moduleName, 
-                                                               registerName)
-    # throw if element index  exceeds register size
-    self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
-    registerSize = registerAccessor.getNumElements();
-    array = self.__createArray(numpy.int32, registerSize, 
-                               numberOfElementsToRead, elementIndexInRegister) 
-    registerAccessor.readRaw(array, array.size, elementIndexInRegister)
+    registerPath = moduleName + '/' + registerName 
+    registerAccessor = self.__openedDevice.getRaw1DAccessor(registerPath, 
+                                                            numberOfElementsToRead,
+                                                            elementIndexInRegister)
     
+    registerSize = registerAccessor.getNumElements();
+    array = numpy.empty(registerSize, numpy.int32)
+    registerAccessor.read(array)
     return array
   
   def write_raw(self, moduleName, registerName, dataToWrite,
@@ -426,13 +428,15 @@ class Device():
     --------
     register "WORD_STATUS" is 1 element long and is part of the module "BOARD".
       >>> import mtca4u
-      >>> boardWithModules = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
+      >>> boardWithModules = mtca4u.Device("device_name")
       >>> dataToWrite = numpy.array([15], dtype=int32)
       >>> boardWithModules.write_raw("BOARD", "WORD_STATUS", dataToWrite)
     
     register "WORD_CLK_MUX" is 4 elements long.
       >>> import mtca4u
-      >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
+      >>> device = mtca4u.Device("device_name")
       >>> dataToWrite = numpy.array([15, 14, 13, 12], dtype=int32)
       >>> device.write_raw("", "WORD_CLK_MUX", dataToWrite)
       >>> dataToWrite = numpy.array([13, 12], dtype=int32)
@@ -443,16 +447,18 @@ class Device():
     Device.write : Write values that get fixed point converted to the device
     
     """
-    registerAccessor = self.__openedDevice.getRegisterAccessor(moduleName,  
-                                                               registerName)
+
     self.__checkAndExitIfArrayNotInt32(dataToWrite)
-    self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
 
     numberOfElementsToWrite = dataToWrite.size
     if numberOfElementsToWrite == 0:
         return
-    registerAccessor.writeRaw(dataToWrite, numberOfElementsToWrite,
-                               elementIndexInRegister)
+    
+    registerPath = moduleName + '/' + registerName
+    accessor = self.__openedDevice.getRaw1DAccessor(registerPath, 
+                                                    numberOfElementsToWrite,
+                                                    elementIndexInRegister)
+    accessor.write(dataToWrite)
   
   
   def read_dma_raw(self, moduleName, DMARegisterName, numberOfElementsToRead=0, 
@@ -461,8 +467,12 @@ class Device():
     
     This method can be used to fetch data copied to a dma memory block. The
     method assumes that the device maps the DMA memory block to a register made
-    up of 32 bit elements
+    up of 32 bit elements.
     
+    
+    .. note:: Deprecated since 1.0.0; use Device.read_raw instead.
+          
+          
     Parameters
     ----------
     moduleName : str
@@ -495,30 +505,22 @@ class Device():
     
     Examples
     --------
+    Use Device.read_raw:
     In the example, register "AREA_DMA_VIA_DMA" is the DMA mapped memory made up of 32 bit elements.
       >>> import mtca4u
-      >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
-      >>> device.read_dma_raw("", "AREA_DMA_VIA_DMA", 10)
+      >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
+      >>> device = mtca4u.Device("device_name")
+      >>> device.read__raw("", "AREA_DMA_VIA_DMA", 10)
       array([0, 1, 4, 9, 16, 25, 36, 49, 64, 81], dtype=int32)
-      >>> device.read_dma_raw("ModuleADC", "AREA_DMA_VIA_DMA", 10, 2 )
-      array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype=int32)
-      >>> device.read_dma_raw("", "AREA_DMA_VIA_DMA", numberOfElementsToRead=10, elementIndexInRegister=2 )
-      array([4, 9, 16, 25, 36, 49, 64, 81, 100, 121], dtype=int32)
 
+    See Also
+    --------
+    Device.read_raw : Use this method for the same purpose instead.
     """
     
-        # use wrapper aroung readreg
-    registerAccessor = self.__openedDevice.getRegisterAccessor(moduleName, 
-                                                               DMARegisterName)
-    # throw if element index  exceeds register size
-    self.__exitIfSuppliedIndexIncorrect(registerAccessor, elementIndexInRegister)
-    registerSize = registerAccessor.getNumElements();
-    array = self.__createArray(numpy.int32, registerSize, 
-                               numberOfElementsToRead, elementIndexInRegister)
-    registerAccessor.readDMARaw(array, array.size, 
-                          elementIndexInRegister)
-    
-    return array
+    return self.read_raw(moduleName, DMARegisterName, 
+                  numberOfElementsToRead, 
+                  elementIndexInRegister)
     
     
   def read_sequences(self, moduleName, regionName):
@@ -548,7 +550,8 @@ class Device():
     --------
     "DMA" is the Multiplexed data region name. This region is defined by 'AREA_MULTIPLEXED_SEQUENCE_DMA' in the mapfile.
       >>> import mtca4u
-      >>> device = mtca4u.Device("/dev/llrfdummys4","mapfiles/mtcadummy.map")
+      >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
+      >>> device = mtca4u.Device("device_name")
       >>> device.read_sequences("", "DMA")
       array([[   0.,    1.,    4.,    9.,   16.],
              [  25.,   36.,   49.,   64.,   81.],
@@ -558,23 +561,17 @@ class Device():
              
     """
     
-    # this key goes into the dictionary
-    key = moduleName + "." + regionName
-    muxedRegisterAccessor = self.__accsessor_dictionary.get(key)
+    registerPath = moduleName + '/' + regionName
+    accessor = self.__openedDevice.get2DAccessor(registerPath)
     
-    if (muxedRegisterAccessor == None):
-      # This accsessor is not in our dictionary, created and add
-      muxedRegisterAccessor = self.__openedDevice.getMultiplexedDataAccessor(moduleName, regionName)
-      self.__accsessor_dictionary.update({key: muxedRegisterAccessor})
-
     # readFromDevice fetches data from the card to its intenal buffer of the
     # c++ accessor
-    numberOfSequences = muxedRegisterAccessor.getSequenceCount()
-    numberOfBlocks = muxedRegisterAccessor.getBlockCount()
+    numberOfSequences = accessor.getNChannels()
+    numberOfBlocks = accessor.getNElementsPerChannel()
     array2D = self.__create2DArray(numpy.float32, numberOfBlocks,
                                    numberOfSequences)
-    # Copy the data read in from the card into the prepared 2D numpy array
-    muxedRegisterAccessor.populateArray(array2D)
+    
+    accessor.read(array2D)
     return array2D
 
 

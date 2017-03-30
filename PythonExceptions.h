@@ -2,6 +2,7 @@
 #define SOURCE_DIRECTORY__PYTHONEXCEPTION_H_
 
 #include <exception>
+#include <string>
 
 #define MTCA4U_PYTHON_EXCEPTION(NAME)                                          \
   class NAME : public Exception {                                              \

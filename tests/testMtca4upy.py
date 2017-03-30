@@ -240,28 +240,22 @@ class TestPCIEDevice(unittest.TestCase):
     registerName = "WORD_CLK_MUX"
     elementsToRead = 5
     offset = 2
-    readInValues = readCommand(str(module) ,registerName, elementsToRead, offset)
-    self.assertTrue(readInValues.dtype == dtype)
-    self.assertTrue(numpy.array_equiv(readInValues, word_clk_mux_content[2:]))
+    self.assertRaises(RuntimeError, readCommand, str(module) ,registerName, elementsToRead, offset)
     
     # bad value for number of elements
-    self.assertRaisesRegexp(ValueError, "negative dimensions are not allowed",
-                             readCommand, str(module), registerName, 
-                             numberOfElementsToRead=-1)
+    self.assertRaises(OverflowError,
+                      readCommand, 
+                      str(module), 
+                      registerName, 
+                      numberOfElementsToRead=-1)
     
     # offset exceeds register size
     offset = 5
     elementsToRead = 5
-    self.assertRaisesRegexp(ValueError, "Element index: 5 incorrect. Valid index"
-                            " range is \[0-3\]", readCommand,  str(module),
-                            registerName, elementIndexInRegister = offset) 
-    self.assertRaisesRegexp(ValueError, "Element index: 5 incorrect. Valid index"
-                            " range is \[0-3\]", readCommand,  str(module),
-                            registerName, elementsToRead, offset)
-    self.assertRaisesRegexp(OverflowError, "can't convert negative value to"
-                            " unsigned", readCommand,  str(module),
-                            registerName, elementIndexInRegister = -1)
-    
+    self.assertRaises(RuntimeError,
+                            readCommand,  str(module),
+                            registerName, elementIndexInRegister = offset)
+     
   def __testWrite(self, device, module, writeCommand ):
     
     module = str(module)
@@ -379,10 +373,9 @@ class TestPCIEDevice(unittest.TestCase):
                              word_clk_mux_content)
      
     # supplied offset exceeds register span
-    self.assertRaisesRegexp(ValueError, "Element index: 1 incorrect."
-                            " Valid index is 0", writeCommand, module,  
-                            word_incomplete_register, word_clk_mux_content,
-                            elementIndexInRegister=1)
+    self.assertRaises(RuntimeError, writeCommand, module,  
+                      word_incomplete_register, word_clk_mux_content,
+                      elementIndexInRegister=1)
     # write nothing
     initialValue = readCommand(module, "WORD_STATUS")
     writeCommand(module,"WORD_STATUS", numpy.array([], dtype = dtype))

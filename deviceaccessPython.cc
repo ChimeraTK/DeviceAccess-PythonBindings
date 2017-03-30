@@ -1,14 +1,17 @@
+#include "PythonModuleMethods.h"
 #include <mtca4u/DummyBackend.h>
 #include <mtca4u/PcieBackend.h>
-#include "PythonModuleMethods.h"
+
+namespace da = mtca4upy::DeviceAccess;
+namespace oneD = mtca4upy::OneDAccessor;
+namespace twoD = mtca4upy::TwoDAccessor;
 
 // This section defines function pointers used for overloading methods//
 //****************************************************************************//
 
-static boost::shared_ptr<mtca4u::Device>(*createDevice)(const std::string&,
-                                                        const std::string&) =
-    &mtca4upy::createDevice;
-static boost::shared_ptr<mtca4u::Device>(*createDeviceFromCardAlias)(
+static boost::shared_ptr<mtca4u::Device> (*createDevice)(
+    const std::string&, const std::string&) = &mtca4upy::createDevice;
+static boost::shared_ptr<mtca4u::Device> (*createDeviceFromCardAlias)(
     const std::string&) = &mtca4upy::createDevice;
 
 //****************************************************************************//
@@ -18,26 +21,38 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
   // and not directly
   bp::class_<mtca4u::Device>(
       "Device") // TODO: Find and change "Device" to a suitable name
+      .def("get1DAccessor_int32", da::getOneDAccessor<int32_t>)
+      .def("get1DAccessor_int64", da::getOneDAccessor<int64_t>)
+      .def("get1DAccessor_float", da::getOneDAccessor<float>)
+      .def("get1DAccessor_double", da::getOneDAccessor<double>)
+      .def("getRaw1DAccessor", da::getRawOneDAccessor)
       .def("writeRaw", mtca4upy::DeviceAccess::writeRaw)
-      .def("getRegisterAccessor", mtca4upy::DeviceAccess::getRegisterAccessor)
-      .def("getMultiplexedDataAccessor",
-           mtca4upy::DeviceAccess::getMultiplexedDataAccessor);
+      .def("get2DAccessor", mtca4upy::DeviceAccess::getTwoDAccessor);
 
-  bp::class_<mtca4u::Device::RegisterAccessor,
-             boost::shared_ptr<mtca4u::Device::RegisterAccessor>,
-             boost::noncopyable>("RegisterAccessor", bp::no_init)
-      .def("read", mtca4upy::RegisterAccessor::read)
-      .def("write", mtca4upy::RegisterAccessor::write)
-      .def("readRaw", mtca4upy::RegisterAccessor::readRaw)
-      .def("writeRaw", mtca4upy::RegisterAccessor::writeRaw)
-      .def("readDMARaw", mtca4upy::RegisterAccessor::readDMARaw)
-      .def("getNumElements", mtca4upy::RegisterAccessor::size);
+  bp::class_<mtca4u::OneDRegisterAccessor<int32_t> >("OneDAccessor_int32")
+      .def("read", oneD::read<int32_t>)
+      .def("write", oneD::write<int32_t>)
+      .def("getNumElements", oneD::getNumberOfElements<int32_t>);
 
-  bp::class_<mtca4u::TwoDRegisterAccessor<float> >(
-      "MuxDataAccessor")
-      .def("getSequenceCount", mtca4upy::MuxDataAccessor::getSequenceCount)
-      .def("getBlockCount", mtca4upy::MuxDataAccessor::getBlockCount)
-      .def("populateArray", mtca4upy::MuxDataAccessor::copyReadInData);
+  bp::class_<mtca4u::OneDRegisterAccessor<int64_t> >("OneDAccessor_int64")
+      .def("read", oneD::read<int64_t>)
+      .def("write", oneD::write<int64_t>)
+      .def("getNumElements", oneD::getNumberOfElements<int64_t>);
+
+  bp::class_<mtca4u::OneDRegisterAccessor<float> >("OneDAccessor_float")
+      .def("read", oneD::read<float>)
+      .def("write", oneD::write<float>)
+      .def("getNumElements", oneD::getNumberOfElements<float>);
+
+  bp::class_<mtca4u::OneDRegisterAccessor<double> >("OneDAccessor_double")
+      .def("read", oneD::read<double>)
+      .def("write", oneD::write<double>)
+      .def("getNumElements", oneD::getNumberOfElements<double>);
+
+  bp::class_<mtca4u::TwoDRegisterAccessor<float> >("TwoDAccessor_float")
+      .def("read", twoD::read<float>)
+      .def("getNChannels", twoD::getNChannels<float>)
+      .def("getNElementsPerChannel", twoD::getNElementsPerChannel<float>);
 
   bp::def("createDevice", createDevice);
   bp::def("createDevice", createDeviceFromCardAlias);

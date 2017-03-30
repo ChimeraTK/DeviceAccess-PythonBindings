@@ -13,10 +13,10 @@ include(helperMacros)
 
 # version Information for the project
 # bump up the version numbers in this section when creating new tags 
-set(${PROJECT_NAME}_MAJOR_VERSION 00)
-set(${PROJECT_NAME}_MINOR_VERSION 09)
-set(${PROJECT_NAME}_PATCH_VERSION 01)
-set(min_req_mtca4u-deviceaccess_version 00.19)
+set(${PROJECT_NAME}_MAJOR_VERSION 01)
+set(${PROJECT_NAME}_MINOR_VERSION 00)
+set(${PROJECT_NAME}_PATCH_VERSION 00)
+set(min_req_mtca4u-deviceaccess_version 00.20)
 
 #
 # Build up the project version name
@@ -90,9 +90,7 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIR} ${NUMPY_I
 # Define the build target for python module 
 add_library(${boost_python_core_module} SHARED deviceaccessPython.cc 
                                                CreateDevice.cc
-                                               DeviceAccess.cc
-                                               MuxDataAccessor.cc
-                                               RegisterAccessor.cc)
+                                               DeviceAccess.cc)
                                          
 target_link_libraries(${boost_python_core_module} ${mtca4u-deviceaccess_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES})
 # donot prefix lib to the generated so:
