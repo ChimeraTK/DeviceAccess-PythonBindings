@@ -15,7 +15,7 @@ include(helperMacros)
 # bump up the version numbers in this section when creating new tags 
 set(${PROJECT_NAME}_MAJOR_VERSION 01)
 set(${PROJECT_NAME}_MINOR_VERSION 00)
-set(${PROJECT_NAME}_PATCH_VERSION 01)
+set(${PROJECT_NAME}_PATCH_VERSION 02)
 set(min_req_mtca4u-deviceaccess_version 00.20)
 
 #
