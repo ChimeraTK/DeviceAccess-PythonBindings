@@ -15,7 +15,7 @@ include(helperMacros)
 # bump up the version numbers in this section when creating new tags 
 set(${PROJECT_NAME}_MAJOR_VERSION 01)
 set(${PROJECT_NAME}_MINOR_VERSION 00)
-set(${PROJECT_NAME}_PATCH_VERSION 00)
+set(${PROJECT_NAME}_PATCH_VERSION 01)
 set(min_req_mtca4u-deviceaccess_version 00.20)
 
 #
@@ -118,6 +118,7 @@ configure_file( ${CMAKE_SOURCE_DIR}/cmake/versionnumbers.py.in  ${PROJECT_BINARY
 FILE(GLOB location_of_script_files 
     "${PROJECT_BINARY_DIR}/tests/*.py")
 ADD_SCRIPTS_AS_TESTS( "${location_of_script_files}" )
+
 
 #
 # For now coverage is enabled in the debug Mode only
