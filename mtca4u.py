@@ -563,7 +563,7 @@ class Device():
      >>> data = device.read_sequences("", "DMA")
      >>> adc0_values = data[:,0] # array([0., 25., 100., 225., 400.])
      >>> adc1_values = data[:,1] # array([1., 36., 49., 64., 81.])
-     >>> adc2_values = data[:,2] # array([9., 64., 169., 324., 529.])
+     >>> adc3_values = data[:,3] # array([9., 64., 169., 324., 529.])
              
     """
     
