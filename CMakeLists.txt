@@ -84,7 +84,11 @@ add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 
 #
 # Set header file locations
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIR} ${NUMPY_INCLUDE_DIRS} ${mtca4u-deviceaccess_INCLUDE_DIRS})
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS} 
+                           ${PYTHON_INCLUDE_DIR} 
+                           ${NUMPY_INCLUDE_DIRS} 
+                           ${CMAKE_SOURCE_DIR}
+                           ${mtca4u-deviceaccess_INCLUDE_DIRS})
 
 #
 # Define the build target for python module 
@@ -92,8 +96,20 @@ add_library(${boost_python_core_module} SHARED deviceaccessPython.cc
                                                CreateDevice.cc
                                                DeviceAccess.cc)
                                          
-target_link_libraries(${boost_python_core_module} ${mtca4u-deviceaccess_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(${boost_python_core_module} 
+                      ${mtca4u-deviceaccess_LIBRARIES} 
+                      ${PYTHON_LIBRARIES} 
+                      ${Boost_LIBRARIES})
+                  
+#
+# Generate boost test executable
+add_library( testmodule SHARED
+               "${CMAKE_CURRENT_SOURCE_DIR}/tests/testModule.cpp" )
+target_link_libraries(testmodule ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+
+
 # donot prefix lib to the generated so:
+set_target_properties(testmodule PROPERTIES PREFIX "")
 set_target_properties(${boost_python_core_module} PROPERTIES PREFIX "")
 
 
@@ -163,6 +179,7 @@ set(${PROJECT_NAME}_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib
                                   ${PYTHON_LIBRARY_DIRS}
                                   ${NUMPY_LIBRARY_DIRS}
                                   ${Boost_LIBRARY_DIRS}")
+                              
 # already set: ${PROJECT_NAME}_CXX_FLAGS
 set(${PROJECT_NAME}_LINKER_FLAGS "-Wl,-rpath=${CMAKE_INSTALL_PREFIX}/lib,--enable-new-dtags")
 include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
