@@ -45,12 +45,13 @@ set(location_of_built_html_files "${PROJECT_BINARY_DIR}/doc/html")
 set(sphinx_build_config_file "${PROJECT_BINARY_DIR}/conf.py")
 set(author "MSK")
 
-# Search for BOOST python library
-find_package(Boost REQUIRED COMPONENTS python)
-
 # Search for PythonLibs
-find_package(PythonLibs 2.7 REQUIRED)
+find_package(PythonLibs 3 REQUIRED)
 
+# Search for BOOST python library
+find_package(Boost REQUIRED COMPONENTS python-py35)
+
+message(WARNING ${Boost_LIBRARIES})
 # Search for NumPy
 find_package(NumPy REQUIRED)
 
@@ -170,16 +171,23 @@ set(${PROJECT_NAME}_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib
                               
 # already set: ${PROJECT_NAME}_CXX_FLAGS
 set(${PROJECT_NAME}_LINKER_FLAGS "-Wl,-rpath=${CMAKE_INSTALL_PREFIX}/lib,--enable-new-dtags")
-include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
+
+# do not remove runtime path to libmtca-deviceaccess location  from
+# ${boost_python_core_module}  when installing
+set_property(TARGET ${boost_python_core_module} 
+                    PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Installation targets for:
 # - Pure python module
 # - c++ python module
-# - Headers fro the dev package
-# - cmake modules for enabling find_package on this project 
-install(FILES ${PROJECT_BINARY_DIR}/${python_module} DESTINATION lib/python2.7/dist-packages)
-# do not remove runtime path to libmtca-deviceaccess location  from
-# ${boost_python_core_module}  when installing
-set_property(TARGET ${boost_python_core_module} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
-install(TARGETS ${boost_python_core_module} LIBRARY DESTINATION lib/python2.7/dist-packages)
-install(FILES ${headers_for_devpackage} DESTINATION ${header_install_location})
+# - Headers for the dev package
+install(FILES ${PROJECT_BINARY_DIR}/${python_module} 
+              DESTINATION lib/python2.7/dist-packages)
+install(TARGETS ${boost_python_core_module} 
+              LIBRARY DESTINATION lib/python2.7/dist-packages)
+install(FILES ${headers_for_devpackage} 
+               DESTINATION ${header_install_location})
+
+# cmake modules for enabling find_package on this project 
+include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
+

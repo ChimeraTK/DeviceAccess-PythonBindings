@@ -90,7 +90,12 @@ class TestPCIEDevice(unittest.TestCase):
     self.__testSequences(device, "BOARD")
 # http://stackoverflow.com/questions/4219717/how-to-assert-output-with-nosetest-unittest-in-python
   def testGetInfo(self):
-      from StringIO import StringIO
+      
+      try:
+          from StringIO import StringIO
+      except ImportError:
+          from io import StringIO
+          
       expectedString = "mtca4uPy v" +vn.moduleVersion + ", linked with mtca4u-deviceaccess v"+ vn.deviceaccessVersion
       outStream = StringIO()
       mtca4u.get_info(outStream)
