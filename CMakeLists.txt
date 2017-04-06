@@ -5,7 +5,9 @@ project(mtca4uPy)
 # CMake modules needed for things to work:
 
 # This location has some of the modules that we are using below
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
+list(APPEND CMAKE_MODULE_PATH 
+            ${CMAKE_SOURCE_DIR}/cmake
+            ${CMAKE_SOURCE_DIR}/cmake/Modules)
 include(helperMacros)
 
 #==============================================================================#
@@ -137,22 +139,8 @@ ADD_SCRIPTS_AS_TESTS( "${location_of_script_files}" )
 
 
 #
-# For now coverage is enabled in the debug Mode only
-IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-
-  #
-  # Enable gdb and coverage report in the debug configuration.
-  # (-DCMAKE_BUILD_TYPE=Debug)
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 --coverage")
-
-  #
-  # Enable code coverage when cmake build configured -DCMAKE_BUILD_TYPE=Debug.
-  # lcov gets run by the target defined in Makefile.coverage
-  CONFIGURE_FILE(cmake/Makefile.coverage.in ${PROJECT_BINARY_DIR}/Makefile.coverage @ONLY)
-  ADD_CUSTOM_TARGET(coverage make -f Makefile.coverage WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                    COMMENT "Generating test coverage documentation" VERBATIM)
-
-ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+# enable coverage debug Mode.
+include(enable_code_coverage_report)
 
 #
 # Make a list of the header files u would want to distribute with the dev
@@ -195,8 +183,3 @@ install(FILES ${PROJECT_BINARY_DIR}/${python_module} DESTINATION lib/python2.7/d
 set_property(TARGET ${boost_python_core_module} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 install(TARGETS ${boost_python_core_module} LIBRARY DESTINATION lib/python2.7/dist-packages)
 install(FILES ${headers_for_devpackage} DESTINATION ${header_install_location})
-
-# cmake instructions for packaging; picked from
-# ${CMAKE_SOURCE_DIR}/cmake/Modules, which has been appended to the 
-# CMAKE_MODULE_PATH:
-include(prepare_debian_package)
