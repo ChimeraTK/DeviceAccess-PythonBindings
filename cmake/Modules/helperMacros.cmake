@@ -15,10 +15,8 @@ set(Dollar "$")
 # "${CMAKE_SOURCE_DIR}//a/b/source_dir copied to <project_build_dir>/source_dir.
 # supported file formats are:
 # .sh
-# .py
 # .dmap
 # .map
-# .txt
 MACRO (COPY_CONTENT_TO_BUILD_DIR directories)
   foreach( directory ${directories} )
       COPY_SUPPORTED_CONTENT( "${directory}" )
@@ -43,15 +41,17 @@ ENDMACRO( COPY_SUPPORTED_CONTENT )
 # source directory : .dmap, .map, .txt, .py, .sh. New formats formats may be added by 
 # modifying the globbing expression
 MACRO( COPY_SOURCE_TO_TARGET source_directory target_directory)
+    
     FILE( GLOB list_of_files_to_copy
-        "${source_directory}/*[!~].sh" # <- filter out abc~.sh
         "${source_directory}/*[!~].py" # <- filter out abc~.py
         "${source_directory}/*[!~].dmap" 
-        "${source_directory}/*[!~].map" 
-        "${source_directory}/*[!~].txt") 
+        "${source_directory}/*[!~].map" )
+        
     foreach( file ${list_of_files_to_copy} )
-        file( COPY "${file}" DESTINATION "${target_directory}" )
+        get_filename_component(file_name ${file} NAME)
+        configure_file( "${file}" "${target_directory}/${file_name}" )
     endforeach( file )
+    
 ENDMACRO( COPY_SOURCE_TO_TARGET )
 
 

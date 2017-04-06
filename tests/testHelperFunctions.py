@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env ${python_interpreter}
 
 import  unittest
 import numpy

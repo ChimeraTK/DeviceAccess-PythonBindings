@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/env ${python_interpreter}
 
 import os
 import sys

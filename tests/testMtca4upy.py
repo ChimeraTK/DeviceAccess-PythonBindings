@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/env ${python_interpreter}
 import os
 import sys
 import  unittest
@@ -175,7 +175,7 @@ class TestPCIEDevice(unittest.TestCase):
     self.__preSetValuesOnCard(device)
   
   def __createRandomArray(self, arrayLength):
-    array = numpy.random.random_integers(0, 1073741824, arrayLength)
+    array = numpy.random.randint(0, 1073741824, arrayLength)
     return array.astype(numpy.int32)
   
   def __preSetValuesOnCard(self, device):
