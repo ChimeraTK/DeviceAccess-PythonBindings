@@ -16,9 +16,13 @@ static boost::shared_ptr<mtca4u::Device> (*createDeviceFromCardAlias)(
 
 //****************************************************************************//
 
+// accessed through mtca4upy.py
+// and not directly
 BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
-  // actually accessed through mtca4upy.py
-  // and not directly
+
+  Py_Initialize();
+  _import_array();
+
   bp::class_<mtca4u::Device>(
       "Device") // TODO: Find and change "Device" to a suitable name
       .def("get1DAccessor_int32", da::getOneDAccessor<int32_t>)
@@ -59,5 +63,5 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
   bp::def("setDmapFile", mtca4upy::setDmapFile);
   bp::def("getDmapFile", mtca4upy::getDmapFile);
   bp::register_ptr_to_python<boost::shared_ptr<mtca4u::Device> >();
-  bp::numeric::array::set_module_and_type("numpy", "ndarray");
+  // bp::numeric::array::set_module_and_type("numpy", "ndarray");
 }

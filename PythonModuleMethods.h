@@ -27,7 +27,7 @@ boost::shared_ptr<mtca4u::Device> createDevice(const std::string &deviceAlias);
 namespace OneDAccessor {
   template <typename T>
   void read(mtca4u::OneDRegisterAccessor<T> &self,
-            bp::numeric::array &numpyArray){
+            mtca4upy::NumpyObject &numpyArray){
 	  self.read();
       T* allocatedSpace =
           reinterpret_cast<T*>(extractDataPointer(numpyArray));
@@ -38,7 +38,7 @@ namespace OneDAccessor {
 
   template <typename T>
   void write(mtca4u::OneDRegisterAccessor<T> &self,
-             bp::numeric::array &numpyArray) {
+             mtca4upy::NumpyObject &numpyArray) {
     T *dataToWrite = reinterpret_cast<T *>(extractDataPointer(numpyArray));
     unsigned int numberOfElementsToWrite = self.getNElements();
     for (size_t index = 0; index < numberOfElementsToWrite; ++index) {
@@ -56,7 +56,7 @@ namespace OneDAccessor {
 namespace TwoDAccessor {
 template <typename T>
 void read(mtca4u::TwoDRegisterAccessor<T> &self,
-          bp::numeric::array &numpyArray){
+          mtca4upy::NumpyObject &numpyArray){
 
 	  self.read();
 
@@ -106,7 +106,7 @@ namespace DeviceAccess {
       size_t numberOfelementsToRead, size_t elementOffset);
 
   void writeRaw(mtca4u::Device &self, uint32_t regOffset,
-                bp::numeric::array dataToWrite, size_t bytesToWrite,
+                mtca4upy::NumpyObject dataToWrite, size_t bytesToWrite,
                 uint8_t bar);
 
 } // namespace mtca4upy::deviceAccess

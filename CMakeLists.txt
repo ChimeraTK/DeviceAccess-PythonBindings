@@ -147,7 +147,8 @@ include(enable_code_coverage_report)
 # Make a list of the header files u would want to distribute with the dev
 # package
 set(headers_for_devpackage ${CMAKE_SOURCE_DIR}/HelperFunctions.h 
-                           ${CMAKE_SOURCE_DIR}/PythonExceptions.h)
+                           ${CMAKE_SOURCE_DIR}/PythonExceptions.h
+                           ${CMAKE_SOURCE_DIR}/NumpyObjectManager.h)
 string(TOLOWER include/mtca4u/${PROJECT_NAME} header_install_location)
 
 #Create the config files by filling the correct variables into the template (*.cmake.in).

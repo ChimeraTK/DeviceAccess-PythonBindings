@@ -3,6 +3,8 @@
 #include <boost/python.hpp>
 #include <numpy/arrayobject.h>
 #include "PythonExceptions.h"
+#include "NumpyObjectManager.h"
+
 namespace bp = boost::python;
 
 namespace mtca4upy {
@@ -15,16 +17,16 @@ enum numpyDataTypes {
   USUPPORTED_TYPE
 };
 
-inline size_t extractNumberOfElements(const bp::numeric::array& dataToWrite) {
+inline size_t extractNumberOfElements(const mtca4upy::NumpyObject& dataToWrite) {
   return (boost::python::extract<long>(dataToWrite.attr("size")));
 }
 
-inline char* extractDataPointer(const bp::numeric::array& Buffer) {
+inline char* extractDataPointer(const mtca4upy::NumpyObject& Buffer) {
   PyArrayObject* numpyArrayObj = reinterpret_cast<PyArrayObject*>(Buffer.ptr());
   return PyArray_BYTES(numpyArrayObj);
 }
 
-inline void throwExceptionIfOutOfBounds(const bp::numeric::array& dataToWrite,
+inline void throwExceptionIfOutOfBounds(const mtca4upy::NumpyObject& dataToWrite,
                                         const size_t& bytesToWrite) {
   size_t bytesInArray =
       (extractNumberOfElements(dataToWrite) * sizeof(int32_t));
@@ -35,7 +37,7 @@ inline void throwExceptionIfOutOfBounds(const bp::numeric::array& dataToWrite,
 }
 
 inline mtca4upy::numpyDataTypes extractDataType(
-    const bp::numeric::array& Buffer) {
+    const mtca4upy::NumpyObject& Buffer) {
   PyArrayObject* numpyArrayObj = reinterpret_cast<PyArrayObject*>(Buffer.ptr());
   int type_number = PyArray_TYPE(numpyArrayObj);
 

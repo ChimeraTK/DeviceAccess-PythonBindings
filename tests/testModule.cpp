@@ -12,6 +12,9 @@ namespace bp = boost::python;
 
 BOOST_PYTHON_MODULE(testmodule) {
 
+  Py_Initialize();
+  _import_array();
+
   bp::def("extractDataType", mtca4upy::extractDataType);
 
   bp::enum_<mtca4upy::numpyDataTypes>("numpyDataTypes")
@@ -21,5 +24,5 @@ BOOST_PYTHON_MODULE(testmodule) {
       .value("FLOAT64", mtca4upy::FLOAT64)
       .value("USUPPORTED_TYPE", mtca4upy::USUPPORTED_TYPE);
 
-  boost::python::numeric::array::set_module_and_type("numpy", "ndarray");
+//  boost::python::numeric::array::set_module_and_type("numpy", "ndarray")///;
 }

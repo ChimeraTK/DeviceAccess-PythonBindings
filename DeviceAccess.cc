@@ -12,7 +12,7 @@ namespace DeviceAccess {
   }
 
   void writeRaw(mtca4u::Device& self, uint32_t regOffset,
-                bp::numeric::array dataToWrite, size_t bytesToWrite,
+                mtca4upy::NumpyObject dataToWrite, size_t bytesToWrite,
                 uint8_t bar) {
     throwExceptionIfOutOfBounds(dataToWrite, bytesToWrite);
     if (extractDataType(dataToWrite) == INT32) {
