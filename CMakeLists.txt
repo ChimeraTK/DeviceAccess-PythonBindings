@@ -8,6 +8,8 @@ project(mtca4uPy)
 list(APPEND CMAKE_MODULE_PATH 
             ${CMAKE_SOURCE_DIR}/cmake
             ${CMAKE_SOURCE_DIR}/cmake/Modules)
+            
+    
 include(helperMacros)
 #==============================================================================#
 
@@ -22,7 +24,19 @@ set(location_of_rst_source_files "${PROJECT_SOURCE_DIR}/doc")
 set(location_of_built_html_files "${PROJECT_BINARY_DIR}/doc/html")
 set(sphinx_build_config_file "${PROJECT_BINARY_DIR}/conf.py")
 set(author "MSK")
-set(python_interpreter "python3")
+get_python_interpreter(python_interpreter)
+get_python_lib_version(pylib_version)
+get_boost_python_component_name(boost_python)
+#==============================================================================#
+
+
+#
+# Find all packages are needed for compilation.
+#==============================================================================#
+find_package(PythonLibs ${pylib_version} REQUIRED)
+find_package(Boost REQUIRED COMPONENTS ${boost_python})
+find_package(NumPy REQUIRED)
+find_package(mtca4u-deviceaccess ${min_req_mtca4u-deviceaccess_version} REQUIRED)
 #==============================================================================#
 
 
@@ -57,15 +71,6 @@ else()
   message(STATUS "Html doumentation support will not be enabled")
   message(STATUS "Please install working sphinx-doc version (1.3.0+) for html documentation support")
 endif(SUPPORTED_SPHINX_VERSION_AVAILABLE)
-
-
-
-#
-# Find all packages are needed for compilation.
-find_package(PythonLibs 3 REQUIRED)
-find_package(Boost REQUIRED COMPONENTS python-py35)
-find_package(NumPy REQUIRED)
-find_package(mtca4u-deviceaccess ${min_req_mtca4u-deviceaccess_version} REQUIRED)
 
 #
 # Set the compiler flags.
@@ -140,7 +145,7 @@ ADD_SCRIPTS_AS_TESTS( "${location_of_script_files}" )
 
 
 #
-# enable coverage debug Mode(CMAKE_BUILD_TYPE == "Debug").
+# enable coverage in debug Mode(CMAKE_BUILD_TYPE == "Debug").
 include(enable_code_coverage_report)
 
 #

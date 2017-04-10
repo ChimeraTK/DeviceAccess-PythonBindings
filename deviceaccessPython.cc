@@ -20,6 +20,7 @@ static boost::shared_ptr<mtca4u::Device> (*createDeviceFromCardAlias)(
 // and not directly
 BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
 
+  // needed for the numpy ndarray c api to function correctly.
   Py_Initialize();
   _import_array();
 
@@ -63,5 +64,4 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
   bp::def("setDmapFile", mtca4upy::setDmapFile);
   bp::def("getDmapFile", mtca4upy::getDmapFile);
   bp::register_ptr_to_python<boost::shared_ptr<mtca4u::Device> >();
-  // bp::numeric::array::set_module_and_type("numpy", "ndarray");
 }

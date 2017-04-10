@@ -35,5 +35,14 @@ class TestHelpers(unittest.TestCase):
     self.assertEqual(testmodule.extractDataType(a), 
                      testmodule.numpyDataTypes.USUPPORTED_TYPE)
     
+  def testNumpyObjManager(self):
+    a = numpy.empty([1, 2], dtype = numpy.float64)
+    try:
+      testmodule.testNumpyObjManager(a)
+    except:
+      self.fail("exception in testNumpyObjManager")
+        
+         
+    
 if __name__ == '__main__':
     unittest.main()     

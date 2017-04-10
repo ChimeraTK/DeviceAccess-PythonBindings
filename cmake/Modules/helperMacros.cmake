@@ -5,6 +5,65 @@
 set(Dollar "$")
 
 
+#
+# We build for python2 by default
+set(PYTHON3 FALSE CACHE BOOL
+    "Builds modules for python3 if true and python2 if false") 
+
+
+# Returns the python interpreter to be used for teh project. This is indicated
+# by the user by invoking cmake with the PYTHON3 bool as True: 
+# cmake -DPYTHON3=TRUE ../ 
+function(get_python_interpreter python_interpreter)
+  if(PYTHON3)
+      set(${python_interpreter} "python3" PARENT_SCOPE)
+  else()
+      set(${python_interpreter} "python" PARENT_SCOPE)
+  endif()
+  
+endfunction()
+
+
+# Returns version number depending on choice of compilation; 3 for python3 and
+# 2.7 otherwise
+function(get_python_lib_version version_num)
+  if(PYTHON3)
+    set(${version_num} "3" PARENT_SCOPE)
+  else()
+    set(${version_num} "2.7" PARENT_SCOPE)
+  endif()
+endfunction()
+
+function(get_boost_python_component_name, component_name)
+endfunction()
+
+
+function(get_boost_python_component_name boost_python)
+    if(PYTHON3)
+        extract_ubuntu_variant(os_name)
+        
+        if(${os_name} STREQUAL "xenial")
+            set(${boost_python} "python-py35" PARENT_SCOPE)
+        elseif(${os_name} STREQUAL "trusty")
+            set(${boost_python} "python-py34" PARENT_SCOPE)
+        else()
+            set(${boost_python} "python3" PARENT_SCOPE)
+        endif()
+            
+    else()
+        set(${boost_python} "python" PARENT_SCOPE)
+    endif()
+endfunction()
+
+# os_code_name, empty if not found
+function(extract_ubuntu_variant os_code_name)
+  find_program(lsb_release lsb_release)
+  execute_process(COMMAND ${lsb_release} -cs
+  OUTPUT_VARIABLE lsb_release_os_codename
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set(${os_code_name} ${lsb_release_os_codename} PARENT_SCOPE)
+endfunction()
+
 # the directory parameter takes in a list of directories within the source
 # directory. The macro copies supported file extensions from these specified
 # directories into subdirectories in the build folder. The subdirectory will be
@@ -41,7 +100,6 @@ ENDMACRO( COPY_SUPPORTED_CONTENT )
 # source directory : .dmap, .map, .txt, .py, .sh. New formats formats may be added by 
 # modifying the globbing expression
 MACRO( COPY_SOURCE_TO_TARGET source_directory target_directory)
-    
     FILE( GLOB list_of_files_to_copy
         "${source_directory}/*[!~].py" # <- filter out abc~.py
         "${source_directory}/*[!~].dmap" 
@@ -51,7 +109,6 @@ MACRO( COPY_SOURCE_TO_TARGET source_directory target_directory)
         get_filename_component(file_name ${file} NAME)
         configure_file( "${file}" "${target_directory}/${file_name}" )
     endforeach( file )
-    
 ENDMACRO( COPY_SOURCE_TO_TARGET )
 
 

@@ -1,17 +1,13 @@
-/*
- * testHelperFunctions.cpp
- *
- *  Created on: Apr 3, 2017
- *      Author: varghese
- */
-
 #include "HelperFunctions.h"
 #include <boost/python.hpp>
 
 namespace bp = boost::python;
 
+void testNumpyObjManager(mtca4upy::NumpyObject&);
+
 BOOST_PYTHON_MODULE(testmodule) {
 
+  // needed for the numpy ndarray c api to function correctly.
   Py_Initialize();
   _import_array();
 
@@ -24,5 +20,11 @@ BOOST_PYTHON_MODULE(testmodule) {
       .value("FLOAT64", mtca4upy::FLOAT64)
       .value("USUPPORTED_TYPE", mtca4upy::USUPPORTED_TYPE);
 
-//  boost::python::numeric::array::set_module_and_type("numpy", "ndarray")///;
+  bp::def("testNumpyObjManager", testNumpyObjManager);
+
+}
+
+// Here just to check the binding
+void testNumpyObjManager(mtca4upy::NumpyObject& /*numpyArray*/){
+
 }
