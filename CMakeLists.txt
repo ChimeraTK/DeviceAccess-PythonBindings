@@ -8,37 +8,9 @@ project(mtca4uPy)
 list(APPEND CMAKE_MODULE_PATH 
             ${CMAKE_SOURCE_DIR}/cmake
             ${CMAKE_SOURCE_DIR}/cmake/Modules)
-            
-    
+
 include(helperMacros)
 #==============================================================================#
-
-
-#
-# variables used downstream 
-#==============================================================================#
-set(boost_python_core_module "mtca4udeviceaccess")
-set(python_module "mtca4u.py")
-set(sphinx_build_confg_in "${PROJECT_SOURCE_DIR}/cmake/conf.py.in")
-set(location_of_rst_source_files "${PROJECT_SOURCE_DIR}/doc")
-set(location_of_built_html_files "${PROJECT_BINARY_DIR}/doc/html")
-set(sphinx_build_config_file "${PROJECT_BINARY_DIR}/conf.py")
-set(author "MSK")
-get_python_interpreter(python_interpreter)
-get_python_lib_version(pylib_version)
-get_boost_python_component_name(boost_python)
-#==============================================================================#
-
-
-#
-# Find all packages are needed for compilation.
-#==============================================================================#
-find_package(PythonLibs ${pylib_version} REQUIRED)
-find_package(Boost REQUIRED COMPONENTS ${boost_python})
-find_package(NumPy REQUIRED)
-find_package(mtca4u-deviceaccess ${min_req_mtca4u-deviceaccess_version} REQUIRED)
-#==============================================================================#
-
 
 # version Information for the project
 # bump up the version numbers in this section when creating new tags 
@@ -53,6 +25,31 @@ set(${PROJECT_NAME}_VERSION
   ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_VERSION})
 set(${PROJECT_NAME}_SOVERSION
   ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION})
+
+#
+# variables used downstream 
+#==============================================================================#
+set(boost_python_core_module "mtca4udeviceaccess")
+set(python_module "mtca4u.py")
+set(sphinx_build_confg_in "${PROJECT_SOURCE_DIR}/cmake/conf.py.in")
+set(location_of_rst_source_files "${PROJECT_SOURCE_DIR}/doc")
+set(location_of_built_html_files "${PROJECT_BINARY_DIR}/doc/html")
+set(sphinx_build_config_file "${PROJECT_BINARY_DIR}/conf.py")
+set(author "MSK")
+get_python_interpreter_string(python_interpreter)
+get_desired_python_major_release(py_major_release_num)
+#==============================================================================#
+
+# Find all packages are needed for compilation.
+#==============================================================================#
+find_package(PythonLibs ${py_major_release_num} REQUIRED)
+
+get_boost_python_string(PYTHONLIBS_VERSION_STRING boost_python)
+find_package(Boost REQUIRED COMPONENTS ${boost_python})
+
+find_package(NumPy REQUIRED)
+find_package(mtca4u-deviceaccess ${min_req_mtca4u-deviceaccess_version} REQUIRED)
+#==============================================================================#
 
 # Set the build type to Release if none is specified
 # Force it into Release if "None" is specified (needed to overrule dkpg_buildpackage)
@@ -183,16 +180,19 @@ set(${PROJECT_NAME}_LINKER_FLAGS "-Wl,-rpath=${CMAKE_INSTALL_PREFIX}/lib,--enabl
 set_property(TARGET ${boost_python_core_module} 
                     PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+get_python_module_install_path(PYTHONLIBS_VERSION_STRING install_path)
+message(STATUS "Install Path: ${install_path}")
 # Installation targets for:
 # - Pure python module
 # - c++ python module
 # - Headers for the dev package
 install(FILES ${PROJECT_BINARY_DIR}/${python_module} 
-              DESTINATION lib/python2.7/dist-packages)
+              DESTINATION ${install_path})
 install(TARGETS ${boost_python_core_module} 
-              LIBRARY DESTINATION lib/python2.7/dist-packages)
+              LIBRARY DESTINATION ${install_path})
 install(FILES ${headers_for_devpackage} 
-               DESTINATION ${header_install_location})
+               DESTINATION ${header_install_location}) # FIXME: Where do u put these for python3
+# 
 
 # cmake modules for enabling find_package on this project 
 include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
