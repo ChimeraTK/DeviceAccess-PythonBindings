@@ -44,7 +44,7 @@ get_desired_python_major_release(py_major_release_num)
 #==============================================================================#
 find_package(PythonLibs ${py_major_release_num} REQUIRED)
 
-get_boost_python_string(PYTHONLIBS_VERSION_STRING boost_python)
+get_boost_python_component_name(PYTHONLIBS_VERSION_STRING boost_python)
 find_package(Boost REQUIRED COMPONENTS ${boost_python})
 
 find_package(NumPy REQUIRED)

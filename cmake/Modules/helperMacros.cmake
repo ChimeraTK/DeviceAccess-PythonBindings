@@ -82,11 +82,11 @@ function(get_python_module_install_path python_version_string install_path)
     
 endfunction()
 
-function (get_boost_python_string pythonlib_version boost_python)
+function (get_boost_python_component_name pythonlib_version component_name)
     convert_version_string_to_list(${pythonlib_version} version_list)
     list(GET version_list 0 major_version)
     list(GET version_list 1 minor_version)
-    set(${boost_python} "python-py${major_version}${minor_version}" PARENT_SCOPE)
+    set(${component_name} "python-py${major_version}${minor_version}" PARENT_SCOPE)
 endfunction()
 
 function (convert_version_string_to_list version_string version_list)
