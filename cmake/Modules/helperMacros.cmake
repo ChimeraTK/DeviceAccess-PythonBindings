@@ -20,7 +20,7 @@ function(initialize )
         # find_package to always return the python3 libraries even when python 2
         # libraries are specified . For this reason set this variable only on
         # python3 builds.
-        set(Python_ADDITIONAL_VERSIONS 3.4)
+        set(Python_ADDITIONAL_VERSIONS 3.4 PARENT_SCOPE)
     endif()
 endfunction()
 
