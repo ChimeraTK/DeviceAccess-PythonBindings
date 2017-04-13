@@ -6,6 +6,7 @@ set(Dollar "$")
 
 
 
+# Call this before find_packages any any function from this file
 function(initialize )
 #
 # We build for python2 by default
