@@ -5,11 +5,23 @@
 set(Dollar "$")
 
 
+
+function(initialize )
 #
 # We build for python2 by default
-set(PYTHON3 FALSE CACHE BOOL
-    "Builds modules for python3 if true and python2 if false") 
-
+    set(PYTHON3 FALSE CACHE BOOL
+        "Builds modules for python3 if true and python2 if false") 
+    
+    if(PYTHON3)
+        #
+        # Unfortunately need this for cmake version on trusty to find PythonLibs
+        # There also seems to be a bug with cmake on trusty where having this causes
+        # find_package to always return the python3 libraries even when python 2
+        # libraries are specified . For this reason set this variable only on
+        # python3 builds.
+        set(Python_ADDITIONAL_VERSIONS 3.4)
+    endif()
+endfunction()
 
 # Returns the python interpreter to be used for teh project. This is indicated
 # by the user by invoking cmake with the PYTHON3 bool as True: 

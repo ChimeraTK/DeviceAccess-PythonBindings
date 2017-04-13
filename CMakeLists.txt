@@ -9,11 +9,8 @@ list(APPEND CMAKE_MODULE_PATH
             ${CMAKE_SOURCE_DIR}/cmake
             ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
-#
-# Unfortunately need this for cmake version on trusty to find PythonLibs
-set(Python_ADDITIONAL_VERSIONS 3.4)
-
 include(helperMacros)
+initialize()  
 #==============================================================================#
 
 # version Information for the project
