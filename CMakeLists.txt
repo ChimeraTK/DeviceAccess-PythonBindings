@@ -17,7 +17,7 @@ initialize()
 # bump up the version numbers in this section when creating new tags 
 set(${PROJECT_NAME}_MAJOR_VERSION 01)
 set(${PROJECT_NAME}_MINOR_VERSION 00)
-set(${PROJECT_NAME}_PATCH_VERSION 02)
+set(${PROJECT_NAME}_PATCH_VERSION 03)
 set(min_req_mtca4u-deviceaccess_version 00.20)
 
 #
@@ -146,14 +146,6 @@ ADD_SCRIPTS_AS_TESTS( "${location_of_script_files}" )
 # enable coverage in debug Mode(CMAKE_BUILD_TYPE == "Debug").
 include(enable_code_coverage_report)
 
-#
-# Make a list of the header files u would want to distribute with the dev
-# package
-set(headers_for_devpackage ${CMAKE_SOURCE_DIR}/HelperFunctions.h 
-                           ${CMAKE_SOURCE_DIR}/PythonExceptions.h
-                           ${CMAKE_SOURCE_DIR}/NumpyObjectManager.h)
-string(TOLOWER include/mtca4u/${PROJECT_NAME} header_install_location)
-
 #Create the config files by filling the correct variables into the template (*.cmake.in).
 #All variables @VARIABLE@ are replaced with the current values, but they have to be set first....
 #Only the reference header is needed. The other variables are for dependencies of this library,
@@ -191,10 +183,4 @@ install(FILES ${PROJECT_BINARY_DIR}/${python_module}
               DESTINATION ${install_path})
 install(TARGETS ${boost_python_core_module} 
               LIBRARY DESTINATION ${install_path})
-install(FILES ${headers_for_devpackage} 
-               DESTINATION ${header_install_location}) # FIXME: Where do u put these for python3
-# 
-
-# cmake modules for enabling find_package on this project 
-include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
 
