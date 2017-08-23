@@ -126,23 +126,26 @@ class Device():
     else:
       raise SyntaxError("Syntax Error: please see help(mtca4u.Device) for usage instructions.")
 
-  def read(self, moduleName, registerName, numberOfElementsToRead=0,
-            elementIndexInRegister=0):
+  def read(self, moduleName="", registerName=None, numberOfElementsToRead=0,
+            elementIndexInRegister=0, registerPath=None):
     """ Reads out Fixed point converted values from the opened device
     
     This method uses the map file to return Fixed Point converted values from a
     register. It can read the whole register or an arbitary number of register
     elements. Data can also be read from an offset within the register (through
     the 'elementIndexInRegister' parameter).
-    
+   
+    .. note::     Both moduleName and registerName parameters are ignored when 
+                  registerPath is provided.
+                   
     Parameters
     ----------
-    moduleName : str
+    moduleName : str, optional
       The name of the device module to which the register belongs to. If the
       register is not contained in a  module, then provide an empty string as
       the parameter value.
        
-    registerName : str
+    registerName : str, optional
       The name of the register to read from.
       
     numberOfElementsToRead : int, optional 
@@ -161,6 +164,10 @@ class Device():
       an elementIndexInRegister parameter is specified, the method reads out
       elements starting from this element index. The elemnt at the index
       position is included in the read as well.
+      
+    registerPath : str, optional
+      When provided, it takes precedences over moduleName and registerName for
+      location lookup.
 
     Returns
     -------
@@ -177,6 +184,8 @@ class Device():
       >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
       >>> boardWithModules = mtca4u.Device("device_name")
       >>> boardWithModules.read("BOARD", "WORD_STATUS")
+      array([15.0], dtype=float64)
+      >>> boardWithModules.read(registerPath="/BOARD/WORD_STATUS")
       array([15.0], dtype=float64)
       
     
@@ -207,8 +216,8 @@ class Device():
     Device.read_raw : Read in 'raw' bit values from a device register 
 
     """
-    
-    registerPath = moduleName + '/' + registerName 
+    if registerPath == None:
+        registerPath = '/' + moduleName + '/' + registerName 
     registerAccessor = self.__openedDevice.get1DAccessor_double(registerPath, 
                                                                 numberOfElementsToRead,
                                                                 elementIndexInRegister)
@@ -219,7 +228,8 @@ class Device():
     
     return array
   
-  def write(self, moduleName, registerName, dataToWrite, elementIndexInRegister=0):
+  def write(self, moduleName="", registerName=None, dataToWrite=None, 
+            elementIndexInRegister=0, registerPath=None):
     """ Sets data into a desired register
     
     This method writes values into a register on the board. The method
@@ -228,14 +238,17 @@ class Device():
     converts the input into corresponding Fixed Point representaions that fit
     into the decive register.
     
+    .. note::     Both moduleName and registerName parameters are ignored when 
+                  registerPath is provided.
+    
     Parameters
     ----------
-    moduleName : str
+    moduleName : str, optional
       The name of the device module which has the register to write into.
       If module name is not applicable to the register, then provide an empty
       string as the parameter value.
       
-    registerName : str
+    registerName : str, optional
       Mapped name of the register to write to
       
     dataToWrite : int, float, \
@@ -250,6 +263,10 @@ class Device():
       This is a zero indexed offset from the first element of the register. When
       an elementIndexInRegister parameter is specified, the method starts the
       write from this index
+      
+    registerPath : str, optional
+      When provided, it takes precedences over moduleName and registerName for
+      location lookup.
     
     Returns
     -------
@@ -264,6 +281,10 @@ class Device():
       >>> boardWithModules.write("BOARD", "WORD_STATUS", 15.0)
       >>> boardWithModules.write("BOARD", "WORD_STATUS", [15])
       >>> boardWithModules.write("BOARD", "WORD_STATUS", [15.0])
+      
+      >>> boardWithModules.write(registerPath = "/BOARD/WORD_STATUS", 
+                                 dataToWrite = [15.0])
+                                 
       >>> dataToWrite = numpy.array([15.0])
       >>> boardWithModules.write("BOARD", "WORD_STATUS", dataToWrite)
     
@@ -288,8 +309,8 @@ class Device():
     numberOfElementsToWrite = data.size
     if numberOfElementsToWrite == 0:
       return
-    
-    registerPath = moduleName + '/' + registerName
+    if registerPath == None:
+        registerPath = '/' + moduleName + '/' + registerName 
     arguments = (registerPath, 
                  numberOfElementsToWrite,
                  elementIndexInRegister)
@@ -310,23 +331,27 @@ class Device():
 
     accessor.write(data)
     
+    
   
-  def read_raw(self, moduleName, registerName, numberOfElementsToRead=0, 
-              elementIndexInRegister=0):
+  def read_raw(self, moduleName='', registerName=None, numberOfElementsToRead=0, 
+              elementIndexInRegister=0, registerPath=None):
     """ Returns 'raw values' (Without fixed point conversion applied) from a device's register
     
     This method returns the raw bit values contained in the queried register.
     The returned values are not Fixed Point converted, but direct binary values
     contained in the register elements.
     
+    .. note::     Both moduleName and registerName parameters are ignored when 
+                  registerPath is provided.
+                  
     Parameters
     ----------
-    moduleName : str
+    moduleName : str, optional
       The name of the device module to which the register to read from belongs.
       If module name is not applicable to the register, then provide an empty
       string as the parameter value.
       
-    registerName : str
+    registerName : str, optional
       The name of the device register to read from.
       
     numberOfElementsToRead : int, optional
@@ -341,7 +366,11 @@ class Device():
       an elementIndexInRegister parameter is specified, the method reads out
       elements starting from this element index. The element at the index
       position is included in the read as well.
-    
+      
+    registerPath : str, optional
+      When provided, it takes precedences over moduleName and registerName for
+      location lookup.
+      
     Returns
     -------
     readInRawValues: numpy.array, dtype == numpy.int32
@@ -357,6 +386,8 @@ class Device():
       >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
       >>> boardWithModules = mtca4u.Device("device_name")
       >>> boardWithModules.read_raw("BOARD", "WORD_STATUS")
+      array([15], dtype=int32)
+      >>> boardWithModules.read_raw(registerPath="/BOARD/WORD_STATUS")
       array([15], dtype=int32)
     
     register "WORD_CLK_MUX" is 4 elements long.
@@ -383,7 +414,8 @@ class Device():
     Device.read : Read in Fixed Point converted bit values from a device register
 
     """
-    registerPath = moduleName + '/' + registerName 
+    if registerPath == None:
+        registerPath = '/' + moduleName + '/' + registerName 
     registerAccessor = self.__openedDevice.getRaw1DAccessor(registerPath, 
                                                             numberOfElementsToRead,
                                                             elementIndexInRegister)
@@ -393,21 +425,24 @@ class Device():
     registerAccessor.read(array)
     return array
   
-  def write_raw(self, moduleName, registerName, dataToWrite,
-      elementIndexInRegister=0):
+  def write_raw(self, moduleName='', registerName=None, dataToWrite=None, 
+                elementIndexInRegister=0, registerPath=None):
     """ Write raw bit values (no fixed point conversion applied) into the register
     
     Provides a way to put in a desired bit value into individual register
     elements. 
     
+    .. note::     Both moduleName and registerName parameters are ignored when 
+                  registerPath is provided.
+                  
     Parameters
     ----------      
-    moduleName : str
+    moduleName : str, optional
       The name of the device module that has the register we intend to write to.
       If module name is not applicable to the register, then provide an empty
       string as the parameter value.
       
-    registerName : str
+    registerName : str, optional
       The name of the desired register to write into.
       
     dataToWrite : numpy.array, dtype == numpy.int32
@@ -418,7 +453,11 @@ class Device():
       This is a zero indexed offset from the first element of the register. When
       an elementIndexInRegister parameter is specified, the method starts the
       write from this index
-    
+      
+    registerPath : str, optional
+      When provided, it takes precedences over moduleName and registerName for
+      location lookup.
+      
     Returns
     -------
     
@@ -428,8 +467,10 @@ class Device():
       >>> import mtca4u
       >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
       >>> boardWithModules = mtca4u.Device("device_name")
-      >>> dataToWrite = numpy.array([15], dtype=int32)
-      >>> boardWithModules.write_raw("BOARD", "WORD_STATUS", dataToWrite)
+      >>> _dataToWrite = numpy.array([15], dtype=int32)
+      >>> boardWithModules.write_raw("BOARD", "WORD_STATUS", dataToWrite=_dataToWrite)
+      >>> boardWithModules.write_raw(registerPath = "/BOARD/WORD_STATUS", 
+                                      dataToWrite=_dataToWrite)
     
     register "WORD_CLK_MUX" is 4 elements long.
       >>> import mtca4u
@@ -452,15 +493,17 @@ class Device():
     if numberOfElementsToWrite == 0:
         return
     
-    registerPath = moduleName + '/' + registerName
+    if registerPath == None:
+        registerPath = '/' + moduleName + '/' + registerName 
     accessor = self.__openedDevice.getRaw1DAccessor(registerPath, 
                                                     numberOfElementsToWrite,
                                                     elementIndexInRegister)
     accessor.write(dataToWrite)
   
   
-  def read_dma_raw(self, moduleName, DMARegisterName, numberOfElementsToRead=0, 
-                 elementIndexInRegister=0):
+  def read_dma_raw(self, moduleName='', DMARegisterName=None, 
+                   numberOfElementsToRead=0, elementIndexInRegister=0, 
+                   registerPath=None):
     """ Read in Data from the DMA region of the card
     
     This method can be used to fetch data copied to a dma memory block. The
@@ -473,12 +516,12 @@ class Device():
           
     Parameters
     ----------
-    moduleName : str
+    moduleName : str, optional
       The name of the device module that has the register we intend to write to.
       If module name is not applicable to the device, then provide an empty
       string as the parameter value.
       
-    DMARegisterName : str
+    DMARegisterName : str, optional
       The register name to which the DMA memory region is mapped
     
     numberOfElementsToRead : int, optional  
@@ -492,6 +535,10 @@ class Device():
     
     elementIndexInRegister : int, optional
       This parameter specifies the index from which the read should commence.
+      
+    registerPath : str, optional
+      When provided, it takes precedences over moduleName and registerName for
+      location lookup.
       
     Returns
     -------
@@ -518,26 +565,33 @@ class Device():
     
     return self.read_raw(moduleName, DMARegisterName, 
                   numberOfElementsToRead, 
-                  elementIndexInRegister)
+                  elementIndexInRegister, registerPath)
     
     
-  def read_sequences(self, moduleName, regionName):
+  def read_sequences(self, moduleName='', regionName=None, registerPath=None):
     """ Read in all sequences from a Multiplexed data Region
     
     This method returns the demultiplexed sequences in the memory area specified
     by regionName. The data is returned as a 2D numpy array with the coulums
     representing induvidual sequences
     
+    .. note::     Both moduleName and regionName parameters are ignored when 
+                  registerPath is provided.
+                  
     Parameters
     ----------
-    moduleName : str
+    moduleName : str, optional
       The name of the device module that has the register we intend to write to.
       If module name is not applicable to the device, then provide an empty
       string as the parameter value.
       
-    regionName : str
+    regionName : str, optional
       The name of the memory area containing the multiplexed data.
-    
+      
+    registerPath : str, optional
+      When provided, it takes precedences over moduleName and regionName for
+      location lookup.
+      
     Returns
     -------
     2DarrayOfValues: numpy.array, dtype == numpy.float32
@@ -556,6 +610,12 @@ class Device():
              [ 100.,  121.,  144.,  169.,  196.],
              [ 225.,  256.,  289.,  324.,  361.]
              [ 400.,  441.,  484.,  529.,  576.]], dtype=float32)
+      >>> device.read_sequences(registerPath= '/DMA')
+      array([[   0.,    1.,    4.,    9.,   16.],
+             [  25.,   36.,   49.,   64.,   81.],
+             [ 100.,  121.,  144.,  169.,  196.],
+             [ 225.,  256.,  289.,  324.,  361.]
+             [ 400.,  441.,  484.,  529.,  576.]], dtype=float32)
              
     Each column of the 2D matrix represents an extracted sequence:
      >>> data = device.read_sequences("", "DMA")
@@ -565,7 +625,8 @@ class Device():
              
     """
     
-    registerPath = moduleName + '/' + regionName
+    if registerPath == None:
+        registerPath = '/' + moduleName + '/' + regionName 
     accessor = self.__openedDevice.get2DAccessor(registerPath)
     
     # readFromDevice fetches data from the card to its intenal buffer of the

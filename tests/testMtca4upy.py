@@ -210,18 +210,24 @@ class TestPCIEDevice(unittest.TestCase):
     self.assertTrue(readInValues.dtype == dtype)
     self.assertTrue(numpy.array_equiv(readInValues, word_status_content))
     
+    readInValues = readCommand(registerPath = '/' + str(module)+ "/WORD_STATUS")
+    self.assertTrue(readInValues.dtype == dtype)
+    self.assertTrue(numpy.array_equiv(readInValues, word_status_content))
+    
     # This section checks the read register code for the Device class
     
     # check if function reads values correctly
-    # Run this only for device.read
+    # Run this only for device.read and not device.read_raw
     if readCommand == device.read:
       readInValues = readCommand(str(module), "WORD_INCOMPLETE_2")
       self.assertTrue(readInValues.dtype == dtype)
       self.assertTrue(readInValues.tolist() == [2.125])
+
     
     readInValues = readCommand(str(module), "WORD_CLK_MUX")
     self.assertTrue(readInValues.dtype == dtype)
     self.assertTrue(numpy.array_equiv(readInValues, word_clk_mux_content))
+
     
     readInValues = readCommand(str(module), "WORD_CLK_MUX", 1)
     self.assertTrue(readInValues[0] == word_clk_mux_content[0])
@@ -275,6 +281,12 @@ class TestPCIEDevice(unittest.TestCase):
     word_clk_mux_content = self.__createRandomArray(4).astype(dtype)
      
     writeCommand(module, "WORD_STATUS", word_status_content)
+    readInValues = readCommand(module, "WORD_STATUS")
+    self.assertTrue(readInValues.dtype == dtype)
+    self.assertTrue(numpy.array_equiv(readInValues, word_status_content))
+    
+    # test register path
+    writeCommand(registerPath = '/' + str(module) + '/WORD_STATUS', dataToWrite=word_status_content)
     readInValues = readCommand(module, "WORD_STATUS")
     self.assertTrue(readInValues.dtype == dtype)
     self.assertTrue(numpy.array_equiv(readInValues, word_status_content))
@@ -454,6 +466,9 @@ class TestPCIEDevice(unittest.TestCase):
                                   [16, 17, 18, 19],
                                   [20, 21, 22, 23]], dtype=numpy.float32)
     readInMatrix = device.read_sequences(module, 'DMA')
+    self.assertTrue(numpy.array_equiv(readInMatrix, expectedMatrix))
+    self.assertTrue(readInMatrix.dtype == numpy.float32)
+    readInMatrix = device.read_sequences(registerPath = '/' + str(module)+ '/DMA')
     self.assertTrue(numpy.array_equiv(readInMatrix, expectedMatrix))
     self.assertTrue(readInMatrix.dtype == numpy.float32)
   
