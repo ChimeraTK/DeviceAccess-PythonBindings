@@ -121,8 +121,6 @@ class Device():
       
     elif len(args) == 1:
       cardAlias = args[0]
-      if(get_dmap_location() == ''):
-          self.__throwDmapFilePathNotSetException(cardAlias)
       self.__openedDevice = mtca4udeviceaccess.createDevice(cardAlias)
             
     else:
@@ -657,9 +655,4 @@ class Device():
   def __extractNameFromDeviceFile(self, deviceFile):
       index = (deviceFile.rfind('/')) + 1
       return deviceFile[index:]
-  
-  def __throwDmapFilePathNotSetException(self, cardAlias):
-      exceptionMessage = "Could not find a dmapfile. Please specify a dmap file to use.\n Can be done using mtca4u.set_dmap_location. See help(mtca4u.set_dmap_location)." 
-      
-      raise RuntimeError(exceptionMessage)
   
