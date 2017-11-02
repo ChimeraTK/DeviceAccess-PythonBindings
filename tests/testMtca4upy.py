@@ -384,8 +384,8 @@ class TestPCIEDevice(unittest.TestCase):
                             "BAD_REGISTER_NAME", 
                             numpy.array([2.125], dtype = dtype))
     
-    # supplied array size exceeds register capacity
-    self.assertRaisesRegexp(RuntimeError, "Requested number of words exceeds the size of the register!",
+    # supplied array size exceeds register capacity: !regex /BOARD can be there 1 o 0 times. () and ? have special meaning in regex.
+    self.assertRaisesRegexp(RuntimeError, "Requested number of words exceeds the size of the register '(/BOARD)?/WORD_INCOMPLETE_2'!",
                              writeCommand, module, word_incomplete_register, 
                              word_clk_mux_content)
      
