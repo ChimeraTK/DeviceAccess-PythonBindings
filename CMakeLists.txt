@@ -18,7 +18,7 @@ initialize()
 set(${PROJECT_NAME}_MAJOR_VERSION 01)
 set(${PROJECT_NAME}_MINOR_VERSION 01)
 set(${PROJECT_NAME}_PATCH_VERSION 01)
-set(min_req_mtca4u-deviceaccess_version 00.27)
+set(min_req_mtca4u-deviceaccess_version "00.27" CACHE STRING)
 
 #
 # Build up the project version name
