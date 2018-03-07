@@ -63,7 +63,7 @@ set(source_headers
 #
 ###############################################################################
 add_library(${library_name} SHARED "")
-target_sources(test_backend
+target_sources(${library_name}
   PRIVATE
     ${source_files}
     ${source_headers})

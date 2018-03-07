@@ -19,9 +19,10 @@ private:
   std::unique_ptr<Impl> impl_;
   friend accessorFactory_vtable_filler;
   template <typename UserType>
-  boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType> > //
-      accessorFactory(const ChimeraTK::RegisterPath &registerPathName,
-                      size_t numberOfWords, size_t wordOffsetInRegister,
+  boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType> >          //
+      accessorFactory(const ChimeraTK::RegisterPath &registerPathName, //
+                      size_t numberOfWords,                            //
+                      size_t wordOffsetInRegister,                     //
                       ChimeraTK::AccessModeFlags flags);
 };
 

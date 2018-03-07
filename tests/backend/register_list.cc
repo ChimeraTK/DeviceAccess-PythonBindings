@@ -154,7 +154,7 @@ getTypeInfo(DBaseElem const& e) {
       break;
 
     case Type_t::Bool:
-      type = mtca4u::RegisterInfo::FundamentalType::numeric;
+      type = mtca4u::RegisterInfo::FundamentalType::boolean;
       isIntegral = true;
       isSigned = false;
       nDigits = 1;

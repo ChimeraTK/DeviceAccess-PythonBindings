@@ -18,7 +18,7 @@ initialize()
 set(${PROJECT_NAME}_MAJOR_VERSION 01)
 set(${PROJECT_NAME}_MINOR_VERSION 01)
 set(${PROJECT_NAME}_PATCH_VERSION 01)
-set(min_req_mtca4u-deviceaccess_version "00.27" CACHE STRING)
+set(min_req_mtca4u-deviceaccess_version "00.27" CACHE STRING "")
 
 #
 # Build up the project version name
@@ -40,6 +40,8 @@ set(author "MSK")
 get_python_interpreter_string(python_interpreter)
 get_desired_python_major_release(py_major_release_num)
 #==============================================================================#
+
+add_subdirectory(tests/backend)
 
 # Find all packages are needed for compilation.
 #==============================================================================#
