@@ -3,6 +3,8 @@ list(APPEND list_of_sources
             testDBaseElem.cc
             testRegisterList.cc)
             
+get_filename_component(backend_source_dir ${CMAKE_CURRENT_LIST_DIR} DIRECTORY)
+
 # usage: register_tests(SOURCES list_of_source_files 
 #                       NAMESPACE test_namespace 
 #                       DEPENDS list_of_targets
@@ -12,7 +14,7 @@ list(APPEND list_of_sources
 register_tests( SOURCES ${list_of_sources}
                 NAMESPACE "TestBackend" 
                 INCLUDES ${CMAKE_CURRENT_LIST_DIR} 
-                         ${CMAKE_SOURCE_DIR}
+                         ${backend_source_dir}
                 DEPENDS ${library_name}
                         ${mtca4u-deviceaccess_LIBRARIES}
                 COMPILE_OPTIONS 
