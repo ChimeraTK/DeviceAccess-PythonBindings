@@ -88,3 +88,4 @@ target_compile_options(${library_name}
   PUBLIC
       -std=c++14)
       
+configure_file(cmake/TestBackend.dmap.in ${CMAKE_CURRENT_BINARY_DIR}/tests/TestBackend.dmap)
