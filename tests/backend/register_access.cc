@@ -81,9 +81,12 @@ std::size_t DBaseElem::getElements() const {
 }
 
 std::size_t DBaseElem::getDimensions() const {
-  auto channels = getChannels();
-  if (channels < 2) {
-    return channels;
+  auto dimensions = getChannels();
+  if (dimensions < 2) {
+    if(dimensions == 1 && this->getElements() == 1){ // scalar...
+      dimensions = 0;
+    }
+    return dimensions;
   } else {
     return 2;
   }

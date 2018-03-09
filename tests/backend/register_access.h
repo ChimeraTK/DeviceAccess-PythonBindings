@@ -481,13 +481,13 @@ struct GetType {
 };
 
 struct GetChannels {
-  template <typename T> std::size_t operator()(std::vector<std::vector<T> > v) {
+  template <typename T> std::size_t operator()(std::vector<std::vector<T> > const &v) {
     return v.size();
   }
 };
 
 struct GetSequences {
-  template <typename T> std::size_t operator()(std::vector<std::vector<T> > v) {
+  template <typename T> std::size_t operator()(std::vector<std::vector<T> > const & v) {
     if (v.size() != 0) {
       return v[0].size();
     } else {

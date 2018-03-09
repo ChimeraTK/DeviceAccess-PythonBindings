@@ -103,6 +103,7 @@ mtca4u::RegisterCatalogue getRegisterCatalogue(const RegisterList& l) {
 
 
 boost::shared_ptr<TBRegisterInfo> getRegInfo(DBaseElem e) {
+
   return boost::shared_ptr<TBRegisterInfo>(
       new TBRegisterInfo(id(e), e.getElements(), //
                          e.getChannels(),        //
