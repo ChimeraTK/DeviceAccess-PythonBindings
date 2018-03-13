@@ -15,11 +15,13 @@ class TestBackEndAccessor : public mtca4u::SyncNDRegisterAccessor<UserType> {
   std::size_t wordOffset_;
 
 public:
-  TestBackEndAccessor() {}
   TestBackEndAccessor(DBaseElem& elem, std::string const& registerPathName,
                       std::size_t numberOfWords,
                       std::size_t wordOffsetInRegister,
                       ChimeraTK::AccessModeFlags flags);
+  virtual ~TestBackEndAccessor() {
+    mtca4u::SyncNDRegisterAccessor<UserType>::shutdown();
+  }
   bool isReadOnly() const override;
   bool isReadable() const override;
   bool isWriteable() const override;
