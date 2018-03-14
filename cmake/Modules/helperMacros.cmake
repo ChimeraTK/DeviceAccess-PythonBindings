@@ -205,7 +205,7 @@ FUNCTION(CHECK_SPHINX_BUILD_VERSION)
   if(SPHINX_BUILD)
     execute_process(COMMAND "${SPHINX_BUILD}" "--version" 
                     RESULT_VARIABLE resultVariable
-                    ERROR_VARIABLE errorVariable
+                    ERROR_VARIABLE outputOfVersionCommand
                     OUTPUT_VARIABLE outputOfVersionCommand
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
     # was the command successful. Seems --version is not supported on v1.1 which
