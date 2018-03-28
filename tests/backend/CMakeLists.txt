@@ -69,6 +69,7 @@ target_sources(${library_name}
     ${source_headers})
     
 target_include_directories(${library_name}
+  SYSTEM
   PRIVATE
     ${mtca4u-deviceaccess_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS})
