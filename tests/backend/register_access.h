@@ -1,13 +1,12 @@
-#ifndef REGISTER_ACCESS_H
-#define REGISTER_ACCESS_H
+#pragma once
 
-#include <string>
-#include <vector>
+#include <boost/variant.hpp>
 #include <iterator>
 #include <memory>
-#include <tuple>
 #include <set>
-#include <boost/variant.hpp>
+#include <string>
+#include <tuple>
+#include <vector>
 
 #include <string>
 
@@ -21,25 +20,25 @@ template <typename T>
 std::vector<std::vector<T> > pad(std::vector<std::vector<T> > v);
 
 template <typename UserType>
-std::vector<std::vector<UserType> >    //
-    copyAs(const DBaseElem& e,         //
-           std::size_t x_elements = 0, //
-           std::size_t y_elements = 0, //
-           std::size_t x_offset = 0,   //
-           std::size_t y_offset = 0);
+std::vector<std::vector<UserType> > //
+copyAs(const DBaseElem& e,          //
+       std::size_t x_elements = 0,  //
+       std::size_t y_elements = 0,  //
+       std::size_t x_offset = 0,    //
+       std::size_t y_offset = 0);
 
 template <typename UserType>
-std::tuple<std::size_t, std::size_t>                   //
-    copyFrom(const DBaseElem& e,                       //
-             std::vector<std::vector<UserType> >& out, //
-             std::size_t x_offset = 0,                 //
-             std::size_t y_offset = 0);
+std::tuple<std::size_t, std::size_t>               //
+copyFrom(const DBaseElem& e,                       //
+         std::vector<std::vector<UserType> >& out, //
+         std::size_t x_offset = 0,                 //
+         std::size_t y_offset = 0);
 
 template <typename UserType>
-std::tuple<std::size_t, std::size_t>                          //
-    copyInto(DBaseElem& e,                                    //
-             std::vector<std::vector<UserType> > const& data, //
-             std::size_t x_offset = 0, std::size_t y_offset = 0);
+std::tuple<std::size_t, std::size_t>                      //
+copyInto(DBaseElem& e,                                    //
+         std::vector<std::vector<UserType> > const& data, //
+         std::size_t x_offset = 0, std::size_t y_offset = 0);
 bool isSubShape(DBaseElem const& e,   //
                 std::size_t x_size,   //
                 std::size_t y_size,   //
@@ -47,7 +46,7 @@ bool isSubShape(DBaseElem const& e,   //
                 std::size_t y_offset);
 
 std::tuple<std::size_t, std::size_t> //
-    shape(const DBaseElem& e);
+shape(const DBaseElem& e);
 
 ElementType type(DBaseElem const& e);
 std::string id(DBaseElem const& e);
@@ -55,24 +54,15 @@ std::string id(DBaseElem const& e);
 AccessMode access(DBaseElem const& e);
 
 /*============================================================================*/
-enum class AccessMode {
-  rw,
-  ro,
-  wo
-};
+enum class AccessMode { rw, ro, wo };
 
-enum class ElementType {
-  Int,
-  Double,
-  String,
-  Bool
-};
+enum class ElementType { Int, Double, String, Bool };
 
 struct Int_t {
   Int_t(int a) : data_(a) {}
   Int_t() : data_() {}
-  Int_t(std::string const &/*s*/): data_(){
-    //TODO: replace with chimeratk exception?
+  Int_t(std::string const& /*s*/) : data_() {
+    // TODO: replace with chimeratk exception?
     throw std::runtime_error("conversion from string to int not supported");
   }
 
@@ -104,8 +94,8 @@ private:
 struct Double_t {
   Double_t(double a) : data_(a) {}
   Double_t() : data_() {}
-  Double_t(std::string const &/*s*/): data_(){
-    //TODO: replace with chimeratk exception?
+  Double_t(std::string const& /*s*/) : data_() {
+    // TODO: replace with chimeratk exception?
     throw std::runtime_error("conversion from string to double not supported");
   }
 
@@ -136,10 +126,10 @@ private:
 
 struct Bool_t {
 
-  Bool_t(bool v) : data_(v) {};
+  Bool_t(bool v) : data_(v){};
   Bool_t() : data_(false) {}
-  Bool_t(std::string const & /*s*/): data_(){
-    //TODO: replace with chimeratk exception?
+  Bool_t(std::string const& /*s*/) : data_() {
+    // TODO: replace with chimeratk exception?
     throw std::runtime_error("conversion from string to Bool not supported");
   }
 
@@ -204,7 +194,7 @@ struct String_t {
         "Invalid conversion from string type to uint8_t requested");
   }
 
-  operator int16_t() const {
+   operator int16_t() const {
     // TODO: replace with the releavent chimeratk exception
     throw std::runtime_error(
         "Invalid conversion from string type to int16_t requested");
@@ -257,9 +247,6 @@ private:
   std::string data_;
 };
 
-// type
-// name/id
-// access
 class DBaseElem {
 public:
   using Value_t = boost::variant<std::vector<std::vector<Int_t> >,    //
@@ -276,28 +263,28 @@ public:
 
   template <typename UserType>
   friend std::vector<std::vector<UserType> > //
-      copyAs(const DBaseElem& e,             //
-             std::size_t x_elements,         //
-             std::size_t y_elements,         //
-             std::size_t x_offset,           //
-             std::size_t y_offset);
+  copyAs(const DBaseElem& e,                 //
+         std::size_t x_elements,             //
+         std::size_t y_elements,             //
+         std::size_t x_offset,               //
+         std::size_t y_offset);
 
   template <typename UserType>
-  friend std::tuple<std::size_t, std::size_t>            //
-      copyFrom(const DBaseElem& e,                       //
-               std::vector<std::vector<UserType> >& out, //
-               std::size_t x_offset,                     //
-               std::size_t y_offset);
+  friend std::tuple<std::size_t, std::size_t>        //
+  copyFrom(const DBaseElem& e,                       //
+           std::vector<std::vector<UserType> >& out, //
+           std::size_t x_offset,                     //
+           std::size_t y_offset);
 
   template <typename UserType>
-  friend std::tuple<std::size_t, std::size_t>                   //
-      copyInto(DBaseElem& e,                                    //
-               std::vector<std::vector<UserType> > const& data, //
-               std::size_t x_offset,                            //
-               std::size_t y_offset);
+  friend std::tuple<std::size_t, std::size_t>               //
+  copyInto(DBaseElem& e,                                    //
+           std::vector<std::vector<UserType> > const& data, //
+           std::size_t x_offset,                            //
+           std::size_t y_offset);
 
   friend std::tuple<std::size_t, std::size_t> //
-      shape(const DBaseElem& e);
+  shape(const DBaseElem& e);
   friend ElementType type(DBaseElem const& e);
   friend std::string id(DBaseElem const& e);
   friend AccessMode access(DBaseElem const& e);
@@ -481,13 +468,15 @@ struct GetType {
 };
 
 struct GetChannels {
-  template <typename T> std::size_t operator()(std::vector<std::vector<T> > const &v) {
+  template <typename T>
+  std::size_t operator()(std::vector<std::vector<T> > const& v) {
     return v.size();
   }
 };
 
 struct GetSequences {
-  template <typename T> std::size_t operator()(std::vector<std::vector<T> > const & v) {
+  template <typename T>
+  std::size_t operator()(std::vector<std::vector<T> > const& v) {
     if (v.size() != 0) {
       return v[0].size();
     } else {
@@ -513,11 +502,11 @@ struct GetShape {
 /*============================================================================*/
 template <typename UserType>
 std::vector<std::vector<UserType> > //
-    copyAs(const DBaseElem& e,      //
-           std::size_t x_elements,  //
-           std::size_t y_elements,  //
-           std::size_t x_offset,    //
-           std::size_t y_offset) {
+copyAs(const DBaseElem& e,          //
+       std::size_t x_elements,      //
+       std::size_t y_elements,      //
+       std::size_t x_offset,        //
+       std::size_t y_offset) {
 
   if (e.access_ == AccessMode::wo) {
     // TODO: move to chimeratk exceptions
@@ -532,11 +521,11 @@ std::vector<std::vector<UserType> > //
   return boost::apply_visitor(visitor, e.value_);
 }
 template <typename UserType>
-std::tuple<std::size_t, std::size_t>                   //
-    copyFrom(const DBaseElem& e,                       //
-             std::vector<std::vector<UserType> >& out, //
-             std::size_t x_offset,                     //
-             std::size_t y_offset) {
+std::tuple<std::size_t, std::size_t>               //
+copyFrom(const DBaseElem& e,                       //
+         std::vector<std::vector<UserType> >& out, //
+         std::size_t x_offset,                     //
+         std::size_t y_offset) {
 
   if (e.access_ == AccessMode::wo) {
     // TODO: move to chimeratk exceptions
@@ -563,10 +552,10 @@ std::vector<std::vector<T> > pad(std::vector<std::vector<T> > v) {
 }
 
 template <typename UserType>
-std::tuple<std::size_t, std::size_t>                          //
-    copyInto(DBaseElem& e,                                    //
-             std::vector<std::vector<UserType> > const& data, //
-             std::size_t x_offset, std::size_t y_offset) {
+std::tuple<std::size_t, std::size_t>                      //
+copyInto(DBaseElem& e,                                    //
+         std::vector<std::vector<UserType> > const& data, //
+         std::size_t x_offset, std::size_t y_offset) {
 
   if (e.access_ == AccessMode::ro) {
     // TODO: move to chimeratk exceptions
@@ -578,5 +567,3 @@ std::tuple<std::size_t, std::size_t>                          //
 }
 
 } // namespace TestBackend
-
-#endif

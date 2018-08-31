@@ -1,45 +1,6 @@
 #include "register_access.h"
 
-// emulate the catalogue
-// DBASE is a
-// - list_of_dbase_elements
-// - None
-
-// compound type DBaseElement
-// - std::string pathname
-// - Data
-// - Access type
-
-// Data is a compund type
-// - std::vector<T>
-// - type
-//     - shape (channels, elements)
-//     - dimension
-//     - channels
-//     - elements
-
-/*
- * - Make up a DBASE from DBASE elements
- * - Access memory of DBASE_ELEMENTS for data
- * - Query attributes of DBASE_ELEMENT
- *     Atributes include:
- *     - AccessType
- *     - type
- *     - shape (channels, elements)
- *     - dimension
- *     - channels
- *     - elements
- * - Collect and give out attribute list in DBASE as a register catalogue
-*/
-
-/*
- * PARSING
- * - How feasible is creating DBAse from Register catalogue.
- *
- */
-
 namespace TestBackend {
-
 bool isSubShape(DBaseElem const& e,   //
                 std::size_t x_size,   //
                 std::size_t y_size,   //

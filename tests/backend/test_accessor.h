@@ -1,9 +1,9 @@
 #ifndef TEST_ACCESSOR_H_
 #define TEST_ACCESSOR_H_
 
-#include <mtca4u/SyncNDRegisterAccessor.h>
-#include <ChimeraTK/AccessMode.h>
 #include "register_access.h"
+#include <ChimeraTK/AccessMode.h>
+#include <mtca4u/SyncNDRegisterAccessor.h>
 
 namespace TestBackend {
 
@@ -50,10 +50,12 @@ inline bool TestBackEndAccessor<UserType>::isReadOnly() const {
   return {};
 }*/
 template <typename UserType>
-TestBackEndAccessor<UserType>::TestBackEndAccessor(
-    DBaseElem& elem, std::string const& registerPathName,
-    std::size_t numberOfWords, std::size_t wordOffsetInRegister,
-    ChimeraTK::AccessModeFlags flags)
+TestBackEndAccessor<UserType>::TestBackEndAccessor( //
+              BaseElem& elem,                                //
+              std::string const& registerPathName,            //
+              std::size_t numberOfWords,                      //
+              std::size_t wordOffsetInRegister,               //
+              ChimeraTK::AccessModeFlags flags)
     : ChimeraTK::SyncNDRegisterAccessor<UserType>(registerPathName),
       elem_(elem),
       numWords_((numberOfWords == 0) ? elem.getElements() : numberOfWords),
@@ -72,8 +74,7 @@ TestBackEndAccessor<UserType>::TestBackEndAccessor(
     for (auto& e : NDAccessor_t::buffer_2D) {
       e.resize(numWords_);
     }
-  }
-  catch (...) {
+  } catch (...) {
     this->shutdown();
     throw;
   }

@@ -58,6 +58,7 @@ set(source_headers
       backend.h
       register_access.h
       test_catalogue.h
+      new_class.h
       register_list.h)
 
 #
