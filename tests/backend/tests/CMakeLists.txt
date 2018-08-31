@@ -1,6 +1,7 @@
 list(APPEND list_of_sources 
             testDBase.cc
             testDBaseElem.cc
+            test_new
             testRegisterList.cc)
             
 get_filename_component(backend_source_dir ${CMAKE_CURRENT_LIST_DIR} DIRECTORY)

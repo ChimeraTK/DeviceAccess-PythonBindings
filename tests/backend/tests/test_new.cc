@@ -4,6 +4,8 @@
 
 
 BOOST_AUTO_TEST_CASE(test_read){
-    
+    // create the class
+  // create expected values
+  // compare and decide
 }
 

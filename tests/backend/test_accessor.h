@@ -51,7 +51,7 @@ inline bool TestBackEndAccessor<UserType>::isReadOnly() const {
 }*/
 template <typename UserType>
 TestBackEndAccessor<UserType>::TestBackEndAccessor( //
-              BaseElem& elem,                                //
+              DBaseElem& elem,                                //
               std::string const& registerPathName,            //
               std::size_t numberOfWords,                      //
               std::size_t wordOffsetInRegister,               //

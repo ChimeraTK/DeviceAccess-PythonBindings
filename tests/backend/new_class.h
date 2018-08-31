@@ -1,7 +1,7 @@
 #pragma once
 
 namespace TestBackend {
-class DBaseElem_new {
+class Elem {
 private:
   struct Impl;
   std::unique_ptr<Impl> impl_;
@@ -14,11 +14,11 @@ private:
 
 public:
   template <typename UserType>
-  DBaseElem_new(std::string const& name, //
+  Elem(std::string const& name, //
                 AccessMode mode,         //
                 RegisterType type,       //
                 std::vector<std::vector<UserType> > data);
-  DBaseElem_new(std::string const& name, //
+  Elem(std::string const& name, //
                 AccessMode mode,         //
                 RegisterType type,       //
                 Shape shape);
@@ -36,8 +36,8 @@ public:
 
   class View {
   public:
-    View(DBaseElem_new& e, Window w);
-    View(DBaseElem_new& e);
+    View(Elem& e, Window w);
+    View(Elem& e);
 
     template <typename UserType> //
     std::vector<std::vector<UsertType> > read();
