@@ -47,7 +47,6 @@ std::string Backend::readDeviceInfo() {
 }
 
 /****************************************************************************/
-
 template <typename UserType>
 Accessor_t<UserType>                                                          //
     Backend::accessorFactory(const ChimeraTK::RegisterPath& registerPathName, //

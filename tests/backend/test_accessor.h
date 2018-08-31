@@ -33,6 +33,9 @@ public:
       override;
   std::vector<boost::shared_ptr<mtca4u::TransferElement> >
   getHardwareAccessingElements() override;
+  ChimeraTK::AccessModeFlags getAccessModeFlags() const override{
+    //TODO
+  }
 };
 
 template <typename UserType>
@@ -43,7 +46,9 @@ inline bool TestBackEndAccessor<UserType>::isReadOnly() const {
     return false;
   }
 }
-
+/*template <typename UserType> ChimeraTK::AccessModeFlags getAccessModeFlags() {
+  return {};
+}*/
 template <typename UserType>
 TestBackEndAccessor<UserType>::TestBackEndAccessor(
     DBaseElem& elem, std::string const& registerPathName,
