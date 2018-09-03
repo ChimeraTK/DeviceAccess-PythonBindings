@@ -1,6 +1,5 @@
 #include "PythonModuleMethods.h"
 #include <mtca4u/DummyBackend.h>
-#include <mtca4u/PcieBackend.h>
 
 namespace da = mtca4upy::DeviceAccess;
 namespace oneD = mtca4upy::OneDAccessor;
@@ -10,8 +9,6 @@ namespace twoD = mtca4upy::TwoDAccessor;
 //****************************************************************************//
 
 static boost::shared_ptr<mtca4u::Device> (*createDevice)(
-    const std::string&, const std::string&) = &mtca4upy::createDevice;
-static boost::shared_ptr<mtca4u::Device> (*createDeviceFromCardAlias)(
     const std::string&) = &mtca4upy::createDevice;
 
 //****************************************************************************//
@@ -60,7 +57,6 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
       .def("getNElementsPerChannel", twoD::getNElementsPerChannel<float>);
 
   bp::def("createDevice", createDevice);
-  bp::def("createDevice", createDeviceFromCardAlias);
   bp::def("setDmapFile", mtca4upy::setDmapFile);
   bp::def("getDmapFile", mtca4upy::getDmapFile);
   bp::register_ptr_to_python<boost::shared_ptr<mtca4u::Device> >();

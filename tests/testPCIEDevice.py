@@ -5,15 +5,15 @@ import  unittest
 import numpy
 
 # This is a hack for nw. What this does is, add the build directory to python's
-# path, so that it can find the deviceaccess module. 
+# path, so that it can find the deviceaccess module.
 sys.path.insert(0,os.path.abspath(os.curdir))
 import mtca4udeviceaccess
 
 class TestPCIEDevice(unittest.TestCase):
 
     def testCreatePCIEDevice(self):
-        self.assertRaisesRegexp(RuntimeError, "Cannot open file \"\"",
-                                 mtca4udeviceaccess.createDevice, "", "")
+        self.assertRaisesRegexp(RuntimeError, "Cannot open file \"badMapFile.map\"",
+                                 mtca4udeviceaccess.createDevice, "sdm://./pci:pcieunidummys6=badMapFile.map")
 
 if __name__ == '__main__':
     unittest.main()

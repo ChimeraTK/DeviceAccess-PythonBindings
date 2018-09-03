@@ -12,9 +12,9 @@ import mtca4udeviceaccess
 class TestDummyDevice(unittest.TestCase):
 
     def testCreateDummyDevice(self):
-        self.assertRaisesRegexp(RuntimeError, "Cannot open file \"someBogusMapFile.map\""
+        self.assertRaisesRegexp(RuntimeError, "Cannot open file \".*someBogusMapFile.map\""
                 , mtca4udeviceaccess.createDevice,
-                "deviceInformation/mtcadummy.map", "someBogusMapFile.map")
+                "sdm://./dummy=someBogusMapFile.map")
 
 if __name__ == '__main__':
     unittest.main()
