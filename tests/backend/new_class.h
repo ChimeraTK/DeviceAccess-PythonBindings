@@ -18,10 +18,10 @@ public:
   enum class Access { rw, ro, wo };
   enum class Type { Int, Double, String, Bool };
 
-  template <typename UserType>
+  template <typename VariantType>
   Register(std::string const& name, //
            Access mode,             //
-           std::vector<std::vector<UserType> > data);
+           std::vector<std::vector<VariantType> > data);
 
   Register(std::string const& name, //
            Access mode,             //
@@ -29,15 +29,21 @@ public:
            Shape shape);
 
   ~Register();
+
   template <typename UserType> //
   std::vector<std::vector<UserType> > read();
+
   template <typename UserType> //
   void write(std::vector<std::vector<UserType> > data);
 
   std::string getName();
+
   Shape getShape();
+
   Access getAccessMode();
+
   Type getType();
+
   View getView(Window w);
 
   struct Shape {

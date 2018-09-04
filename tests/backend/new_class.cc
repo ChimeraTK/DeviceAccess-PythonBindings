@@ -7,14 +7,10 @@
 #include "new_class.h"
 #include <boost/variant.hpp>
 
-using Data =
-    std::vector<std::vector<boost::variant<int, double, bool, std::string> > >;
+using Variant = boost::variant<int, double, bool, std::string>;
+using Data = std::vector<std::vector<Variant> >;
 
 namespace TestBackend {
-
-template <typename UserType>
-static Register::Shape getShape(
-    std::vector<std::vector<UserType> > const& data){};
 
 static Data fillDefaults(Register::Type t, Register::Shape s) {
   // return Data{ s.rows, { s.columns, {static_cast<bool>(false)} } };
@@ -33,51 +29,48 @@ struct Register::Impl {
 
   std::string name_;
   Access access_;
-  Type registerType_;
   Data data_;
 
   template <typename VariantType>
-  Impl(std::string const& name, Access mode,
+  Impl(std::string const& name, Access access,
        std::vector<std::vector<VariantType> > data)
-      : name_(name),
-        access_(static_cast<Access>(mode)),
-        data_(std::move(data)) {}
-  // template specilization
-  template Impl(std::string const& name, Access mode,
-       std::vector<std::vector<int> > data);
-
-  Impl(std::string name, Access mode, Type type, Shape shape)
-      : name_(name), access_(static_cast<Access>(mode)), registerType_(type) {}
+      : name_(name),                         //
+        access_(static_cast<Access>(access)) //
+  {
+    for (auto& row : data) {
+      data_.emplace_back(std::vector<Variant>{});
+      for (auto element : row) {
+        data_.back().emplace_back(Variant(element));
+      }
+    }
+  }
 };
+
+template <typename VariantType>
+Register::Register(std::string const& name, //
+                   Register::Access access, //
+                   std::vector<std::vector<VariantType> > data)
+    : impl_(std::make_unique<Impl>(name, access, data)) {}
 
 // To get around the static assertion with unique ptr
 Register::~Register() = default;
 
-template <typename VariantType>
-Register::Register(std::string const& name, //
-                   Register::Access mode,   //
-                   std::vector<std::vector<VariantType> > data)
-    //: impl_(std::make_unique<Impl>(name, mode, data)) {}
-{
-  Impl(name, mode, data);
-}
+// template specilization
+template Register::Impl::Impl(std::string const& name, Access mode,
+                              std::vector<std::vector<bool> > data);
+template Register::Impl::Impl(std::string const& name, Access mode,
+                              std::vector<std::vector<int> > data);
+template Register::Impl::Impl(std::string const& name, Access mode,
+                              std::vector<std::vector<double> > data);
+template Register::Impl::Impl(std::string const& name, Access mode,
+                              std::vector<std::vector<std::string> > data);
 
-// explicit template instantiation
-template Register::Register(std::string const& name, //
-                            Register::Access mode,   //
+template Register::Register(std::string const& name, Register::Access access,
+                            std::vector<std::vector<bool> > data);
+template Register::Register(std::string const& name, Register::Access access,
                             std::vector<std::vector<int> > data);
-
-/*Register::Register(std::string const& name, //
-           Register::Access mode,         //
-           Register::Type type,       //
-           Shape shape)
-    : impl_(std::make_unique<Impl>(name, mode, type, shape)) {}*/
-
-// template Register::Register<int>(std::string const& name, //
-// Register::Access mode,         //
-// std::vector<std::vector<int> > data);
-
-// template static Register::Shape getShape(
-// std::vector<std::vector<int> > const& data);
-//}
+template Register::Register(std::string const& name, Register::Access access,
+                            std::vector<std::vector<double> > data);
+template Register::Register(std::string const& name, Register::Access access,
+                            std::vector<std::vector<std::string> > data);
 } // namespace TestBackend
