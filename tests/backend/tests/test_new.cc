@@ -8,8 +8,8 @@ BOOST_AUTO_TEST_CASE(test_read){
     // create the class
   // create expected values
   // compare and decide
-/*  TestBackend::Register e{ "integral",
+  TestBackend::Register e{ "integral",
                        { TestBackend::Register::Access::rw },
-                       std::vector<std::vector<int> >{} };*/
+                       std::vector<std::vector<int> >{} };
 }
 

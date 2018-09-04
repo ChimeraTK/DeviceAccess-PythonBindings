@@ -13,20 +13,21 @@ using Data =
 namespace TestBackend {
 
 template <typename UserType>
-static Register::Shape getShape(std::vector<std::vector<UserType> > const& data) {};
+static Register::Shape getShape(
+    std::vector<std::vector<UserType> > const& data){};
 
 static Data fillDefaults(Register::Type t, Register::Shape s) {
-   //return Data{ s.rows, { s.columns, {static_cast<bool>(false)} } };
-/*  switch (t) {
-    case RegisterType::Bool:
-      //return Data{ s.rows, { s.columns, static_cast<bool>(false) } };
-    case RegisterType::Double:
-      return Data{ s.rows, { s.columns, 0.0 } };
-    case RegisterType::Int:
-      return Data{ s.rows, { s.columns, static_cast<int>(0) } };
-    case RegisterType::String:
-      return Data{ s.rows, { s.columns, static_cast<std::string>("") } };
-  }*/
+  // return Data{ s.rows, { s.columns, {static_cast<bool>(false)} } };
+  /*  switch (t) {
+      case RegisterType::Bool:
+        //return Data{ s.rows, { s.columns, static_cast<bool>(false) } };
+      case RegisterType::Double:
+        return Data{ s.rows, { s.columns, 0.0 } };
+      case RegisterType::Int:
+        return Data{ s.rows, { s.columns, static_cast<int>(0) } };
+      case RegisterType::String:
+        return Data{ s.rows, { s.columns, static_cast<std::string>("") } };
+    }*/
 }
 struct Register::Impl {
 
@@ -35,18 +36,36 @@ struct Register::Impl {
   Type registerType_;
   Data data_;
 
+  template <typename VariantType>
+  Impl(std::string const& name, Access mode,
+       std::vector<std::vector<VariantType> > data)
+      : name_(name),
+        access_(static_cast<Access>(mode)),
+        data_(std::move(data)) {}
+  // template specilization
+  template Impl(std::string const& name, Access mode,
+       std::vector<std::vector<int> > data);
+
   Impl(std::string name, Access mode, Type type, Shape shape)
-      : name_(name), access_(mode), registerType_(type) {
-  }
+      : name_(name), access_(static_cast<Access>(mode)), registerType_(type) {}
 };
 
 // To get around the static assertion with unique ptr
 Register::~Register() = default;
 
-template <typename UserType>
+template <typename VariantType>
 Register::Register(std::string const& name, //
-           Register::Access mode,         //
-           std::vector<std::vector<UserType> > data){}
+                   Register::Access mode,   //
+                   std::vector<std::vector<VariantType> > data)
+    //: impl_(std::make_unique<Impl>(name, mode, data)) {}
+{
+  Impl(name, mode, data);
+}
+
+// explicit template instantiation
+template Register::Register(std::string const& name, //
+                            Register::Access mode,   //
+                            std::vector<std::vector<int> > data);
 
 /*Register::Register(std::string const& name, //
            Register::Access mode,         //
@@ -54,11 +73,11 @@ Register::Register(std::string const& name, //
            Shape shape)
     : impl_(std::make_unique<Impl>(name, mode, type, shape)) {}*/
 
-//template Register::Register<int>(std::string const& name, //
-                         //Register::Access mode,         //
-                         //std::vector<std::vector<int> > data);
+// template Register::Register<int>(std::string const& name, //
+// Register::Access mode,         //
+// std::vector<std::vector<int> > data);
 
-//template static Register::Shape getShape(
-    //std::vector<std::vector<int> > const& data);
+// template static Register::Shape getShape(
+// std::vector<std::vector<int> > const& data);
 //}
-}
+} // namespace TestBackend
