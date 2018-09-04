@@ -29,13 +29,6 @@ find_package(Boost COMPONENTS system REQUIRED)
 ##############################################################################
 separate_arguments(mtca4u-deviceaccess_CXX_FLAGS)
 
-#
-# remove the -std=c++11 flag from mtca4u-deviceaccess_CXX_FLAGS
-# The project requires c++14.
-##############################################################################
-list(REMOVE_ITEM mtca4u-deviceaccess_CXX_FLAGS -std=c++11)
-
-
 if (ENABLE_TESTING)
   #
   # Add support for custom functions for registering test targets.
@@ -52,6 +45,7 @@ set(source_files
       backend.cc
       backend_registration.cc
       register_access.cc
+      new_class.cc
       register_list.cc)
       
 set(source_headers
@@ -88,6 +82,6 @@ target_compile_options(${library_name}
       -Wpedantic
       -Wextra
   PUBLIC
-      -std=c++14)
+      -std=c++17)
       
 configure_file(cmake/TestBackend.dmap.in ${CMAKE_CURRENT_BINARY_DIR}/tests/TestBackend.dmap)

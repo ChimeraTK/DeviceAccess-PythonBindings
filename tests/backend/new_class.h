@@ -1,60 +1,64 @@
 #pragma once
 
+#include <memory>
+#include <string>
+#include <vector>
+
 namespace TestBackend {
-class Elem {
+
+class Register {
 private:
   struct Impl;
   std::unique_ptr<Impl> impl_;
 
+public:
   class View;
   struct Window;
   struct Shape;
-  enum class AccessMode;
-  enum class RegisterType;
+  enum class Access { rw, ro, wo };
+  enum class Type { Int, Double, String, Bool };
 
-public:
   template <typename UserType>
-  Elem(std::string const& name, //
-                AccessMode mode,         //
-                RegisterType type,       //
-                std::vector<std::vector<UserType> > data);
-  Elem(std::string const& name, //
-                AccessMode mode,         //
-                RegisterType type,       //
-                Shape shape);
+  Register(std::string const& name, //
+           Access mode,             //
+           std::vector<std::vector<UserType> > data);
 
+  Register(std::string const& name, //
+           Access mode,             //
+           Type type,               //
+           Shape shape);
+
+  ~Register();
   template <typename UserType> //
   std::vector<std::vector<UserType> > read();
   template <typename UserType> //
-  write(std::vector<std::vector<UserType> > d);
+  void write(std::vector<std::vector<UserType> > data);
 
   std::string getName();
   Shape getShape();
-  AccessMode getAccessMode();
-  RegisterType getType();
+  Access getAccessMode();
+  Type getType();
   View getView(Window w);
 
-  class View {
-  public:
-    View(Elem& e, Window w);
-    View(Elem& e);
-
-    template <typename UserType> //
-    std::vector<std::vector<UsertType> > read();
-    template <typename UserType>
-    void write(std::vector<std::vector<UserType> >& d);
+  struct Shape {
+    size_t rows;
+    size_t columns;
   };
   struct Window {
     Shape shape;
     size_t row_offset;
     size_t column_offset;
   };
-  struct Shape {
-    size_t rows;
-    size_t columns;
-    ;
 
-    enum class AccessMode { rw, ro, wo };
-    enum class RegisterType { Int, Double, String, Bool };
+  class View {
+  public:
+    View(Register& e, Window w);
+    View(Register& e);
+
+    template <typename UserType> //
+    std::vector<std::vector<UserType> > read();
+    template <typename UserType>
+    void write(std::vector<std::vector<UserType> >& d);
   };
-} // TestBackend
+};
+} // namespace TestBackend
