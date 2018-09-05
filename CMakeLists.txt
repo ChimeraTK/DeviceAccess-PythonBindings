@@ -75,7 +75,7 @@ endif(SUPPORTED_SPHINX_VERSION_AVAILABLE)
 set(${PROJECT_NAME}_CXX_FLAGS 
    "${${PROJECT_NAME}_CXX_FLAGS} ${mtca4u-deviceaccess_CXX_FLAGS}")
 
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${PROJECT_NAME}_CXX_FLAGS} -Wall -fPIC -Weffc++ -Wextra -Wshadow -pedantic -Wuninitialized")
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${PROJECT_NAME}_CXX_FLAGS} -Wall -Wcpp -fPIC -Weffc++ -Wextra -Wshadow -pedantic -Wuninitialized")
 
 
 #

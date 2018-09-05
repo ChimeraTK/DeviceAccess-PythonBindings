@@ -107,7 +107,7 @@ class TestPCIEDevice(unittest.TestCase):
     device = mtca4u.mtca4udeviceaccess.createDevice("sdm://./pci:mtcadummys1=deviceInformation/modular_mtcadummy.map")
     array = numpy.array([1, 2, 3, 4], dtype = numpy.int32)
     self.assertRaisesRegexp(RuntimeError, "size to write is more than the supplied array size",
-                        device.writeRaw, 8, array, (array.size * 4) + 1 , 0)
+                        device.writeRaw, 'BOARD.WORD_STATUS', 0, array, (array.size * 4) + 1)
 
   def testDeviceCreation(self):
 
@@ -167,7 +167,7 @@ class TestPCIEDevice(unittest.TestCase):
         # Test Read from a module register
     # set up the register with a known values
     device = mtca4u.mtca4udeviceaccess.createDevice("sdm://./pci:mtcadummys1=deviceInformation/modular_mtcadummy.map")
-    self.__preSetValuesOnCard(device)
+    self.__preSetValuesOnCard(device, True)
     device = mtca4u.mtca4udeviceaccess.createDevice("sdm://./pci:llrfdummys4=deviceInformation/mtcadummy.map")
     self.__preSetValuesOnCard(device)
 
@@ -175,24 +175,23 @@ class TestPCIEDevice(unittest.TestCase):
     array = numpy.random.randint(0, 1073741824, arrayLength)
     return array.astype(numpy.int32)
 
-  def __preSetValuesOnCard(self, device):
-    WORD_STATUS_RegisterOffset = 8
+  def __preSetValuesOnCard(self, device, modular=False):
+    if modular == False:
+      word_status = 'WORD_STATUS'
+      word_clk_mux = 'WORD_CLK_MUX'
+      word_incomplete_2 = 'WORD_INCOMPLETE_2'
+    else:
+      word_status = 'BOARD.WORD_STATUS'
+      word_clk_mux = 'BOARD.WORD_CLK_MUX'
+      word_incomplete_2 = 'BOARD.WORD_INCOMPLETE_2'
+
     bytesToWrite = self.word_status_content.size * 4 #  1 32 bit word -> 1 element
-    bar = 0
-    device.writeRaw(WORD_STATUS_RegisterOffset, self.word_status_content,
-                    bytesToWrite, bar)
-
-    WORD_CLK_MUX_REG_Offset = 32
+    device.writeRaw(word_status, 0, self.word_status_content,
+                    bytesToWrite)
     bytesToWrite = self.word_clk_mux_content.size * 4
-    bar = 0
-    device.writeRaw(WORD_CLK_MUX_REG_Offset, self.word_clk_mux_content, bytesToWrite, bar)
-
-    WORD_INCOMPLETE_2_REG_OFFSET = 100
+    device.writeRaw(word_clk_mux, 0, self.word_clk_mux_content, bytesToWrite)
     bytesToWrite = self.word_incomplete_2_content.size * 4
-    bar = 0
-    dataToSet = numpy.array([544], dtype = numpy.int32) # FP representation
-                                                        # of 2.15
-    device.writeRaw(WORD_INCOMPLETE_2_REG_OFFSET, self.word_incomplete_2_content, bytesToWrite, bar)
+    device.writeRaw(word_incomplete_2, 0,  self.word_incomplete_2_content, bytesToWrite)
 
   def __testRead(self, device, module, readCommand):
 

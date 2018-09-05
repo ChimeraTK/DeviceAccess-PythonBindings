@@ -1,15 +1,15 @@
 #include "PythonModuleMethods.h"
-#include <mtca4u/MapFileParser.h>
-#include <mtca4u/DummyBackend.h>
+#include <ChimeraTK/MapFileParser.h>
+#include <ChimeraTK/DummyBackend.h>
 #include "PythonExceptions.h"
 
 namespace mtca4upy {
 
-boost::shared_ptr<mtca4u::Device> createDevice(
+boost::shared_ptr<ChimeraTK::Device> createDevice(
     const std::string& deviceAlias) {
-  mtca4u::Device* device = new mtca4u::Device();
+  ChimeraTK::Device* device = new ChimeraTK::Device();
   device->open(deviceAlias);
-  return boost::shared_ptr<mtca4u::Device>(device);
+  return boost::shared_ptr<ChimeraTK::Device>(device);
 }
 
 } /* namespace mtca4upy */
