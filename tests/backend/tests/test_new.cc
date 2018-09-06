@@ -5,17 +5,29 @@
 #include "new_class.h"
 #include "VariantTypes.h"
 
+template <typename To, typename From>
+std::vector<std::vector<To> > convert(std::vector<std::vector<From> > i);
+
 BOOST_AUTO_TEST_CASE(test_read) {
-  // create the class
-  // create expected values
-  // compare and decide
-  auto expected = std::vector<std::vector<IntegralType> >{ { 1, 3, 5 } };
+  auto values = std::vector<std::vector<IntegralType> >{ { 1, 3, 5 } };
+  TestBackend::Register e{ "integral",                        //
+                           TestBackend::Register::Access::rw, //
+                           values };
+  auto expected = convert<int>(values);
 
-  TestBackend::Register e{ "integral", TestBackend::Register::Access::rw,
-                           expected };
+  auto data = e.read<int>();
 
-  /*
-    auto data = e.read<int>();
-    BOOST_CHECK(expected == data);
-  */
+  BOOST_CHECK(expected == data);
+}
+
+template <typename To, typename From>
+std::vector<std::vector<To> > convert(std::vector<std::vector<From> > i) {
+  std::vector<std::vector<To> > result;
+  for (auto const& row : i) {
+    result.emplace_back(std::vector<To>{});
+    for (auto const& elem : row) {
+      result.back().push_back(static_cast<To>(elem));
+    }
+  }
+  return result;
 }

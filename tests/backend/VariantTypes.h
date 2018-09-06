@@ -28,65 +28,66 @@
  *     std::string
  */
 class IntegralType {
-  int64_t value{};
+  int64_t value{0};
 
 public:
   IntegralType() = default;
   template <typename T> IntegralType(T numeric) : value(numeric) {}
-  operator auto() { return value; }
+  operator auto() const { return value; }
 
   IntegralType(std::string) {
     throw std::logic_error("invalid conversion: string -> integer");
   }
-  operator std::string() {
+  operator std::string()  const{
     throw std::logic_error("invalid conversion: integer - > string");
   }
 };
 
 class FloatingPointType {
-  double value{};
+  double value{0};
 
 public:
   FloatingPointType() = default;
-  template <typename T> FloatingPointType(T numeric) : value(numeric){};
-  operator auto() { return value; }
+
+  operator auto() const { return value; }
 
   FloatingPointType(std::string) {
     throw std::logic_error("invalid conversion: string - > floatingPoint");
   }
-  operator std::string() {
+  operator std::string() const {
     throw std::logic_error("invalid conversion: floatingPoint - > string");
   }
 };
 
 class BooleanType {
-  bool value;
+  bool value{false};
 
 public:
   BooleanType() = default;
   template <typename T> BooleanType(T numeric) : value(numeric) {}
-  operator auto() { return value; }
+  operator auto() const { return value; }
 
   BooleanType(std::string) {
     throw std::logic_error("invalid conversion: string - > bool");
   }
-  operator std::string() {
+  operator std::string() const {
     throw std::logic_error("invalid conversion: bool - > string");
   }
 };
 
 class StringType {
-  std::string value{};
+  std::string value{""};
 
 public:
   StringType() = default;
-  StringType(std::string s) : value(std::move(s)) {}
-  operator std::string() { return value; }
+  StringType(std::string const& s) : value(s) {}
+  operator std::string() const { return value; }
 
   template <typename T> StringType(T) {
     throw std::logic_error("invalid conversion to string");
   }
-  operator auto() {
+  template <typename T>
+  operator T() const{
     throw std::logic_error("invalid conversion from string type");
   }
 };

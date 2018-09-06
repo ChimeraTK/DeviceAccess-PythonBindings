@@ -70,18 +70,7 @@ public:
   };
 };
 
-//template std::vector<std::vector<int> > Register::read();
-//template std::vector<std::vector<int> > read();
-//template std::vector<std::vector<int> > read();
-//template std::vector<std::vector<int> > read();
-//template std::vector<std::vector<int> > read();
-//template std::vector<std::vector<int> > read();
-//template std::vector<std::vector<int> > read();
-//template std::vector<std::vector<int> > read();
-//template std::vector<std::vector<int> > read();
-//template std::vector<std::vector<int> > read();
-//template std::vector<std::vector<int> > read();
-//template std::vector<std::vector<int> > read();
+
 
 
 

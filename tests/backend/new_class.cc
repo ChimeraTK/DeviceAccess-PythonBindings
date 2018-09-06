@@ -68,7 +68,6 @@ Register::~Register() = default;
 /*****************************************************************************/
 template <typename UserType>
 std::vector<std::vector<UserType>> Register::read(){
-/*
   auto &elementStore = impl_->elementStore_;
   auto convert = [](auto& e){return static_cast<UserType>(e);};
   std::vector<std::vector<UserType>> result;
@@ -80,7 +79,6 @@ std::vector<std::vector<UserType>> Register::read(){
     }
   }
   return result;
-*/
 }
 
 /*****************************************************************************/
@@ -89,21 +87,21 @@ ElementStore getDefaultElementStore(Register::Type t, Register::Shape s) {
     case Register::Type::Bool:
       return ElementStore(
           s.rows, //
-          std::vector<Element>(s.columns, static_cast<BooleanType>(false)));
+          std::vector<Element>(s.columns, BooleanType()));
 
     case Register::Type::FloatingPoint:
       return ElementStore(
           s.rows, //
-          std::vector<Element>(s.columns, static_cast<FloatingPointType>(0.0)));
+          std::vector<Element>(s.columns, FloatingPointType()));
 
     case Register::Type::Integer:
       return ElementStore(s.rows, //
-                          std::vector<Element>(s.columns, static_cast<IntegralType>(0)));
+                          std::vector<Element>(s.columns, IntegralType()));
 
     case Register::Type::String:
       return ElementStore(
           s.rows, //
-          std::vector<Element>(s.columns, static_cast<StringType>("")));
+          std::vector<Element>(s.columns, Element{StringType()}));
   }
   return ElementStore();
 }
@@ -124,7 +122,8 @@ std::vector<std::vector<T> > pad(std::vector<std::vector<T> > input) {
 }
 
 /*****************************************************************************/
-// template specilization
+// template specilizations
+/*****************************************************************************/
 template std::vector<std::vector<IntegralType> > //
 pad(std::vector<std::vector<IntegralType> > v);
 template std::vector<std::vector<FloatingPointType> > //
@@ -151,4 +150,17 @@ template Register::Register(std::string const& name, Register::Access access,
                             std::vector<std::vector<BooleanType> > data);
 template Register::Register(std::string const& name, Register::Access access,
                             std::vector<std::vector<StringType> > data);
+
+template std::vector<std::vector<int> > Register::read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
 } // namespace TestBackend
