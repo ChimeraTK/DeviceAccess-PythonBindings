@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "VariantTypes.h"
+
 namespace TestBackend {
 
 class Register {
@@ -16,7 +18,7 @@ public:
   struct Window;
   struct Shape;
   enum class Access { rw, ro, wo };
-  enum class Type { Int, Double, String, Bool };
+  enum class Type { Integer, FloatingPoint, String, Bool };
 
   template <typename VariantType>
   Register(std::string const& name, //
@@ -80,6 +82,9 @@ public:
 //template std::vector<std::vector<int> > read();
 //template std::vector<std::vector<int> > read();
 //template std::vector<std::vector<int> > read();
+
+
+
 
 } // namespace TestBackend
 

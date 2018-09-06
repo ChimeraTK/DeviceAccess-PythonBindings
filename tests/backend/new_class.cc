@@ -5,12 +5,12 @@
  */
 
 #include "new_class.h"
-#include "VariantTypes.h"
 #include <boost/variant.hpp>
 
-IntegralType a;
-
-using Element = boost::variant<int, double, bool, std::string>;
+using Element = boost::variant<IntegralType,      //
+                               FloatingPointType, //
+                               BooleanType,       //
+                               StringType>;
 using ElementStore = std::vector<std::vector<Element> >;
 
 namespace TestBackend {
@@ -89,21 +89,21 @@ ElementStore getDefaultElementStore(Register::Type t, Register::Shape s) {
     case Register::Type::Bool:
       return ElementStore(
           s.rows, //
-          std::vector<Element>(s.columns, static_cast<bool>(false)));
+          std::vector<Element>(s.columns, static_cast<BooleanType>(false)));
 
-    case Register::Type::Double:
+    case Register::Type::FloatingPoint:
       return ElementStore(
           s.rows, //
-          std::vector<Element>(s.columns, static_cast<double>(0.0)));
+          std::vector<Element>(s.columns, static_cast<FloatingPointType>(0.0)));
 
-    case Register::Type::Int:
+    case Register::Type::Integer:
       return ElementStore(s.rows, //
-                          std::vector<Element>(s.columns, static_cast<int>(0)));
+                          std::vector<Element>(s.columns, static_cast<IntegralType>(0)));
 
     case Register::Type::String:
       return ElementStore(
           s.rows, //
-          std::vector<Element>(s.columns, static_cast<std::string>("")));
+          std::vector<Element>(s.columns, static_cast<StringType>("")));
   }
   return ElementStore();
 }
@@ -125,30 +125,30 @@ std::vector<std::vector<T> > pad(std::vector<std::vector<T> > input) {
 
 /*****************************************************************************/
 // template specilization
-template std::vector<std::vector<int> > //
-pad(std::vector<std::vector<int> > v);
-template std::vector<std::vector<bool> > //
-pad(std::vector<std::vector<bool> > v);
-template std::vector<std::vector<double> > //
-pad(std::vector<std::vector<double> > v);
-template std::vector<std::vector<std::string> > //
-pad(std::vector<std::vector<std::string> > v);
+template std::vector<std::vector<IntegralType> > //
+pad(std::vector<std::vector<IntegralType> > v);
+template std::vector<std::vector<FloatingPointType> > //
+pad(std::vector<std::vector<FloatingPointType> > v);
+template std::vector<std::vector<BooleanType> > //
+pad(std::vector<std::vector<BooleanType> > v);
+template std::vector<std::vector<StringType> > //
+pad(std::vector<std::vector<StringType> > v);
 
 template Register::Impl::Impl(std::string const& name, Access mode,
-                              std::vector<std::vector<bool> > data);
+                              std::vector<std::vector<IntegralType> > data);
 template Register::Impl::Impl(std::string const& name, Access mode,
-                              std::vector<std::vector<int> > data);
+                              std::vector<std::vector<FloatingPointType> > data);
 template Register::Impl::Impl(std::string const& name, Access mode,
-                              std::vector<std::vector<double> > data);
+                              std::vector<std::vector<BooleanType> > data);
 template Register::Impl::Impl(std::string const& name, Access mode,
-                              std::vector<std::vector<std::string> > data);
+                              std::vector<std::vector<StringType> > data);
 
 template Register::Register(std::string const& name, Register::Access access,
-                            std::vector<std::vector<bool> > data);
+                            std::vector<std::vector<IntegralType> > data);
 template Register::Register(std::string const& name, Register::Access access,
-                            std::vector<std::vector<int> > data);
+                            std::vector<std::vector<FloatingPointType> > data);
 template Register::Register(std::string const& name, Register::Access access,
-                            std::vector<std::vector<double> > data);
+                            std::vector<std::vector<BooleanType> > data);
 template Register::Register(std::string const& name, Register::Access access,
-                            std::vector<std::vector<std::string> > data);
+                            std::vector<std::vector<StringType> > data);
 } // namespace TestBackend
