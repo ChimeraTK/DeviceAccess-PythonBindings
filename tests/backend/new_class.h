@@ -20,7 +20,7 @@ public:
 
   template <typename VariantType>
   Register(std::string const& name, //
-           Access mode,             //
+           Access access,             //
            std::vector<std::vector<VariantType> > data);
 
   Register(std::string const& name, //
@@ -67,4 +67,19 @@ public:
     void write(std::vector<std::vector<UserType> >& d);
   };
 };
+
+//template std::vector<std::vector<int> > Register::read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+//template std::vector<std::vector<int> > read();
+
 } // namespace TestBackend
+

@@ -53,6 +53,7 @@ set(source_headers
       register_access.h
       test_catalogue.h
       new_class.h
+      VariantTypes.h
       register_list.h)
 
 #
