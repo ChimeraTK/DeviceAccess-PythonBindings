@@ -18,11 +18,11 @@ public:
   struct Window;
   struct Shape;
   enum class Access { rw, ro, wo };
-  enum class Type { Integer, FloatingPoint, String, Bool };
+  enum class Type { Integer=0, FloatingPoint, Bool , String};
 
   template <typename VariantType>
   Register(std::string const& name, //
-           Access access,             //
+           Access access,           //
            std::vector<std::vector<VariantType> > data);
 
   Register(std::string const& name, //
@@ -51,6 +51,9 @@ public:
   struct Shape {
     size_t rows;
     size_t columns;
+
+    bool operator==(Shape const& rhs);
+    bool operator!=(Shape const& rhs);
   };
   struct Window {
     Shape shape;
@@ -70,10 +73,4 @@ public:
   };
 };
 
-
-
-
-
-
 } // namespace TestBackend
-

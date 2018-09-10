@@ -32,7 +32,7 @@ class IntegralType {
 
 public:
   IntegralType() = default;
-  template <typename T> IntegralType(T numeric) : value(numeric) {}
+  template <typename T> IntegralType(T const& numeric) : value(numeric) {}
   operator auto() const { return value; }
 
   IntegralType(std::string) {
@@ -48,7 +48,7 @@ class FloatingPointType {
 
 public:
   FloatingPointType() = default;
-
+  template <typename T> FloatingPointType(T const& numeric) : value(numeric) {}
   operator auto() const { return value; }
 
   FloatingPointType(std::string) {
@@ -64,7 +64,7 @@ class BooleanType {
 
 public:
   BooleanType() = default;
-  template <typename T> BooleanType(T numeric) : value(numeric) {}
+  template <typename T> BooleanType(T const &numeric) : value(numeric) {}
   operator auto() const { return value; }
 
   BooleanType(std::string) {
