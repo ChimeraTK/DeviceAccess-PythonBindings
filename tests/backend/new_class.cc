@@ -83,6 +83,8 @@ Register::Register(std::string const& name, //
     : impl_(std::make_unique<Impl>(name, access, pad(data))) {}
 
 /*****************************************************************************/
+ Register::Register(Register&& r):impl_(std::move(r.impl_)){}
+/*****************************************************************************/
 // To get around the static assertion with unique ptr
 Register::~Register() = default;
 

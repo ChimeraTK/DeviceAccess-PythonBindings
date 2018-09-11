@@ -54,39 +54,87 @@ BOOST_AUTO_TEST_CASE(testGetShape) {
       std::logic_error);
 }
 
-BOOST_AUTO_TEST_CASE(testIntegralTypeConversions) {
-  auto r = TestBackend::Register{ "", TestBackend::Register::Access::rw,
-                                  TestBackend::Register::Type::Integer };
+BOOST_AUTO_TEST_CASE(testNumericTypeConversions) {
+  std::vector<TestBackend::Register> regList;
+  regList.emplace_back("",
+                       TestBackend::Register::Access::rw, //
+                       TestBackend::Register::Type::Integer);
+  regList.emplace_back("",
+                       TestBackend::Register::Access::rw, //
+                       TestBackend::Register::Type::FloatingPoint);
+  regList.emplace_back("",
+                       TestBackend::Register::Access::rw, //
+                       TestBackend::Register::Type::Bool);
 
- BOOST_CHECK_NO_THROW(r.write<int8_t>({{-2}}));
- BOOST_CHECK_NO_THROW(r.write<int16_t>({{-2}}));
- BOOST_CHECK_NO_THROW(r.write<int32_t>({{-2}}));
- BOOST_CHECK_NO_THROW(r.write<int64_t>({{-2}}));
- BOOST_CHECK_NO_THROW(r.write<uint8_t>({{2}}));
- BOOST_CHECK_NO_THROW(r.write<uint16_t>({{2}}));
- BOOST_CHECK_NO_THROW(r.write<uint32_t>({{2}}));
- BOOST_CHECK_NO_THROW(r.write<uint64_t>({{2}}));
- BOOST_CHECK_NO_THROW(r.write<float>({{2}}));
- BOOST_CHECK_NO_THROW(r.write<double>({{2}}));
- BOOST_CHECK_NO_THROW(r.write<bool>({{false}}));
- BOOST_CHECK_THROW(r.write<std::string>({{"test"}}), std::logic_error);
+  auto runTests = [](TestBackend::Register& r) {
+    BOOST_CHECK_NO_THROW(r.write<int8_t>({ { -2 } }));
+    BOOST_CHECK_NO_THROW(r.write<int16_t>({ { -2 } }));
+    BOOST_CHECK_NO_THROW(r.write<int32_t>({ { -2 } }));
+    BOOST_CHECK_NO_THROW(r.write<int64_t>({ { -2 } }));
+    BOOST_CHECK_NO_THROW(r.write<uint8_t>({ { 2 } }));
+    BOOST_CHECK_NO_THROW(r.write<uint16_t>({ { 2 } }));
+    BOOST_CHECK_NO_THROW(r.write<uint32_t>({ { 2 } }));
+    BOOST_CHECK_NO_THROW(r.write<uint64_t>({ { 2 } }));
+    BOOST_CHECK_NO_THROW(r.write<float>({ { 2.0 } }));
+    BOOST_CHECK_NO_THROW(r.write<double>({ { 2.7643 } }));
+    BOOST_CHECK_NO_THROW(r.write<bool>({ { false } }));
+    BOOST_CHECK_THROW(r.write<std::string>({ { "test" } }), std::logic_error);
 
- BOOST_CHECK_NO_THROW(r.read<int8_t>());
- BOOST_CHECK_NO_THROW(r.read<int16_t>());
- BOOST_CHECK_NO_THROW(r.read<int32_t>());
- BOOST_CHECK_NO_THROW(r.read<int64_t>());
- BOOST_CHECK_NO_THROW(r.read<uint8_t>());
- BOOST_CHECK_NO_THROW(r.read<uint16_t>());
- BOOST_CHECK_NO_THROW(r.read<uint32_t>());
- BOOST_CHECK_NO_THROW(r.read<uint64_t>());
- BOOST_CHECK_NO_THROW(r.read<float>());
- BOOST_CHECK_NO_THROW(r.read<double>());
- BOOST_CHECK_NO_THROW(r.read<bool>());
- BOOST_CHECK_THROW(r.read<std::string>(), std::logic_error);
+    BOOST_CHECK_NO_THROW(r.read<int8_t>());
+    BOOST_CHECK_NO_THROW(r.read<int16_t>());
+    BOOST_CHECK_NO_THROW(r.read<int32_t>());
+    BOOST_CHECK_NO_THROW(r.read<int64_t>());
+    BOOST_CHECK_NO_THROW(r.read<uint8_t>());
+    BOOST_CHECK_NO_THROW(r.read<uint16_t>());
+    BOOST_CHECK_NO_THROW(r.read<uint32_t>());
+    BOOST_CHECK_NO_THROW(r.read<uint64_t>());
+    BOOST_CHECK_NO_THROW(r.read<float>());
+    BOOST_CHECK_NO_THROW(r.read<double>());
+    BOOST_CHECK_NO_THROW(r.read<bool>());
+    BOOST_CHECK_THROW(r.read<std::string>(), std::logic_error);
+  };
+  for (auto& reg : regList) {
+    runTests(reg);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(testStringTypeConversions) {
+  auto r = TestBackend::Register{
+    "",                                 //
+    TestBackend::Register::Access::rw,  //
+    TestBackend::Register::Type::String //
+  };
+
+  BOOST_CHECK_THROW(r.write<int8_t>({ { 2 } }), std::logic_error);
+  BOOST_CHECK_THROW(r.write<int16_t>({ { 2 } }), std::logic_error);
+  BOOST_CHECK_THROW(r.write<int32_t>({ { 2 } }), std::logic_error);
+  BOOST_CHECK_THROW(r.write<uint8_t>({ { 2 } }), std::logic_error);
+  BOOST_CHECK_THROW(r.write<uint16_t>({ { 2 } }), std::logic_error);
+  BOOST_CHECK_THROW(r.write<uint32_t>({ { 2 } }), std::logic_error);
+  BOOST_CHECK_THROW(r.write<uint64_t>({ { 2 } }), std::logic_error);
+  BOOST_CHECK_THROW(r.write<float>({ { 2 } }), std::logic_error);
+  BOOST_CHECK_THROW(r.write<double>({ { 2 } }), std::logic_error);
+  BOOST_CHECK_THROW(r.write<bool>({ { false } }), std::logic_error);
+  BOOST_CHECK_NO_THROW(r.write<std::string>({ { "test" } }));
+
+  BOOST_CHECK_THROW(r.read<int8_t>(), std::logic_error);
+  BOOST_CHECK_THROW(r.read<int16_t>(), std::logic_error);
+  BOOST_CHECK_THROW(r.read<int32_t>(), std::logic_error);
+  BOOST_CHECK_THROW(r.read<uint8_t>(), std::logic_error);
+  BOOST_CHECK_THROW(r.read<uint16_t>(), std::logic_error);
+  BOOST_CHECK_THROW(r.read<uint32_t>(), std::logic_error);
+  BOOST_CHECK_THROW(r.read<uint64_t>(), std::logic_error);
+  BOOST_CHECK_THROW(r.read<float>(), std::logic_error);
+  BOOST_CHECK_THROW(r.read<double>(), std::logic_error);
+  BOOST_CHECK_THROW(r.read<bool>(), std::logic_error);
+  BOOST_CHECK_NO_THROW(r.read<std::string>());
+
+
 }
 
 template <typename To, typename From>
-std::vector<std::vector<To> > convert(std::vector<std::vector<From> > const& i) {
+std::vector<std::vector<To> > convert(
+    std::vector<std::vector<From> > const& i) {
   std::vector<std::vector<To> > result;
   for (auto const& row : i) {
     result.emplace_back(std::vector<To>{});

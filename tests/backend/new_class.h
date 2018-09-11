@@ -30,6 +30,7 @@ public:
            Type type,               //
            Shape shape = {1,1});
 
+  Register(Register&& r);
   ~Register();
 
   template <typename UserType> //
