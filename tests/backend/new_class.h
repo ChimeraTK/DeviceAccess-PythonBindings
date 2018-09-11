@@ -28,7 +28,7 @@ public:
   Register(std::string const& name, //
            Access mode,             //
            Type type,               //
-           Shape shape);
+           Shape shape = {1,1});
 
   ~Register();
 

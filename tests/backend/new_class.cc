@@ -143,7 +143,7 @@ Register::Shape Register::getShape() {
 }
 
 /*****************************************************************************/
-Register::Access getAccessMode() { return impl_->access_; }
+Register::Access Register::getAccessMode() { return impl_->access_; }
 
 /*****************************************************************************/
 template <typename UserType>
