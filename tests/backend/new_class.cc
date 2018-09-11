@@ -23,7 +23,7 @@ template <typename UserType>
 Register::Shape extractShape(std::vector<std::vector<UserType> > const& d);
 
 /***************************************************************************/
-template <typename T> Element castToVariantType(Register::Type t, T& value);
+template <typename T> Element castToVariantType(Register::Type t, T&& value);
 
 struct Register::Impl {
 
@@ -35,8 +35,8 @@ struct Register::Impl {
         access_(static_cast<Access>(access)) {
 
     if (!isValidShape(extractShape(data))) {
-      std::logic_error("Invalid register shape requested; register must "
-                       "accomodate at least one element");
+      throw std::logic_error("Invalid register shape requested; register must "
+                             "accomodate at least one element");
     }
     for (auto& row : data) {
       elementStore_.emplace_back(std::vector<Element>{});
@@ -51,8 +51,8 @@ struct Register::Impl {
       : name_(name), access_(static_cast<Access>(access)), elementStore_() {
 
     if (!isValidShape(shape)) {
-      std::logic_error("Invalid register shape requested; register must "
-                       "accomodate at least one element");
+      throw std::logic_error("Invalid register shape requested; register must "
+                             "accomodate at least one element");
     }
     elementStore_ = getElementStoreDefaults(type, shape);
   }
@@ -113,7 +113,7 @@ std::vector<std::vector<UserType> > Register::read() {
 
 /*****************************************************************************/
 template <typename T> //
-void Register::write(std::vector<std::vector<T> > data) {
+void Register::write(std::vector<std::vector<T> > const& data) {
 
   auto& elementStore = impl_->elementStore_;
   auto registerType = getType();
@@ -190,16 +190,16 @@ std::vector<std::vector<T> > pad(std::vector<std::vector<T> > input) {
 }
 
 /***************************************************************************/
-template <typename T> Element castToVariantType(Register::Type t, T& value) {
+template <typename T> Element castToVariantType(Register::Type t, T&& value) {
   switch (t) {
     case Register::Type::Integer:
-      return static_cast<IntegralType>(value);
+      return static_cast<IntegralType>(std::forward<T>(value));
     case Register::Type::FloatingPoint:
-      return static_cast<FloatingPointType>(value);
+      return static_cast<FloatingPointType>(std::forward<T>(value));
     case Register::Type::Bool:
-      return static_cast<BooleanType>(value);
+      return static_cast<BooleanType>(std::forward<T>(value));
     case Register::Type::String:
-      return static_cast<StringType>(value);
+      return static_cast<StringType>(std::forward<T>(value));
   }
 }
 
@@ -234,18 +234,30 @@ template Register::Register(std::string const& name, Register::Access access,
 template Register::Register(std::string const& name, Register::Access access,
                             std::vector<std::vector<StringType> > data);
 
-template std::vector<std::vector<int> > Register::read();
-// template std::vector<std::vector<int> > read();
-// template std::vector<std::vector<int> > read();
-// template std::vector<std::vector<int> > read();
-// template std::vector<std::vector<int> > read();
-// template std::vector<std::vector<int> > read();
-// template std::vector<std::vector<int> > read();
-// template std::vector<std::vector<int> > read();
-// template std::vector<std::vector<int> > read();
-// template std::vector<std::vector<int> > read();
-// template std::vector<std::vector<int> > read();
-// template std::vector<std::vector<int> > read();
+template std::vector<std::vector<int8_t> > Register::read();
+template std::vector<std::vector<int16_t> > Register::read();
+template std::vector<std::vector<int32_t> > Register::read();
+template std::vector<std::vector<int64_t> > Register::read();
+template std::vector<std::vector<uint8_t> > Register::read();
+template std::vector<std::vector<uint16_t> > Register::read();
+template std::vector<std::vector<uint32_t> > Register::read();
+template std::vector<std::vector<uint64_t> > Register::read();
+template std::vector<std::vector<float> > Register::read();
+template std::vector<std::vector<double> > Register::read();
+template std::vector<std::vector<bool> > Register::read();
+template std::vector<std::vector<std::string> > Register::read();
 
-template void Register::write(std::vector<std::vector<int> > data);
+template void Register::write(std::vector<std::vector<int8_t> > const& data);
+template void Register::write(std::vector<std::vector<int16_t> > const& data);
+template void Register::write(std::vector<std::vector<int32_t> > const& data);
+template void Register::write(std::vector<std::vector<int64_t> > const& data);
+template void Register::write(std::vector<std::vector<uint8_t> > const& data);
+template void Register::write(std::vector<std::vector<uint16_t> > const& data);
+template void Register::write(std::vector<std::vector<uint32_t> > const& data);
+template void Register::write(std::vector<std::vector<uint64_t> > const& data);
+template void Register::write(std::vector<std::vector<float> > const& data);
+template void Register::write(std::vector<std::vector<double> > const& data);
+template void Register::write(std::vector<std::vector<bool> > const& data);
+template void Register::write( //
+    std::vector<std::vector<std::string> > const& data);
 } // namespace TestBackend

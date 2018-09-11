@@ -36,7 +36,7 @@ public:
   std::vector<std::vector<UserType> > read();
 
   template <typename UserType> //
-  void write(std::vector<std::vector<UserType> > data);
+  void write(std::vector<std::vector<UserType> > const & data);
 
   std::string getName();
 
