@@ -1,45 +1,48 @@
 #include "PythonExceptions.h"
 #include "PythonModuleMethods.h"
-#include <mtca4u/Device.h>
-#include <mtca4u/Utilities.h>
+#include <ChimeraTK/Device.h>
+#include <ChimeraTK/Utilities.h>
 
 namespace mtca4upy {
 namespace DeviceAccess {
 
-  mtca4u::TwoDRegisterAccessor<float> getTwoDAccessor(
-      const mtca4u::Device& self, const std::string& registerPath) {
+  ChimeraTK::TwoDRegisterAccessor<float> getTwoDAccessor(
+      const ChimeraTK::Device& self, const std::string& registerPath) {
     return (self.getTwoDRegisterAccessor<float>(registerPath));
   }
 
-  void writeRaw(mtca4u::Device& self, uint32_t regOffset,
-                mtca4upy::NumpyObject dataToWrite, size_t bytesToWrite,
-                uint8_t bar) {
+  void writeRaw(ChimeraTK::Device& self, std::string const& registerName, //
+                uint32_t regOffset, mtca4upy::NumpyObject dataToWrite,
+                size_t bytesToWrite) {
     throwExceptionIfOutOfBounds(dataToWrite, bytesToWrite);
+
     if (extractDataType(dataToWrite) == INT32) {
+
       int32_t* dataPointer =
           reinterpret_cast<int32_t*>(extractDataPointer(dataToWrite));
-      self.writeArea(regOffset, dataPointer, bytesToWrite, bar);
-      // self.writeArea(regOffset, dataPointer, bytesToWrite, bar);
+
+      int wordsToWrite = bytesToWrite / 4;
+      std::vector<int32_t> data(dataPointer, dataPointer + wordsToWrite);
+      self.write(registerName, data, regOffset, { ChimeraTK::AccessMode::raw });
+
     } else {
       throw mtca4upy::ArrayElementTypeNotSupported(
           "Data format used is unsupported");
     }
   }
 
-  mtca4u::OneDRegisterAccessor<int32_t> getRawOneDAccessor(
-      const mtca4u::Device& self, const std::string& registerPath,
+  ChimeraTK::OneDRegisterAccessor<int32_t> getRawOneDAccessor(
+      const ChimeraTK::Device& self, const std::string& registerPath,
       size_t numberOfelementsToRead, size_t elementOffset) {
     return self.getOneDRegisterAccessor<int32_t>(
         registerPath, numberOfelementsToRead, elementOffset,
-        { mtca4u::AccessMode::raw });
+        { ChimeraTK::AccessMode::raw });
   }
 
-} // namespace mtca4upy::deviceAccess
-}
+} // namespace DeviceAccess
+} // namespace mtca4upy
 void mtca4upy::setDmapFile(const std::string& dmapFile) {
-  mtca4u::setDMapFilePath(dmapFile);
+  ChimeraTK::setDMapFilePath(dmapFile);
 }
 
-std::string mtca4upy::getDmapFile() {
-  return (mtca4u::getDMapFilePath());
-}
+std::string mtca4upy::getDmapFile() { return (ChimeraTK::getDMapFilePath()); }

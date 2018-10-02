@@ -1,8 +1,8 @@
 #ifndef REGISTERACCESSORWRAPPERFUNCTIONS_H_
 #define REGISTERACCESSORWRAPPERFUNCTIONS_H_
 
-#include <mtca4u/Device.h>
-#include <mtca4u/TwoDRegisterAccessor.h>
+#include <ChimeraTK/Device.h>
+#include <ChimeraTK/TwoDRegisterAccessor.h>
 #include "HelperFunctions.h"
 
 namespace mtca4upy {
@@ -13,7 +13,7 @@ namespace mtca4upy {
  * device is returned if both the  deviceIdentifier and mapFile parameters are
  * set to the same valid Map file.
  */
-boost::shared_ptr<mtca4u::Device> createDevice(
+boost::shared_ptr<ChimeraTK::Device> createDevice(
     const std::string &deviceIdentifier, const std::string &mapFile);
 
 /*
@@ -22,11 +22,11 @@ boost::shared_ptr<mtca4u::Device> createDevice(
  * set through the environment variable DMAP_PATH_ENV
  */
 
-boost::shared_ptr<mtca4u::Device> createDevice(const std::string &deviceAlias);
+boost::shared_ptr<ChimeraTK::Device> createDevice(const std::string &deviceAlias);
 
 namespace OneDAccessor {
   template <typename T>
-  void read(mtca4u::OneDRegisterAccessor<T> &self,
+  void read(ChimeraTK::OneDRegisterAccessor<T> &self,
             mtca4upy::NumpyObject &numpyArray){
 	  self.read();
       T* allocatedSpace =
@@ -37,7 +37,7 @@ namespace OneDAccessor {
   }
 
   template <typename T>
-  void write(mtca4u::OneDRegisterAccessor<T> &self,
+  void write(ChimeraTK::OneDRegisterAccessor<T> &self,
              mtca4upy::NumpyObject &numpyArray) {
     T *dataToWrite = reinterpret_cast<T *>(extractDataPointer(numpyArray));
     unsigned int numberOfElementsToWrite = self.getNElements();
@@ -48,14 +48,14 @@ namespace OneDAccessor {
   }
 
   template <typename T>
-  size_t getNumberOfElements(mtca4u::OneDRegisterAccessor<T> &self){
+  size_t getNumberOfElements(ChimeraTK::OneDRegisterAccessor<T> &self){
 	  return self.getNElements();
   }
 }
 
 namespace TwoDAccessor {
 template <typename T>
-void read(mtca4u::TwoDRegisterAccessor<T> &self,
+void read(ChimeraTK::TwoDRegisterAccessor<T> &self,
           mtca4upy::NumpyObject &numpyArray){
 
 	  self.read();
@@ -77,12 +77,12 @@ void read(mtca4u::TwoDRegisterAccessor<T> &self,
 }
 
 template <typename T>
-size_t getNChannels(mtca4u::TwoDRegisterAccessor<T> &self){
+size_t getNChannels(ChimeraTK::TwoDRegisterAccessor<T> &self){
 	  return self.getNChannels();
 }
 
 template <typename T>
-size_t getNElementsPerChannel(mtca4u::TwoDRegisterAccessor<T> &self){
+size_t getNElementsPerChannel(ChimeraTK::TwoDRegisterAccessor<T> &self){
 	  return self.getNElementsPerChannel();
 }
 
@@ -90,24 +90,24 @@ size_t getNElementsPerChannel(mtca4u::TwoDRegisterAccessor<T> &self){
 
 
 namespace DeviceAccess {
-  mtca4u::TwoDRegisterAccessor<float> getTwoDAccessor(
-      const mtca4u::Device &self, const std::string &registerPath);
+  ChimeraTK::TwoDRegisterAccessor<float> getTwoDAccessor(
+      const ChimeraTK::Device &self, const std::string &registerPath);
 
   template <typename T>
-  mtca4u::OneDRegisterAccessor<T> getOneDAccessor(
-      const mtca4u::Device& self, const std::string& registerPath,
+  ChimeraTK::OneDRegisterAccessor<T> getOneDAccessor(
+      const ChimeraTK::Device& self, const std::string& registerPath,
       size_t numberOfelementsToRead, size_t elementOffset) {
     return self.getOneDRegisterAccessor<T>(registerPath, numberOfelementsToRead,
                                            elementOffset);
   }
 
-  mtca4u::OneDRegisterAccessor<int32_t> getRawOneDAccessor(
-      const mtca4u::Device &self, const std::string &registerPath,
+  ChimeraTK::OneDRegisterAccessor<int32_t> getRawOneDAccessor(
+      const ChimeraTK::Device &self, const std::string &registerPath,
       size_t numberOfelementsToRead, size_t elementOffset);
 
-  void writeRaw(mtca4u::Device &self, uint32_t regOffset,
-                mtca4upy::NumpyObject dataToWrite, size_t bytesToWrite,
-                uint8_t bar);
+  void writeRaw(ChimeraTK::Device& self, std::string const& registerName, //
+                uint32_t regOffset, mtca4upy::NumpyObject dataToWrite,
+                size_t bytesToWrite);
 
 } // namespace mtca4upy::deviceAccess
 
