@@ -17,6 +17,6 @@ register_tests( SOURCES ${list_of_sources}
                 INCLUDES ${CMAKE_CURRENT_LIST_DIR} 
                          ${backend_source_dir}
                 DEPENDS ${library_name}
-                        ${mtca4u-deviceaccess_LIBRARIES}
+                        ${ChimeraTK-DeviceAccess_LIBRARIES}
                 COMPILE_OPTIONS 
-                        ${mtca4u-deviceaccess_CXX_FLAGS})
+                        ${ChimeraTK-DeviceAccess_CXX_FLAGS})

@@ -128,8 +128,6 @@ BOOST_AUTO_TEST_CASE(testStringTypeConversions) {
   BOOST_CHECK_THROW(r.read<double>(), std::logic_error);
   BOOST_CHECK_THROW(r.read<bool>(), std::logic_error);
   BOOST_CHECK_NO_THROW(r.read<std::string>());
-
-
 }
 
 template <typename To, typename From>

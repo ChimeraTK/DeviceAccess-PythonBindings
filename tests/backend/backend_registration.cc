@@ -1,6 +1,6 @@
-#include <mtca4u/DeviceBackendImpl.h>
-#include <mtca4u/BackendFactory.h>
-#include <mtca4u/DeviceAccessVersion.h>
+#include <ChimeraTK/DeviceBackendImpl.h>
+#include <ChimeraTK/BackendFactory.h>
+#include <ChimeraTK/DeviceAccessVersion.h>
 
 #include "backend.h"
 
@@ -17,7 +17,7 @@ private:
 };
 
 BackendRegisterer::BackendRegisterer() {
-  mtca4u::BackendFactory::getInstance().registerBackendType(
+  ChimeraTK::BackendFactory::getInstance().registerBackendType(
       "TestBackend", "", &BackendRegisterer::createBackend,
       CHIMERATK_DEVICEACCESS_VERSION);
 }

@@ -9,7 +9,7 @@
 #define REGISTER_LIST_H_
 
 #include <vector>
-#include <mtca4u/RegisterCatalogue.h>
+#include <ChimeraTK/RegisterCatalogue.h>
 #include "register_access.h"
 
 namespace TestBackend {
@@ -17,7 +17,7 @@ namespace TestBackend {
 using RegisterList = std::vector<DBaseElem>;
 
 RegisterList getRegisterList();
-mtca4u::RegisterCatalogue getRegisterCatalogue(RegisterList const& l);
+ChimeraTK::RegisterCatalogue getRegisterCatalogue(RegisterList const& l);
 DBaseElem& search(RegisterList & l, std::string const& id);
 
 } // namespace TestBackend

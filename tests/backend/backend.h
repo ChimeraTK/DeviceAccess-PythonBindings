@@ -1,7 +1,7 @@
 #ifndef TEST_BACKEND_H
 #define TEST_BACKEND_H
 
-#include <mtca4u/DeviceBackendImpl.h>
+#include <ChimeraTK/DeviceBackendImpl.h>
 #include "register_list.h"
 
 namespace TestBackend {

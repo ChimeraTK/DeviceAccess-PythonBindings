@@ -12,8 +12,7 @@ set(library_name test_backend)
 # be overridden from the parent project
 ###############################################################################
 set(min_req_mtca4u-deviceaccess_version "" CACHE STRING "")
-find_package(mtca4u-deviceaccess 
-  ${min_req_mtca4u-deviceaccess_version} REQUIRED)
+find_package(ChimeraTK-DeviceAccess ${min_req_chimeratk_version} REQUIRED)
 find_package(Boost COMPONENTS system REQUIRED)
 
 #
@@ -27,7 +26,7 @@ find_package(Boost COMPONENTS system REQUIRED)
 # Would need to convert the string to a list before using with
 # target_compile_options. seperate_arguments can do this for us.
 ##############################################################################
-separate_arguments(mtca4u-deviceaccess_CXX_FLAGS)
+separate_arguments(ChimeraTK-DeviceAccess_CXX_FLAGS)
 
 if (ENABLE_TESTING)
   #
@@ -77,7 +76,7 @@ target_link_libraries(test_backend
 
 target_compile_options(${library_name}
   PRIVATE
-      ${mtca4u-deviceaccess_CXX_FLAGS}
+     ${ChimeraTK-DeviceAccess_CXX_FLAGS}
       -Wall
       -Weffc++
       -Wpedantic

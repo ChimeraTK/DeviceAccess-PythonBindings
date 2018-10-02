@@ -18,7 +18,7 @@ initialize()
 set(${PROJECT_NAME}_MAJOR_VERSION 01)
 set(${PROJECT_NAME}_MINOR_VERSION 01)
 set(${PROJECT_NAME}_PATCH_VERSION 01)
-set(min_req_mtca4u-deviceaccess_version "00.27" CACHE STRING "")
+set(min_req_chimeratk_version "00.27" CACHE STRING "")
 
 #
 # Build up the project version name
@@ -51,7 +51,7 @@ get_boost_python_component_name(PYTHONLIBS_VERSION_STRING boost_python)
 find_package(Boost REQUIRED COMPONENTS ${boost_python})
 
 find_package(NumPy REQUIRED)
-find_package(mtca4u-deviceaccess ${min_req_mtca4u-deviceaccess_version} REQUIRED)
+find_package(ChimeraTK-DeviceAccess ${min_req_chimeratk_version} REQUIRED)
 #==============================================================================#
 
 # Set the build type to Release if none is specified
@@ -75,7 +75,7 @@ endif(SUPPORTED_SPHINX_VERSION_AVAILABLE)
 #
 # Set the compiler flags.
 set(${PROJECT_NAME}_CXX_FLAGS 
-   "${${PROJECT_NAME}_CXX_FLAGS} ${mtca4u-deviceaccess_CXX_FLAGS}")
+   "${${PROJECT_NAME}_CXX_FLAGS} ${ChimeraTK-DeviceAccess_CXX_FLAGS}")
 
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${PROJECT_NAME}_CXX_FLAGS} -Wall -fPIC -Weffc++ -Wextra -Wshadow -pedantic -Wuninitialized")
 
@@ -96,7 +96,7 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIRS}
                            ${PYTHON_INCLUDE_DIR} 
                            ${NUMPY_INCLUDE_DIRS} 
                            ${CMAKE_SOURCE_DIR}
-                           ${mtca4u-deviceaccess_INCLUDE_DIRS})
+                           ${ChimeraTK-DeviceAccess_INCLUDE_DIRS})
 
 #
 # Define the build target for python module 
@@ -105,7 +105,7 @@ add_library(${boost_python_core_module} SHARED deviceaccessPython.cc
                                                DeviceAccess.cc)
                                          
 target_link_libraries(${boost_python_core_module} 
-                      ${mtca4u-deviceaccess_LIBRARIES} 
+                      ${ChimeraTK-DeviceAccess_LIBRARIES} 
                       ${PYTHON_LIBRARIES} 
                       ${Boost_LIBRARIES})
                   
@@ -156,13 +156,13 @@ set(${PROJECT_NAME}_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/mtca4u
                                   ${Boost_INCLUDE_DIRS}
                                   ${PYTHON_INCLUDE_DIR}
                                   ${NUMPY_INCLUDE_DIRS}
-                                  ${mtca4u-deviceaccess_INCLUDE_DIRS}")
-set(${PROJECT_NAME}_LIBRARIES "${mtca4u-deviceaccess_LIBRARIES}
+                                  ${ChimeraTK-DeviceAccess_INCLUDE_DIRS}")
+set(${PROJECT_NAME}_LIBRARIES "${ChimeraTK-DeviceAccess_LIBRARIES}
                                ${PYTHON_LIBRARIES}
                                ${NUMPY_LIBRARIES}
                                ${Boost_LIBRARIES}")
 set(${PROJECT_NAME}_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib
-                                  ${mtca4u-deviceaccess_LIBRARY_DIRS}
+                                  ${ChimeraTK-DeviceAccess_LIBRARY_DIRS}
                                   ${PYTHON_LIBRARY_DIRS}
                                   ${NUMPY_LIBRARY_DIRS}
                                   ${Boost_LIBRARY_DIRS}")

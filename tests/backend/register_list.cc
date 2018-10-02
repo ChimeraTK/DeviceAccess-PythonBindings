@@ -1,22 +1,24 @@
-#include "register_list.h"
 #include <limits>
+#include<boost/shared_ptr.hpp>
+#include "register_list.h"
+
 
 namespace TestBackend {
 
 
-class TBRegisterInfo : public mtca4u::RegisterInfo {
-  mtca4u::RegisterPath name_;
+class TBRegisterInfo : public ChimeraTK::RegisterInfo {
+  ChimeraTK::RegisterPath name_;
   std::size_t elements_;
   std::size_t channels_;
   std::size_t dimensions_;
   DataDescriptor descriptor_;
 
 public:
-  TBRegisterInfo(mtca4u::RegisterPath name, //
+  TBRegisterInfo(ChimeraTK::RegisterPath name, //
                  std::size_t elements,      //
                  std::size_t channels,      //
                  std::size_t dimensions,    //
-                 mtca4u::RegisterInfo::DataDescriptor descriptor)
+                 ChimeraTK::RegisterInfo::DataDescriptor descriptor)
       : name_(std::move(name)),
         elements_(elements),
         channels_(channels),
@@ -30,7 +32,7 @@ public:
   TBRegisterInfo& operator=(TBRegisterInfo&& rhs) = default;
   virtual ~TBRegisterInfo() = default;
 
-  mtca4u::RegisterPath getRegisterName() const override { return name_; }
+  ChimeraTK::RegisterPath getRegisterName() const override { return name_; }
   unsigned int getNumberOfElements() const override { return elements_; }
   unsigned int getNumberOfChannels() const override { return channels_; }
   unsigned int getNumberOfDimensions() const override { return dimensions_; }
@@ -40,8 +42,8 @@ public:
 };
 
 boost::shared_ptr<TBRegisterInfo> getRegInfo(DBaseElem e);
-mtca4u::RegisterInfo::DataDescriptor createDescriptor(DBaseElem const& e);
-std::tuple<mtca4u::RegisterInfo::FundamentalType, bool, bool, std::size_t,
+ChimeraTK::RegisterInfo::DataDescriptor createDescriptor(DBaseElem const& e);
+std::tuple<ChimeraTK::RegisterInfo::FundamentalType, bool, bool, std::size_t,
            std::size_t>
 getTypeInfo(DBaseElem const& e);
 
@@ -92,8 +94,8 @@ RegisterList getRegisterList() {
   return l;
 }
 
-mtca4u::RegisterCatalogue getRegisterCatalogue(const RegisterList& l) {
-  mtca4u::RegisterCatalogue catalogue;
+ChimeraTK::RegisterCatalogue getRegisterCatalogue(const RegisterList& l) {
+  ChimeraTK::RegisterCatalogue catalogue;
   for (auto const& elem : l) {
     catalogue.addRegister(getRegInfo(elem));
   }
@@ -110,9 +112,9 @@ boost::shared_ptr<TBRegisterInfo> getRegInfo(DBaseElem e) {
                          e.getDimensions(),      //
                          createDescriptor(e)));
 }
-mtca4u::RegisterInfo::DataDescriptor createDescriptor(DBaseElem const& e) {
+ChimeraTK::RegisterInfo::DataDescriptor createDescriptor(DBaseElem const& e) {
 
-  mtca4u::RegisterInfo::FundamentalType type;
+  ChimeraTK::RegisterInfo::FundamentalType type;
   bool isIntegral;
   bool isSigned;
   std::size_t nDigits;
@@ -120,17 +122,17 @@ mtca4u::RegisterInfo::DataDescriptor createDescriptor(DBaseElem const& e) {
   std::tie(type, isIntegral, isSigned, nDigits, nFractionalDigits) =
       getTypeInfo(e);
 
-  return mtca4u::RegisterInfo::DataDescriptor(type, isIntegral, isSigned,
+  return ChimeraTK::RegisterInfo::DataDescriptor(type, isIntegral, isSigned,
                                               nDigits, nFractionalDigits);
 }
 
-std::tuple<mtca4u::RegisterInfo::FundamentalType, bool, bool, std::size_t,
+std::tuple<ChimeraTK::RegisterInfo::FundamentalType, bool, bool, std::size_t,
            std::size_t>
 getTypeInfo(DBaseElem const& e) {
 
   using Type_t = TestBackend::ElementType;
 
-  mtca4u::RegisterInfo::FundamentalType type;
+  ChimeraTK::RegisterInfo::FundamentalType type;
   bool isIntegral;
   bool isSigned;
   std::size_t nDigits;
@@ -139,7 +141,7 @@ getTypeInfo(DBaseElem const& e) {
   switch (TestBackend::type(e)) {
 
     case Type_t::Int:
-      type = mtca4u::RegisterInfo::FundamentalType::numeric;
+      type = ChimeraTK::RegisterInfo::FundamentalType::numeric;
       isIntegral = true;
       isSigned = true;
       nDigits = 10;
@@ -147,7 +149,7 @@ getTypeInfo(DBaseElem const& e) {
       break;
 
     case Type_t::Double:
-      type = mtca4u::RegisterInfo::FundamentalType::numeric;
+      type = ChimeraTK::RegisterInfo::FundamentalType::numeric;
       isIntegral = false;
       isSigned = true;
       nDigits = 309;
@@ -155,7 +157,7 @@ getTypeInfo(DBaseElem const& e) {
       break;
 
     case Type_t::Bool:
-      type = mtca4u::RegisterInfo::FundamentalType::boolean;
+      type = ChimeraTK::RegisterInfo::FundamentalType::boolean;
       isIntegral = true;
       isSigned = false;
       nDigits = 1;
@@ -163,7 +165,7 @@ getTypeInfo(DBaseElem const& e) {
       break;
 
     case Type_t::String:
-      type = mtca4u::RegisterInfo::FundamentalType::string;
+      type = ChimeraTK::RegisterInfo::FundamentalType::string;
       isIntegral = false;
       isSigned = false;
       nDigits = 0;
