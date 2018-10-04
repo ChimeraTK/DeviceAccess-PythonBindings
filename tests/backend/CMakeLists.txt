@@ -45,6 +45,7 @@ set(source_files
       backend_registration.cc
       register_access.cc
       new_class.cc
+      view.cc
       register_list.cc)
       
 set(source_headers

@@ -5,8 +5,11 @@
 #include "VariantTypes.h"
 #include "new_class.h"
 
+// example usage:
+// convertTo<int>(floatArray)
 template <typename To, typename From>
-std::vector<std::vector<To> > convert(std::vector<std::vector<From> > const& i);
+std::vector<std::vector<To> > convertTo(
+    std::vector<std::vector<From> > const& i);
 
 BOOST_AUTO_TEST_CASE(testRegisterRead) {
   auto values = std::vector<std::vector<IntegralType> >{ { 1, 3, 5 } };
@@ -14,7 +17,7 @@ BOOST_AUTO_TEST_CASE(testRegisterRead) {
                            TestBackend::Register::Access::rw, //
                            values };
 
-  auto expected = convert<int>(values);
+  auto expected = convertTo<int>(values);
   auto data = e.read<int>();
   BOOST_CHECK(expected == data);
 }
@@ -131,7 +134,7 @@ BOOST_AUTO_TEST_CASE(testStringTypeConversions) {
 }
 
 template <typename To, typename From>
-std::vector<std::vector<To> > convert(
+std::vector<std::vector<To> > convertTo(
     std::vector<std::vector<From> > const& i) {
   std::vector<std::vector<To> > result;
   for (auto const& row : i) {
