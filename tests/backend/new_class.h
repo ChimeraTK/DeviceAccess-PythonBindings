@@ -14,9 +14,9 @@ private:
   std::unique_ptr<Impl> impl_;
 
 public:
-  struct Window;
   class View;
   class Shape;
+  struct Window;
   enum class Access { rw, ro, wo };
   enum class Type { Integer = 0, FloatingPoint, Bool, String };
 
@@ -24,26 +24,24 @@ public:
   Register(std::string const &name, //
            Access access,           //
            std::vector<std::vector<VariantType>> data);
-
   Register(std::string const &name, //
            Access mode,             //
            Type type,               //
            Shape shape = {1, 1});
-
+  Register(Register const& r);
   Register(Register &&r);
   ~Register();
-
-  template <typename UserType> //
-  std::vector<std::vector<UserType>> read();
-
-  template <typename UserType> //
-  void write(std::vector<std::vector<UserType>> const &data);
 
   std::string getName();
   Shape getShape();
   Access getAccessMode();
   Type getType();
   View getView(Window w);
+
+  template <typename UserType> //
+  std::vector<std::vector<UserType>> read();
+  template <typename UserType> //
+  void write(std::vector<std::vector<UserType>> const &data);
 
   class Shape {
   private:
@@ -52,8 +50,8 @@ public:
 
   public:
     Shape(size_t rows, size_t columns);
-    size_t getRows(){return rows_;}
-    size_t getColumns(){return columns_;}
+    size_t rowSize() { return rows_; }
+    size_t columnSize() { return columns_; }
     bool operator==(Shape const &rhs);
     bool operator!=(Shape const &rhs);
   };
@@ -63,17 +61,19 @@ public:
     size_t column_offset;
   };
   class View {
+  private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+
   public:
     View(Register &r, Window w);
+    View(View const &v);
+    View(View &&v);
     ~View();
     template <typename UserType> //
     std::vector<std::vector<UserType>> read();
     template <typename UserType>
-    void write(std::vector<std::vector<UserType>> &d);
-
-  private:
-    struct Impl;
-    std::unique_ptr<Impl> impl_;
+    void write(std::vector<std::vector<UserType>> const &d);
   };
 };
 

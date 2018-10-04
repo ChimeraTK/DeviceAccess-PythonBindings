@@ -32,13 +32,13 @@ class IntegralType {
 
 public:
   IntegralType() = default;
-  template <typename T> IntegralType(T const& numeric) : value(numeric) {}
+  template <typename T> IntegralType(T const &numeric) : value(numeric) {}
   operator auto() const { return value; }
 
   IntegralType(std::string) {
     throw std::logic_error("invalid conversion: string -> integer");
   }
-  operator std::string()  const{
+  operator std::string() const {
     throw std::logic_error("invalid conversion: integer - > string");
   }
 };
@@ -48,7 +48,7 @@ class FloatingPointType {
 
 public:
   FloatingPointType() = default;
-  template <typename T> FloatingPointType(T const& numeric) : value(numeric) {}
+  template <typename T> FloatingPointType(T const &numeric) : value(numeric) {}
   operator auto() const { return value; }
 
   FloatingPointType(std::string) {
@@ -80,14 +80,17 @@ class StringType {
 
 public:
   StringType() = default;
-  StringType(std::string const& s) : value(s) {}
+  StringType(std::string const &s) : value(s) {}
+
   operator std::string() const { return value; }
 
   template <typename T> StringType(T) {
     throw std::logic_error("invalid conversion to string");
   }
-  template <typename T>
-  operator T() const{
+  template <typename T,
+            typename = std::enable_if_t<std::is_floating_point<T>::value ||
+                                        std::is_integral<T>::value>>
+  operator T() const {
     throw std::logic_error("invalid conversion from string type");
   }
 };
