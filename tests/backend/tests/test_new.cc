@@ -53,7 +53,6 @@ BOOST_AUTO_TEST_CASE(testRegisterCreation) {
 
        ));
 }
-
 BOOST_AUTO_TEST_CASE(testRegisterRead) {
   auto values = std::vector<std::vector<IntegralType>>{{1, 3, 5}};
   TestBackend::Register e{"integral",                        //
@@ -64,7 +63,6 @@ BOOST_AUTO_TEST_CASE(testRegisterRead) {
   auto data = e.read<int>();
   BOOST_CHECK(expected == data);
 }
-
 BOOST_AUTO_TEST_CASE(testRegisterWrite) {
   TestBackend::Register r{"integral",
                           TestBackend::Register::Access::rw,
@@ -78,7 +76,6 @@ BOOST_AUTO_TEST_CASE(testRegisterWrite) {
   BOOST_CHECK_THROW(r.write(std::vector<std::vector<int>>{{1, 2, 3, 4, 5}}),
                     std::runtime_error);
 }
-
 BOOST_AUTO_TEST_CASE(testGetShape) {
   auto r = TestBackend::Register{"",
                                  TestBackend::Register::Access::rw,
@@ -123,13 +120,13 @@ struct FixtureContent {
 };
 
 BOOST_FIXTURE_TEST_SUITE(fixtureTests, FixtureContent)
+
 BOOST_AUTO_TEST_CASE(testNumericTypeConversions) {
   std::vector<TestBackend::Register> numeric;
 
   std::copy_if(registerList.begin(), //
                registerList.end(),   //
-               std::back_inserter(numeric),
-               [](TestBackend::Register &r) {
+               std::back_inserter(numeric), [](TestBackend::Register &r) {
                  return r.getType() != TestBackend::Register::Type::String;
                });
 
@@ -165,61 +162,67 @@ BOOST_AUTO_TEST_CASE(testNumericTypeConversions) {
   }
 }
 
-BOOST_AUTO_TEST_SUITE_END()
-
 BOOST_AUTO_TEST_CASE(testStringTypeConversions) {
-  auto r = TestBackend::Register{
-      "",                                 //
-      TestBackend::Register::Access::rw,  //
-      TestBackend::Register::Type::String //
+  std::vector<TestBackend::Register> strings;
+
+  std::copy_if(registerList.begin(), //
+               registerList.end(),   //
+               std::back_inserter(strings), [](TestBackend::Register &r) {
+                 return r.getType() == TestBackend::Register::Type::String;
+               });
+
+  auto runTests = [](TestBackend::Register &r) {
+    BOOST_CHECK_THROW(r.write<int8_t>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(r.write<int16_t>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(r.write<int32_t>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(r.write<uint8_t>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(r.write<uint16_t>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(r.write<uint32_t>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(r.write<uint64_t>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(r.write<float>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(r.write<double>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(r.write<bool>({{false}}), std::logic_error);
+    BOOST_CHECK_NO_THROW(r.write<std::string>({{"test"}}));
+
+    BOOST_CHECK_THROW(r.read<int8_t>(), std::logic_error);
+    BOOST_CHECK_THROW(r.read<int16_t>(), std::logic_error);
+    BOOST_CHECK_THROW(r.read<int32_t>(), std::logic_error);
+    BOOST_CHECK_THROW(r.read<uint8_t>(), std::logic_error);
+    BOOST_CHECK_THROW(r.read<uint16_t>(), std::logic_error);
+    BOOST_CHECK_THROW(r.read<uint32_t>(), std::logic_error);
+    BOOST_CHECK_THROW(r.read<uint64_t>(), std::logic_error);
+    BOOST_CHECK_THROW(r.read<float>(), std::logic_error);
+    BOOST_CHECK_THROW(r.read<double>(), std::logic_error);
+    BOOST_CHECK_THROW(r.read<bool>(), std::logic_error);
+    BOOST_CHECK_NO_THROW(r.read<std::string>());
   };
-
-  BOOST_CHECK_THROW(r.write<int8_t>({{2}}), std::logic_error);
-  BOOST_CHECK_THROW(r.write<int16_t>({{2}}), std::logic_error);
-  BOOST_CHECK_THROW(r.write<int32_t>({{2}}), std::logic_error);
-  BOOST_CHECK_THROW(r.write<uint8_t>({{2}}), std::logic_error);
-  BOOST_CHECK_THROW(r.write<uint16_t>({{2}}), std::logic_error);
-  BOOST_CHECK_THROW(r.write<uint32_t>({{2}}), std::logic_error);
-  BOOST_CHECK_THROW(r.write<uint64_t>({{2}}), std::logic_error);
-  BOOST_CHECK_THROW(r.write<float>({{2}}), std::logic_error);
-  BOOST_CHECK_THROW(r.write<double>({{2}}), std::logic_error);
-  BOOST_CHECK_THROW(r.write<bool>({{false}}), std::logic_error);
-  BOOST_CHECK_NO_THROW(r.write<std::string>({{"test"}}));
-
-  BOOST_CHECK_THROW(r.read<int8_t>(), std::logic_error);
-  BOOST_CHECK_THROW(r.read<int16_t>(), std::logic_error);
-  BOOST_CHECK_THROW(r.read<int32_t>(), std::logic_error);
-  BOOST_CHECK_THROW(r.read<uint8_t>(), std::logic_error);
-  BOOST_CHECK_THROW(r.read<uint16_t>(), std::logic_error);
-  BOOST_CHECK_THROW(r.read<uint32_t>(), std::logic_error);
-  BOOST_CHECK_THROW(r.read<uint64_t>(), std::logic_error);
-  BOOST_CHECK_THROW(r.read<float>(), std::logic_error);
-  BOOST_CHECK_THROW(r.read<double>(), std::logic_error);
-  BOOST_CHECK_THROW(r.read<bool>(), std::logic_error);
-  BOOST_CHECK_NO_THROW(r.read<std::string>());
+  for (auto &reg : strings) {
+    runTests(reg);
+  }
 }
-
 BOOST_AUTO_TEST_CASE(testGetName) {
-  std::string regName = "testRegister";
-  auto r = TestBackend::Register{
-      regName,                            //
-      TestBackend::Register::Access::rw,  //
-      TestBackend::Register::Type::String //
-  };
-  BOOST_CHECK(regName == r.getName());
+  unsigned int i = 0;
+  for (auto &r : registerList) {
+    BOOST_CHECK(names[i] == r.getName());
+    i++;
+  }
 }
-
 BOOST_AUTO_TEST_CASE(testGetAccessMode) {
-  auto access = TestBackend::Register::Access::ro;
-  auto r = TestBackend::Register{
-      "",                                 //
-      access,                             //
-      TestBackend::Register::Type::String //
-  };
-  BOOST_CHECK(access == r.getAccessMode());
+  unsigned int i = 0;
+  for (auto &r : registerList) {
+    BOOST_CHECK(access[i] == r.getAccessMode());
+    i++;
+  }
+}
+BOOST_AUTO_TEST_CASE(testGetType) {
+  unsigned int i = 0;
+  for (auto &r : registerList) {
+    BOOST_CHECK(types[i] == r.getType());
+    i++;
+  }
 }
 
-BOOST_AUTO_TEST_CASE(testGetType) {}
+BOOST_AUTO_TEST_SUITE_END()
 
 template <typename To, typename From>
 std::vector<std::vector<To>>

@@ -1,6 +1,6 @@
 #include "new_class.h"
 #include <boost/variant.hpp>
-#include<iostream>
+#include <iostream>
 
 template <typename T> //
 using DataContainer = std::vector<std::vector<T>>;
@@ -13,6 +13,8 @@ using ElementStore = DataContainer<Element>;
 namespace TestBackend {
 
 ElementStore buildElementStore(Register::Type t, Register::Shape s);
+template <typename VariantType>
+ElementStore convertToElementStore(DataContainer<VariantType> &d);
 template <typename UserType>
 Element convertToElement(Register::Type t, UserType &&value);
 template <typename Type>
@@ -39,53 +41,41 @@ struct Register::Impl {
   Access access_;
   ElementStore elementStore_;
 
-  template <typename VariantType>
-  Impl(std::string const &name, Access access,
-       std::vector<std::vector<VariantType>> data);
-  Impl(std::string const &name, Access access, Type type, Shape shape);
+  Impl(std::string const &name, Access access, ElementStore e);
   static RegisterIterators getIterators(Register &r, Window &w);
 };
 struct Register::View::Impl {
   RegisterIterators it_;
   Impl(RegisterIterators const &i);
 };
-
 /*****************************************************************************/
 template <typename VariantType>
 Register::Register(std::string const &name, //
                    Register::Access access, //
                    DataContainer<VariantType> data)
-    : impl_(std::make_unique<Impl>(name, access, pad(data))) {}
-
-/*****************************************************************************/
-template <typename VariantType>
-Register::Impl::Impl(std::string const &name, Access access,
-                     DataContainer<VariantType> data)
-    : name_(name), //
-      access_(static_cast<Access>(access)), elementStore_() {
-  for (auto &row : data) {
-    elementStore_.emplace_back(std::vector<Element>{});
-    for (auto element : row) {
-      elementStore_.back().emplace_back(Element(element));
-    }
-  }
-}
+    : impl_(std::make_unique<Impl>(name, access,
+                                   convertToElementStore(pad(data)))) {}
 
 /*****************************************************************************/
 Register::Register(std::string const &name, //
                    Access access,           //
                    Type type,               //
                    Shape shape)
-    : impl_(std::make_unique<Impl>(name, access, type, shape)) {}
+    : impl_(std::make_unique<Impl>(name, access,
+                                   buildElementStore(type, shape))) {}
 
-/***************************************************************************/
-Register::Impl::Impl(std::string const &name, Access access, Type type,
-                     Shape shape)
-    : name_(name), access_(static_cast<Access>(access)),
-      elementStore_(buildElementStore(type, shape)) {}
+/*****************************************************************************/
+Register::Register(Register const &r)
+    : impl_(std::make_unique<Impl>(r.impl_->name_,   //
+                                   r.impl_->access_, //
+                                   r.impl_->elementStore_)) {}
 
 /*****************************************************************************/
 Register::Register(Register &&r) : impl_(std::move(r.impl_)) {}
+
+/*****************************************************************************/
+Register::Impl::Impl(std::string const &name, Access access, ElementStore e)
+    : name_(name), access_(access), elementStore_(e) {}
 
 /*****************************************************************************/
 Register::View::View(Register &r, Window w)
@@ -93,9 +83,6 @@ Register::View::View(Register &r, Window w)
   if (!isValidWindow(r.impl_->elementStore_, w)) {
     throw std::runtime_error("Window size is invalid for Register");
   }
-}
-Register::Register(Register const& r){
-
 }
 
 /*****************************************************************************/
@@ -290,6 +277,18 @@ bool isValidWindow(ElementStore &e, Register::Window &w) {
   return ((lastRowIndex < rowSize) && (lastColumnIndex < columnSize));
 }
 /****************************************************************************/
+template <typename VariantType>
+ElementStore convertToElementStore(DataContainer<VariantType> &d) {
+  ElementStore e;
+  for (auto &row : d) {
+    e.emplace_back(std::vector<Element>{});
+    for (auto element : row) {
+      e.back().emplace_back(Element(element));
+    }
+  }
+  return e;
+}
+/****************************************************************************/
 // template specilizations
 /****************************************************************************/
 template DataContainer<IntegralType> &pad(DataContainer<IntegralType> &v);
@@ -297,15 +296,6 @@ template DataContainer<FloatingPointType> &
 pad(DataContainer<FloatingPointType> &v);
 template DataContainer<BooleanType> &pad(DataContainer<BooleanType> &v);
 template DataContainer<StringType> &pad(DataContainer<StringType> &v);
-
-template Register::Impl::Impl(std::string const &name, Access mode,
-                              DataContainer<IntegralType> data);
-template Register::Impl::Impl(std::string const &name, Access mode,
-                              DataContainer<FloatingPointType> data);
-template Register::Impl::Impl(std::string const &name, Access mode,
-                              DataContainer<BooleanType> data);
-template Register::Impl::Impl(std::string const &name, Access mode,
-                              DataContainer<StringType> data);
 
 template Register::Register(std::string const &name, Register::Access access,
                             DataContainer<IntegralType> data);
