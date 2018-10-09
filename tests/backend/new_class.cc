@@ -45,8 +45,9 @@ struct Register::Impl {
   static RegisterIterators getIterators(Register &r, Window &w);
 };
 struct Register::View::Impl {
+  Register &r_;
   RegisterIterators it_;
-  Impl(RegisterIterators const &i);
+  Impl(Register &r, RegisterIterators const &i);
 };
 /*****************************************************************************/
 template <typename VariantType>
@@ -79,18 +80,19 @@ Register::Impl::Impl(std::string const &name, Access access, ElementStore e)
 
 /*****************************************************************************/
 Register::View::View(Register &r, Window w)
-    : impl_(std::make_unique<Impl>(Register::Impl::getIterators(r, w))) {
+    : impl_(std::make_unique<Impl>(r, Register::Impl::getIterators(r, w))) {
   if (!isValidWindow(r.impl_->elementStore_, w)) {
     throw std::runtime_error("Window size is invalid for Register");
   }
 }
 
 /*****************************************************************************/
-Register::View::Impl::Impl(RegisterIterators const &i) : it_(i) {}
+Register::View::Impl::Impl(Register &r, RegisterIterators const &i)
+    : r_(r), it_(i) {}
 
 /*****************************************************************************/
 Register::View::View(Register::View const &r)
-    : impl_(std::make_unique<Impl>(r.impl_->it_)) {}
+    : impl_(std::make_unique<Impl>(r.impl_->r_, r.impl_->it_)) {}
 
 /*****************************************************************************/
 Register::View::View(Register::View &&r) : impl_(std::move(r.impl_)) {}
@@ -191,9 +193,13 @@ RegisterIterators Register::Impl::getIterators(Register &r, Window &w) {
 /***************************************************************************/
 template <typename UserType> //
 DataContainer<UserType> Register::View::read() {
+  DataContainer<UserType> result;
   auto &it = impl_->it_;
   for (auto row = it.rowBegin_; row < it.rowEnd_; row++) {
+    result.emplace_back(std::vector<UserType>());
     for (auto column = it.columnBegin_; column < it.columnEnd_; column++) {
+      result.back().push_back(
+          boost::apply_visitor(Converter<UserType>(), *column));
     }
   }
 }
@@ -201,9 +207,15 @@ DataContainer<UserType> Register::View::read() {
 template <typename UserType>
 void Register::View::write(DataContainer<UserType> const &d) {
   auto &it = impl_->it_;
+  auto &r = impl_->r_;
   for (auto row = it.rowBegin_; row < it.rowEnd_; row++) {
+    auto i_r = 0;
     for (auto column = it.columnBegin_; column < it.columnEnd_; column++) {
+      auto i_c = 0;
+      *column = convertToElement(r.getType(), d[i_r][i_c]);
+      i_c++;
     }
+    i_r++;
   }
 }
 /****************************************************************************/
@@ -272,8 +284,8 @@ bool isValidWindow(ElementStore &e, Register::Window &w) {
   auto rowSize = e.size();
   auto columnSize = e[0].size();
   Register::Shape &s = w.shape;
-  auto lastRowIndex = s.rowSize() + w.row_offset;
-  auto lastColumnIndex = s.columnSize() + w.column_offset;
+  auto lastRowIndex = (s.rowSize() - 1) + w.row_offset;
+  auto lastColumnIndex = (s.columnSize() - 1) + w.column_offset;
   return ((lastRowIndex < rowSize) && (lastColumnIndex < columnSize));
 }
 /****************************************************************************/
