@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE(testWriteView) {
   BOOST_CHECK(data == expected);
 }
 BOOST_AUTO_TEST_CASE(testCreateView) {
-    BOOST_CHECK_NO_THROW(r.getView({r.getShape(), 0, 0}));
+  BOOST_CHECK_NO_THROW(r.getView({r.getShape(), 0, 0}));
   BOOST_CHECK_NO_THROW(r.getView({s, x_offset, y_offset}));
   BOOST_CHECK_NO_THROW(
       (TestBackend::Register::View{r, {s, x_offset, y_offset}}));
@@ -344,27 +344,23 @@ std::vector<std::vector<T>> slice(std::vector<std::vector<T>> const &i,
                                   TestBackend::Register::Window const &w) {
   using Container = std::vector<std::vector<T>>;
 
-  auto rowBegin = (i.begin() + w.row_offset) < i.end() //
-                      ? i.begin() + w.row_offset
-                      : i.end();
+  auto rowBegin = (w.row_offset);
 
-  auto rowEnd = (rowBegin + w.shape.rowSize() + 1) < i.end()
-                    ? (rowBegin + w.shape.rowSize() + 1)
-                    : i.end();
+  auto rowLimit = (rowBegin + w.shape.rowSize()) < i.size()
+                      ? (rowBegin + w.shape.rowSize())
+                      : i.size();
 
-  auto columnBegin = (i[0].begin() + w.column_offset) < i[0].end()
-                         ? (i[0].begin() + w.column_offset)
-                         : i[0].end();
+  auto columnBegin = w.column_offset;
 
-  auto columnEnd = (columnBegin + w.shape.columnSize()) < i[0].end()
+  auto columnEnd = (columnBegin + w.shape.columnSize()) < i[0].size()
                        ? (columnBegin + w.shape.columnSize())
-                       : i[0].end();
+                       : i[0].size();
   Container result;
 
-  for (auto row = rowBegin; row < rowEnd; row++) {
+  for (auto row = rowBegin; row < rowLimit; row++) {
     result.push_back({});
     for (auto colulmn = columnBegin; colulmn < columnEnd; colulmn++) {
-      result.back().push_back(*colulmn);
+      result.back().push_back(i[row][colulmn]);
     }
   }
   return result;

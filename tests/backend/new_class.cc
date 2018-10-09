@@ -30,11 +30,11 @@ public:
     return static_cast<UserType>(e);
   }
 };
-struct RegisterIterators {
-  ElementStore::iterator rowBegin_;
-  ElementStore::iterator rowEnd_;
-  std::vector<Element>::iterator columnBegin_;
-  std::vector<Element>::iterator columnEnd_;
+struct Indices {
+  size_t rowStart;
+  size_t rowLimit;
+  size_t columnStart;
+  size_t columnLimit;
 };
 struct Register::Impl {
   std::string name_;
@@ -42,13 +42,14 @@ struct Register::Impl {
   ElementStore elementStore_;
 
   Impl(std::string const &name, Access access, ElementStore e);
-  static RegisterIterators getIterators(Register &r, Window &w);
 };
 struct Register::View::Impl {
   Register &r_;
-  RegisterIterators it_;
-  Impl(Register &r, RegisterIterators const &i);
+  Indices i_;
+  Impl(Register &r, Indices const &i);
 };
+Indices convertToIndices(ElementStore &e, Register::Window &w);
+
 /*****************************************************************************/
 template <typename VariantType>
 Register::Register(std::string const &name, //
@@ -80,22 +81,32 @@ Register::Impl::Impl(std::string const &name, Access access, ElementStore e)
 
 /*****************************************************************************/
 Register::View::View(Register &r, Window w)
-    : impl_(std::make_unique<Impl>(r, Register::Impl::getIterators(r, w))) {
+    : impl_(std::make_unique<Impl>(
+          r, convertToIndices(r.impl_->elementStore_, w))) {
   if (!isValidWindow(r.impl_->elementStore_, w)) {
     throw std::runtime_error("Window size is invalid for Register");
   }
 }
-
-/*****************************************************************************/
-Register::View::Impl::Impl(Register &r, RegisterIterators const &i)
-    : r_(r), it_(i) {}
-
 /*****************************************************************************/
 Register::View::View(Register::View const &r)
-    : impl_(std::make_unique<Impl>(r.impl_->r_, r.impl_->it_)) {}
+    : impl_(std::make_unique<Impl>(r.impl_->r_, r.impl_->i_)) {}
 
 /*****************************************************************************/
 Register::View::View(Register::View &&r) : impl_(std::move(r.impl_)) {}
+
+/*****************************************************************************/
+Indices convertToIndices(ElementStore &e, Register::Window &w) {
+  return {w.row_offset,
+          (w.row_offset + w.shape.rowSize()) < e.size()
+              ? w.row_offset + w.shape.rowSize()
+              : e.size(),
+          w.column_offset,
+          (w.column_offset + w.shape.columnSize()) < e[0].size()
+              ? w.column_offset + w.shape.columnSize()
+              : e[0].size()};
+}
+/*****************************************************************************/
+Register::View::Impl::Impl(Register &r, Indices const &i) : r_(r), i_(i) {}
 
 /*****************************************************************************/
 Register::Shape::Shape(size_t r, size_t c) : rows_(r), columns_(c) {
@@ -173,46 +184,32 @@ template <typename UserType>
 Register::Shape extractShape(const DataContainer<UserType> &d) {
   return Register::Shape{d.size(), (d.size()) ? d[0].size() : 0};
 }
-
-/****************************************************************************/
-RegisterIterators Register::Impl::getIterators(Register &r, Window &w) {
-  ElementStore &e = r.impl_->elementStore_;
-  Register::Shape &s = w.shape;
-  auto rowBegin = e.begin() + w.row_offset;
-  auto rowEnd = rowBegin + s.rowSize() + 1;
-  auto columnBegin = e[0].begin();
-  auto columnEnd = columnBegin + s.columnSize() + 1;
-  return RegisterIterators //
-      {
-          rowBegin,    //
-          rowEnd,      //
-          columnBegin, //
-          columnEnd    //
-      };
-}
 /***************************************************************************/
 template <typename UserType> //
 DataContainer<UserType> Register::View::read() {
   DataContainer<UserType> result;
-  auto &it = impl_->it_;
-  for (auto row = it.rowBegin_; row < it.rowEnd_; row++) {
+  auto &e = impl_->r_.impl_->elementStore_;
+  auto &i = impl_->i_;
+  for (auto r_index = i.rowStart; r_index < i.rowLimit; r_index++) {
     result.emplace_back(std::vector<UserType>());
-    for (auto column = it.columnBegin_; column < it.columnEnd_; column++) {
-      result.back().push_back(
-          boost::apply_visitor(Converter<UserType>(), *column));
+    for (auto c_index = i.columnStart; c_index < i.columnLimit; c_index++) {
+      result.back().push_back(boost::apply_visitor(Converter<UserType>(), //
+                                                   e[r_index][c_index]));
     }
   }
+  return result;
 }
 /***************************************************************************/
 template <typename UserType>
 void Register::View::write(DataContainer<UserType> const &d) {
-  auto &it = impl_->it_;
+  auto &i = impl_->i_;
   auto &r = impl_->r_;
-  for (auto row = it.rowBegin_; row < it.rowEnd_; row++) {
-    auto i_r = 0;
-    for (auto column = it.columnBegin_; column < it.columnEnd_; column++) {
-      auto i_c = 0;
-      *column = convertToElement(r.getType(), d[i_r][i_c]);
+  auto &e = r.impl_->elementStore_;
+  for (auto r_index = i.rowStart; r_index < i.rowLimit; r_index++) {
+    size_t i_r = 0;
+    for (auto c_index = i.columnStart; c_index < i.columnLimit; c_index++) {
+      size_t i_c = 0;
+      e[r_index][c_index] = convertToElement(r.getType(), d[i_r][i_c]);
       i_c++;
     }
     i_r++;
