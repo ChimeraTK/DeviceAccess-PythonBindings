@@ -191,18 +191,18 @@ RegisterIterators Register::Impl::getIterators(Register &r, Window &w) {
 /***************************************************************************/
 template <typename UserType> //
 DataContainer<UserType> Register::View::read() {
-  auto &l = impl_->it_;
-  for (auto it = l.rowBegin_; it < l.rowEnd_; it++) {
-    for (auto column = l.columnEnd_; column < l.columnEnd_; column++) {
+  auto &it = impl_->it_;
+  for (auto row = it.rowBegin_; row < it.rowEnd_; row++) {
+    for (auto column = it.columnBegin_; column < it.columnEnd_; column++) {
     }
   }
 }
 /***************************************************************************/
 template <typename UserType>
 void Register::View::write(DataContainer<UserType> const &d) {
-  auto &l = impl_->it_;
-  for (auto it = l.rowBegin_; it < l.rowEnd_; it++) {
-    for (auto column = l.columnEnd_; column < l.columnEnd_; column++) {
+  auto &it = impl_->it_;
+  for (auto row = it.rowBegin_; row < it.rowEnd_; row++) {
+    for (auto column = it.columnBegin_; column < it.columnEnd_; column++) {
     }
   }
 }
@@ -331,4 +331,30 @@ template void Register::write(DataContainer<float> const &data);
 template void Register::write(DataContainer<double> const &data);
 template void Register::write(DataContainer<bool> const &data);
 template void Register::write(DataContainer<std::string> const &data);
+
+template DataContainer<int8_t> Register::View::read();
+template DataContainer<int16_t> Register::View::read();
+template DataContainer<int32_t> Register::View::read();
+template DataContainer<int64_t> Register::View::read();
+template DataContainer<uint8_t> Register::View::read();
+template DataContainer<uint16_t> Register::View::read();
+template DataContainer<uint32_t> Register::View::read();
+template DataContainer<uint64_t> Register::View::read();
+template DataContainer<float> Register::View::read();
+template DataContainer<double> Register::View::read();
+template DataContainer<bool> Register::View::read();
+template DataContainer<std::string> Register::View::read();
+
+template void Register::View::write(DataContainer<int8_t> const &d);
+template void Register::View::write(DataContainer<int16_t> const &d);
+template void Register::View::write(DataContainer<int32_t> const &d);
+template void Register::View::write(DataContainer<int64_t> const &d);
+template void Register::View::write(DataContainer<uint8_t> const &d);
+template void Register::View::write(DataContainer<uint16_t> const &d);
+template void Register::View::write(DataContainer<uint32_t> const &d);
+template void Register::View::write(DataContainer<uint64_t> const &d);
+template void Register::View::write(DataContainer<float> const &d);
+template void Register::View::write(DataContainer<double> const &d);
+template void Register::View::write(DataContainer<bool> const &d);
+template void Register::View::write(DataContainer<std::string> const &d);
 } // namespace TestBackend

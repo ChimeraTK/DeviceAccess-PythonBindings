@@ -50,8 +50,8 @@ public:
 
   public:
     Shape(size_t rows, size_t columns);
-    size_t rowSize() { return rows_; }
-    size_t columnSize() { return columns_; }
+    size_t rowSize() const { return rows_; }
+    size_t columnSize() const { return columns_; }
     bool operator==(Shape const &rhs);
     bool operator!=(Shape const &rhs);
   };

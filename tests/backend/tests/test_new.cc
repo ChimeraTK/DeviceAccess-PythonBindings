@@ -9,6 +9,9 @@
 // convertTo<int>(floatArray)
 template <typename To, typename From>
 std::vector<std::vector<To>> convertTo(std::vector<std::vector<From>> const &i);
+template <typename T>
+std::vector<std::vector<T>> slice(std::vector<std::vector<T>> const &i,
+                                  TestBackend::Register::Window const &w);
 
 BOOST_AUTO_TEST_CASE(testRegisterCreation) {
   // check for invalid shape
@@ -119,7 +122,7 @@ struct FixtureContent {
   }
 };
 
-BOOST_FIXTURE_TEST_SUITE(fixtureTests, FixtureContent)
+BOOST_FIXTURE_TEST_SUITE(registerTests, FixtureContent)
 
 BOOST_AUTO_TEST_CASE(testNumericTypeConversions) {
   std::vector<TestBackend::Register> numeric;
@@ -156,6 +159,33 @@ BOOST_AUTO_TEST_CASE(testNumericTypeConversions) {
     BOOST_CHECK_NO_THROW(r.read<double>());
     BOOST_CHECK_NO_THROW(r.read<bool>());
     BOOST_CHECK_THROW(r.read<std::string>(), std::logic_error);
+
+    auto v = r.getView({r.getShape(), 0, 0});
+    BOOST_CHECK_NO_THROW(v.write<int8_t>({{-2}}));
+    BOOST_CHECK_NO_THROW(v.write<int16_t>({{-2}}));
+    BOOST_CHECK_NO_THROW(v.write<int32_t>({{-2}}));
+    BOOST_CHECK_NO_THROW(v.write<int64_t>({{-2}}));
+    BOOST_CHECK_NO_THROW(v.write<uint8_t>({{2}}));
+    BOOST_CHECK_NO_THROW(v.write<uint16_t>({{2}}));
+    BOOST_CHECK_NO_THROW(v.write<uint32_t>({{2}}));
+    BOOST_CHECK_NO_THROW(v.write<uint64_t>({{2}}));
+    BOOST_CHECK_NO_THROW(v.write<float>({{2.0}}));
+    BOOST_CHECK_NO_THROW(v.write<double>({{2.7643}}));
+    BOOST_CHECK_NO_THROW(v.write<bool>({{false}}));
+    BOOST_CHECK_THROW(v.write<std::string>({{"test"}}), std::logic_error);
+
+    BOOST_CHECK_NO_THROW(v.read<int8_t>());
+    BOOST_CHECK_NO_THROW(v.read<int16_t>());
+    BOOST_CHECK_NO_THROW(v.read<int32_t>());
+    BOOST_CHECK_NO_THROW(v.read<int64_t>());
+    BOOST_CHECK_NO_THROW(v.read<uint8_t>());
+    BOOST_CHECK_NO_THROW(v.read<uint16_t>());
+    BOOST_CHECK_NO_THROW(v.read<uint32_t>());
+    BOOST_CHECK_NO_THROW(v.read<uint64_t>());
+    BOOST_CHECK_NO_THROW(v.read<float>());
+    BOOST_CHECK_NO_THROW(v.read<double>());
+    BOOST_CHECK_NO_THROW(v.read<bool>());
+    BOOST_CHECK_THROW(v.read<std::string>(), std::logic_error);
   };
   for (auto &reg : numeric) {
     runTests(reg);
@@ -195,6 +225,31 @@ BOOST_AUTO_TEST_CASE(testStringTypeConversions) {
     BOOST_CHECK_THROW(r.read<double>(), std::logic_error);
     BOOST_CHECK_THROW(r.read<bool>(), std::logic_error);
     BOOST_CHECK_NO_THROW(r.read<std::string>());
+
+    auto v = r.getView({r.getShape(), 0, 0});
+    BOOST_CHECK_THROW(v.write<int8_t>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(v.write<int16_t>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(v.write<int32_t>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(v.write<uint8_t>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(v.write<uint16_t>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(v.write<uint32_t>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(v.write<uint64_t>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(v.write<float>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(v.write<double>({{2}}), std::logic_error);
+    BOOST_CHECK_THROW(v.write<bool>({{false}}), std::logic_error);
+    BOOST_CHECK_NO_THROW(v.write<std::string>({{"test"}}));
+
+    BOOST_CHECK_THROW(v.read<int8_t>(), std::logic_error);
+    BOOST_CHECK_THROW(v.read<int16_t>(), std::logic_error);
+    BOOST_CHECK_THROW(v.read<int32_t>(), std::logic_error);
+    BOOST_CHECK_THROW(v.read<uint8_t>(), std::logic_error);
+    BOOST_CHECK_THROW(v.read<uint16_t>(), std::logic_error);
+    BOOST_CHECK_THROW(v.read<uint32_t>(), std::logic_error);
+    BOOST_CHECK_THROW(v.read<uint64_t>(), std::logic_error);
+    BOOST_CHECK_THROW(v.read<float>(), std::logic_error);
+    BOOST_CHECK_THROW(v.read<double>(), std::logic_error);
+    BOOST_CHECK_THROW(v.read<bool>(), std::logic_error);
+    BOOST_CHECK_NO_THROW(v.read<std::string>());
   };
   for (auto &reg : strings) {
     runTests(reg);
@@ -221,6 +276,53 @@ BOOST_AUTO_TEST_CASE(testGetType) {
     i++;
   }
 }
+BOOST_AUTO_TEST_SUITE_END()
+
+struct TestView {
+  std::vector<std::vector<IntegralType>> d{{1, 3, 4}, //
+                                           {9, 4, 2}, //
+                                           {7, 6, 3}};
+  std::vector<std::vector<int>> e;
+
+  TestBackend::Register r{"testView",                        //
+                          TestBackend::Register::Access::rw, //
+                          d};
+
+  TestBackend::Register::Shape s{2, 2};
+  size_t x_offset{1};
+  size_t y_offset{1};
+
+  TestBackend::Register::View v;
+
+  TestView() : e(convertTo<int>(d)), v(r.getView({s, x_offset, y_offset})) {}
+};
+
+BOOST_FIXTURE_TEST_SUITE(viewTests, TestView)
+
+BOOST_AUTO_TEST_CASE(testReadView) {
+  auto expected = slice(e, {s, x_offset, y_offset});
+  auto data = v.read<int>();
+  BOOST_CHECK(data == expected);
+}
+BOOST_AUTO_TEST_CASE(testWriteView) {
+  std::vector<std::vector<int>> expected{{7, 9}, //
+                                         {3, 3}};
+  v.write(expected);
+  auto data = v.read<int>();
+  BOOST_CHECK(data == expected);
+}
+BOOST_AUTO_TEST_CASE(testCreateView) {
+    BOOST_CHECK_NO_THROW(r.getView({r.getShape(), 0, 0}));
+  BOOST_CHECK_NO_THROW(r.getView({s, x_offset, y_offset}));
+  BOOST_CHECK_NO_THROW(
+      (TestBackend::Register::View{r, {s, x_offset, y_offset}}));
+
+  BOOST_CHECK_THROW(r.getView({s, x_offset + 100, y_offset}),
+                    std::runtime_error);
+  BOOST_CHECK_THROW(
+      (TestBackend::Register::View{r, {s, x_offset + 100, y_offset}}),
+      std::runtime_error);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 
@@ -232,6 +334,37 @@ convertTo(std::vector<std::vector<From>> const &i) {
     result.emplace_back(std::vector<To>{});
     for (auto const &elem : row) {
       result.back().push_back(static_cast<To>(elem));
+    }
+  }
+  return result;
+}
+
+template <typename T>
+std::vector<std::vector<T>> slice(std::vector<std::vector<T>> const &i,
+                                  TestBackend::Register::Window const &w) {
+  using Container = std::vector<std::vector<T>>;
+
+  auto rowBegin = (i.begin() + w.row_offset) < i.end() //
+                      ? i.begin() + w.row_offset
+                      : i.end();
+
+  auto rowEnd = (rowBegin + w.shape.rowSize() + 1) < i.end()
+                    ? (rowBegin + w.shape.rowSize() + 1)
+                    : i.end();
+
+  auto columnBegin = (i[0].begin() + w.column_offset) < i[0].end()
+                         ? (i[0].begin() + w.column_offset)
+                         : i[0].end();
+
+  auto columnEnd = (columnBegin + w.shape.columnSize()) < i[0].end()
+                       ? (columnBegin + w.shape.columnSize())
+                       : i[0].end();
+  Container result;
+
+  for (auto row = rowBegin; row < rowEnd; row++) {
+    result.push_back({});
+    for (auto colulmn = columnBegin; colulmn < columnEnd; colulmn++) {
+      result.back().push_back(*colulmn);
     }
   }
   return result;
