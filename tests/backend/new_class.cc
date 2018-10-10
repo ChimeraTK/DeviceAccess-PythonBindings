@@ -163,21 +163,21 @@ void Register::write(DataContainer<T> const &data) {
   }
 }
 /*****************************************************************************/
-Register::Type Register::getType() {
+Register::Type Register::getType() const{
   return static_cast<Type>(impl_->elementStore_[0][0].which());
 }
 /*****************************************************************************/
-Register::Shape Register::getShape() {
+Register::Shape Register::getShape()const {
   return extractShape(impl_->elementStore_);
 }
 /*****************************************************************************/
-std::string Register::getName() { return impl_->name_; }
+std::string Register::getName()const { return impl_->name_; }
 
 /****************************************************************************/
 Register::View Register::getView(Window w) { return View{*this, w}; }
 
 /****************************************************************************/
-Register::Access Register::getAccessMode() { return impl_->access_; }
+Register::Access Register::getAccessMode()const { return impl_->access_; }
 
 /****************************************************************************/
 template <typename UserType>
@@ -205,10 +205,10 @@ void Register::View::write(DataContainer<UserType> const &d) {
   auto &i = impl_->i_;
   auto &r = impl_->r_;
   auto &e = r.impl_->elementStore_;
+  size_t i_r = 0;
   for (auto r_index = i.rowStart; r_index < i.rowLimit; r_index++) {
-    size_t i_r = 0;
+  size_t i_c = 0;
     for (auto c_index = i.columnStart; c_index < i.columnLimit; c_index++) {
-      size_t i_c = 0;
       e[r_index][c_index] = convertToElement(r.getType(), d[i_r][i_c]);
       i_c++;
     }

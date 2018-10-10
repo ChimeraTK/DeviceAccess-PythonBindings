@@ -1,17 +1,16 @@
 #include "backend.h"
 
-#include <ChimeraTK/VirtualFunctionTemplate.h>
 #include <ChimeraTK/DeviceAccessVersion.h>
+#include <ChimeraTK/VirtualFunctionTemplate.h>
 
-#include "test_accessor.h"
 #include "register_list.h"
 #include "test_accessor.h"
 
 template <typename UserType>
-using Accessor_t = boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType> >;
+using Accessor_t = boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType>>;
 
 extern "C" {
-const char* deviceAccessVersionUsedToCompile() {
+const char *deviceAccessVersionUsedToCompile() {
   return CHIMERATK_DEVICEACCESS_VERSION;
 }
 }
@@ -43,17 +42,18 @@ Backend::~Backend() = default; // to avoid static assert with unique_ptr
 void Backend::open() { _opened = true; }
 void Backend::close() { _opened = false; }
 std::string Backend::readDeviceInfo() {
-  return std::string("This backend used to test ChimeraTK python bindings");
+  return std::string(
+      "This backend is intended to test ChimeraTK python bindings");
 }
 
 /****************************************************************************/
 template <typename UserType>
-Accessor_t<UserType>                                                          //
-    Backend::accessorFactory(const ChimeraTK::RegisterPath& registerPathName, //
-                             size_t numberOfWords,                            //
-                             size_t wordOffsetInRegister,                     //
-                             ChimeraTK::AccessModeFlags flags) {
-  DBaseElem& elem = search(impl_->list_, registerPathName);
+Accessor_t<UserType>                                                      //
+Backend::accessorFactory(const ChimeraTK::RegisterPath &registerPathName, //
+                         size_t numberOfWords,                            //
+                         size_t wordOffsetInRegister,                     //
+                         ChimeraTK::AccessModeFlags flags) {
+  DBaseElem &elem = search(impl_->list_, registerPathName);
   return Accessor_t<UserType>(
       new TestBackEndAccessor<UserType>(elem,                 //
                                         registerPathName,     //

@@ -171,7 +171,6 @@ getTypeInfo(DBaseElem const& e) {
       nDigits = 0;
       nFractionalDigits = 0;
       break;
-      break;
   }
 
   return std::make_tuple(type, isIntegral, isSigned, nDigits,

@@ -28,14 +28,14 @@ public:
            Access mode,             //
            Type type,               //
            Shape shape = {1, 1});
-  Register(Register const& r);
+  Register(Register const &r);
   Register(Register &&r);
   ~Register();
 
-  std::string getName();
-  Shape getShape();
-  Access getAccessMode();
-  Type getType();
+  std::string getName() const;
+  Shape getShape() const;
+  Access getAccessMode() const;
+  Type getType() const;
   View getView(Window w);
 
   template <typename UserType> //
@@ -76,5 +76,15 @@ public:
     void write(std::vector<std::vector<UserType>> const &d);
   };
 };
-
 } // namespace TestBackend
+
+namespace std {
+
+/* specilizing std::hash lets Register use containers like
+ *  std::unordered_set */
+template <> struct hash<TestBackend::Register> {
+  size_t operator()(TestBackend::Register const &r) {
+    return std::hash<std::string>{}(r.getName());
+  }
+};
+} // namespace std
