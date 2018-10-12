@@ -31,7 +31,7 @@ DEFINE_VIRTUAL_FUNCTION_TEMPLATE_VTABLE_FILLER(Backend, accessorFactory, 4);
 */
 
 Backend::Backend(RegisterList l) : impl_(std::make_unique<Impl>(std::move(l))) {
-  _catalogue = TestBackend::getRegisterCatalogue(impl_->list_);
+  _catalogue = TestBackend::convertToRegisterCatalogue(impl_->list_);
   std::sort(impl_->list_.begin(), impl_->list_.end());
   boost::fusion::for_each(getRegisterAccessor_impl_vtable.table,
                           accessorFactory_vtable_filler(this));

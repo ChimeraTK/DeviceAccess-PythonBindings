@@ -47,7 +47,7 @@ std::tuple<ChimeraTK::RegisterInfo::FundamentalType, bool, bool, std::size_t,
            std::size_t>
 getTypeInfo(DBaseElem const& e);
 
-RegisterList getRegisterList() {
+RegisterList getDummyList() {
   RegisterList l;
   using Access = TestBackend::AccessMode;
 
@@ -94,7 +94,7 @@ RegisterList getRegisterList() {
   return l;
 }
 
-ChimeraTK::RegisterCatalogue getRegisterCatalogue(const RegisterList& l) {
+ChimeraTK::RegisterCatalogue convertToRegisterCatalogue(const RegisterList& l) {
   ChimeraTK::RegisterCatalogue catalogue;
   for (auto const& elem : l) {
     catalogue.addRegister(getRegInfo(elem));

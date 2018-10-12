@@ -21,7 +21,7 @@ BOOST_FIXTURE_TEST_CASE(testSearch, Fixture_t) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testCatalogue, Fixture_t) {
-  auto catalogue = getRegisterCatalogue(list_);
+  auto catalogue = convertToRegisterCatalogue(list_);
 
   BOOST_CHECK(catalogue.getNumberOfRegisters() == list_.size());
 

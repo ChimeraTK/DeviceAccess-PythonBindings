@@ -25,7 +25,7 @@ Backend_t BackendRegisterer::createBackend(std::string /*host*/,     //
                                            std::string /*instance*/, //
                                            std::list<std::string>,
                                            std::string /*mapFileName*/) {
-  return Backend_t(new Backend(TestBackend::getRegisterList()));
+  return Backend_t(new Backend(TestBackend::getDummyList()));
 }
 
 // Invoke registration on loading module.
