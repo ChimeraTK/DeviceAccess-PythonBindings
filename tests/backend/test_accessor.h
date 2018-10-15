@@ -3,12 +3,12 @@
 
 #include "register_access.h"
 #include <ChimeraTK/AccessMode.h>
-#include <mtca4u/SyncNDRegisterAccessor.h>
+#include <ChimeraTK/SyncNDRegisterAccessor.h>
 
 namespace TestBackend {
 
 template <typename UserType>
-class TestBackEndAccessor : public mtca4u::SyncNDRegisterAccessor<UserType> {
+class TestBackEndAccessor : public ChimeraTK::SyncNDRegisterAccessor<UserType> {
 
   DBaseElem& elem_;
   std::size_t numWords_;
@@ -20,7 +20,7 @@ public:
                       std::size_t wordOffsetInRegister,
                       ChimeraTK::AccessModeFlags flags);
   virtual ~TestBackEndAccessor() {
-    mtca4u::SyncNDRegisterAccessor<UserType>::shutdown();
+    ChimeraTK::SyncNDRegisterAccessor<UserType>::shutdown();
   }
   bool isReadOnly() const override;
   bool isReadable() const override;
@@ -29,9 +29,9 @@ public:
   bool doReadTransferNonBlocking() override;
   bool doReadTransferLatest() override;
   bool doWriteTransfer(ChimeraTK::VersionNumber versionNumber = {}) override;
-  std::list<boost::shared_ptr<mtca4u::TransferElement> > getInternalElements()
+  std::list<boost::shared_ptr<ChimeraTK::TransferElement> > getInternalElements()
       override;
-  std::vector<boost::shared_ptr<mtca4u::TransferElement> >
+  std::vector<boost::shared_ptr<ChimeraTK::TransferElement> >
   getHardwareAccessingElements() override;
   ChimeraTK::AccessModeFlags getAccessModeFlags() const override{
     //TODO
@@ -153,13 +153,13 @@ inline bool TestBackEndAccessor<UserType>::doReadTransferLatest() {
 }
 
 template <typename UserType>
-inline std::list<boost::shared_ptr<mtca4u::TransferElement> >
+inline std::list<boost::shared_ptr<ChimeraTK::TransferElement> >
 TestBackEndAccessor<UserType>::getInternalElements() {
   return {};
 }
 
 template <typename UserType>
-inline std::vector<boost::shared_ptr<mtca4u::TransferElement> >
+inline std::vector<boost::shared_ptr<ChimeraTK::TransferElement> >
 TestBackEndAccessor<UserType>::getHardwareAccessingElements() {
   return { boost::enable_shared_from_this<
       ChimeraTK::TransferElement>::shared_from_this() };

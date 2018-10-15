@@ -6,42 +6,9 @@
 namespace TestBackend {
 
 
-class TBRegisterInfo : public ChimeraTK::RegisterInfo {
-  ChimeraTK::RegisterPath name_;
-  std::size_t elements_;
-  std::size_t channels_;
-  std::size_t dimensions_;
-  DataDescriptor descriptor_;
-
-public:
-  TBRegisterInfo(ChimeraTK::RegisterPath name, //
-                 std::size_t elements,      //
-                 std::size_t channels,      //
-                 std::size_t dimensions,    //
-                 ChimeraTK::RegisterInfo::DataDescriptor descriptor)
-      : name_(std::move(name)),
-        elements_(elements),
-        channels_(channels),
-        dimensions_(dimensions),
-        descriptor_(std::move(descriptor)) {}
-
-  TBRegisterInfo() = default;
-  TBRegisterInfo(TBRegisterInfo const& rhs) = default;
-  TBRegisterInfo(TBRegisterInfo&& rhs) = default;
-  TBRegisterInfo& operator=(TBRegisterInfo const& rhs) = default;
-  TBRegisterInfo& operator=(TBRegisterInfo&& rhs) = default;
-  virtual ~TBRegisterInfo() = default;
-
-  ChimeraTK::RegisterPath getRegisterName() const override { return name_; }
-  unsigned int getNumberOfElements() const override { return elements_; }
-  unsigned int getNumberOfChannels() const override { return channels_; }
-  unsigned int getNumberOfDimensions() const override { return dimensions_; }
-  DataDescriptor const& getDataDescriptor() const override {
-    return descriptor_;
-  }
-};
 
 boost::shared_ptr<TBRegisterInfo> getRegInfo(DBaseElem e);
+boost::shared_ptr<TBRegisterInfo> getRegInfo(Register e);
 ChimeraTK::RegisterInfo::DataDescriptor createDescriptor(DBaseElem const& e);
 std::tuple<ChimeraTK::RegisterInfo::FundamentalType, bool, bool, std::size_t,
            std::size_t>
@@ -94,6 +61,13 @@ RegisterList getDummyList() {
   return l;
 }
 
+ChimeraTK::RegisterCatalogue convertToRegisterCatalogue(List const &l){
+  ChimeraTK::RegisterCatalogue catalogue;
+  for (auto const& elem : l) {
+    catalogue.addRegister(getRegInfo(elem.second));
+  }
+  return catalogue;
+}
 ChimeraTK::RegisterCatalogue convertToRegisterCatalogue(const RegisterList& l) {
   ChimeraTK::RegisterCatalogue catalogue;
   for (auto const& elem : l) {
@@ -187,5 +161,75 @@ DBaseElem& search(RegisterList& l, std::string const& id) {
   throw std::runtime_error(error_message);
 }
 
+boost::shared_ptr<TBRegisterInfo> getRegInfo(Register e) {
+  auto t = ChimeraTK::RegisterInfo::FundamentalType::string;
+  auto a = ChimeraTK::RegisterInfo::DataDescriptor(t, true, false, 5, 2);
+  return boost::shared_ptr<TBRegisterInfo>(new TBRegisterInfo("", 6, 3, 1, a));
+   //return boost::shared_ptr<TBRegisterInfo>(new TBRegisterInfo());
+}
+List getList(){
+    return List{
+        {"/oneD/Int",
+         Register{
+             "/oneD/Int",             //
+             Register::Access::rw,    //
+             Register::Type::Integer, //
+             {1, 5}                   //
+         }},
+        {"/twoD/Int",
+         Register{
+             "/twoD/Int",             //
+             Register::Access::rw,    //
+             Register::Type::Integer, //
+             {4, 3}                   //
+         }},
+
+        {"/oneD/Double",
+         Register{
+             "/oneD/Double",                //
+             Register::Access::rw,          //
+             Register::Type::FloatingPoint, //
+             {1, 5}                         //
+         }},
+        {"/twoD/Double",
+         Register{
+             "/twoD/Double",                //
+             Register::Access::rw,          //
+             Register::Type::FloatingPoint, //
+             {4, 3}                         //
+         }},
+
+        {"/oneD/Bool",
+         Register{
+             "/oneD/Bool",         //
+             Register::Access::rw, //
+             Register::Type::Bool, //
+             {1, 5}                //
+         }},
+        {"/twoD/Bool",
+         Register{
+             "/twoD/Bool",         //
+             Register::Access::rw, //
+             Register::Type::Bool, //
+             {4, 3}                //
+         }},
+
+        {"/oneD/String",
+         Register{
+             "/oneD/String",         //
+             Register::Access::rw,   //
+             Register::Type::String, //
+             {1, 5}                  //
+         }},
+        {"/twoD/String",
+         Register{
+             "/twoD/String",         //
+             Register::Access::rw,   //
+             Register::Type::String, //
+             {4, 3}                  //
+         }},
+
+    };
+}
 
 } // namespace TestBackend
