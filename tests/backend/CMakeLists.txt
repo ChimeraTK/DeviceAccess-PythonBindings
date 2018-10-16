@@ -69,7 +69,7 @@ target_include_directories(${library_name}
     ${mtca4u-deviceaccess_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS})
 
-target_link_libraries(test_backend
+target_link_libraries(${library_name}
   PRIVATE
     ${mtca4u-deviceaccess_LIBRARIES} 
     ${Boost_LIBRARIES})

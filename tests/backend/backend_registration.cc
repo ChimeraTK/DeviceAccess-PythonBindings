@@ -29,5 +29,6 @@ Backend_t BackendRegisterer::createBackend(std::string /*host*/,     //
 }
 
 // Invoke registration on loading module.
+// fixme: protect agaist removal by compiler optimizations
 static auto registerer = BackendRegisterer();
 } // namespace TestBackend

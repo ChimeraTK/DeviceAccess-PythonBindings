@@ -77,14 +77,3 @@ public:
   };
 };
 } // namespace TestBackend
-
-namespace std {
-
-/* specilizing std::hash lets Register use containers like
- *  std::unordered_set */
-template <> struct hash<TestBackend::Register> {
-  size_t operator()(TestBackend::Register const &r) {
-    return std::hash<std::string>{}(r.getName());
-  }
-};
-} // namespace std

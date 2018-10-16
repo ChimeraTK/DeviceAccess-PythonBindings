@@ -29,7 +29,6 @@ DEFINE_VIRTUAL_FUNCTION_TEMPLATE_VTABLE_FILLER(Backend, accessorFactory, 4);
 /****************************************************************************
  Public Interface of TestBackend:
 */
-
 Backend::Backend(RegisterList l) : impl_(std::make_unique<Impl>(std::move(l))) {
   _catalogue = TestBackend::convertToRegisterCatalogue(impl_->list_);
   std::sort(impl_->list_.begin(), impl_->list_.end());
@@ -53,7 +52,7 @@ Backend::accessorFactory(const ChimeraTK::RegisterPath &registerPathName, //
                          size_t numberOfWords,                            //
                          size_t wordOffsetInRegister,                     //
                          ChimeraTK::AccessModeFlags flags) {
-  DBaseElem &elem = search(impl_->list_, registerPathName);
+  auto &elem = search(impl_->list_, registerPathName);
   return Accessor_t<UserType>(
       new TestBackEndAccessor<UserType>(elem,                 //
                                         registerPathName,     //
