@@ -74,6 +74,12 @@ public:
     std::vector<std::vector<UserType>> read();
     template <typename UserType>
     void write(std::vector<std::vector<UserType>> const &d);
+    friend std::string registerName(Register::View const &v);
+    friend Register::Access getAccess(Register::View const &v);
+    friend size_t columns(Register::View const &v);
+    friend size_t rows(Register::View const &v);
   };
 };
+size_t columns(Register const &r);
+size_t rows(Register const &r);
 } // namespace TestBackend

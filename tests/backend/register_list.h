@@ -4,8 +4,8 @@
 #include "new_class.h"
 #include "register_access.h"
 
-#include <ChimeraTK/RegisterCatalogue.h>
 #include <boost/shared_ptr.hpp>
+#include <ChimeraTK/RegisterCatalogue.h>
 #include <unordered_map>
 #include <vector>
 

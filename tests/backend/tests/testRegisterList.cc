@@ -1,9 +1,9 @@
 #define BOOST_TEST_MODULE testRegisterList
 #include <boost/test/included/unit_test.hpp>
 
-#include <ChimeraTK/RegisterCatalogue.h>
-#include "register_list.h"
 #include "backend.h"
+#include "register_list.h"
+#include <ChimeraTK/RegisterCatalogue.h>
 
 TestBackend::RegisterList getTestList();
 
@@ -15,9 +15,9 @@ struct Fixture_t {
 };
 
 BOOST_FIXTURE_TEST_CASE(testSearch, Fixture_t) {
-  TestBackend::DBaseElem & e = TestBackend::search(list_, "test2");
-  BOOST_CHECK(TestBackend::id(e) == "test2");
-  BOOST_CHECK_THROW(TestBackend::search(list_, "t"), std::runtime_error);
+  auto &r = TestBackend::search(list_, "test2");
+  BOOST_CHECK(r.getName() == "test2");
+  BOOST_CHECK_THROW(TestBackend::search(list_, "t"), std::out_of_range);
 }
 
 BOOST_FIXTURE_TEST_CASE(testCatalogue, Fixture_t) {
@@ -25,34 +25,42 @@ BOOST_FIXTURE_TEST_CASE(testCatalogue, Fixture_t) {
 
   BOOST_CHECK(catalogue.getNumberOfRegisters() == list_.size());
 
-  auto it = catalogue.begin();
-  BOOST_CHECK(it->getRegisterName() == "test1");
-  BOOST_CHECK(it->getNumberOfChannels() == 0);
-  BOOST_CHECK(it->getNumberOfElements() == 0);
-  BOOST_CHECK(it->getNumberOfDimensions() == 0);
-  BOOST_CHECK(it->getDataDescriptor().fundamentalType() ==
-              ChimeraTK::RegisterInfo::FundamentalType::numeric);
+  for (auto &it : catalogue) {
+    if (it.getRegisterName() == "test1") {
 
-  ++it;
-  BOOST_CHECK(it->getRegisterName() == "test2");
-  BOOST_CHECK(it->getNumberOfChannels() == 3);
-  BOOST_CHECK(it->getNumberOfElements() == 5);
-  BOOST_CHECK(it->getNumberOfDimensions() == 2);
-  BOOST_CHECK(it->getDataDescriptor().fundamentalType() ==
-              ChimeraTK::RegisterInfo::FundamentalType::string);
+      BOOST_CHECK(it.getRegisterName() == "test1");
+      BOOST_CHECK(it.getNumberOfChannels() == 1);
+      BOOST_CHECK(it.getNumberOfElements() == 1);
+      BOOST_CHECK(it.getNumberOfDimensions() == 0);
+      BOOST_CHECK(it.getDataDescriptor().fundamentalType() ==
+                  ChimeraTK::RegisterInfo::FundamentalType::numeric);
+    } else if (it.getRegisterName() == "test2") {
+      BOOST_CHECK(it.getRegisterName() == "test2");
+      BOOST_CHECK(it.getNumberOfChannels() == 5);
+      BOOST_CHECK(it.getNumberOfElements() == 3);
+      BOOST_CHECK(it.getNumberOfDimensions() == 2);
+      BOOST_CHECK(it.getDataDescriptor().fundamentalType() ==
+                  ChimeraTK::RegisterInfo::FundamentalType::string);
+    } else {
+      BOOST_FAIL("Bad Catalogue");
+    }
+  }
 }
 
-TestBackend::RegisterList getTestList() {
-  TestBackend::RegisterList tmp;
-  using Access = TestBackend::AccessMode;
-  tmp.emplace_back(TestBackend::DBaseElem{
-    "test1", std::vector<std::vector<TestBackend::Int_t> >(), Access::rw
-  });
-  tmp.emplace_back(
-      TestBackend::DBaseElem{ "test2",
-                              std::vector<std::vector<TestBackend::String_t> >(
-                                  3, std::vector<TestBackend::String_t>(5)),
-                              Access::rw });
+  TestBackend::RegisterList getTestList() {
+    TestBackend::RegisterList tmp;
 
-  return tmp;
-}
+    tmp.emplace(std::make_pair(
+        std::string{"test1"},
+        TestBackend::Register{"test1",                              //
+                              TestBackend::Register::Access::rw,    //
+                              TestBackend::Register::Type::Integer, //
+                              {1, 1}}));
+    tmp.emplace(std::make_pair(
+        std::string{"test2"},
+        TestBackend::Register{"test2",                             //
+                              TestBackend::Register::Access::rw,   //
+                              TestBackend::Register::Type::String, //
+                              {3, 5}}));
+    return tmp;
+  }

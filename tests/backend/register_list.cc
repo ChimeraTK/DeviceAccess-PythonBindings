@@ -1,6 +1,5 @@
 #include "register_list.h"
 
-#include <boost/shared_ptr.hpp>
 #include <limits>
 
 namespace TestBackend {

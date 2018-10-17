@@ -50,6 +50,22 @@ struct Register::View::Impl {
 };
 Indices convertToIndices(ElementStore &e, Register::Window &w);
 
+  std::string registerName(Register::View const &v) {
+    return v.impl_->r_.getName();
+  }
+  Register::Access getAccess(Register::View const &v) {
+    return v.impl_->r_.getAccessMode();
+  }
+  size_t columns(Register::View const &v) {
+    auto columnStart = v.impl_->i_.columnStart;
+    auto columnSize = v.impl_->i_.columnLimit;
+    return (columnSize - columnStart);
+  }
+  size_t rows(Register::View const &v) {
+    auto rowStart = v.impl_->i_.rowStart;
+    auto rowSize = v.impl_->i_.rowLimit;
+    return (rowSize - rowStart);
+  }
 /*****************************************************************************/
 template <typename VariantType>
 Register::Register(std::string const &name, //
@@ -163,21 +179,21 @@ void Register::write(DataContainer<T> const &data) {
   }
 }
 /*****************************************************************************/
-Register::Type Register::getType() const{
+Register::Type Register::getType() const {
   return static_cast<Type>(impl_->elementStore_[0][0].which());
 }
 /*****************************************************************************/
-Register::Shape Register::getShape()const {
+Register::Shape Register::getShape() const {
   return extractShape(impl_->elementStore_);
 }
 /*****************************************************************************/
-std::string Register::getName()const { return impl_->name_; }
+std::string Register::getName() const { return impl_->name_; }
 
 /****************************************************************************/
 Register::View Register::getView(Window w) { return View{*this, w}; }
 
 /****************************************************************************/
-Register::Access Register::getAccessMode()const { return impl_->access_; }
+Register::Access Register::getAccessMode() const { return impl_->access_; }
 
 /****************************************************************************/
 template <typename UserType>
@@ -207,7 +223,7 @@ void Register::View::write(DataContainer<UserType> const &d) {
   auto &e = r.impl_->elementStore_;
   size_t i_r = 0;
   for (auto r_index = i.rowStart; r_index < i.rowLimit; r_index++) {
-  size_t i_c = 0;
+    size_t i_c = 0;
     for (auto c_index = i.columnStart; c_index < i.columnLimit; c_index++) {
       e[r_index][c_index] = convertToElement(r.getType(), d[i_r][i_c]);
       i_c++;
@@ -297,6 +313,12 @@ ElementStore convertToElementStore(DataContainer<VariantType> &d) {
   }
   return e;
 }
+/****************************************************************************/
+size_t columns(Register const &r) { return r.getShape().columnSize(); }
+
+/****************************************************************************/
+size_t rows(Register const &r) { return r.getShape().rowSize(); }
+
 /****************************************************************************/
 // template specilizations
 /****************************************************************************/

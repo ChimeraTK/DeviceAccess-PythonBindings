@@ -1,7 +1,9 @@
 #ifndef TEST_ACCESSOR_H_
 #define TEST_ACCESSOR_H_
 
+#include "new_class.h"
 #include "register_access.h"
+
 #include <ChimeraTK/AccessMode.h>
 #include <ChimeraTK/SyncNDRegisterAccessor.h>
 
@@ -10,15 +12,30 @@ namespace TestBackend {
 template <typename UserType>
 class TestBackEndAccessor : public ChimeraTK::SyncNDRegisterAccessor<UserType> {
 
-  DBaseElem& elem_;
-  std::size_t numWords_;
-  std::size_t wordOffset_;
+  Register::View view_;
 
 public:
-  TestBackEndAccessor(DBaseElem& elem, std::string const& registerPathName,
-                      std::size_t numberOfWords,
-                      std::size_t wordOffsetInRegister,
-                      ChimeraTK::AccessModeFlags flags);
+  TestBackEndAccessor(Register::View &v, ChimeraTK::AccessModeFlags flags)
+      : ChimeraTK::SyncNDRegisterAccessor<UserType>(registerName(v)), view_(v) {
+
+    try {
+      std::set<ChimeraTK::AccessMode> supportedFlags{
+          ChimeraTK::AccessMode::raw, //
+          ChimeraTK::AccessMode::wait_for_new_data};
+
+      flags.checkForUnknownFlags(supportedFlags);
+
+      using NDAccessor_t = ChimeraTK::NDRegisterAccessor<UserType>;
+      NDAccessor_t::buffer_2D.resize(columns(view_));
+      for (auto &e : NDAccessor_t::buffer_2D) {
+        e.resize(rows(view_));
+      }
+    } catch (...) {
+      this->shutdown();
+      throw;
+    }
+  }
+
   virtual ~TestBackEndAccessor() {
     ChimeraTK::SyncNDRegisterAccessor<UserType>::shutdown();
   }
@@ -29,18 +46,18 @@ public:
   bool doReadTransferNonBlocking() override;
   bool doReadTransferLatest() override;
   bool doWriteTransfer(ChimeraTK::VersionNumber versionNumber = {}) override;
-  std::list<boost::shared_ptr<ChimeraTK::TransferElement> > getInternalElements()
-      override;
-  std::vector<boost::shared_ptr<ChimeraTK::TransferElement> >
+  std::list<boost::shared_ptr<ChimeraTK::TransferElement>>
+  getInternalElements() override;
+  std::vector<boost::shared_ptr<ChimeraTK::TransferElement>>
   getHardwareAccessingElements() override;
-  ChimeraTK::AccessModeFlags getAccessModeFlags() const override{
-    //TODO
+  ChimeraTK::AccessModeFlags getAccessModeFlags() const override {
+    // TODO
   }
 };
 
 template <typename UserType>
 inline bool TestBackEndAccessor<UserType>::isReadOnly() const {
-  if (access(elem_) == TestBackend::AccessMode::ro) {
+  if (getAccess(view_) == TestBackend::Register::Access::ro) {
     return true;
   } else {
     return false;
@@ -49,58 +66,28 @@ inline bool TestBackEndAccessor<UserType>::isReadOnly() const {
 /*template <typename UserType> ChimeraTK::AccessModeFlags getAccessModeFlags() {
   return {};
 }*/
-template <typename UserType>
-TestBackEndAccessor<UserType>::TestBackEndAccessor( //
-              DBaseElem& elem,                                //
-              std::string const& registerPathName,            //
-              std::size_t numberOfWords,                      //
-              std::size_t wordOffsetInRegister,               //
-              ChimeraTK::AccessModeFlags flags)
-    : ChimeraTK::SyncNDRegisterAccessor<UserType>(registerPathName),
-      elem_(elem),
-      numWords_((numberOfWords == 0) ? elem.getElements() : numberOfWords),
-      wordOffset_(wordOffsetInRegister) {
-
-  try {
-    std::set<ChimeraTK::AccessMode> supportedFlags{
-      ChimeraTK::AccessMode::raw, //
-      ChimeraTK::AccessMode::wait_for_new_data
-    };
-
-    flags.checkForUnknownFlags(supportedFlags);
-
-    using NDAccessor_t = ChimeraTK::NDRegisterAccessor<UserType>;
-    NDAccessor_t::buffer_2D.resize(elem_.getChannels());
-    for (auto& e : NDAccessor_t::buffer_2D) {
-      e.resize(numWords_);
-    }
-  } catch (...) {
-    this->shutdown();
-    throw;
-  }
-}
 
 template <typename UserType>
 inline bool TestBackEndAccessor<UserType>::isReadable() const {
-  using Access_t = TestBackend::AccessMode;
-  switch (access(elem_)) {
-    case Access_t::ro:
-    case Access_t::rw:
-      return true;
-    default:
-      return false;
+  using Access_t = TestBackend::Register::Access;
+  switch (getAccess(view_)) {
+  case Access_t::ro:
+  case Access_t::rw:
+    return true;
+  default:
+    return false;
   }
 }
 
 template <typename UserType>
 inline bool TestBackEndAccessor<UserType>::isWriteable() const {
-  using Access_t = TestBackend::AccessMode;
-  switch (access(elem_)) {
-    case Access_t::rw:
-    case Access_t::wo:
-      return true;
-    default:
-      return false;
+  using Access_t = TestBackend::Register::Access;
+  switch (getAccess(view_)) {
+  case Access_t::rw:
+  case Access_t::wo:
+    return true;
+  default:
+    return false;
   }
 }
 
@@ -108,34 +95,16 @@ inline bool TestBackEndAccessor<UserType>::isWriteable() const {
 template <typename UserType>
 inline void TestBackEndAccessor<UserType>::doReadTransfer() {
   using NDAccessor_t = ChimeraTK::NDRegisterAccessor<UserType>;
-  auto x_offset = wordOffset_;
-  auto y_offset = 0;
-  copyFrom(elem_, NDAccessor_t::buffer_2D, x_offset, y_offset);
+  NDAccessor_t::buffer_2D = view_.read<UserType>();
 }
-
+/***************************************************************************/
 template <typename UserType>
 inline bool TestBackEndAccessor<UserType>::doWriteTransfer(
     ChimeraTK::VersionNumber /*versionNumber*/) {
   using NDAccessor_t = ChimeraTK::NDRegisterAccessor<UserType>;
-  auto x_offset = wordOffset_;
-  auto y_offset = 0;
-
-  std::size_t channelsWritten;
-  std::size_t elementsWritten;
-
-  std::tie(elementsWritten, channelsWritten) =
-      copyInto(elem_, //
-               NDAccessor_t::buffer_2D, x_offset, y_offset);
-
-  if ((channelsWritten == elem_.getChannels()) &&
-      (elementsWritten == numWords_)) {
-    return false; // false == succsess?
-  } else {
-    // TODO: replace with proper exception
-    throw std::runtime_error("Write to backend register failed");
-  }
+  view_.write(NDAccessor_t::buffer_2D);
+  return true;
 }
-
 /***************************************************************************/
 template <typename UserType>
 inline bool TestBackEndAccessor<UserType>::doReadTransferNonBlocking() {
@@ -153,16 +122,16 @@ inline bool TestBackEndAccessor<UserType>::doReadTransferLatest() {
 }
 
 template <typename UserType>
-inline std::list<boost::shared_ptr<ChimeraTK::TransferElement> >
+inline std::list<boost::shared_ptr<ChimeraTK::TransferElement>>
 TestBackEndAccessor<UserType>::getInternalElements() {
   return {};
 }
 
 template <typename UserType>
-inline std::vector<boost::shared_ptr<ChimeraTK::TransferElement> >
+inline std::vector<boost::shared_ptr<ChimeraTK::TransferElement>>
 TestBackEndAccessor<UserType>::getHardwareAccessingElements() {
-  return { boost::enable_shared_from_this<
-      ChimeraTK::TransferElement>::shared_from_this() };
+  return {boost::enable_shared_from_this<
+      ChimeraTK::TransferElement>::shared_from_this()};
 }
 
 } // namespace TestBackend
