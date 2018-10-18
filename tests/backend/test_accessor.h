@@ -1,8 +1,7 @@
 #ifndef TEST_ACCESSOR_H_
 #define TEST_ACCESSOR_H_
 
-#include "new_class.h"
-#include "register_access.h"
+#include "register.h"
 
 #include <ChimeraTK/AccessMode.h>
 #include <ChimeraTK/SyncNDRegisterAccessor.h>

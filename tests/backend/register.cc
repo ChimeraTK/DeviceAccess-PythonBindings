@@ -1,4 +1,5 @@
-#include "new_class.h"
+#include "register.h"
+
 #include <boost/variant.hpp>
 #include <iostream>
 

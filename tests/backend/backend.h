@@ -1,8 +1,8 @@
 #ifndef TEST_BACKEND_H
 #define TEST_BACKEND_H
 
-#include <ChimeraTK/DeviceBackendImpl.h>
 #include "register_list.h"
+#include <ChimeraTK/DeviceBackendImpl.h>
 
 namespace TestBackend {
 class accessorFactory_vtable_filler;

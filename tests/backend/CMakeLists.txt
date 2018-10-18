@@ -43,16 +43,14 @@ endif()
 set(source_files
       backend.cc
       backend_registration.cc
-      register_access.cc
-      new_class.cc
+      register.cc
       register_list.cc)
       
 set(source_headers
       backend.h
-      register_access.h
       test_catalogue.h
-      new_class.h
-      VariantTypes.h
+      register.h
+      variant_types.h
       register_list.h)
 
 #

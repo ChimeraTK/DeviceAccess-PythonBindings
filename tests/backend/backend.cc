@@ -1,10 +1,8 @@
 #include "backend.h"
+#include "test_accessor.h"
 
 #include <ChimeraTK/DeviceAccessVersion.h>
 #include <ChimeraTK/VirtualFunctionTemplate.h>
-
-#include "register_list.h"
-#include "test_accessor.h"
 
 template <typename UserType>
 using Accessor_t = boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType>>;
@@ -43,7 +41,6 @@ std::string Backend::readDeviceInfo() {
   return std::string(
       "This backend is intended to test ChimeraTK python bindings");
 }
-
 /****************************************************************************/
 template <typename UserType>
 Accessor_t<UserType>                                                      //
@@ -60,4 +57,3 @@ Backend::accessorFactory(const ChimeraTK::RegisterPath &registerPathName, //
 }
 
 } // namespace TestBackend
-  // TODO: define the filler class

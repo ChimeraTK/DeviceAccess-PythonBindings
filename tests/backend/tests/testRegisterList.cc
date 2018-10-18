@@ -1,9 +1,9 @@
 #define BOOST_TEST_MODULE testRegisterList
-#include <boost/test/included/unit_test.hpp>
 
 #include "backend.h"
 #include "register_list.h"
 #include <ChimeraTK/RegisterCatalogue.h>
+#include <boost/test/included/unit_test.hpp>
 
 TestBackend::RegisterList getTestList();
 

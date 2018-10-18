@@ -1,9 +1,9 @@
-﻿#define BOOST_TEST_MODULE testDBaseElem_new
+﻿#define BOOST_TEST_MODULE testRegister
 #include <boost/test/included/unit_test.hpp>
 #include <boost/variant.hpp>
 
-#include "VariantTypes.h"
-#include "new_class.h"
+#include "variant_types.h"
+#include "register.h"
 
 // example usage:
 // convertTo<int>(floatArray)

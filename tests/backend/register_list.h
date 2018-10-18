@@ -1,8 +1,7 @@
 #ifndef REGISTER_LIST_H_
 #define REGISTER_LIST_H_
 
-#include "new_class.h"
-#include "register_access.h"
+#include "register.h"
 
 #include <boost/shared_ptr.hpp>
 #include <ChimeraTK/RegisterCatalogue.h>
