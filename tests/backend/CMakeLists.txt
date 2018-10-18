@@ -42,12 +42,13 @@ endif()
 ###############################################################################
 set(source_files
       backend.cc
-      backend_registration.cc
       register.cc
+      backend_registration.cc
       register_list.cc)
       
 set(source_headers
       backend.h
+      backend_registration.h
       test_catalogue.h
       register.h
       variant_types.h
