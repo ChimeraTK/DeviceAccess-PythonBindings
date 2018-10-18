@@ -1,5 +1,6 @@
 #include "register.h"
 
+#include <ChimeraTK/Exception.h>
 #include <boost/variant.hpp>
 #include <iostream>
 
@@ -51,22 +52,22 @@ struct Register::View::Impl {
 };
 Indices convertToIndices(ElementStore &e, Register::Window &w);
 
-  std::string registerName(Register::View const &v) {
-    return v.impl_->r_.getName();
-  }
-  Register::Access getAccess(Register::View const &v) {
-    return v.impl_->r_.getAccessMode();
-  }
-  size_t columns(Register::View const &v) {
-    auto columnStart = v.impl_->i_.columnStart;
-    auto columnSize = v.impl_->i_.columnLimit;
-    return (columnSize - columnStart);
-  }
-  size_t rows(Register::View const &v) {
-    auto rowStart = v.impl_->i_.rowStart;
-    auto rowSize = v.impl_->i_.rowLimit;
-    return (rowSize - rowStart);
-  }
+std::string registerName(Register::View const &v) {
+  return v.impl_->r_.getName();
+}
+Register::Access getAccess(Register::View const &v) {
+  return v.impl_->r_.getAccessMode();
+}
+size_t columns(Register::View const &v) {
+  auto columnStart = v.impl_->i_.columnStart;
+  auto columnSize = v.impl_->i_.columnLimit;
+  return (columnSize - columnStart);
+}
+size_t rows(Register::View const &v) {
+  auto rowStart = v.impl_->i_.rowStart;
+  auto rowSize = v.impl_->i_.rowLimit;
+  return (rowSize - rowStart);
+}
 /*****************************************************************************/
 template <typename VariantType>
 Register::Register(std::string const &name, //
@@ -292,6 +293,11 @@ Element convertToElement(Register::Type t, UserType &&value) {
   case Register::Type::String:
     return static_cast<StringType>(std::forward<UserType>(value));
   }
+  // fixme:?;
+  // we have covered all cases for Register::type; hence reaching here should
+  // be incorrect.
+
+  throw ChimeraTK::logic_error("incorrect type requested for conversion");
 }
 /***************************************************************************/
 bool isValidWindow(ElementStore &e, Register::Window &w) {

@@ -1,2 +1,2 @@
 moduleVersion = "${${PROJECT_NAME}_VERSION}"
-deviceaccessVersion = "${mtca4u-deviceaccess_VERSION}"
+deviceaccessVersion = "${ChimeraTK-DeviceAccess_VERSION}"

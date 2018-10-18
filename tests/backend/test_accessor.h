@@ -49,9 +49,7 @@ public:
   getInternalElements() override;
   std::vector<boost::shared_ptr<ChimeraTK::TransferElement>>
   getHardwareAccessingElements() override;
-  ChimeraTK::AccessModeFlags getAccessModeFlags() const override {
-    // TODO
-  }
+  ChimeraTK::AccessModeFlags getAccessModeFlags() const override;
 };
 
 template <typename UserType>
@@ -62,9 +60,12 @@ inline bool TestBackEndAccessor<UserType>::isReadOnly() const {
     return false;
   }
 }
-/*template <typename UserType> ChimeraTK::AccessModeFlags getAccessModeFlags() {
+template <typename UserType>
+ChimeraTK::AccessModeFlags TestBackEndAccessor<UserType>::getAccessModeFlags()
+    const {
+  // fixme: fill in expected behavior
   return {};
-}*/
+}
 
 template <typename UserType>
 inline bool TestBackEndAccessor<UserType>::isReadable() const {
