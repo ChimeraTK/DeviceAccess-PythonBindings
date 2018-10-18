@@ -25,9 +25,9 @@ public:
       flags.checkForUnknownFlags(supportedFlags);
 
       using NDAccessor_t = ChimeraTK::NDRegisterAccessor<UserType>;
-      NDAccessor_t::buffer_2D.resize(columns(view_));
+      NDAccessor_t::buffer_2D.resize(rows(view_));
       for (auto &e : NDAccessor_t::buffer_2D) {
-        e.resize(rows(view_));
+        e.resize(columns(view_));
       }
     } catch (...) {
       this->shutdown();

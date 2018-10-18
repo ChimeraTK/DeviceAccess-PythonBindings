@@ -36,8 +36,8 @@ BOOST_FIXTURE_TEST_CASE(testCatalogue, Fixture_t) {
                   ChimeraTK::RegisterInfo::FundamentalType::numeric);
     } else if (it.getRegisterName() == "test2") {
       BOOST_CHECK(it.getRegisterName() == "test2");
-      BOOST_CHECK(it.getNumberOfChannels() == 5);
-      BOOST_CHECK(it.getNumberOfElements() == 3);
+      BOOST_CHECK(it.getNumberOfChannels() == 3);
+      BOOST_CHECK(it.getNumberOfElements() == 5);
       BOOST_CHECK(it.getNumberOfDimensions() == 2);
       BOOST_CHECK(it.getDataDescriptor().fundamentalType() ==
                   ChimeraTK::RegisterInfo::FundamentalType::string);

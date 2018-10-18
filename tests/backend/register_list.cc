@@ -69,8 +69,8 @@ boost::shared_ptr<TBRegisterInfo> getChimeraTkRegisterInfo(Register const &r) {
 std::tuple<size_t, size_t, size_t>
 convertToChimeraTkShape(Register::Shape const &s) {
   size_t dimensions = 0;
-  size_t channels = s.columnSize();
-  size_t elements = s.rowSize();
+  size_t channels = s.rowSize();
+  size_t elements = s.columnSize();
 
   if (channels == 1) {
     if (elements == 1) {
@@ -131,6 +131,13 @@ getChimeraTkRegisterDescriptor(Register const &r) {
 }
 RegisterList getDummyList() {
   return RegisterList{
+      {"/scalar/Int",
+       Register{
+           "/scalar/Int",           //
+           Register::Access::rw,    //
+           Register::Type::Integer, //
+           {1, 1}                   //
+       }},
       {"/oneD/Int",
        Register{
            "/oneD/Int",             //
@@ -146,6 +153,13 @@ RegisterList getDummyList() {
            {4, 3}                   //
        }},
 
+      {"/scalar/Double",
+       Register{
+           "/scalar/Double",                //
+           Register::Access::rw,          //
+           Register::Type::FloatingPoint, //
+           {1, 1}                         //
+       }},
       {"/oneD/Double",
        Register{
            "/oneD/Double",                //
@@ -161,6 +175,13 @@ RegisterList getDummyList() {
            {4, 3}                         //
        }},
 
+      {"/scalar/Bool",
+       Register{
+           "/scalar/Bool",         //
+           Register::Access::rw, //
+           Register::Type::Bool, //
+           {1, 1}                //
+       }},
       {"/oneD/Bool",
        Register{
            "/oneD/Bool",         //
@@ -176,6 +197,13 @@ RegisterList getDummyList() {
            {4, 3}                //
        }},
 
+      {"/scalar/String",
+       Register{
+           "/scalar/String",         //
+           Register::Access::rw,   //
+           Register::Type::String, //
+           {1, 1}                  //
+       }},
       {"/oneD/String",
        Register{
            "/oneD/String",         //

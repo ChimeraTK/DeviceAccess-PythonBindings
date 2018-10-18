@@ -49,8 +49,8 @@ Backend::accessorFactory(const ChimeraTK::RegisterPath &registerPathName, //
                          size_t wordOffsetInRegister,                     //
                          ChimeraTK::AccessModeFlags flags) {
   auto &r = search(impl_->list_, registerPathName);
-  auto view = r.getView({{columns(r), numberOfWords}, //
-                         0,                           //
+  auto view = r.getView({{rows(r), numberOfWords}, //
+                         0,                        //
                          wordOffsetInRegister});
 
   return Accessor_t<UserType>(new TestBackEndAccessor<UserType>(view, flags));
