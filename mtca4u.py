@@ -22,10 +22,10 @@ def get_info(outputStream=sys.stdout):
   --------
   >>> import mtca4u
   >>> mtca4u.get_info()
-  mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtca4u-deviceaccess v${mtca4u-deviceaccess_VERSION}
+  mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtca4u-deviceaccess v$ChimeraTK-DeviceAccess_VERSION}
 
   """
-  outputStream.write("mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtca4u-deviceaccess v${mtca4u-deviceaccess_VERSION}")
+  outputStream.write("mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtca4u-deviceaccess v${ChimeraTK-DeviceAccess_VERSION}")
 
 def set_dmap_location(dmapFileLocation):
   """ Sets the location of the dmap file to use
