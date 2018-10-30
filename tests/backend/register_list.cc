@@ -88,10 +88,10 @@ getChimeraTkRegisterDescriptor(Register const &r) {
   using RegisterType = TestBackend::Register::Type;
 
   ChimeraTK::RegisterInfo::FundamentalType type;
-  bool isIntegral;
-  bool isSigned;
-  std::size_t nDigits;
-  std::size_t nFractionalDigits;
+  bool isIntegral{};
+  bool isSigned{};
+  std::size_t nDigits{};
+  std::size_t nFractionalDigits{};
 
   switch (r.getType()) {
   case RegisterType::Integer:
