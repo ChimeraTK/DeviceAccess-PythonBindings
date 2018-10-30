@@ -19,17 +19,17 @@ BOOST_AUTO_TEST_CASE(testRegisterCreation) {
                                            TestBackend::Register::Access::rw,
                                            TestBackend::Register::Type::Integer,
                                            {1, 0}}),
-                    std::logic_error);
+                    ChimeraTK::logic_error);
   BOOST_CHECK_THROW((TestBackend::Register{"",
                                            TestBackend::Register::Access::rw,
                                            TestBackend::Register::Type::Integer,
                                            {0, 1}}),
-                    std::logic_error);
+                    ChimeraTK::logic_error);
   BOOST_CHECK_THROW((TestBackend::Register{"",
                                            TestBackend::Register::Access::rw,
                                            TestBackend::Register::Type::Integer,
                                            {0, 0}}),
-                    std::logic_error);
+                    ChimeraTK::logic_error);
   BOOST_CHECK_NO_THROW(
       (TestBackend::Register{"",
                              TestBackend::Register::Access::rw,
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(testRegisterWrite) {
 
   BOOST_CHECK(expected == data);
   BOOST_CHECK_THROW(r.write(std::vector<std::vector<int>>{{1, 2, 3, 4, 5}}),
-                    std::runtime_error);
+                    ChimeraTK::runtime_error);
 }
 BOOST_AUTO_TEST_CASE(testGetShape) {
   auto r = TestBackend::Register{"",
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(testNumericTypeConversions) {
     BOOST_CHECK_NO_THROW(r.write<float>({{2.0}}));
     BOOST_CHECK_NO_THROW(r.write<double>({{2.7643}}));
     BOOST_CHECK_NO_THROW(r.write<bool>({{false}}));
-    BOOST_CHECK_THROW(r.write<std::string>({{"test"}}), std::logic_error);
+    BOOST_CHECK_THROW(r.write<std::string>({{"test"}}), ChimeraTK::logic_error);
 
     BOOST_CHECK_NO_THROW(r.read<int8_t>());
     BOOST_CHECK_NO_THROW(r.read<int16_t>());
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE(testNumericTypeConversions) {
     BOOST_CHECK_NO_THROW(r.read<float>());
     BOOST_CHECK_NO_THROW(r.read<double>());
     BOOST_CHECK_NO_THROW(r.read<bool>());
-    BOOST_CHECK_THROW(r.read<std::string>(), std::logic_error);
+    BOOST_CHECK_THROW(r.read<std::string>(), ChimeraTK::logic_error);
 
     auto v = r.getView({r.getShape(), 0, 0});
     BOOST_CHECK_NO_THROW(v.write<int8_t>({{-2}}));
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE(testNumericTypeConversions) {
     BOOST_CHECK_NO_THROW(v.write<float>({{2.0}}));
     BOOST_CHECK_NO_THROW(v.write<double>({{2.7643}}));
     BOOST_CHECK_NO_THROW(v.write<bool>({{false}}));
-    BOOST_CHECK_THROW(v.write<std::string>({{"test"}}), std::logic_error);
+    BOOST_CHECK_THROW(v.write<std::string>({{"test"}}), ChimeraTK::logic_error);
 
     BOOST_CHECK_NO_THROW(v.read<int8_t>());
     BOOST_CHECK_NO_THROW(v.read<int16_t>());
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(testNumericTypeConversions) {
     BOOST_CHECK_NO_THROW(v.read<float>());
     BOOST_CHECK_NO_THROW(v.read<double>());
     BOOST_CHECK_NO_THROW(v.read<bool>());
-    BOOST_CHECK_THROW(v.read<std::string>(), std::logic_error);
+    BOOST_CHECK_THROW(v.read<std::string>(), ChimeraTK::logic_error);
   };
   for (auto &reg : numeric) {
     runTests(reg);
@@ -202,53 +202,53 @@ BOOST_AUTO_TEST_CASE(testStringTypeConversions) {
                });
 
   auto runTests = [](TestBackend::Register &r) {
-    BOOST_CHECK_THROW(r.write<int8_t>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(r.write<int16_t>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(r.write<int32_t>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(r.write<uint8_t>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(r.write<uint16_t>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(r.write<uint32_t>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(r.write<uint64_t>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(r.write<float>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(r.write<double>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(r.write<bool>({{false}}), std::logic_error);
+    BOOST_CHECK_THROW(r.write<int8_t>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.write<int16_t>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.write<int32_t>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.write<uint8_t>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.write<uint16_t>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.write<uint32_t>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.write<uint64_t>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.write<float>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.write<double>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.write<bool>({{false}}), ChimeraTK::logic_error);
     BOOST_CHECK_NO_THROW(r.write<std::string>({{"test"}}));
 
-    BOOST_CHECK_THROW(r.read<int8_t>(), std::logic_error);
-    BOOST_CHECK_THROW(r.read<int16_t>(), std::logic_error);
-    BOOST_CHECK_THROW(r.read<int32_t>(), std::logic_error);
-    BOOST_CHECK_THROW(r.read<uint8_t>(), std::logic_error);
-    BOOST_CHECK_THROW(r.read<uint16_t>(), std::logic_error);
-    BOOST_CHECK_THROW(r.read<uint32_t>(), std::logic_error);
-    BOOST_CHECK_THROW(r.read<uint64_t>(), std::logic_error);
-    BOOST_CHECK_THROW(r.read<float>(), std::logic_error);
-    BOOST_CHECK_THROW(r.read<double>(), std::logic_error);
-    BOOST_CHECK_THROW(r.read<bool>(), std::logic_error);
+    BOOST_CHECK_THROW(r.read<int8_t>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.read<int16_t>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.read<int32_t>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.read<uint8_t>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.read<uint16_t>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.read<uint32_t>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.read<uint64_t>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.read<float>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.read<double>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(r.read<bool>(), ChimeraTK::logic_error);
     BOOST_CHECK_NO_THROW(r.read<std::string>());
 
     auto v = r.getView({r.getShape(), 0, 0});
-    BOOST_CHECK_THROW(v.write<int8_t>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(v.write<int16_t>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(v.write<int32_t>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(v.write<uint8_t>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(v.write<uint16_t>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(v.write<uint32_t>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(v.write<uint64_t>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(v.write<float>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(v.write<double>({{2}}), std::logic_error);
-    BOOST_CHECK_THROW(v.write<bool>({{false}}), std::logic_error);
+    BOOST_CHECK_THROW(v.write<int8_t>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.write<int16_t>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.write<int32_t>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.write<uint8_t>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.write<uint16_t>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.write<uint32_t>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.write<uint64_t>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.write<float>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.write<double>({{2}}), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.write<bool>({{false}}), ChimeraTK::logic_error);
     BOOST_CHECK_NO_THROW(v.write<std::string>({{"test"}}));
 
-    BOOST_CHECK_THROW(v.read<int8_t>(), std::logic_error);
-    BOOST_CHECK_THROW(v.read<int16_t>(), std::logic_error);
-    BOOST_CHECK_THROW(v.read<int32_t>(), std::logic_error);
-    BOOST_CHECK_THROW(v.read<uint8_t>(), std::logic_error);
-    BOOST_CHECK_THROW(v.read<uint16_t>(), std::logic_error);
-    BOOST_CHECK_THROW(v.read<uint32_t>(), std::logic_error);
-    BOOST_CHECK_THROW(v.read<uint64_t>(), std::logic_error);
-    BOOST_CHECK_THROW(v.read<float>(), std::logic_error);
-    BOOST_CHECK_THROW(v.read<double>(), std::logic_error);
-    BOOST_CHECK_THROW(v.read<bool>(), std::logic_error);
+    BOOST_CHECK_THROW(v.read<int8_t>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.read<int16_t>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.read<int32_t>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.read<uint8_t>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.read<uint16_t>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.read<uint32_t>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.read<uint64_t>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.read<float>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.read<double>(), ChimeraTK::logic_error);
+    BOOST_CHECK_THROW(v.read<bool>(), ChimeraTK::logic_error);
     BOOST_CHECK_NO_THROW(v.read<std::string>());
   };
   for (auto &reg : strings) {
@@ -318,10 +318,10 @@ BOOST_AUTO_TEST_CASE(testCreateView) {
       (TestBackend::Register::View{r, {s, x_offset, y_offset}}));
 
   BOOST_CHECK_THROW(r.getView({s, x_offset + 100, y_offset}),
-                    std::runtime_error);
+                    ChimeraTK::runtime_error);
   BOOST_CHECK_THROW(
       (TestBackend::Register::View{r, {s, x_offset + 100, y_offset}}),
-      std::runtime_error);
+      ChimeraTK::runtime_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

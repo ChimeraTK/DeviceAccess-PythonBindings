@@ -102,7 +102,7 @@ Register::View::View(Register &r, Window w)
     : impl_(std::make_unique<Impl>(
           r, convertToIndices(r.impl_->elementStore_, w))) {
   if (!isValidWindow(r.impl_->elementStore_, w)) {
-    throw std::runtime_error("Window size is invalid for Register");
+    throw ChimeraTK::runtime_error("Window size is invalid for Register");
   }
 }
 /*****************************************************************************/
@@ -129,8 +129,9 @@ Register::View::Impl::Impl(Register &r, Indices const &i) : r_(r), i_(i) {}
 /*****************************************************************************/
 Register::Shape::Shape(size_t r, size_t c) : rows_(r), columns_(c) {
   if (rows_ == 0 || columns_ == 0) {
-    throw std::logic_error("Invalid register shape requested; register must "
-                           "accomodate at least one element");
+    throw ChimeraTK::logic_error(
+        "Invalid register shape requested; register must "
+        "accomodate at least one element");
   }
 }
 /*****************************************************************************/
@@ -168,7 +169,7 @@ void Register::write(DataContainer<T> const &data) {
   auto registerShape = extractShape(elementStore);
   auto dataShape = extractShape(data);
   if (registerShape != dataShape) {
-    throw std::runtime_error(
+    throw ChimeraTK::runtime_error(
         "Input container does not confirm to Register shape");
   }
   auto rowSize = registerShape.rowSize();

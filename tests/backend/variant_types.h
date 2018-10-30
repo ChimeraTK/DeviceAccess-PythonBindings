@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <stdexcept>
+#include<ChimeraTK/Exception.h>
 
 /*
  * wrappers to support:
@@ -36,10 +37,10 @@ public:
   operator auto() const { return value; }
 
   IntegralType(std::string) {
-    throw std::logic_error("invalid conversion: string -> integer");
+    throw ChimeraTK::logic_error("invalid conversion: string -> integer");
   }
   operator std::string() const {
-    throw std::logic_error("invalid conversion: integer - > string");
+    throw ChimeraTK::logic_error("invalid conversion: integer - > string");
   }
 };
 
@@ -52,10 +53,10 @@ public:
   operator auto() const { return value; }
 
   FloatingPointType(std::string) {
-    throw std::logic_error("invalid conversion: string - > floatingPoint");
+    throw ChimeraTK::logic_error("invalid conversion: string - > floatingPoint");
   }
   operator std::string() const {
-    throw std::logic_error("invalid conversion: floatingPoint - > string");
+    throw ChimeraTK::logic_error("invalid conversion: floatingPoint - > string");
   }
 };
 
@@ -68,10 +69,10 @@ public:
   operator auto() const { return value; }
 
   BooleanType(std::string) {
-    throw std::logic_error("invalid conversion: string - > bool");
+    throw ChimeraTK::logic_error("invalid conversion: string - > bool");
   }
   operator std::string() const {
-    throw std::logic_error("invalid conversion: bool - > string");
+    throw ChimeraTK::logic_error("invalid conversion: bool - > string");
   }
 };
 
@@ -85,13 +86,13 @@ public:
   operator std::string() const { return value; }
 
   template <typename T> StringType(T) {
-    throw std::logic_error("invalid conversion to string");
+    throw ChimeraTK::logic_error("invalid conversion to string");
   }
   template <typename T,
             typename = std::enable_if_t<std::is_floating_point<T>::value ||
                                         std::is_integral<T>::value>>
   operator T() const {
-    throw std::logic_error("invalid conversion from string type");
+    throw ChimeraTK::logic_error("invalid conversion from string type");
   }
 };
 #endif /* TESTS_BACKEND_VARIANTTYPES_H_ */
