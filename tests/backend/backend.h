@@ -10,6 +10,7 @@ class Backend : public ChimeraTK::DeviceBackendImpl {
 public:
   Backend(RegisterList l);
   ~Backend() override;
+
   void open() override;
   void close() override;
   std::string readDeviceInfo() override;
@@ -17,13 +18,15 @@ public:
 private:
   struct Impl;
   std::unique_ptr<Impl> impl_;
+
   friend accessorFactory_vtable_filler;
+
   template <typename UserType>
-  boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType> >          //
-      accessorFactory(const ChimeraTK::RegisterPath &registerPathName, //
-                      size_t numberOfWords,                            //
-                      size_t wordOffsetInRegister,                     //
-                      ChimeraTK::AccessModeFlags flags);
+  boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType>>       //
+  accessorFactory(const ChimeraTK::RegisterPath &registerPathName, //
+                  size_t numberOfWords,                            //
+                  size_t wordOffsetInRegister,                     //
+                  ChimeraTK::AccessModeFlags flags);
 };
 
 } // namespace TestBackend
