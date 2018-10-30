@@ -54,7 +54,7 @@ public:
 
 template <typename UserType>
 inline bool TestBackEndAccessor<UserType>::isReadOnly() const {
-  if (getAccess(view_) == TestBackend::Register::Access::ro) {
+  if (getAccessMode(view_) == TestBackend::Register::Access::ro) {
     return true;
   } else {
     return false;
@@ -70,7 +70,7 @@ ChimeraTK::AccessModeFlags TestBackEndAccessor<UserType>::getAccessModeFlags()
 template <typename UserType>
 inline bool TestBackEndAccessor<UserType>::isReadable() const {
   using Access_t = TestBackend::Register::Access;
-  switch (getAccess(view_)) {
+  switch (getAccessMode(view_)) {
   case Access_t::ro:
   case Access_t::rw:
     return true;
@@ -82,7 +82,7 @@ inline bool TestBackEndAccessor<UserType>::isReadable() const {
 template <typename UserType>
 inline bool TestBackEndAccessor<UserType>::isWriteable() const {
   using Access_t = TestBackend::Register::Access;
-  switch (getAccess(view_)) {
+  switch (getAccessMode(view_)) {
   case Access_t::rw:
   case Access_t::wo:
     return true;

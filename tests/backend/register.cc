@@ -55,7 +55,7 @@ Indices convertToIndices(ElementStore &e, Register::Window &w);
 std::string registerName(Register::View const &v) {
   return v.impl_->r_.getName();
 }
-Register::Access getAccess(Register::View const &v) {
+Register::Access getAccessMode(Register::View const &v) {
   return v.impl_->r_.getAccessMode();
 }
 size_t columns(Register::View const &v) {

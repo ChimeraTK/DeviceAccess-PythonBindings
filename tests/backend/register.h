@@ -50,10 +50,11 @@ public:
 
   public:
     Shape(size_t rows, size_t columns);
-    size_t rowSize() const { return rows_; }
-    size_t columnSize() const { return columns_; }
     bool operator==(Shape const &rhs);
     bool operator!=(Shape const &rhs);
+
+    size_t rowSize() const { return rows_; }
+    size_t columnSize() const { return columns_; }
   };
   struct Window {
     Shape shape;
@@ -70,12 +71,14 @@ public:
     View(View const &v);
     View(View &&v);
     ~View();
+
     template <typename UserType> //
     std::vector<std::vector<UserType>> read();
     template <typename UserType>
     void write(std::vector<std::vector<UserType>> const &d);
+
     friend std::string registerName(Register::View const &v);
-    friend Register::Access getAccess(Register::View const &v);
+    friend Register::Access getAccessMode(Register::View const &v);
     friend size_t columns(Register::View const &v);
     friend size_t rows(Register::View const &v);
   };
