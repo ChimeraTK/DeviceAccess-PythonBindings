@@ -1,4 +1,6 @@
-list(APPEND list_of_sources 
+include(registerTests)
+
+list(APPEND list_of_sources
             test_Register.cc
             testRegisterList.cc)
             

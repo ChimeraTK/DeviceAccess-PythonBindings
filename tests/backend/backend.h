@@ -9,7 +9,7 @@ class accessorFactory_vtable_filler;
 class Backend : public ChimeraTK::DeviceBackendImpl {
 public:
   Backend(RegisterList l);
-  virtual ~Backend();
+  ~Backend() override;
   void open() override;
   void close() override;
   std::string readDeviceInfo() override;

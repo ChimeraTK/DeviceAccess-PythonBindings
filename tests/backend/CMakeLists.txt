@@ -1,22 +1,25 @@
 cmake_minimum_required(VERSION 3.5)
-project(test_backend)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-option(ENABLE_TESTING "enables testing if true" TRUE)
+include(CTest)
+
+project(test_backend)
 set(library_name test_backend)
 
+option(TESTBACKEND_ENABLETESTING "enables tests if true" TRUE)
 
 #
 # Project dependencies:
-# Use installed version of libmtca4u-deviceaccess-dev by default.
-# But when added as a subproject min_req_mtca4u-deviceaccess_version may
-# be overridden from the parent project
+# Use installed version of ChimeraTK-DeviceAccess-dev by default.
+# When added as a subproject parent project can override
+# min_req_chimeratk_version to force desired value.
 ###############################################################################
-set(min_req_mtca4u-deviceaccess_version "" CACHE STRING "")
+set(min_req_chimeratk_version "" CACHE STRING "")
 find_package(ChimeraTK-DeviceAccess ${min_req_chimeratk_version} REQUIRED)
 find_package(Boost COMPONENTS system REQUIRED)
 
 #
-# Workaround: ${mtca4u-deviceaccess_CXX_FLAGS} is a string
+# Workaround: ${ChimeraTK-DeviceAccess_CXX_FLAGS} is a string
 # "-DFUSION_MAX_MAP_SIZE=30 -DFUSION_MAX_VECTOR_SIZE=30 -std=c++11" 
 #
 # because target_compile options works on a list passing the string above causes
@@ -28,13 +31,10 @@ find_package(Boost COMPONENTS system REQUIRED)
 ##############################################################################
 separate_arguments(ChimeraTK-DeviceAccess_CXX_FLAGS)
 
-if (ENABLE_TESTING)
+if (TESTBACKEND_ENABLETESTING)
   #
-  # Add support for custom functions for registering test targets.
+  # Register tests if user option is selected.
   ###########################################################################
-  list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
-  include(registerTests)
-  enable_testing()
   add_subdirectory(tests)
 endif()
 
@@ -49,7 +49,6 @@ set(source_files
 set(source_headers
       backend.h
       backend_registration.h
-      test_catalogue.h
       register.h
       variant_types.h
       register_list.h)
@@ -65,12 +64,12 @@ target_sources(${library_name}
 target_include_directories(${library_name}
   SYSTEM
   PRIVATE
-    ${mtca4u-deviceaccess_INCLUDE_DIRS}
+    ${ChimeraTK-DeviceAccess_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(${library_name}
   PRIVATE
-    ${mtca4u-deviceaccess_LIBRARIES} 
+    ${ChimeraTK-DeviceAccess_LIBRARIES}
     ${Boost_LIBRARIES})
 
 target_compile_options(${library_name}
@@ -83,4 +82,7 @@ target_compile_options(${library_name}
   PUBLIC
       -std=c++17)
       
-configure_file(cmake/TestBackend.dmap.in ${CMAKE_CURRENT_BINARY_DIR}/tests/TestBackend.dmap)
+#
+###############################################################################
+configure_file(cmake/TestBackend.dmap.in
+    ${CMAKE_CURRENT_BINARY_DIR}/tests/TestBackend.dmap)
