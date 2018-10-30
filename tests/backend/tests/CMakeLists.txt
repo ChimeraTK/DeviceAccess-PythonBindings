@@ -15,6 +15,7 @@ get_filename_component(backend_source_dir ${CMAKE_CURRENT_LIST_DIR} DIRECTORY)
 register_tests( SOURCES ${list_of_sources}
                 NAMESPACE "TestBackend" 
                 INCLUDES ${CMAKE_CURRENT_LIST_DIR} 
+                         ${ChimeraTK-DeviceAccess_INCLUDE_DIRS}
                          ${backend_source_dir}
                 DEPENDS ${library_name}
                         ${ChimeraTK-DeviceAccess_LIBRARIES}
