@@ -82,6 +82,8 @@ target_compile_options(${library_name}
   PUBLIC
       -std=c++17)
       
+set_target_properties(${library_name} PROPERTIES LINK_FLAGS "${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
+      
 #
 ###############################################################################
 configure_file(cmake/TestBackend.dmap.in
