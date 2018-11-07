@@ -120,6 +120,10 @@ target_link_libraries(testmodule ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 set_target_properties(testmodule PROPERTIES PREFIX "")
 set_target_properties(${boost_python_core_module} PROPERTIES PREFIX "")
 
+# obey link flags from DeviceAccess (e.g. rpath)
+set_target_properties(testmodule PROPERTIES LINK_FLAGS "${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
+set_target_properties(${boost_python_core_module}  PROPERTIES LINK_FLAGS "${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
+
 
 # Copy the pure python module to the build directory. This is needed by the
 # tests. Packaging looks for it in this location. The version information in the
@@ -168,7 +172,7 @@ set(${PROJECT_NAME}_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib
                                   ${Boost_LIBRARY_DIRS}")
                               
 # already set: ${PROJECT_NAME}_CXX_FLAGS
-set(${PROJECT_NAME}_LINKER_FLAGS "-Wl,-rpath=${CMAKE_INSTALL_PREFIX}/lib,--enable-new-dtags")
+set(${PROJECT_NAME}_LINKER_FLAGS "-Wl,-rpath=${CMAKE_INSTALL_PREFIX}/lib,--enable-new-dtags ${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
 
 # do not remove runtime path to libmtca-deviceaccess location  from
 # ${boost_python_core_module}  when installing
