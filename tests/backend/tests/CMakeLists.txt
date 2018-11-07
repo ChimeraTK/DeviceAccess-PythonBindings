@@ -21,3 +21,7 @@ register_tests( SOURCES ${list_of_sources}
                         ${ChimeraTK-DeviceAccess_LIBRARIES}
                 COMPILE_OPTIONS 
                         ${ChimeraTK-DeviceAccess_CXX_FLAGS})
+
+set_target_properties(test_Register PROPERTIES LINK_FLAGS "${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
+set_target_properties(testRegisterList PROPERTIES LINK_FLAGS "${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
+
