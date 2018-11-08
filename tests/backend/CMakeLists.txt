@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.5)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-include(CTest)
+option(TESTBACKEND_ENABLETESTING "enables tests if true" TRUE)
 
 project(test_backend)
+
+include(CTest)
 set(library_name test_backend)
 
-option(TESTBACKEND_ENABLETESTING "enables tests if true" TRUE)
 
 #
 # Project dependencies:
@@ -30,6 +31,10 @@ find_package(Boost COMPONENTS system REQUIRED)
 # target_compile_options. seperate_arguments can do this for us.
 ##############################################################################
 separate_arguments(ChimeraTK-DeviceAccess_CXX_FLAGS)
+# todo: the trailing white space problem has to be taken care on
+# deviceaccess side.
+string(STRIP ${ChimeraTK-DeviceAccess_LINKER_FLAGS}
+             ChimeraTK-DeviceAccess_LINKER_FLAGS)
 
 if (TESTBACKEND_ENABLETESTING)
   #
@@ -69,6 +74,7 @@ target_include_directories(${library_name}
 
 target_link_libraries(${library_name}
   PRIVATE
+    ${ChimeraTK-DeviceAccess_LINKER_FLAGS}
     ${ChimeraTK-DeviceAccess_LIBRARIES}
     ${Boost_LIBRARIES})
 
@@ -81,8 +87,6 @@ target_compile_options(${library_name}
       -Wextra
   PUBLIC
       -std=c++17)
-      
-set_target_properties(${library_name} PROPERTIES LINK_FLAGS "${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
       
 #
 ###############################################################################
