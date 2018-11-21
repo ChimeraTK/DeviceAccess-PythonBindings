@@ -9,9 +9,11 @@ import numpy
 sys.path.insert(0,os.path.abspath(os.curdir))
 import mtca4udeviceaccess
 
-class TestPCIEDevice(unittest.TestCase):
+class TestOpeningException(unittest.TestCase):
 
-    def testCreatePCIEDevice(self):
+    def testExceptionWhenOpening(self):
+        #We use the dummy with a bad map file as we know that deviceaccess
+        #is throwing here.
         self.assertRaisesRegexp(RuntimeError, "Cannot open file \".*badMapFile.map\"",
                                  mtca4udeviceaccess.createDevice, "sdm://./dummy=badMapFile.map")
 
