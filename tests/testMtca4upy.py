@@ -9,6 +9,8 @@ import numpy
 sys.path.insert(0,os.path.abspath(os.curdir))
 import mtca4u
 import versionnumbers as vn
+#to lock the mtcadummy driver against simulteneous usage by other tests
+import fcntl
 
 
 class TestPCIEDevice(unittest.TestCase):
@@ -469,4 +471,13 @@ class TestPCIEDevice(unittest.TestCase):
     self.assertTrue(readInMatrix.dtype == numpy.float32)
 
 if __name__ == '__main__':
+    #lock the kernel driver dummy against simultaneous usage
+    s1 = open('/var/run/lock/mtcadummy/mtcadummys1','w+')
+    fcntl.flock(s1, fcntl.LOCK_EX)
+    s4 = open('/var/run/lock/mtcadummy/llrfdummys4','w+')
+    fcntl.flock(s4, fcntl.LOCK_EX)
+    
     unittest.main()
+
+    fcntl.flock(s1, fcntl.LOCK_UN)
+    fcntl.flock(s4, fcntl.LOCK_UN)
