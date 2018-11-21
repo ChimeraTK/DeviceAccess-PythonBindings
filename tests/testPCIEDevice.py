@@ -12,8 +12,8 @@ import mtca4udeviceaccess
 class TestPCIEDevice(unittest.TestCase):
 
     def testCreatePCIEDevice(self):
-        self.assertRaisesRegexp(RuntimeError, "Cannot open file \"badMapFile.map\"",
-                                 mtca4udeviceaccess.createDevice, "sdm://./pci:pcieunidummys6=badMapFile.map")
+        self.assertRaisesRegexp(RuntimeError, "Cannot open file \".*badMapFile.map\"",
+                                 mtca4udeviceaccess.createDevice, "sdm://./dummy=badMapFile.map")
 
 if __name__ == '__main__':
     unittest.main()
