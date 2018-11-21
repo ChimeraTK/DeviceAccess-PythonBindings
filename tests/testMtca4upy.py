@@ -471,7 +471,16 @@ class TestPCIEDevice(unittest.TestCase):
     self.assertTrue(readInMatrix.dtype == numpy.float32)
 
 if __name__ == '__main__':
-    #lock the kernel driver dummy against simultaneous usage
+    #Lock the kernel driver dummy against simultaneous usage
+    #First make sure the directory is there. Otherwise the locking command will fail
+    try: 
+      os.makedirs('/var/run/lock/mtcadummy')
+    except OSError:
+      #We will end up here if the directory exists. This is ok.
+      #Only raise if the directory is not there.
+      if not os.path.isdir('/var/run/lock/mtcadummy'):
+        raise
+  
     s1 = open('/var/run/lock/mtcadummy/mtcadummys1','w+')
     fcntl.flock(s1, fcntl.LOCK_EX)
     s4 = open('/var/run/lock/mtcadummy/llrfdummys4','w+')
