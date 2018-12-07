@@ -1,24 +1,29 @@
 #include "register_list.h"
 
+#include "register.h"
 #include <limits>
+
 
 namespace TestBackend {
 
 class TBRegisterInfo : public ChimeraTK::RegisterInfo {
+
   ChimeraTK::RegisterPath name_;
   size_t elements_;
   size_t channels_;
   size_t dimensions_;
+  Register::Access access_;
   DataDescriptor descriptor_;
 
 public:
   TBRegisterInfo(ChimeraTK::RegisterPath name, size_t elements, size_t channels,
-                 size_t dimensions,
+                 size_t dimensions, Register::Access access,
                  ChimeraTK::RegisterInfo::DataDescriptor descriptor)
       : name_(std::move(name)),  //
         elements_(elements),     //
         channels_(channels),     //
         dimensions_(dimensions), //
+        access_(access),
         descriptor_(std::move(descriptor)) {}
 
   TBRegisterInfo() = default;
@@ -37,6 +42,31 @@ public:
   }
   DataDescriptor const &getDataDescriptor() const override {
     return descriptor_;
+  }
+  bool isReadable() const override {
+    switch (access_) {
+    case Register::Access::ro:
+    case Register::Access::rw:
+      return true;
+    case Register::Access::wo:
+      return false;
+    }
+    throw(ChimeraTK::logic_error("invalid access type"));
+  }
+  bool isWriteable() const override {
+    switch (access_) {
+    case Register::Access::rw:
+    case Register::Access::wo:
+      return true;
+    case Register::Access::ro:
+      return false;
+    }
+    throw(ChimeraTK::logic_error("invalid access type"));
+  }
+  ChimeraTK::AccessModeFlags getSupportedAccessModes() const override {
+    return {ChimeraTK::AccessMode::raw}; // fixme: revise this when we have
+                                         // defined proper access modes for the
+                                         // registers of this test backend
   }
 };
 boost::shared_ptr<TBRegisterInfo> getChimeraTkRegisterInfo(Register const &r);
@@ -60,10 +90,11 @@ boost::shared_ptr<TBRegisterInfo> getChimeraTkRegisterInfo(Register const &r) {
       convertToChimeraTkShape(r.getShape());
 
   return boost::shared_ptr<TBRegisterInfo>(
-      new TBRegisterInfo(r.getName(), //
-                         elements,    //
-                         channels,    //
-                         dimensions,  //
+      new TBRegisterInfo(r.getName(),       //
+                         elements,          //
+                         channels,          //
+                         dimensions,        //
+                         r.getAccessMode(), //
                          getChimeraTkRegisterDescriptor(r)));
 }
 std::tuple<size_t, size_t, size_t>
