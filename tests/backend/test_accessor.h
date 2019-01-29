@@ -12,6 +12,7 @@ template <typename UserType>
 class TestBackEndAccessor : public ChimeraTK::SyncNDRegisterAccessor<UserType> {
 
   Register::View view_;
+  ChimeraTK::VersionNumber currentVersion_{};
 
 public:
   TestBackEndAccessor(Register::View &v, ChimeraTK::AccessModeFlags flags)
@@ -45,11 +46,13 @@ public:
   bool doReadTransferNonBlocking() override;
   bool doReadTransferLatest() override;
   bool doWriteTransfer(ChimeraTK::VersionNumber versionNumber = {}) override;
+  void doPostRead() override;
   std::list<boost::shared_ptr<ChimeraTK::TransferElement>>
   getInternalElements() override;
   std::vector<boost::shared_ptr<ChimeraTK::TransferElement>>
   getHardwareAccessingElements() override;
   ChimeraTK::AccessModeFlags getAccessModeFlags() const override;
+  ChimeraTK::VersionNumber getVersionNumber() const override { return currentVersion_; }
 };
 
 template <typename UserType>
@@ -94,15 +97,23 @@ inline bool TestBackEndAccessor<UserType>::isWriteable() const {
 /***************************************************************************/
 template <typename UserType>
 inline void TestBackEndAccessor<UserType>::doReadTransfer() {
+  // nothing to do here, the actual transfer happens directly to the buffer_2D, so we have to do it in doPostRead().
+}
+
+/***************************************************************************/
+template <typename UserType>
+inline void TestBackEndAccessor<UserType>::doPostRead() {
   using NDAccessor_t = ChimeraTK::NDRegisterAccessor<UserType>;
   NDAccessor_t::buffer_2D = view_.read<UserType>();
+  currentVersion_ = {};
 }
 /***************************************************************************/
 template <typename UserType>
 inline bool TestBackEndAccessor<UserType>::doWriteTransfer(
-    ChimeraTK::VersionNumber /*versionNumber*/) {
+    ChimeraTK::VersionNumber versionNumber) {
   using NDAccessor_t = ChimeraTK::NDRegisterAccessor<UserType>;
   view_.write(NDAccessor_t::buffer_2D);
+  currentVersion_ = versionNumber;
   return true;
 }
 /***************************************************************************/
