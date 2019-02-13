@@ -56,6 +56,15 @@ function(extract_ubuntu_variant os_code_name)
     set(${os_code_name} ${lsb_release_os_codename} PARENT_SCOPE)
 endfunction()
 
+# Return os_release_version, empty if not found
+function(get_os_distro_version os_release_version)
+    find_program(lsb_release lsb_release)
+    execute_process(COMMAND ${lsb_release} -rs
+                    OUTPUT_VARIABLE lsb_release_os_version
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+    set(${os_release_version} ${lsb_release_os_version} PARENT_SCOPE)
+endfunction()
+
 #
 # Returns os_vendor as Ubuntu if applicable 
 function (get_os_distro_vendor os_vendor)
@@ -97,13 +106,18 @@ endfunction()
 
 function (get_boost_python_component_name pythonlib_version component_name)
     get_os_distro_vendor(os_vendor)
+    get_os_distro_version(os_distro_version)
     convert_version_string_to_list(${pythonlib_version} version_list)
     list(GET version_list 0 major_version)
     list(GET version_list 1 minor_version)
-    
+
     if("${os_vendor}" STREQUAL "Ubuntu")
+        set(python3_prefix "python3-py")
+        if (${os_distro_version} VERSION_LESS 18.10)
+            set(python3_prefix "python-py")
+        endif()
         if(PYTHON3)
-            set(${component_name} "python-py${major_version}${minor_version}" PARENT_SCOPE)
+            set(${component_name} "${python3_prefix}${major_version}${minor_version}" PARENT_SCOPE)
         else()
             set(${component_name} "python" PARENT_SCOPE)
         endif()
