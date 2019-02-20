@@ -69,7 +69,7 @@ if(SUPPORTED_SPHINX_VERSION_AVAILABLE)
   ADD_HTML_DOCUMENTATION_SUPPORT()
 else()
   message(STATUS "Html doumentation support will not be enabled")
-  message(STATUS "Please install working sphinx-doc version (1.3.0+) for html documentation support")
+  message(STATUS "Please install working sphinx-doc version (1.3.0+) for html documentation support (the package may be called python3-sphinx)")
 endif(SUPPORTED_SPHINX_VERSION_AVAILABLE)
 
 #
