@@ -3,8 +3,8 @@
 
 #include "register.h"
 
-#include <boost/shared_ptr.hpp>
 #include <ChimeraTK/RegisterCatalogue.h>
+#include <boost/shared_ptr.hpp>
 #include <unordered_map>
 #include <vector>
 

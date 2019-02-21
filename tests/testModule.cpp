@@ -3,7 +3,7 @@
 
 namespace bp = boost::python;
 
-void testNumpyObjManager(mtca4upy::NumpyObject&);
+void testNumpyObjManager(mtca4upy::NumpyObject &);
 
 BOOST_PYTHON_MODULE(testmodule) {
 
@@ -21,10 +21,7 @@ BOOST_PYTHON_MODULE(testmodule) {
       .value("USUPPORTED_TYPE", mtca4upy::USUPPORTED_TYPE);
 
   bp::def("testNumpyObjManager", testNumpyObjManager);
-
 }
 
 // Here just to check the binding
-void testNumpyObjManager(mtca4upy::NumpyObject& /*numpyArray*/){
-
-}
+void testNumpyObjManager(mtca4upy::NumpyObject & /*numpyArray*/) {}

@@ -1,8 +1,8 @@
 #include "backend.h"
 
-#include <ChimeraTK/DeviceBackendImpl.h>
 #include <ChimeraTK/BackendFactory.h>
 #include <ChimeraTK/DeviceAccessVersion.h>
+#include <ChimeraTK/DeviceBackendImpl.h>
 
 namespace TestBackend {
 using Backend_t = boost::shared_ptr<ChimeraTK::DeviceBackend>;
@@ -27,7 +27,6 @@ Backend_t BackendRegisterer::createBackend(std::string /*host*/,     //
                                            std::string /*mapFileName*/) {
   return Backend_t(new Backend(TestBackend::getDummyList()));
 }
-
 
 } // namespace TestBackend
 

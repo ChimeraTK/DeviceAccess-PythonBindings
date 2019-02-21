@@ -2,8 +2,8 @@
 #include <boost/test/included/unit_test.hpp>
 #include <boost/variant.hpp>
 
-#include "variant_types.h"
 #include "register.h"
+#include "variant_types.h"
 
 // example usage:
 // convertTo<int>(floatArray)

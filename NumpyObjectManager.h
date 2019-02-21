@@ -22,31 +22,31 @@ class NumpyObject : public boost::python::object {
 public:
   BOOST_PYTHON_FORWARD_OBJECT_CONSTRUCTORS(NumpyObject, bp::object);
 };
-} // namespace: mtca4upy
+} // namespace mtca4upy
 
 namespace boost {
 namespace python {
-  namespace converter {
+namespace converter {
 
-    template <> struct object_manager_traits<mtca4upy::NumpyObject> {
-      BOOST_STATIC_CONSTANT(bool, is_specialized = true);
+template <> struct object_manager_traits<mtca4upy::NumpyObject> {
+  BOOST_STATIC_CONSTANT(bool, is_specialized = true);
 
-      /*
-       * Return a boost::python::object handler when obj is a PyArray_Type
-       */
-      static inline python::detail::new_reference adopt(PyObject* obj) {
-        return python::detail::new_reference(
-            (python::pytype_check((PyTypeObject*)get_pytype(), obj)));
-      }
-
-      static inline bool check(PyObject* obj) {
-        return PyObject_IsInstance(obj, (PyObject*)get_pytype());
-      }
-
-      static inline PyTypeObject const* get_pytype() { return &PyArray_Type; }
-    };
+  /*
+   * Return a boost::python::object handler when obj is a PyArray_Type
+   */
+  static inline python::detail::new_reference adopt(PyObject *obj) {
+    return python::detail::new_reference(
+        (python::pytype_check((PyTypeObject *)get_pytype(), obj)));
   }
-}
-} // namespace: boost::python::converter
+
+  static inline bool check(PyObject *obj) {
+    return PyObject_IsInstance(obj, (PyObject *)get_pytype());
+  }
+
+  static inline PyTypeObject const *get_pytype() { return &PyArray_Type; }
+};
+} // namespace converter
+} // namespace python
+} // namespace boost
 
 #endif /* NUMPYOBJECTMANAGER_H_ */

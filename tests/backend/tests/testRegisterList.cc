@@ -47,20 +47,20 @@ BOOST_FIXTURE_TEST_CASE(testCatalogue, Fixture_t) {
   }
 }
 
-  TestBackend::RegisterList getTestList() {
-    TestBackend::RegisterList tmp;
+TestBackend::RegisterList getTestList() {
+  TestBackend::RegisterList tmp;
 
-    tmp.emplace(std::make_pair(
-        std::string{"test1"},
-        TestBackend::Register{"test1",                              //
-                              TestBackend::Register::Access::rw,    //
-                              TestBackend::Register::Type::Integer, //
-                              {1, 1}}));
-    tmp.emplace(std::make_pair(
-        std::string{"test2"},
-        TestBackend::Register{"test2",                             //
-                              TestBackend::Register::Access::rw,   //
-                              TestBackend::Register::Type::String, //
-                              {3, 5}}));
-    return tmp;
-  }
+  tmp.emplace(std::make_pair(
+      std::string{"test1"},
+      TestBackend::Register{"test1",                              //
+                            TestBackend::Register::Access::rw,    //
+                            TestBackend::Register::Type::Integer, //
+                            {1, 1}}));
+  tmp.emplace(std::make_pair(
+      std::string{"test2"},
+      TestBackend::Register{"test2",                             //
+                            TestBackend::Register::Access::rw,   //
+                            TestBackend::Register::Type::String, //
+                            {3, 5}}));
+  return tmp;
+}

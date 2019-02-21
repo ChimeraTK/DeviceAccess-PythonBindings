@@ -52,7 +52,9 @@ public:
   std::vector<boost::shared_ptr<ChimeraTK::TransferElement>>
   getHardwareAccessingElements() override;
   ChimeraTK::AccessModeFlags getAccessModeFlags() const override;
-  ChimeraTK::VersionNumber getVersionNumber() const override { return currentVersion_; }
+  ChimeraTK::VersionNumber getVersionNumber() const override {
+    return currentVersion_;
+  }
 };
 
 template <typename UserType>
@@ -64,8 +66,8 @@ inline bool TestBackEndAccessor<UserType>::isReadOnly() const {
   }
 }
 template <typename UserType>
-ChimeraTK::AccessModeFlags TestBackEndAccessor<UserType>::getAccessModeFlags()
-    const {
+ChimeraTK::AccessModeFlags
+TestBackEndAccessor<UserType>::getAccessModeFlags() const {
   // fixme: fill in expected behavior
   return {};
 }
@@ -97,7 +99,8 @@ inline bool TestBackEndAccessor<UserType>::isWriteable() const {
 /***************************************************************************/
 template <typename UserType>
 inline void TestBackEndAccessor<UserType>::doReadTransfer() {
-  // nothing to do here, the actual transfer happens directly to the buffer_2D, so we have to do it in doPostRead().
+  // nothing to do here, the actual transfer happens directly to the buffer_2D,
+  // so we have to do it in doPostRead().
 }
 
 /***************************************************************************/

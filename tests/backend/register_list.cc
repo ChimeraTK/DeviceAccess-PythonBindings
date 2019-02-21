@@ -3,7 +3,6 @@
 #include "register.h"
 #include <limits>
 
-
 namespace TestBackend {
 
 class TBRegisterInfo : public ChimeraTK::RegisterInfo {
@@ -23,8 +22,7 @@ public:
         elements_(elements),     //
         channels_(channels),     //
         dimensions_(dimensions), //
-        access_(access),
-        descriptor_(std::move(descriptor)) {}
+        access_(access), descriptor_(std::move(descriptor)) {}
 
   TBRegisterInfo() = default;
   virtual ~TBRegisterInfo() override = default;
@@ -186,7 +184,7 @@ RegisterList getDummyList() {
 
       {"/scalar/Double",
        Register{
-           "/scalar/Double",                //
+           "/scalar/Double",              //
            Register::Access::rw,          //
            Register::Type::FloatingPoint, //
            {1, 1}                         //
@@ -208,7 +206,7 @@ RegisterList getDummyList() {
 
       {"/scalar/Bool",
        Register{
-           "/scalar/Bool",         //
+           "/scalar/Bool",       //
            Register::Access::rw, //
            Register::Type::Bool, //
            {1, 1}                //
@@ -230,7 +228,7 @@ RegisterList getDummyList() {
 
       {"/scalar/String",
        Register{
-           "/scalar/String",         //
+           "/scalar/String",       //
            Register::Access::rw,   //
            Register::Type::String, //
            {1, 1}                  //

@@ -8,9 +8,9 @@
 #ifndef TESTS_BACKEND_VARIANTTYPES_H_
 #define TESTS_BACKEND_VARIANTTYPES_H_
 
+#include <ChimeraTK/Exception.h>
 #include <cstdint>
 #include <stdexcept>
-#include<ChimeraTK/Exception.h>
 
 /*
  * wrappers to support:
@@ -53,10 +53,12 @@ public:
   operator auto() const { return value; }
 
   FloatingPointType(std::string) {
-    throw ChimeraTK::logic_error("invalid conversion: string - > floatingPoint");
+    throw ChimeraTK::logic_error(
+        "invalid conversion: string - > floatingPoint");
   }
   operator std::string() const {
-    throw ChimeraTK::logic_error("invalid conversion: floatingPoint - > string");
+    throw ChimeraTK::logic_error(
+        "invalid conversion: floatingPoint - > string");
   }
 };
 

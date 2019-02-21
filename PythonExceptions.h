@@ -22,6 +22,6 @@ public:
 };
 MTCA4U_PYTHON_EXCEPTION(ArrayOutOfBoundException)
 MTCA4U_PYTHON_EXCEPTION(ArrayElementTypeNotSupported)
-}
+} // namespace mtca4upy
 
 #endif /* SOURCE_DIRECTORY__PYTHONEXCEPTION_H_ */

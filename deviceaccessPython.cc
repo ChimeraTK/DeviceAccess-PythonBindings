@@ -9,7 +9,7 @@ namespace twoD = mtca4upy::TwoDAccessor;
 //****************************************************************************//
 
 static boost::shared_ptr<ChimeraTK::Device> (*createDevice)(
-    const std::string&) = &mtca4upy::createDevice;
+    const std::string &) = &mtca4upy::createDevice;
 
 //****************************************************************************//
 
@@ -31,27 +31,27 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
       .def("writeRaw", mtca4upy::DeviceAccess::writeRaw)
       .def("get2DAccessor", mtca4upy::DeviceAccess::getTwoDAccessor);
 
-  bp::class_<ChimeraTK::OneDRegisterAccessor<int32_t> >("OneDAccessor_int32")
+  bp::class_<ChimeraTK::OneDRegisterAccessor<int32_t>>("OneDAccessor_int32")
       .def("read", oneD::read<int32_t>)
       .def("write", oneD::write<int32_t>)
       .def("getNumElements", oneD::getNumberOfElements<int32_t>);
 
-  bp::class_<ChimeraTK::OneDRegisterAccessor<int64_t> >("OneDAccessor_int64")
+  bp::class_<ChimeraTK::OneDRegisterAccessor<int64_t>>("OneDAccessor_int64")
       .def("read", oneD::read<int64_t>)
       .def("write", oneD::write<int64_t>)
       .def("getNumElements", oneD::getNumberOfElements<int64_t>);
 
-  bp::class_<ChimeraTK::OneDRegisterAccessor<float> >("OneDAccessor_float")
+  bp::class_<ChimeraTK::OneDRegisterAccessor<float>>("OneDAccessor_float")
       .def("read", oneD::read<float>)
       .def("write", oneD::write<float>)
       .def("getNumElements", oneD::getNumberOfElements<float>);
 
-  bp::class_<ChimeraTK::OneDRegisterAccessor<double> >("OneDAccessor_double")
+  bp::class_<ChimeraTK::OneDRegisterAccessor<double>>("OneDAccessor_double")
       .def("read", oneD::read<double>)
       .def("write", oneD::write<double>)
       .def("getNumElements", oneD::getNumberOfElements<double>);
 
-  bp::class_<ChimeraTK::TwoDRegisterAccessor<float> >("TwoDAccessor_float")
+  bp::class_<ChimeraTK::TwoDRegisterAccessor<float>>("TwoDAccessor_float")
       .def("read", twoD::read<float>)
       .def("getNChannels", twoD::getNChannels<float>)
       .def("getNElementsPerChannel", twoD::getNElementsPerChannel<float>);
@@ -59,5 +59,5 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
   bp::def("createDevice", createDevice);
   bp::def("setDmapFile", mtca4upy::setDmapFile);
   bp::def("getDmapFile", mtca4upy::getDmapFile);
-  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::Device> >();
+  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::Device>>();
 }
