@@ -8,8 +8,7 @@ namespace twoD = mtca4upy::TwoDAccessor;
 // This section defines function pointers used for overloading methods//
 //****************************************************************************//
 
-static boost::shared_ptr<ChimeraTK::Device> (*createDevice)(
-    const std::string &) = &mtca4upy::createDevice;
+static boost::shared_ptr<ChimeraTK::Device> (*createDevice)(const std::string&) = &mtca4upy::createDevice;
 
 //****************************************************************************//
 
@@ -21,8 +20,7 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
   Py_Initialize();
   _import_array();
 
-  bp::class_<ChimeraTK::Device>(
-      "Device") // TODO: Find and change "Device" to a suitable name
+  bp::class_<ChimeraTK::Device>("Device") // TODO: Find and change "Device" to a suitable name
       .def("get1DAccessor_int32", da::getOneDAccessor<int32_t>)
       .def("get1DAccessor_int64", da::getOneDAccessor<int64_t>)
       .def("get1DAccessor_float", da::getOneDAccessor<float>)

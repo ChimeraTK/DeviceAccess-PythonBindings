@@ -7,112 +7,99 @@
 
 namespace mtca4upy {
 
-/*
- * Returns mtca4u-deviceaccess type Device. Inputs are the device identifier
- * (/dev/..) and the location of the map file. A mtca4u-deviceaccess Dummy
- * device is returned if both the  deviceIdentifier and mapFile parameters are
- * set to the same valid Map file.
- */
-boost::shared_ptr<ChimeraTK::Device>
-createDevice(const std::string &deviceIdentifier, const std::string &mapFile);
+  /*
+   * Returns mtca4u-deviceaccess type Device. Inputs are the device identifier
+   * (/dev/..) and the location of the map file. A mtca4u-deviceaccess Dummy
+   * device is returned if both the  deviceIdentifier and mapFile parameters are
+   * set to the same valid Map file.
+   */
+  boost::shared_ptr<ChimeraTK::Device> createDevice(const std::string& deviceIdentifier, const std::string& mapFile);
 
-/*
- * This method uses the factory provided by the device access library for device
- * creation. The deviceAlias is picked from the specified dmap file, which is
- * set through the environment variable DMAP_PATH_ENV
- */
+  /*
+   * This method uses the factory provided by the device access library for device
+   * creation. The deviceAlias is picked from the specified dmap file, which is
+   * set through the environment variable DMAP_PATH_ENV
+   */
 
-boost::shared_ptr<ChimeraTK::Device>
-createDevice(const std::string &deviceAlias);
+  boost::shared_ptr<ChimeraTK::Device> createDevice(const std::string& deviceAlias);
 
-namespace OneDAccessor {
-template <typename T>
-void read(ChimeraTK::OneDRegisterAccessor<T> &self,
-          mtca4upy::NumpyObject &numpyArray) {
-  self.read();
-  T *allocatedSpace = reinterpret_cast<T *>(extractDataPointer(numpyArray));
-  for (const auto &element : self) {
-    *(allocatedSpace++) = element;
-  }
-}
-
-template <typename T>
-void write(ChimeraTK::OneDRegisterAccessor<T> &self,
-           mtca4upy::NumpyObject &numpyArray) {
-  T *dataToWrite = reinterpret_cast<T *>(extractDataPointer(numpyArray));
-  unsigned int numberOfElementsToWrite = self.getNElements();
-  for (size_t index = 0; index < numberOfElementsToWrite; ++index) {
-    self[index] = dataToWrite[index];
-  }
-  self.write();
-}
-
-template <typename T>
-size_t getNumberOfElements(ChimeraTK::OneDRegisterAccessor<T> &self) {
-  return self.getNElements();
-}
-} // namespace OneDAccessor
-
-namespace TwoDAccessor {
-template <typename T>
-void read(ChimeraTK::TwoDRegisterAccessor<T> &self,
-          mtca4upy::NumpyObject &numpyArray) {
-
-  self.read();
-
-  T *allocatedSpace = reinterpret_cast<T *>(extractDataPointer(numpyArray));
-
-  auto numSequences = self.getNChannels();
-  auto elemetsInEachSequence = self.getNElementsPerChannel();
-
-  // pyArrayCol corresponds to the sequence numbers and pyArrrayRow to
-  // each element of the sequence
-  for (size_t pyArrayCol = 0; pyArrayCol < numSequences; ++pyArrayCol) {
-    for (size_t pyArrrayRow = 0; pyArrrayRow < elemetsInEachSequence;
-         ++pyArrrayRow) {
-      allocatedSpace[(numSequences * pyArrrayRow) + pyArrayCol] =
-          self[pyArrayCol][pyArrrayRow];
+  namespace OneDAccessor {
+    template<typename T>
+    void read(ChimeraTK::OneDRegisterAccessor<T>& self, mtca4upy::NumpyObject& numpyArray) {
+      self.read();
+      T* allocatedSpace = reinterpret_cast<T*>(extractDataPointer(numpyArray));
+      for(const auto& element : self) {
+        *(allocatedSpace++) = element;
+      }
     }
-  }
-}
 
-template <typename T>
-size_t getNChannels(ChimeraTK::TwoDRegisterAccessor<T> &self) {
-  return self.getNChannels();
-}
+    template<typename T>
+    void write(ChimeraTK::OneDRegisterAccessor<T>& self, mtca4upy::NumpyObject& numpyArray) {
+      T* dataToWrite = reinterpret_cast<T*>(extractDataPointer(numpyArray));
+      unsigned int numberOfElementsToWrite = self.getNElements();
+      for(size_t index = 0; index < numberOfElementsToWrite; ++index) {
+        self[index] = dataToWrite[index];
+      }
+      self.write();
+    }
 
-template <typename T>
-size_t getNElementsPerChannel(ChimeraTK::TwoDRegisterAccessor<T> &self) {
-  return self.getNElementsPerChannel();
-}
+    template<typename T>
+    size_t getNumberOfElements(ChimeraTK::OneDRegisterAccessor<T>& self) {
+      return self.getNElements();
+    }
+  } // namespace OneDAccessor
 
-} // namespace TwoDAccessor
+  namespace TwoDAccessor {
+    template<typename T>
+    void read(ChimeraTK::TwoDRegisterAccessor<T>& self, mtca4upy::NumpyObject& numpyArray) {
+      self.read();
 
-namespace DeviceAccess {
-ChimeraTK::TwoDRegisterAccessor<float>
-getTwoDAccessor(const ChimeraTK::Device &self, const std::string &registerPath);
+      T* allocatedSpace = reinterpret_cast<T*>(extractDataPointer(numpyArray));
 
-template <typename T>
-ChimeraTK::OneDRegisterAccessor<T>
-getOneDAccessor(const ChimeraTK::Device &self, const std::string &registerPath,
-                size_t numberOfelementsToRead, size_t elementOffset) {
-  return self.getOneDRegisterAccessor<T>(registerPath, numberOfelementsToRead,
-                                         elementOffset);
-}
+      auto numSequences = self.getNChannels();
+      auto elemetsInEachSequence = self.getNElementsPerChannel();
 
-ChimeraTK::OneDRegisterAccessor<int32_t>
-getRawOneDAccessor(const ChimeraTK::Device &self,
-                   const std::string &registerPath,
-                   size_t numberOfelementsToRead, size_t elementOffset);
+      // pyArrayCol corresponds to the sequence numbers and pyArrrayRow to
+      // each element of the sequence
+      for(size_t pyArrayCol = 0; pyArrayCol < numSequences; ++pyArrayCol) {
+        for(size_t pyArrrayRow = 0; pyArrrayRow < elemetsInEachSequence; ++pyArrrayRow) {
+          allocatedSpace[(numSequences * pyArrrayRow) + pyArrayCol] = self[pyArrayCol][pyArrrayRow];
+        }
+      }
+    }
 
-void writeRaw(ChimeraTK::Device &self, std::string const &registerName, //
-              uint32_t regOffset, mtca4upy::NumpyObject dataToWrite,
-              size_t bytesToWrite);
+    template<typename T>
+    size_t getNChannels(ChimeraTK::TwoDRegisterAccessor<T>& self) {
+      return self.getNChannels();
+    }
 
-} // namespace DeviceAccess
+    template<typename T>
+    size_t getNElementsPerChannel(ChimeraTK::TwoDRegisterAccessor<T>& self) {
+      return self.getNElementsPerChannel();
+    }
 
-void setDmapFile(const std::string &dmapFile);
-std::string getDmapFile();
+  } // namespace TwoDAccessor
+
+  namespace DeviceAccess {
+    ChimeraTK::TwoDRegisterAccessor<float> getTwoDAccessor(
+        const ChimeraTK::Device& self, const std::string& registerPath);
+
+    template<typename T>
+    ChimeraTK::OneDRegisterAccessor<T> getOneDAccessor(const ChimeraTK::Device& self, const std::string& registerPath,
+        size_t numberOfelementsToRead, size_t elementOffset) {
+      return self.getOneDRegisterAccessor<T>(registerPath, numberOfelementsToRead, elementOffset);
+    }
+
+    ChimeraTK::OneDRegisterAccessor<int32_t> getRawOneDAccessor(const ChimeraTK::Device& self,
+        const std::string& registerPath, size_t numberOfelementsToRead, size_t elementOffset);
+
+    void writeRaw(ChimeraTK::Device& self, std::string const& registerName, //
+        uint32_t regOffset, mtca4upy::NumpyObject dataToWrite, size_t bytesToWrite);
+
+  } // namespace DeviceAccess
+
+  void setDmapFile(const std::string& dmapFile);
+  std::string getDmapFile();
 
 } // namespace mtca4upy
 

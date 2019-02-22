@@ -5,11 +5,10 @@
 
 namespace mtca4upy {
 
-boost::shared_ptr<ChimeraTK::Device>
-createDevice(const std::string &deviceAlias) {
-  ChimeraTK::Device *device = new ChimeraTK::Device();
-  device->open(deviceAlias);
-  return boost::shared_ptr<ChimeraTK::Device>(device);
-}
+  boost::shared_ptr<ChimeraTK::Device> createDevice(const std::string& deviceAlias) {
+    ChimeraTK::Device* device = new ChimeraTK::Device();
+    device->open(deviceAlias);
+    return boost::shared_ptr<ChimeraTK::Device>(device);
+  }
 
 } /* namespace mtca4upy */

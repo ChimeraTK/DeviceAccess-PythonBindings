@@ -31,68 +31,56 @@
 class IntegralType {
   int64_t value{0};
 
-public:
+ public:
   IntegralType() = default;
-  template <typename T> IntegralType(T const &numeric) : value(numeric) {}
+  template<typename T>
+  IntegralType(T const& numeric) : value(numeric) {}
   operator auto() const { return value; }
 
-  IntegralType(std::string) {
-    throw ChimeraTK::logic_error("invalid conversion: string -> integer");
-  }
-  operator std::string() const {
-    throw ChimeraTK::logic_error("invalid conversion: integer - > string");
-  }
+  IntegralType(std::string) { throw ChimeraTK::logic_error("invalid conversion: string -> integer"); }
+  operator std::string() const { throw ChimeraTK::logic_error("invalid conversion: integer - > string"); }
 };
 
 class FloatingPointType {
   double value{0};
 
-public:
+ public:
   FloatingPointType() = default;
-  template <typename T> FloatingPointType(T const &numeric) : value(numeric) {}
+  template<typename T>
+  FloatingPointType(T const& numeric) : value(numeric) {}
   operator auto() const { return value; }
 
-  FloatingPointType(std::string) {
-    throw ChimeraTK::logic_error(
-        "invalid conversion: string - > floatingPoint");
-  }
-  operator std::string() const {
-    throw ChimeraTK::logic_error(
-        "invalid conversion: floatingPoint - > string");
-  }
+  FloatingPointType(std::string) { throw ChimeraTK::logic_error("invalid conversion: string - > floatingPoint"); }
+  operator std::string() const { throw ChimeraTK::logic_error("invalid conversion: floatingPoint - > string"); }
 };
 
 class BooleanType {
   bool value{false};
 
-public:
+ public:
   BooleanType() = default;
-  template <typename T> BooleanType(T const &numeric) : value(numeric) {}
+  template<typename T>
+  BooleanType(T const& numeric) : value(numeric) {}
   operator auto() const { return value; }
 
-  BooleanType(std::string) {
-    throw ChimeraTK::logic_error("invalid conversion: string - > bool");
-  }
-  operator std::string() const {
-    throw ChimeraTK::logic_error("invalid conversion: bool - > string");
-  }
+  BooleanType(std::string) { throw ChimeraTK::logic_error("invalid conversion: string - > bool"); }
+  operator std::string() const { throw ChimeraTK::logic_error("invalid conversion: bool - > string"); }
 };
 
 class StringType {
   std::string value{""};
 
-public:
+ public:
   StringType() = default;
-  StringType(std::string const &s) : value(s) {}
+  StringType(std::string const& s) : value(s) {}
 
   operator std::string() const { return value; }
 
-  template <typename T> StringType(T) {
+  template<typename T>
+  StringType(T) {
     throw ChimeraTK::logic_error("invalid conversion to string");
   }
-  template <typename T,
-            typename = std::enable_if_t<std::is_floating_point<T>::value ||
-                                        std::is_integral<T>::value>>
+  template<typename T, typename = std::enable_if_t<std::is_floating_point<T>::value || std::is_integral<T>::value>>
   operator T() const {
     throw ChimeraTK::logic_error("invalid conversion from string type");
   }

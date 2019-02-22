@@ -3,10 +3,9 @@
 
 namespace bp = boost::python;
 
-void testNumpyObjManager(mtca4upy::NumpyObject &);
+void testNumpyObjManager(mtca4upy::NumpyObject&);
 
 BOOST_PYTHON_MODULE(testmodule) {
-
   // needed for the numpy ndarray c api to function correctly.
   Py_Initialize();
   _import_array();
@@ -24,4 +23,4 @@ BOOST_PYTHON_MODULE(testmodule) {
 }
 
 // Here just to check the binding
-void testNumpyObjManager(mtca4upy::NumpyObject & /*numpyArray*/) {}
+void testNumpyObjManager(mtca4upy::NumpyObject& /*numpyArray*/) {}

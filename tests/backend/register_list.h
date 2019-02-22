@@ -9,11 +9,11 @@
 #include <vector>
 
 namespace TestBackend {
-using RegisterList = std::unordered_map<std::string, Register>;
+  using RegisterList = std::unordered_map<std::string, Register>;
 
-RegisterList getDummyList();
-ChimeraTK::RegisterCatalogue convertToRegisterCatalogue(RegisterList const &l);
-Register &search(RegisterList &l, std::string const &id);
+  RegisterList getDummyList();
+  ChimeraTK::RegisterCatalogue convertToRegisterCatalogue(RegisterList const& l);
+  Register& search(RegisterList& l, std::string const& id);
 
 } // namespace TestBackend
 
