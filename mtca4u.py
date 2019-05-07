@@ -604,13 +604,13 @@ class Device():
       >>> import mtca4u
       >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
       >>> device = mtca4u.Device("device_name")
-      >>> device.read_sequences("", "DMA")
+      >>> device.read_sequences("BOARD.0", "DMA")
       array([[   0.,    1.,    4.,    9.,   16.],
              [  25.,   36.,   49.,   64.,   81.],
              [ 100.,  121.,  144.,  169.,  196.],
              [ 225.,  256.,  289.,  324.,  361.]
              [ 400.,  441.,  484.,  529.,  576.]], dtype=float32)
-      >>> device.read_sequences(registerPath= '/DMA')
+      >>> device.read_sequences(registerPath= '/BOARD.0/DMA')
       array([[   0.,    1.,    4.,    9.,   16.],
              [  25.,   36.,   49.,   64.,   81.],
              [ 100.,  121.,  144.,  169.,  196.],
@@ -618,7 +618,7 @@ class Device():
              [ 400.,  441.,  484.,  529.,  576.]], dtype=float32)
 
     Each column of the 2D matrix represents an extracted sequence:
-     >>> data = device.read_sequences("", "DMA")
+     >>> data = device.read_sequences("BOARD.0", "DMA")
      >>> adc0_values = data[:,0] # array([0., 25., 100., 225., 400.])
      >>> adc1_values = data[:,1] # array([1., 36., 49., 64., 81.])
      >>> adc3_values = data[:,3] # array([9., 64., 169., 324., 529.])
