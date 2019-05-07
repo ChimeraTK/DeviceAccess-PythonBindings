@@ -1,11 +1,12 @@
 import mtca4udeviceaccess
 import numpy
 import sys
-import os
 
 __version__ = "${${PROJECT_NAME}_VERSION}"
 
-#http://stackoverflow.com/questions/4219717/how-to-assert-output-with-nosetest-unittest-in-python
+# http://stackoverflow.com/questions/4219717/how-to-assert-output-with-nosetest-unittest-in-python
+
+
 def get_info(outputStream=sys.stdout):
   """ prints details about the module and the deviceaccess library
   against which it was linked
@@ -26,6 +27,7 @@ def get_info(outputStream=sys.stdout):
 
   """
   outputStream.write("mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtca4u-deviceaccess v${ChimeraTK-DeviceAccess_VERSION}")
+
 
 def set_dmap_location(dmapFileLocation):
   """ Sets the location of the dmap file to use
@@ -59,7 +61,6 @@ def set_dmap_location(dmapFileLocation):
   mtca4udeviceaccess.setDmapFile(dmapFileLocation)
 
 
-
 def get_dmap_location():
   """ Get the dmap file which is currently in use by the library.
 
@@ -90,7 +91,7 @@ def get_dmap_location():
   return mtca4udeviceaccess.getDmapFile()
 
 
-class Device():
+class Device:
   """ Construct Device from user provided device information
 
   This constructor is used to open a device listed in the dmap file.
@@ -216,7 +217,7 @@ class Device():
     Device.read_raw : Read in 'raw' bit values from a device register
 
     """
-    if registerPath == None:
+    if registerPath is None:
         registerPath = '/' + moduleName + '/' + registerName
     registerAccessor = self.__openedDevice.get1DAccessor_double(registerPath,
                                                                 numberOfElementsToRead,
@@ -309,7 +310,7 @@ class Device():
     numberOfElementsToWrite = data.size
     if numberOfElementsToWrite == 0:
       return
-    if registerPath == None:
+    if registerPath is None:
         registerPath = '/' + moduleName + '/' + registerName
     arguments = (registerPath,
                  numberOfElementsToWrite,
@@ -414,13 +415,13 @@ class Device():
     Device.read : Read in Fixed Point converted bit values from a device register
 
     """
-    if registerPath == None:
+    if registerPath is None:
         registerPath = '/' + moduleName + '/' + registerName
     registerAccessor = self.__openedDevice.getRaw1DAccessor(registerPath,
                                                             numberOfElementsToRead,
                                                             elementIndexInRegister)
 
-    registerSize = registerAccessor.getNumElements();
+    registerSize = registerAccessor.getNumElements()
     array = numpy.empty(registerSize, numpy.int32)
     registerAccessor.read(array)
     return array
@@ -500,7 +501,6 @@ class Device():
                                                     elementIndexInRegister)
     accessor.write(dataToWrite)
 
-
   def read_dma_raw(self, moduleName='', DMARegisterName=None,
                    numberOfElementsToRead=0, elementIndexInRegister=0,
                    registerPath=None):
@@ -567,7 +567,6 @@ class Device():
                   numberOfElementsToRead,
                   elementIndexInRegister, registerPath)
 
-
   def read_sequences(self, moduleName='', regionName=None, registerPath=None):
     """ Read in all sequences from a Multiplexed data Region
 
@@ -625,7 +624,7 @@ class Device():
 
     """
 
-    if registerPath == None:
+    if registerPath is None:
         registerPath = '/' + moduleName + '/' + regionName
     accessor = self.__openedDevice.get2DAccessor(registerPath)
 
@@ -639,31 +638,27 @@ class Device():
     accessor.read(array2D)
     return array2D
 
-
 # Helper methods below
 
   def __exitIfSuppliedIndexIncorrect(self, registerAccessor, elementIndexInRegister):
     registerSize = registerAccessor.getNumElements()
-    if(elementIndexInRegister >= registerSize):
-      if(registerSize == 1):
+    if elementIndexInRegister >= registerSize:
+      if registerSize == 1:
         # did this for displaying specific error string without the range when
         # there is only one element in the register
         errorString = "Element index: {0} incorrect. Valid index is {1}"\
-        .format(elementIndexInRegister, registerSize-1)
+          .format(elementIndexInRegister, registerSize-1)
       else:
         errorString = "Element index: {0} incorrect. Valid index range is [0-{1}]"\
-        .format(elementIndexInRegister, registerSize-1)
+          .format(elementIndexInRegister, registerSize-1)
 
       raise ValueError(errorString)
-
 
   def __checkAndExitIfArrayNotFloat32(self, dataToWrite):
     self.__raiseExceptionIfNumpyArraydTypeIncorrect(dataToWrite, numpy.float32)
 
-
   def __checkAndExitIfArrayNotInt32(self, dataToWrite):
     self.__raiseExceptionIfNumpyArraydTypeIncorrect(dataToWrite, numpy.int32)
-
 
   def __raiseExceptionIfNumpyArraydTypeIncorrect(self, numpyArray, dType):
     if((type(numpyArray) != numpy.ndarray) or
@@ -675,7 +670,8 @@ class Device():
                                   elementOffset):
     elementCountInRegister #=  registerAccessor.getNumElements()
     maxFetchableElements = elementCountInRegister - elementOffset
-    correctedElementCount = numberOfelements if (numberOfelements != 0 and numberOfelements <= maxFetchableElements) else maxFetchableElements
+    correctedElementCount = numberOfelements if (numberOfelements != 0 and numberOfelements <= maxFetchableElements) \
+        else maxFetchableElements
     return correctedElementCount
 
   def __createArray(self, dType, numberOfElementsInRegister, numberOfElementsToRead,
@@ -714,8 +710,6 @@ class Device():
       print(" name, if it includes the map file name, e.g.:                              ")
       print("   sdm://./pci:" + deviceFileName + "=" + mapFile)
       print("*************************************************************************************************")
-
-
 
   def __extractNameFromDeviceFile(self, deviceFile):
       index = (deviceFile.rfind('/')) + 1
