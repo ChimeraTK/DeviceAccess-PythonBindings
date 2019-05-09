@@ -16,9 +16,9 @@ initialize()
 # version Information for the project
 # bump up the version numbers in this section when creating new tags 
 set(${PROJECT_NAME}_MAJOR_VERSION 01)
-set(${PROJECT_NAME}_MINOR_VERSION 02)
+set(${PROJECT_NAME}_MINOR_VERSION 03)
 set(${PROJECT_NAME}_PATCH_VERSION 00)
-set(min_req_chimeratk_version "01.00" CACHE STRING "")
+set(min_req_chimeratk_version "01.02" CACHE STRING "")
 
 #
 # Build up the project version name
