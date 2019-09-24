@@ -121,8 +121,10 @@ function (get_boost_python_component_name pythonlib_version component_name)
         else()
             set(${component_name} "python" PARENT_SCOPE)
         endif()
+    elseif("${os_vendor}" STREQUAL "openSUSE Tumbleweed")
+        # Actually, this is more "if Boost >= 1.71"
+        set(${component_name} "python${major_version}${minor_version}" PARENT_SCOPE)
     else()
-    #elseif("${os_vendor}" STREQUAL "openSUSE Tumbleweed")
     # This is the default on other distros than ubuntu for now. Fix this later as
     # required.
         if(PYTHON3)
