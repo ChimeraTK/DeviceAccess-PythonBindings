@@ -92,7 +92,7 @@ add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 
 #
 # Set header file locations
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS} 
+include_directories(SYSTEM ${Boost_INCLUDE_DIR} 
                            ${PYTHON_INCLUDE_DIR} 
                            ${NUMPY_INCLUDE_DIRS} 
                            ${CMAKE_SOURCE_DIR}
@@ -107,13 +107,14 @@ add_library(${boost_python_core_module} SHARED deviceaccessPython.cc
 target_link_libraries(${boost_python_core_module} 
                       ${ChimeraTK-DeviceAccess_LIBRARIES} 
                       ${PYTHON_LIBRARIES} 
-                      ${Boost_LIBRARIES})
+                      ${Boost_LIBRARIES}
+                      Boost::${boost_python})
                   
 #
 # Generate boost test executable
 add_library( testmodule SHARED
                "${CMAKE_CURRENT_SOURCE_DIR}/tests/testModule.cpp" )
-target_link_libraries(testmodule ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+target_link_libraries(testmodule ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} Boost::${boost_python})
 
 
 # donot prefix lib to the generated so:
@@ -157,7 +158,7 @@ include(enable_code_coverage_report)
 #Only the reference header is needed. The other variables are for dependencies of this library,
 #but there are none.
 set(${PROJECT_NAME}_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/mtca4u
-                                  ${Boost_INCLUDE_DIRS}
+                                  ${Boost_INCLUDE_DIR}
                                   ${PYTHON_INCLUDE_DIR}
                                   ${NUMPY_INCLUDE_DIRS}
                                   ${ChimeraTK-DeviceAccess_INCLUDE_DIRS}")
