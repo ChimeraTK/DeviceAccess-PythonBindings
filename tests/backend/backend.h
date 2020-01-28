@@ -14,6 +14,7 @@ namespace TestBackend {
     void open() override;
     void close() override;
     std::string readDeviceInfo() override;
+    bool isFunctional() const override;
 
    private:
     struct Impl;

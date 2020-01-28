@@ -34,6 +34,7 @@ namespace TestBackend {
 
   void Backend::open() { _opened = true; }
   void Backend::close() { _opened = false; }
+  bool Backend::isFunctional() const { return _opened; }
 
   std::string Backend::readDeviceInfo() {
     return std::string("This backend is intended to test ChimeraTK python bindings");
