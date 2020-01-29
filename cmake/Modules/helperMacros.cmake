@@ -8,11 +8,6 @@ set(Dollar "$")
 
 # Call this before find_packages any any function from this file
 function(initialize )
-#
-# We build for python2 by default
-    set(PYTHON3 FALSE CACHE BOOL
-        "Builds modules for python3 if true and python2 if false") 
-    
     if(PYTHON3)
         #
         # Unfortunately need this for cmake version on trusty to find PythonLibs
