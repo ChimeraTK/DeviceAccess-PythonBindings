@@ -81,7 +81,7 @@ namespace mtca4upy {
   } // namespace TwoDAccessor
 
   namespace DeviceAccess {
-    ChimeraTK::TwoDRegisterAccessor<float> getTwoDAccessor(
+    ChimeraTK::TwoDRegisterAccessor<double> getTwoDAccessor(
         const ChimeraTK::Device& self, const std::string& registerPath);
 
     template<typename T>

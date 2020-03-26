@@ -49,10 +49,10 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
       .def("write", oneD::write<double>)
       .def("getNumElements", oneD::getNumberOfElements<double>);
 
-  bp::class_<ChimeraTK::TwoDRegisterAccessor<float>>("TwoDAccessor_float")
-      .def("read", twoD::read<float>)
-      .def("getNChannels", twoD::getNChannels<float>)
-      .def("getNElementsPerChannel", twoD::getNElementsPerChannel<float>);
+  bp::class_<ChimeraTK::TwoDRegisterAccessor<double>>("TwoDAccessor_double")
+      .def("read", twoD::read<double>)
+      .def("getNChannels", twoD::getNChannels<double>)
+      .def("getNElementsPerChannel", twoD::getNElementsPerChannel<double>);
 
   bp::def("createDevice", createDevice);
   bp::def("setDmapFile", mtca4upy::setDmapFile);

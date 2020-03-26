@@ -593,8 +593,8 @@ class Device:
 
     Returns
     -------
-    2DarrayOfValues: numpy.array, dtype == numpy.float32
-      The method returns a 2D numpy.float32 array containing extracted
+    2DarrayOfValues: numpy.array, dtype == numpy.double
+      The method returns a 2D numpy.double array containing extracted
       induvidual sequences as the columns
 
     Examples
@@ -608,13 +608,13 @@ class Device:
              [  25.,   36.,   49.,   64.,   81.],
              [ 100.,  121.,  144.,  169.,  196.],
              [ 225.,  256.,  289.,  324.,  361.]
-             [ 400.,  441.,  484.,  529.,  576.]], dtype=float32)
+             [ 400.,  441.,  484.,  529.,  576.]], dtype=double)
       >>> device.read_sequences(registerPath= '/BOARD.0/DMA')
       array([[   0.,    1.,    4.,    9.,   16.],
              [  25.,   36.,   49.,   64.,   81.],
              [ 100.,  121.,  144.,  169.,  196.],
              [ 225.,  256.,  289.,  324.,  361.]
-             [ 400.,  441.,  484.,  529.,  576.]], dtype=float32)
+             [ 400.,  441.,  484.,  529.,  576.]], dtype=double)
 
     Each column of the 2D matrix represents an extracted sequence:
      >>> data = device.read_sequences("BOARD.0", "DMA")
@@ -632,7 +632,7 @@ class Device:
     # c++ accessor
     numberOfSequences = accessor.getNChannels()
     numberOfBlocks = accessor.getNElementsPerChannel()
-    array2D = self.__create2DArray(numpy.float32, numberOfBlocks,
+    array2D = self.__create2DArray(numpy.double, numberOfBlocks,
                                    numberOfSequences)
 
     accessor.read(array2D)

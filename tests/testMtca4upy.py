@@ -462,30 +462,30 @@ class TestPCIEDevice(unittest.TestCase):
                                   [8, 9, 10, 11],
                                   [12, 13, 14, 15],
                                   [16, 17, 18, 19],
-                                  [20, 21, 22, 23]], dtype=numpy.float32)
+                                  [20, 21, 22, 23]], dtype=numpy.double)
     readInMatrix = device.read_sequences(module, 'DMA')
     self.assertTrue(numpy.array_equiv(readInMatrix, expectedMatrix))
-    self.assertTrue(readInMatrix.dtype == numpy.float32)
+    self.assertTrue(readInMatrix.dtype == numpy.double)
     readInMatrix = device.read_sequences(registerPath = '/' + str(module)+ '/DMA')
     self.assertTrue(numpy.array_equiv(readInMatrix, expectedMatrix))
-    self.assertTrue(readInMatrix.dtype == numpy.float32)
+    self.assertTrue(readInMatrix.dtype == numpy.double)
 
 if __name__ == '__main__':
     #Lock the kernel driver dummy against simultaneous usage
     #First make sure the directory is there. Otherwise the locking command will fail
-    try: 
+    try:
       os.makedirs('/var/run/lock/mtcadummy')
     except OSError:
       #We will end up here if the directory exists. This is ok.
       #Only raise if the directory is not there.
       if not os.path.isdir('/var/run/lock/mtcadummy'):
         raise
-  
+
     s1 = open('/var/run/lock/mtcadummy/mtcadummys1','w+')
     fcntl.flock(s1, fcntl.LOCK_EX)
     s4 = open('/var/run/lock/mtcadummy/llrfdummys4','w+')
     fcntl.flock(s4, fcntl.LOCK_EX)
-    
+
     unittest.main()
 
     fcntl.flock(s1, fcntl.LOCK_UN)

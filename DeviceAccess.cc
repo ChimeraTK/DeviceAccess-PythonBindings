@@ -5,9 +5,9 @@
 
 namespace mtca4upy { namespace DeviceAccess {
 
-  ChimeraTK::TwoDRegisterAccessor<float> getTwoDAccessor(const ChimeraTK::Device& self,
+  ChimeraTK::TwoDRegisterAccessor<double> getTwoDAccessor(const ChimeraTK::Device& self,
       const std::string& registerPath) {
-    return (self.getTwoDRegisterAccessor<float>(registerPath));
+    return (self.getTwoDRegisterAccessor<double>(registerPath));
   }
 
   void writeRaw(ChimeraTK::Device& self, std::string const& registerName, //
