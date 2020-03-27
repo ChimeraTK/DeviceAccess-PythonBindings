@@ -47,10 +47,10 @@ AREA_DMAABLE_FIXEDPOINT10_1          0x00000400   0x00000000    0x00001000 0x2 1
 AREA_DMAABLE_FIXEDPOINT16_3          0x00000400   0x00000000    0x00001000 0x2 16 3 1
 
 
-# Describe the sequences contained in the DMA memory region. THe region is
-# described as a block of 100 bytes. 
-AREA_MULTIPLEXED_SEQUENCE_DMA  0x19   0x00000000    0x34   0x2
-SEQUENCE_DMA_0 1 0x00 2 0xD 16 0 1
-SEQUENCE_DMA_1 1 0x02 2 0xD 16 0 1
-SEQUENCE_DMA_2 1 0x04 2 0xD 16 0 1
-SEQUENCE_DMA_3 1 0x06 2 0xD 16 0 1
+## Describe the sequences contained in the DMA memory region. THe region is
+# described as a block of 48 bytes (6 x 4 channels x 2 bytes demultiplexed, 12 x 32 bit words raw)
+AREA_MULTIPLEXED_SEQUENCE_DMA  0xe   0x00000000    0x30   0x2
+SEQUENCE_DMA_0 1 0x00 2 0x2 16 0 1
+SEQUENCE_DMA_1 1 0x02 2 0x2 16 0 1
+SEQUENCE_DMA_2 1 0x04 2 0x2 16 0 1
+SEQUENCE_DMA_3 1 0x06 2 0x2 16 0 1

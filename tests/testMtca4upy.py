@@ -453,8 +453,7 @@ class TestPCIEDevice(unittest.TestCase):
                                       0x00110010,
                                       0x00130012,
                                       0x00150014,
-                                      0x00170016,
-                                      0x00ff0018], dtype=numpy.int32)
+                                      0x00170016], dtype=numpy.int32)
     device.write_raw(module, 'AREA_DMAABLE', predefinedSequence)
 
     expectedMatrix = numpy.array([[0,  1,  2,  3],
