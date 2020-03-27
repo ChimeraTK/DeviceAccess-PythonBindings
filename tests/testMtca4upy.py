@@ -461,13 +461,39 @@ class TestPCIEDevice(unittest.TestCase):
                                   [8, 9, 10, 11],
                                   [12, 13, 14, 15],
                                   [16, 17, 18, 19],
-                                  [20, 21, 22, 23]], dtype=numpy.float32)
+                                  [20, 21, 22, 23]], dtype=numpy.int32)
     readInMatrix = device.read_sequences(module, 'DMA')
     self.assertTrue(numpy.array_equiv(readInMatrix, expectedMatrix))
     self.assertTrue(readInMatrix.dtype == numpy.float32)
     readInMatrix = device.read_sequences(registerPath = '/' + str(module)+ '/DMA')
     self.assertTrue(numpy.array_equiv(readInMatrix, expectedMatrix))
     self.assertTrue(readInMatrix.dtype == numpy.float32)
+    print(str(readInMatrix))
+    
+    # Check that 32 bit data can be transfered without precision loss (Hack by using double.
+    # This is not clean, but works sufficiently well.)
+    predefinedSequence = numpy.array([0x12345678, 0x90abcdef, 0xa5a5a5a5,
+                                      0x5a5a5a5a, 0xffeeffee, 0xcc33cc33,
+                                      0x33cc33cc, 0xdeadbeef, 0x87654321,
+                                      0xfdecba09, 0xb0b00b0b, 0x73533537], dtype=numpy.int32)
+    device.write_raw(module, 'AREA_MULTIPLEXED_SEQUENCE_UNSIGNED_INT', predefinedSequence)
+    
+    # Use dtype=numpy.int32 to make sure we don't have rounding errors in the expected values.
+    # The comparison array_equiv still works, even if we compare to a different dtype.
+    expectedMatrix = numpy.array([[0x12345678, 0x90abcdef, 0xa5a5a5a5],
+                                  [0x5a5a5a5a, 0xffeeffee, 0xcc33cc33],
+                                  [0x33cc33cc, 0xdeadbeef, 0x87654321],
+                                  [0xfdecba09, 0xb0b00b0b, 0x73533537]], dtype=numpy.int32)
+    readInMatrix = device.read_sequences(module, 'UNSIGNED_INT')
+    print ('expectedMatrix:')
+    for item in expectedMatrix:
+      print(str([hex(numpy.uint32(subitem)) for subitem in item]))
+    print ('readInMatrix:')
+    for item in readInMatrix:
+      print(str([hex(numpy.uint32(subitem)) for subitem in item]))
+    self.assertTrue(numpy.array_equiv(readInMatrix, expectedMatrix))
+    self.assertTrue(readInMatrix.dtype == numpy.float32)
+ 
 
 if __name__ == '__main__':
     #Lock the kernel driver dummy against simultaneous usage

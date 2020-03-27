@@ -54,3 +54,10 @@ SEQUENCE_DMA_0 1 0x00 2 0x2 16 0 1
 SEQUENCE_DMA_1 1 0x02 2 0x2 16 0 1
 SEQUENCE_DMA_2 1 0x04 2 0x2 16 0 1
 SEQUENCE_DMA_3 1 0x06 2 0x2 16 0 1
+
+# Check that unsigned 32 bit integers can be transferred without precision loss
+# (hack, we are using double, which is not clean but works well enough)
+AREA_MULTIPLEXED_SEQUENCE_UNSIGNED_INT  0xe   0x00000000    0x30   0x2
+SEQUENCE_UNSIGNED_INT_0 1 0x00 4 0x2 32 0 0
+SEQUENCE_UNSIGNED_INT_1 1 0x04 4 0x2 32 0 0
+SEQUENCE_UNSIGNED_INT_2 1 0x08 4 0x2 32 0 0
