@@ -468,7 +468,6 @@ class TestPCIEDevice(unittest.TestCase):
     readInMatrix = device.read_sequences(registerPath = '/' + str(module)+ '/DMA')
     self.assertTrue(numpy.array_equiv(readInMatrix, expectedMatrix))
     self.assertTrue(readInMatrix.dtype == numpy.double)
-    print(str(readInMatrix))
     
     # Check that 32 bit data can be transfered without precision loss (Hack by using double.
     # This is not clean, but works sufficiently well.)
@@ -485,12 +484,6 @@ class TestPCIEDevice(unittest.TestCase):
                                   [0x33cc33cc, 0xdeadbeef, 0x87654321],
                                   [0xfdecba09, 0xb0b00b0b, 0x73533537]], dtype=numpy.uint32)
     readInMatrix = device.read_sequences(module, 'UNSIGNED_INT')
-    print ('expectedMatrix:')
-    for item in expectedMatrix:
-      print(str([hex(subitem) for subitem in item]))
-    print ('readInMatrix:')
-    for item in readInMatrix:
-      print(str([hex(numpy.uint32(subitem)) for subitem in item]))
     self.assertTrue(numpy.array_equiv(readInMatrix, expectedMatrix))
     self.assertTrue(readInMatrix.dtype == numpy.double)
  
