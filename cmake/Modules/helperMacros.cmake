@@ -78,7 +78,7 @@ function(get_python_module_install_path python_version_string install_path)
     list(GET version_list 0 major_version)
     list(GET version_list 1 minor_version)
     
-    if(("${os_vendor}" STREQUAL "Ubuntu") AND 
+    if((("${os_vendor}" STREQUAL "Ubuntu") OR ("${os_vendor}" STREQUAL "Debian")) AND 
     (("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr") OR
      ("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")))
 
