@@ -550,8 +550,7 @@ class Device:
 
     Examples
     --------
-    Use Device.read_raw:
-    In the example, register "AREA_DMA_VIA_DMA" is the DMA mapped memory made up of 32 bit elements.
+    Use Device.read_raw: In the example, register "AREA_DMA_VIA_DMA" is the DMA mapped memory made up of 32 bit elements.
       >>> import mtca4u
       >>> mtca4u.set_dmap_location("../my_example_dmap_file.dmap")
       >>> device = mtca4u.Device("device_name")

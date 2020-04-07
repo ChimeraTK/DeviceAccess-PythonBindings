@@ -20,7 +20,11 @@ import shlex
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0,
-        os.path.abspath('${CMAKE_BINARY_DIRECTORY}'))
+        os.path.abspath('${CMAKE_BINARY_DIR}'))
+
+#
+# Remove dependency of doc generation dependency from compilation.
+autodoc_mock_imports = ["mtca4udeviceaccess"]
 
 # -- General configuration ------------------------------------------------
 
