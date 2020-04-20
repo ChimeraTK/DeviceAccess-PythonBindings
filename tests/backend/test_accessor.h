@@ -42,7 +42,7 @@ namespace TestBackend {
     bool doReadTransferNonBlocking() override;
     bool doReadTransferLatest() override;
     bool doWriteTransfer(ChimeraTK::VersionNumber versionNumber = {}) override;
-    void doPostRead() override;
+    void doPostRead(ChimeraTK::TransferType, bool hasNewData) override;
     std::list<boost::shared_ptr<ChimeraTK::TransferElement>> getInternalElements() override;
     std::vector<boost::shared_ptr<ChimeraTK::TransferElement>> getHardwareAccessingElements() override;
     ChimeraTK::AccessModeFlags getAccessModeFlags() const override;
@@ -97,7 +97,8 @@ namespace TestBackend {
 
   /***************************************************************************/
   template<typename UserType>
-  inline void TestBackEndAccessor<UserType>::doPostRead() {
+  inline void TestBackEndAccessor<UserType>::doPostRead(ChimeraTK::TransferType, bool hasNewData) {
+    if(!hasNewData) return;
     using NDAccessor_t = ChimeraTK::NDRegisterAccessor<UserType>;
     NDAccessor_t::buffer_2D = view_.read<UserType>();
     currentVersion_ = {};
