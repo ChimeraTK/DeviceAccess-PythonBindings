@@ -107,9 +107,7 @@ function (get_boost_python_component_name pythonlib_version boost_version compon
     list(GET version_list 0 py_major_version)
     list(GET version_list 1 py_minor_version)
 
-    if(${boost_version} VERSION_GREATER_EQUAL 1.67.0)
-       set(${component_name} "python${py_major_version}${py_minor_version}" PARENT_SCOPE)
-    else()
+    if(${boost_version} VERSION_LESS 1.67.0)
     # This kludge is here because boost python component naming was not
     # consistent across distributions before 1.67; hence the special
     # handling.
@@ -132,6 +130,8 @@ function (get_boost_python_component_name pythonlib_version boost_version compon
               set(${component_name} "python" PARENT_SCOPE)
           endif()
       endif()
+    else()
+       set(${component_name} "python${py_major_version}${py_minor_version}" PARENT_SCOPE)
     endif()
 endfunction()
 
