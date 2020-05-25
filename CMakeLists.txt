@@ -50,7 +50,8 @@ add_subdirectory(tests/backend)
 #==============================================================================#
 find_package(PythonLibs ${py_major_release_num} REQUIRED)
 
-get_boost_python_component_name(PYTHONLIBS_VERSION_STRING boost_python)
+find_package(Boost REQUIRED) # hack to get Boost_VERSION_STRING populated
+get_boost_python_component_name(PYTHONLIBS_VERSION_STRING Boost_VERSION_STRING boost_python)
 find_package(Boost REQUIRED COMPONENTS ${boost_python})
 
 find_package(NumPy REQUIRED)

@@ -98,34 +98,40 @@ function(get_python_module_install_path python_version_string install_path)
     
 endfunction()
 
-function (get_boost_python_component_name pythonlib_version component_name)
+function (get_boost_python_component_name pythonlib_version boost_version component_name)
+
     get_os_distro_vendor(os_vendor)
     get_os_distro_version(os_distro_version)
-    convert_version_string_to_list(${pythonlib_version} version_list)
-    list(GET version_list 0 major_version)
-    list(GET version_list 1 minor_version)
 
-    if("${os_vendor}" STREQUAL "Ubuntu")
-        set(python3_prefix "python3-py")
-        if (${os_distro_version} VERSION_LESS 18.10)
-            set(python3_prefix "python-py")
-        endif()
-        if(PYTHON3)
-            set(${component_name} "${python3_prefix}${major_version}${minor_version}" PARENT_SCOPE)
-        else()
-            set(${component_name} "python" PARENT_SCOPE)
-        endif()
-    elseif("${os_vendor}" STREQUAL "openSUSE")
-        # Actually, this is more "if Boost >= 1.71"
-        set(${component_name} "python${major_version}${minor_version}" PARENT_SCOPE)
+    convert_version_string_to_list(${pythonlib_version} version_list)
+    list(GET version_list 0 py_major_version)
+    list(GET version_list 1 py_minor_version)
+
+    if(${boost_version} VERSION_GREATER_EQUAL 1.67.0)
+       set(${component_name} "python${py_major_version}${py_minor_version}" PARENT_SCOPE)
     else()
-    # This is the default on other distros than ubuntu for now. Fix this later as
-    # required.
-        if(PYTHON3)
-            set(${component_name} "python${major_version}" PARENT_SCOPE)
-        else()
-            set(${component_name} "python" PARENT_SCOPE)
-        endif()
+    # This kludge is here because boost python component naming was not
+    # consistent across distributions before 1.67; hence the special
+    # handling.
+      if("${os_vendor}" STREQUAL "Ubuntu")
+          set(python3_prefix "python3-py")
+          if (${os_distro_version} VERSION_LESS 18.10)
+              set(python3_prefix "python-py")
+          endif()
+          if(PYTHON3)
+              set(${component_name} "${python3_prefix}${major_version}${minor_version}" PARENT_SCOPE)
+          else()
+              set(${component_name} "python" PARENT_SCOPE)
+          endif()
+      else()
+      # This is probably the default on  Debian before the names were made 
+      # consistent(have not verified though)
+          if(PYTHON3)
+              set(${component_name} "python${major_version}" PARENT_SCOPE)
+          else()
+              set(${component_name} "python" PARENT_SCOPE)
+          endif()
+      endif()
     endif()
 endfunction()
 
