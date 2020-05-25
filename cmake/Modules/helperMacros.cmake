@@ -117,7 +117,7 @@ function (get_boost_python_component_name pythonlib_version boost_version compon
               set(python3_prefix "python-py")
           endif()
           if(PYTHON3)
-              set(${component_name} "${python3_prefix}${major_version}${minor_version}" PARENT_SCOPE)
+              set(${component_name} "${python3_prefix}${py_major_version}${py_minor_version}" PARENT_SCOPE)
           else()
               set(${component_name} "python" PARENT_SCOPE)
           endif()
@@ -125,7 +125,7 @@ function (get_boost_python_component_name pythonlib_version boost_version compon
       # This is probably the default on  Debian before the names were made 
       # consistent(have not verified though)
           if(PYTHON3)
-              set(${component_name} "python${major_version}" PARENT_SCOPE)
+              set(${component_name} "python${py_major_version}" PARENT_SCOPE)
           else()
               set(${component_name} "python" PARENT_SCOPE)
           endif()
