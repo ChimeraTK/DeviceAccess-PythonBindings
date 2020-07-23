@@ -32,9 +32,15 @@ namespace TestBackend {
 
   Backend::~Backend() = default; // to avoid static assert with unique_ptr
 
-  void Backend::open() { _opened = true; }
-  void Backend::close() { _opened = false; }
-  bool Backend::isFunctional() const { return _opened; }
+  void Backend::open() {
+    _opened = true;
+    _hasException = false;
+  }
+  void Backend::close() {
+    _opened = false;
+    _hasException = true;
+  }
+  bool Backend::isFunctional() const { return _opened && !_hasException; }
 
   std::string Backend::readDeviceInfo() {
     return std::string("This backend is intended to test ChimeraTK python bindings");
@@ -54,7 +60,10 @@ namespace TestBackend {
         0,                                              //
         wordOffsetInRegister});
 
-    return Accessor_t<UserType>(new TestBackEndAccessor<UserType>(view, flags));
+    return Accessor_t<UserType>(
+        new TestBackEndAccessor<UserType>(view, flags, boost::dynamic_pointer_cast<Backend>(shared_from_this())));
   }
+
+  void Backend::setException() { _hasException = true; }
 
 } // namespace TestBackend

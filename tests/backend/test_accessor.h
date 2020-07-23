@@ -4,70 +4,56 @@
 #include "register.h"
 
 #include <ChimeraTK/AccessMode.h>
-#include <ChimeraTK/SyncNDRegisterAccessor.h>
+#include <ChimeraTK/NDRegisterAccessor.h>
+#include "backend.h"
 
 namespace TestBackend {
 
   template<typename UserType>
-  class TestBackEndAccessor : public ChimeraTK::SyncNDRegisterAccessor<UserType> {
-    Register::View view_;
-    ChimeraTK::VersionNumber currentVersion_{};
+  class TestBackEndAccessor : public ChimeraTK::NDRegisterAccessor<UserType> {
+    Register::View _view;
+    boost::shared_ptr<Backend> _testBackend;
 
    public:
-    TestBackEndAccessor(Register::View& v, ChimeraTK::AccessModeFlags flags)
-    : ChimeraTK::SyncNDRegisterAccessor<UserType>(registerName(v)), view_(v) {
-      try {
-        std::set<ChimeraTK::AccessMode> supportedFlags{ChimeraTK::AccessMode::raw, //
-            ChimeraTK::AccessMode::wait_for_new_data};
+    TestBackEndAccessor(Register::View& v, ChimeraTK::AccessModeFlags flags, boost::shared_ptr<Backend> testBackend)
+    : ChimeraTK::NDRegisterAccessor<UserType>(registerName(v), flags), _view(v), _testBackend(testBackend) {
+      ChimeraTK::TransferElement::_exceptionBackend = testBackend;
+      std::set<ChimeraTK::AccessMode> supportedFlags{ChimeraTK::AccessMode::raw, //
+          ChimeraTK::AccessMode::wait_for_new_data};
 
-        flags.checkForUnknownFlags(supportedFlags);
+      flags.checkForUnknownFlags(supportedFlags);
 
-        using NDAccessor_t = ChimeraTK::NDRegisterAccessor<UserType>;
-        NDAccessor_t::buffer_2D.resize(rows(view_));
-        for(auto& e : NDAccessor_t::buffer_2D) {
-          e.resize(columns(view_));
-        }
-      }
-      catch(...) {
-        this->shutdown();
-        throw;
+      using NDAccessor_t = ChimeraTK::NDRegisterAccessor<UserType>;
+      NDAccessor_t::buffer_2D.resize(rows(_view));
+      for(auto& e : NDAccessor_t::buffer_2D) {
+        e.resize(columns(_view));
       }
     }
 
-    virtual ~TestBackEndAccessor() { ChimeraTK::SyncNDRegisterAccessor<UserType>::shutdown(); }
     bool isReadOnly() const override;
     bool isReadable() const override;
     bool isWriteable() const override;
-    void doReadTransfer() override;
-    bool doReadTransferNonBlocking() override;
-    bool doReadTransferLatest() override;
+    void doReadTransferSynchronously() override;
     bool doWriteTransfer(ChimeraTK::VersionNumber versionNumber = {}) override;
     void doPostRead(ChimeraTK::TransferType, bool hasNewData) override;
     std::list<boost::shared_ptr<ChimeraTK::TransferElement>> getInternalElements() override;
     std::vector<boost::shared_ptr<ChimeraTK::TransferElement>> getHardwareAccessingElements() override;
-    ChimeraTK::AccessModeFlags getAccessModeFlags() const override;
-    ChimeraTK::VersionNumber getVersionNumber() const override { return currentVersion_; }
   };
 
   template<typename UserType>
   inline bool TestBackEndAccessor<UserType>::isReadOnly() const {
-    if(getAccessMode(view_) == TestBackend::Register::Access::ro) {
+    if(getAccessMode(_view) == TestBackend::Register::Access::ro) {
       return true;
     }
     else {
       return false;
     }
   }
-  template<typename UserType>
-  ChimeraTK::AccessModeFlags TestBackEndAccessor<UserType>::getAccessModeFlags() const {
-    // fixme: fill in expected behavior
-    return {};
-  }
 
   template<typename UserType>
   inline bool TestBackEndAccessor<UserType>::isReadable() const {
     using Access_t = TestBackend::Register::Access;
-    switch(getAccessMode(view_)) {
+    switch(getAccessMode(_view)) {
       case Access_t::ro:
       case Access_t::rw:
         return true;
@@ -79,7 +65,7 @@ namespace TestBackend {
   template<typename UserType>
   inline bool TestBackEndAccessor<UserType>::isWriteable() const {
     using Access_t = TestBackend::Register::Access;
-    switch(getAccessMode(view_)) {
+    switch(getAccessMode(_view)) {
       case Access_t::rw:
       case Access_t::wo:
         return true;
@@ -90,9 +76,12 @@ namespace TestBackend {
 
   /***************************************************************************/
   template<typename UserType>
-  inline void TestBackEndAccessor<UserType>::doReadTransfer() {
+  inline void TestBackEndAccessor<UserType>::doReadTransferSynchronously() {
     // nothing to do here, the actual transfer happens directly to the buffer_2D,
     // so we have to do it in doPostRead().
+    if(_testBackend->_hasException) {
+      throw ChimeraTK::runtime_error("Previous, unrecovered error in TestBackend.");
+    }
   }
 
   /***************************************************************************/
@@ -100,30 +89,17 @@ namespace TestBackend {
   inline void TestBackEndAccessor<UserType>::doPostRead(ChimeraTK::TransferType, bool hasNewData) {
     if(!hasNewData) return;
     using NDAccessor_t = ChimeraTK::NDRegisterAccessor<UserType>;
-    NDAccessor_t::buffer_2D = view_.read<UserType>();
-    currentVersion_ = {};
+    NDAccessor_t::buffer_2D = _view.read<UserType>();
+    ChimeraTK::TransferElement::_versionNumber = {};
   }
   /***************************************************************************/
   template<typename UserType>
   inline bool TestBackEndAccessor<UserType>::doWriteTransfer(ChimeraTK::VersionNumber versionNumber) {
     using NDAccessor_t = ChimeraTK::NDRegisterAccessor<UserType>;
-    view_.write(NDAccessor_t::buffer_2D);
-    currentVersion_ = versionNumber;
-    return true;
-  }
-  /***************************************************************************/
-  template<typename UserType>
-  inline bool TestBackEndAccessor<UserType>::doReadTransferNonBlocking() {
-    // auto data  = dbase.get<UserType>(path); //iterator
-    // TODO: flesh this out later when we start to deal with async and push types.
-    doReadTransfer();
-    return true;
-  }
-
-  template<typename UserType>
-  inline bool TestBackEndAccessor<UserType>::doReadTransferLatest() {
-    // TODO: flesh this out later when we start to deal with async and push types.
-    doReadTransfer();
+    if(_testBackend->_hasException) {
+      throw ChimeraTK::runtime_error("Previous, unrecovered error in TestBackend.");
+    }
+    _view.write(NDAccessor_t::buffer_2D);
     return true;
   }
 

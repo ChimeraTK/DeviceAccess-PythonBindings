@@ -15,6 +15,7 @@ namespace TestBackend {
     void close() override;
     std::string readDeviceInfo() override;
     bool isFunctional() const override;
+    void setException() override;
 
    private:
     struct Impl;
@@ -26,6 +27,11 @@ namespace TestBackend {
             size_t numberOfWords,                                                 //
             size_t wordOffsetInRegister,                                          //
             ChimeraTK::AccessModeFlags flags);
+
+    bool _hasException{true};
+
+    template<typename UserType>
+    friend class TestBackEndAccessor;
   };
 
 } // namespace TestBackend
