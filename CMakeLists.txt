@@ -58,13 +58,7 @@ find_package(NumPy REQUIRED)
 find_package(ChimeraTK-DeviceAccess ${min_req_chimeratk_version} REQUIRED)
 #==============================================================================#
 
-# Set the build type to Release if none is specified
-# Force it into Release if "None" is specified (needed to overrule dkpg_buildpackage)
-if(NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "None")
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
-      "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
-      FORCE)
-endif(NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "None")
+INCLUDE(${CMAKE_SOURCE_DIR}/cmake/set_default_build_to_release.cmake)
 
 #
 # add target for documentation if sphinx v1.3+ is available. 
@@ -81,7 +75,7 @@ endif(SUPPORTED_SPHINX_VERSION_AVAILABLE)
 set(${PROJECT_NAME}_CXX_FLAGS 
    "${${PROJECT_NAME}_CXX_FLAGS} ${ChimeraTK-DeviceAccess_CXX_FLAGS}")
 
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${PROJECT_NAME}_CXX_FLAGS} -Wall -fPIC -Weffc++ -Wextra -Wshadow -pedantic -Wuninitialized")
+INCLUDE(${CMAKE_SOURCE_DIR}/cmake/set_default_flags.cmake)
 
 
 #
