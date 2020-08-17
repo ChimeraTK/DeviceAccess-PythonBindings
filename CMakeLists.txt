@@ -42,9 +42,6 @@ set(sphinx_build_config_file "${PROJECT_BINARY_DIR}/conf.py")
 set(author "MSK")
 get_python_interpreter_string(python_interpreter)
 get_desired_python_major_release(py_major_release_num)
-#==============================================================================#
-
-add_subdirectory(tests/backend)
 
 # Find all packages are needed for compilation.
 #==============================================================================#
@@ -59,16 +56,6 @@ find_package(ChimeraTK-DeviceAccess ${min_req_chimeratk_version} REQUIRED)
 #==============================================================================#
 
 INCLUDE(${CMAKE_SOURCE_DIR}/cmake/set_default_build_to_release.cmake)
-
-#
-# add target for documentation if sphinx v1.3+ is available. 
-CHECK_FOR_SPHINX()
-if(SUPPORTED_SPHINX_VERSION_AVAILABLE)
-  ADD_HTML_DOCUMENTATION_SUPPORT()
-else()
-  message(STATUS "Html doumentation support will not be enabled")
-  message(STATUS "Please install working sphinx-doc version (1.3.0+) for html documentation support (the package may be called python3-sphinx)")
-endif(SUPPORTED_SPHINX_VERSION_AVAILABLE)
 
 #
 # Set the compiler flags.
@@ -96,17 +83,35 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIR}
                            ${CMAKE_SOURCE_DIR}
                            ${ChimeraTK-DeviceAccess_INCLUDE_DIRS})
 
+#==============================================================================#
+# Only add the backend subdirectory after having all dependencies and flags
+add_subdirectory(tests/backend)
+
+#
+# add target for documentation if sphinx v1.3+ is available. 
+CHECK_FOR_SPHINX()
+if(SUPPORTED_SPHINX_VERSION_AVAILABLE)
+  ADD_HTML_DOCUMENTATION_SUPPORT()
+else()
+  message(STATUS "Html doumentation support will not be enabled")
+  message(STATUS "Please install working sphinx-doc version (1.3.0+) for html documentation support (the package may be called python3-sphinx)")
+endif(SUPPORTED_SPHINX_VERSION_AVAILABLE)
+
 #
 # Define the build target for python module 
 add_library(${boost_python_core_module} SHARED deviceaccessPython.cc 
                                                CreateDevice.cc
                                                DeviceAccess.cc)
-                                         
-target_link_libraries(${boost_python_core_module} 
+
+if(ENABLE_TSAN)
+  SET(TSAN_LIBS "tsan")
+endif()                                               
+                                             
+target_link_libraries(${boost_python_core_module} ${TSAN_LIBS}
                       ${ChimeraTK-DeviceAccess_LIBRARIES} 
                       ${PYTHON_LIBRARIES} 
                       ${Boost_LIBRARIES}
-                      Boost::${boost_python})
+                      Boost::${boost_python} ${TSAN_LIBS})
                   
 #
 # Generate boost test executable
