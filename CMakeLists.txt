@@ -12,7 +12,7 @@ list(APPEND CMAKE_MODULE_PATH
 include(helperMacros)
 #
 # We build for python2 by default
-set(PYTHON3 FALSE CACHE BOOL "Builds modules for python3 if true and python2 if false")
+set(PYTHON3 TRUE CACHE BOOL "Builds modules for python3 if true and python2 if false")
 initialize()  
 #==============================================================================#
 
