@@ -9,7 +9,7 @@ list(APPEND CMAKE_MODULE_PATH
             ${CMAKE_SOURCE_DIR}/cmake
             ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
-include(helperMacros)
+include(pythonBindingHelperMacros)
 #
 # We build for python3 by default
 set(PYTHON3 TRUE CACHE BOOL "Builds modules for python3 if true and python2 if false")
