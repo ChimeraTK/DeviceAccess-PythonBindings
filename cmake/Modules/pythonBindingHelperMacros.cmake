@@ -75,29 +75,20 @@ endfunction()
 
 
 function(get_python_module_install_path python_version_string install_path)
-    get_os_distro_vendor(os_vendor)
     convert_version_string_to_list(${python_version_string} version_list)
     list(GET version_list 0 major_version)
     list(GET version_list 1 minor_version)
-    
-    if((("${os_vendor}" STREQUAL "Ubuntu") OR ("${os_vendor}" STREQUAL "Debian")) AND 
-    (("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr") OR ("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")))
 
-        if(PYTHON3)
-            set(${install_path} 
-                "lib/python${major_version}/dist-packages" PARENT_SCOPE)
-        else()
-            set(${install_path} 
-                "lib/python${major_version}.${minor_version}/dist-packages" 
-                PARENT_SCOPE)
-        endif()
+    set(maj_min_path lib/python${major_version}.${minor_version}/dist-packages)
+    set(maj_only_path lib/python${major_version}/dist-packages)
 
+    if(IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/${maj_min_path}")
+        # Use path with major.minor version number (e.g. "python3.8")
+        set(${install_path} ${maj_min_path} PARENT_SCOPE)
     else()
-        set(${install_path} 
-            "lib/python${major_version}.${minor_version}/site-packages"
-            PARENT_SCOPE)
+        # Fall back to major-only number (e.g. "python3")
+        set(${install_path} ${maj_only_path} PARENT_SCOPE)
     endif()
-    
 endfunction()
 
 function (get_boost_python_component_name pythonlib_version boost_version component_name)
