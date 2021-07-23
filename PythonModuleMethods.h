@@ -96,6 +96,8 @@ namespace mtca4upy {
     void writeRaw(ChimeraTK::Device& self, std::string const& registerName, //
         uint32_t regOffset, mtca4upy::NumpyObject dataToWrite, size_t bytesToWrite);
 
+    std::string getCatalogueMetadata(const ChimeraTK::Device& self, const std::string& parameterName);
+
   } // namespace DeviceAccess
 
   void setDmapFile(const std::string& dmapFile);

@@ -27,7 +27,8 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
       .def("get1DAccessor_double", da::getOneDAccessor<double>)
       .def("getRaw1DAccessor", da::getRawOneDAccessor)
       .def("writeRaw", mtca4upy::DeviceAccess::writeRaw)
-      .def("get2DAccessor", mtca4upy::DeviceAccess::getTwoDAccessor);
+      .def("get2DAccessor", mtca4upy::DeviceAccess::getTwoDAccessor)
+      .def("getCatalogueMetadata", mtca4upy::DeviceAccess::getCatalogueMetadata);
 
   bp::class_<ChimeraTK::OneDRegisterAccessor<int32_t>>("OneDAccessor_int32")
       .def("read", oneD::read<int32_t>)

@@ -637,6 +637,25 @@ class Device:
     accessor.read(array2D)
     return array2D
 
+  def getCatalogueMetadata(self, parameterName):
+    """ Reads out metadata form the device catalogue
+
+    The available metadata depends on the use backend. E.g. for
+    NumericAddressedBackends, metadata will come from the map file.
+
+    Parameters
+    ----------
+    parameterName : str
+      Name of the metadata parameter to read.
+
+    Returns
+    -------
+    metadataValue: str
+      The value corresponding to the given parameterName.
+
+    """
+    return self.__openedDevice.getCatalogueMetadata(parameterName)
+
 # Helper methods below
 
   def __exitIfSuppliedIndexIncorrect(self, registerAccessor, elementIndexInRegister):

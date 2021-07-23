@@ -32,6 +32,10 @@ namespace mtca4upy { namespace DeviceAccess {
         registerPath, numberOfelementsToRead, elementOffset, {ChimeraTK::AccessMode::raw});
   }
 
+  std::string getCatalogueMetadata(const ChimeraTK::Device& self, const std::string& parameterName) {
+    return self.getRegisterCatalogue().getMetadata(parameterName);
+  }
+
 }} // namespace mtca4upy::DeviceAccess
 void mtca4upy::setDmapFile(const std::string& dmapFile) {
   ChimeraTK::setDMapFilePath(dmapFile);
