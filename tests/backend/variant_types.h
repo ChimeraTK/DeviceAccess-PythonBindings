@@ -8,6 +8,7 @@
 #ifndef TESTS_BACKEND_VARIANTTYPES_H_
 #define TESTS_BACKEND_VARIANTTYPES_H_
 
+#include <ChimeraTK/SupportedUserTypes.h>
 #include <ChimeraTK/Exception.h>
 #include <cstdint>
 #include <stdexcept>
@@ -22,6 +23,8 @@
  *     uint8/16/32/64
  *     float32/64
  *     std::string
+ *     ChimeraTK::Boolean
+ *     (ChimeraTK::Void ignored for now)
  *   VariantType:
  *     Integral
  *     FloatingPoint

@@ -1,5 +1,6 @@
 #include "register.h"
 
+#include <ChimeraTK/SupportedUserTypes.h>
 #include <ChimeraTK/Exception.h>
 #include <boost/variant.hpp>
 #include <iostream>
@@ -31,7 +32,12 @@ namespace TestBackend {
    public:
     template<typename VariantType>
     UserType operator()(VariantType& e) const {
-      return static_cast<UserType>(e);
+      if constexpr(!std::is_same<UserType, ChimeraTK::Void>::value) {
+        return static_cast<UserType>(e);
+      }
+      else {
+        return {};
+      }
     }
   };
   struct Indices {
@@ -264,20 +270,27 @@ namespace TestBackend {
   /***************************************************************************/
   template<typename UserType>
   Element convertToElement(Register::Type t, UserType&& value) {
-    switch(t) {
-      case Register::Type::Integer:
-        return static_cast<IntegralType>(std::forward<UserType>(value));
-      case Register::Type::FloatingPoint:
-        return static_cast<FloatingPointType>(std::forward<UserType>(value));
-      case Register::Type::Bool:
-        return static_cast<BooleanType>(std::forward<UserType>(value));
-      case Register::Type::String:
-        return static_cast<StringType>(std::forward<UserType>(value));
+    if constexpr(!std::is_same<UserType, const ChimeraTK::Void&>::value) {
+      switch(t) {
+        case Register::Type::Integer:
+          return static_cast<IntegralType>(std::forward<UserType>(value));
+        case Register::Type::FloatingPoint:
+          return static_cast<FloatingPointType>(std::forward<UserType>(value));
+        case Register::Type::Bool:
+          return static_cast<BooleanType>(std::forward<UserType>(value));
+        case Register::Type::String:
+          return static_cast<StringType>(std::forward<UserType>(value));
+      }
     }
     // fixme:?;
     // we have covered all cases for Register::type; hence reaching here should
     // be incorrect.
 
+    throw ChimeraTK::logic_error("incorrect type requested for conversion");
+  }
+  /***************************************************************************/
+  template<>
+  Element convertToElement<const ChimeraTK::Void&>(Register::Type, const ChimeraTK::Void&) {
     throw ChimeraTK::logic_error("incorrect type requested for conversion");
   }
   /***************************************************************************/
@@ -308,7 +321,7 @@ namespace TestBackend {
   size_t rows(Register const& r) { return r.getShape().rowSize(); }
 
   /****************************************************************************/
-  // template specilizations
+  // template instantiations
   /****************************************************************************/
   template DataContainer<IntegralType>& pad(DataContainer<IntegralType>& v);
   template DataContainer<FloatingPointType>& pad(DataContainer<FloatingPointType>& v);
@@ -330,8 +343,9 @@ namespace TestBackend {
   template DataContainer<uint64_t> Register::read();
   template DataContainer<float> Register::read();
   template DataContainer<double> Register::read();
-  template DataContainer<bool> Register::read();
   template DataContainer<std::string> Register::read();
+  template DataContainer<ChimeraTK::Boolean> Register::read();
+  template DataContainer<ChimeraTK::Void> Register::read();
 
   template void Register::write(DataContainer<int8_t> const& data);
   template void Register::write(DataContainer<int16_t> const& data);
@@ -343,8 +357,9 @@ namespace TestBackend {
   template void Register::write(DataContainer<uint64_t> const& data);
   template void Register::write(DataContainer<float> const& data);
   template void Register::write(DataContainer<double> const& data);
-  template void Register::write(DataContainer<bool> const& data);
   template void Register::write(DataContainer<std::string> const& data);
+  template void Register::write(DataContainer<ChimeraTK::Boolean> const& data);
+  template void Register::write(DataContainer<ChimeraTK::Void> const& data);
 
   template DataContainer<int8_t> Register::View::read();
   template DataContainer<int16_t> Register::View::read();
@@ -356,8 +371,9 @@ namespace TestBackend {
   template DataContainer<uint64_t> Register::View::read();
   template DataContainer<float> Register::View::read();
   template DataContainer<double> Register::View::read();
-  template DataContainer<bool> Register::View::read();
   template DataContainer<std::string> Register::View::read();
+  template DataContainer<ChimeraTK::Boolean> Register::View::read();
+  template DataContainer<ChimeraTK::Void> Register::View::read();
 
   template void Register::View::write(DataContainer<int8_t> const& d);
   template void Register::View::write(DataContainer<int16_t> const& d);
@@ -369,6 +385,7 @@ namespace TestBackend {
   template void Register::View::write(DataContainer<uint64_t> const& d);
   template void Register::View::write(DataContainer<float> const& d);
   template void Register::View::write(DataContainer<double> const& d);
-  template void Register::View::write(DataContainer<bool> const& d);
   template void Register::View::write(DataContainer<std::string> const& d);
+  template void Register::View::write(DataContainer<ChimeraTK::Boolean> const& d);
+  template void Register::View::write(DataContainer<ChimeraTK::Void> const& d);
 } // namespace TestBackend
