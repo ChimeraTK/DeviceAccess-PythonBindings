@@ -94,7 +94,7 @@ namespace TestBackend {
   }
   /***************************************************************************/
   template<typename UserType>
-  inline bool TestBackEndAccessor<UserType>::doWriteTransfer(ChimeraTK::VersionNumber versionNumber) {
+  inline bool TestBackEndAccessor<UserType>::doWriteTransfer([[maybe_unused]] ChimeraTK::VersionNumber versionNumber) {
     using NDAccessor_t = ChimeraTK::NDRegisterAccessor<UserType>;
     if(_testBackend->_hasException) {
       throw ChimeraTK::runtime_error("Previous, unrecovered error in TestBackend.");

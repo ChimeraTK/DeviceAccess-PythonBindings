@@ -233,7 +233,7 @@ class TestPCIEDevice(unittest.TestCase):
     readInValues = readCommand(str(module), "WORD_CLK_MUX", 1, 2)
     self.assertTrue(readInValues[0] == word_clk_mux_content[2])
 
-    readInValues = readCommand(str(module), "WORD_CLK_MUX", 0, 2)
+    readInValues = readCommand(str(module), "WORD_CLK_MUX", 2, 2)
     self.assertTrue(numpy.array_equiv(readInValues, word_clk_mux_content[2:]))
 
     # check for corner cases
@@ -370,7 +370,7 @@ class TestPCIEDevice(unittest.TestCase):
     word_clk_mux_register = "WORD_CLK_MUX"
     writeCommand(module, word_clk_mux_register, word_clk_mux_content[0:2],
                  elementIndexInRegister = 2)
-    readInValue = readCommand(module, word_clk_mux_register,
+    readInValue = readCommand(module, word_clk_mux_register,numberOfElementsToRead = 2, 
                               elementIndexInRegister = 2)
     self.assertTrue(readInValue.dtype == dtype)
     self.assertTrue(numpy.array_equiv(readInValue, word_clk_mux_content[0:2]))
