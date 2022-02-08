@@ -1,2 +1,3 @@
 @Library('ChimeraTK') _
-buildTestDeploy(['ChimeraTK-DeviceAccess'])
+env.CMAKE_EXTRA_ARGS="-DPYTHON3=True"
+autojob(['ChimeraTK/DeviceAccess'], 'https://github.com/ChimeraTK/DeviceAccess-PythonBindings')
