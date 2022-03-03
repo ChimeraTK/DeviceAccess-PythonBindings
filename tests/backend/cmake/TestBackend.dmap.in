@@ -1,2 +1,0 @@
-@LOAD_LIB ${CMAKE_CURRENT_BINARY_DIR}/libtest_backend.so
-MY_CUSTOM_DEVICE sdm://./TestBackend no_mapfile

@@ -85,7 +85,7 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIR}
 
 #==============================================================================#
 # Only add the backend subdirectory after having all dependencies and flags
-add_subdirectory(tests/backend)
+#add_subdirectory(tests/backend)
 
 #
 # add target for documentation if sphinx v1.3+ is available. 

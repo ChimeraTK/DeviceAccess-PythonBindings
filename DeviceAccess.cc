@@ -33,7 +33,7 @@ namespace mtca4upy { namespace DeviceAccess {
   }
 
   std::string getCatalogueMetadata(const ChimeraTK::Device& self, const std::string& parameterName) {
-    return self.getRegisterCatalogue().getMetadata(parameterName);
+    return self.getMetadataCatalogue().getMetadata(parameterName);
   }
 
 }} // namespace mtca4upy::DeviceAccess
