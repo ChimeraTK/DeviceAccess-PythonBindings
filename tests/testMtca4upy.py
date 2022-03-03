@@ -475,7 +475,7 @@ class TestPCIEDevice(unittest.TestCase):
                                       0x5a5a5a5a, 0xffeeffee, 0xcc33cc33,
                                       0x33cc33cc, 0xdeadbeef, 0x87654321,
                                       0xfdecba09, 0xb0b00b0b, 0x73533537], dtype=numpy.int32)
-    device.write_raw(module, 'AREA_MULTIPLEXED_SEQUENCE_UNSIGNED_INT', predefinedSequence)
+    device.write_raw(module, 'UNSIGNED_INT.MULTIPLEXED_RAW', predefinedSequence)
     
     # Use dtype=numpy.int32 to make sure we don't have rounding errors in the expected values.
     # The comparison array_equiv still works, even if we compare to a different dtype.
