@@ -33,7 +33,7 @@ set(${PROJECT_NAME}_SOVERSION
 #
 # variables used downstream 
 #==============================================================================#
-set(boost_python_core_module "mtca4udeviceaccess")
+set(boost_python_core_module "_da_python_bindings")
 set(legacy_python_module "mtca4u.py")
 set(python_module "deviceaccess.py")
 set(sphinx_build_confg_in "${PROJECT_SOURCE_DIR}/cmake/conf.py.in")
@@ -191,7 +191,7 @@ message(STATUS "Install Path: ${install_path}")
 # - Pure python module
 # - c++ python module
 # - Headers for the dev package
-set(python_module_path "${install_path}/chimeratk")
+set(python_module_path ${install_path})
 install(FILES ${PROJECT_BINARY_DIR}/${python_module} 
               DESTINATION ${python_module_path})
 install(FILES ${PROJECT_BINARY_DIR}/${legacy_python_module} 

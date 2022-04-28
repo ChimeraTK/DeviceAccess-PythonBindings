@@ -1,24 +1,24 @@
-import mtca4udeviceaccess
+import _da_python_bindings as pb
 import numpy as np
 import enum
 
 
 def setDMapFilePath(dmapFilePath):
     # dmapFilePath	Relative or absolute path of the dmap file (directory and file name).
-    mtca4udeviceaccess.setDmapFile(dmapFilePath)
+    pb.setDmapFile(dmapFilePath)
 
 
 def getDMapFilePath(dmapFilePath):
-    return mtca4udeviceaccess.getDmapFile()
+    return pb.getDmapFile()
 
 
 class Device:
     def __init__(self, aliasName=None):
         if aliasName:
             self.aliasName = aliasName
-            self._device = mtca4udeviceaccess.getDevice(aliasName)
+            self._device = pb.getDevice(aliasName)
         else:
-            self._device = mtca4udeviceaccess.getDevice()
+            self._device = pb.getDevice()
 
     def open(self, aliasName=None):
         if not aliasName:
@@ -51,5 +51,5 @@ class Device:
 
 
 class AccessMode(enum.Enum):
-    raw = mtca4udeviceaccess.AccessMode.raw
-    wait_for_new_data = mtca4udeviceaccess.AccessMode.wait_for_new_data
+    raw = pb.AccessMode.raw
+    wait_for_new_data = pb.AccessMode.wait_for_new_data

@@ -24,7 +24,7 @@ sys.path.insert(0,
 
 #
 # Remove dependency of doc generation dependency from compilation.
-autodoc_mock_imports = ["mtca4udeviceaccess"]
+autodoc_mock_imports = ["_da_python_bindings"]
 
 # -- General configuration ------------------------------------------------
 

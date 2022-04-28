@@ -21,7 +21,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(getDevice_overloads, mtca4upy::getDevice, 0, 1)
 
 // accessed through mtca4upy.py
 // and not directly
-BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
+BOOST_PYTHON_MODULE(_da_python_bindings) { // This module is
 
   // needed for the numpy ndarray c api to function correctly.
   Py_Initialize();
@@ -73,7 +73,7 @@ BOOST_PYTHON_MODULE(mtca4udeviceaccess) { // This module is
       .def("getBuffer", mtca4upy::TwoDRegisterAccessor::getBuffer<int32_t>);
 
   bp::def("createDevice", createDevice);
-  bp::def("getDevice", (boost::shared_ptr<ChimeraTK::Device>(*)(const std::string&))0, getDevice_overloads());
+  // bp::def("getDevice", (boost::shared_ptr<ChimeraTK::Device>(*)(const std::string&))0, getDevice_overloads());
   bp::def("setDmapFile", mtca4upy::setDmapFile);
   bp::def("getDmapFile", mtca4upy::getDmapFile);
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::Device>>();

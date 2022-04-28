@@ -257,7 +257,7 @@ FUNCTION(ADD_HTML_DOCUMENTATION_SUPPORT)
                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                     COMMENT "Generating html documentation" VERBATIM)
   #unfortunately sphinx needs to scan the library, so we first have to run the build step before we get proper documentation
-  add_dependencies(doc mtca4udeviceaccess)
+  add_dependencies(doc _da_python_bindings)
 
   set(DOC_TARGET_ADDED TRUE CACHE INTERNAL "Doc target has been configured")
 ENDFUNCTION()
