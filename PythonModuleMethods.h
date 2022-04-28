@@ -4,6 +4,10 @@
 #include "HelperFunctions.h"
 #include <ChimeraTK/Device.h>
 #include <ChimeraTK/TwoDRegisterAccessor.h>
+#include <boost/python/numpy.hpp>
+
+namespace p = boost::python;
+namespace np = boost::python::numpy;
 
 namespace mtca4upy {
 
@@ -22,6 +26,8 @@ namespace mtca4upy {
    */
 
   boost::shared_ptr<ChimeraTK::Device> createDevice(const std::string& deviceAlias);
+  boost::shared_ptr<ChimeraTK::Device> getDevice();
+  boost::shared_ptr<ChimeraTK::Device> getDevice(const std::string& deviceAlias);
 
   namespace OneDAccessor {
     template<typename T>
@@ -80,9 +86,33 @@ namespace mtca4upy {
 
   } // namespace TwoDAccessor
 
+  namespace TwoDRegisterAccessor {
+    template<typename T>
+    std::vector<std::vector<T>> getBuffer(ChimeraTK::TwoDRegisterAccessor<T>& self) {
+      size_t channels = self.getNChannels();
+      size_t elementsPerChannel = self.getNElementsPerChannel();
+      return {{1, 2, 3}, {4, 5, 6}};
+    }
+    /*
+    template<typename T>
+    void getBuffer(ChimeraTK::TwoDRegisterAccessor<T>& self) {
+      return;
+    }
+  */
+  } // namespace TwoDRegisterAccessor
+
   namespace DeviceAccess {
     ChimeraTK::TwoDRegisterAccessor<double> getTwoDAccessor(
         const ChimeraTK::Device& self, const std::string& registerPath);
+
+    template<typename T>
+    ChimeraTK::TwoDRegisterAccessor<T> getGeneralTwoDAccessor(
+        const ChimeraTK::Device& self, const std::string& registerPath, size_t numberOfElements, size_t elementsOffset
+        //const ChimeraTK::AccessModeFlags& flags
+    ) {
+      return self.getTwoDRegisterAccessor<T>(registerPath, numberOfElements, elementsOffset, {});
+      // flags);
+    }
 
     template<typename T>
     ChimeraTK::OneDRegisterAccessor<T> getOneDAccessor(const ChimeraTK::Device& self, const std::string& registerPath,
@@ -97,6 +127,10 @@ namespace mtca4upy {
         uint32_t regOffset, mtca4upy::NumpyObject dataToWrite, size_t bytesToWrite);
 
     std::string getCatalogueMetadata(const ChimeraTK::Device& self, const std::string& parameterName);
+
+    void open(ChimeraTK::Device& self, std::string const& aliasName);
+    void open(ChimeraTK::Device& self);
+    void close(ChimeraTK::Device& self);
 
   } // namespace DeviceAccess
 

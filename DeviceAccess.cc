@@ -5,8 +5,8 @@
 
 namespace mtca4upy { namespace DeviceAccess {
 
-  ChimeraTK::TwoDRegisterAccessor<double> getTwoDAccessor(const ChimeraTK::Device& self,
-      const std::string& registerPath) {
+  ChimeraTK::TwoDRegisterAccessor<double> getTwoDAccessor(
+      const ChimeraTK::Device& self, const std::string& registerPath) {
     return (self.getTwoDRegisterAccessor<double>(registerPath));
   }
 
@@ -33,8 +33,13 @@ namespace mtca4upy { namespace DeviceAccess {
   }
 
   std::string getCatalogueMetadata(const ChimeraTK::Device& self, const std::string& parameterName) {
-    return self.getMetadataCatalogue().getMetadata(parameterName);
+    //return self.getMetadataCatalogue().getMetadata(parameterName);
+    return "temporary fix";
   }
+
+  void open(ChimeraTK::Device& self) { self.open(); }
+  void open(ChimeraTK::Device& self, std::string const& aliasName) { self.open(aliasName); }
+  void close(ChimeraTK::Device& self) { self.close(); }
 
 }} // namespace mtca4upy::DeviceAccess
 void mtca4upy::setDmapFile(const std::string& dmapFile) {

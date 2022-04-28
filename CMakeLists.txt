@@ -34,7 +34,8 @@ set(${PROJECT_NAME}_SOVERSION
 # variables used downstream 
 #==============================================================================#
 set(boost_python_core_module "mtca4udeviceaccess")
-set(python_module "mtca4u.py")
+set(legacy_python_module "mtca4u.py")
+set(python_module "deviceaccess.py")
 set(sphinx_build_confg_in "${PROJECT_SOURCE_DIR}/cmake/conf.py.in")
 set(location_of_rst_source_files "${PROJECT_SOURCE_DIR}/doc")
 set(location_of_built_html_files "${PROJECT_BINARY_DIR}/doc/html")
@@ -136,6 +137,7 @@ set_target_properties(${boost_python_core_module}  PROPERTIES LINK_FLAGS "${Chim
 # The Module will end with .py though it will be processed by configure_file.
 # Reason: would like to have py editor support on the file in the source
 # directory.
+configure_file( ${legacy_python_module}  ${PROJECT_BINARY_DIR})
 configure_file( ${python_module}  ${PROJECT_BINARY_DIR})
 
 #
@@ -189,7 +191,10 @@ message(STATUS "Install Path: ${install_path}")
 # - Pure python module
 # - c++ python module
 # - Headers for the dev package
+set(python_module_path "${install_path}/chimeratk")
 install(FILES ${PROJECT_BINARY_DIR}/${python_module} 
+              DESTINATION ${python_module_path})
+install(FILES ${PROJECT_BINARY_DIR}/${legacy_python_module} 
               DESTINATION ${install_path})
 install(TARGETS ${boost_python_core_module} 
               LIBRARY DESTINATION ${install_path})
