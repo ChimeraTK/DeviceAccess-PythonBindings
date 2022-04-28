@@ -26,7 +26,7 @@ namespace mtca4upy {
    */
 
   boost::shared_ptr<ChimeraTK::Device> createDevice(const std::string& deviceAlias);
-  boost::shared_ptr<ChimeraTK::Device> getDevice();
+  boost::shared_ptr<ChimeraTK::Device> getDevice_no_alias();
   boost::shared_ptr<ChimeraTK::Device> getDevice(const std::string& deviceAlias);
 
   namespace OneDAccessor {
