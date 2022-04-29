@@ -32,7 +32,7 @@ BOOST_PYTHON_MODULE(discarded) { // This module is
 
 BOOST_PYTHON_MODULE(_da_python_bindings) {
   Py_Initialize();
-  //np::initialize();
+  np::initialize();
 
   bp::class_<ChimeraTK::Device>("Device") // TODO: Find and change "Device" to a suitable name
       .def("getTwoDAccessor_int32", da::getGeneralTwoDAccessor<int32_t>)

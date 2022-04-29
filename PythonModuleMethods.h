@@ -5,6 +5,7 @@
 #include <ChimeraTK/Device.h>
 #include <ChimeraTK/TwoDRegisterAccessor.h>
 #include <boost/python/numpy.hpp>
+#include <vector>
 
 namespace p = boost::python;
 namespace np = boost::python::numpy;
@@ -31,17 +32,27 @@ namespace mtca4upy {
 
   namespace TwoDRegisterAccessor {
     template<typename T>
-    std::vector<std::vector<T>> getBuffer(ChimeraTK::TwoDRegisterAccessor<T>& self) {
+    np::ndarray getBuffer(ChimeraTK::TwoDRegisterAccessor<T>& self) {
       size_t channels = self.getNChannels();
       size_t elementsPerChannel = self.getNElementsPerChannel();
-      return {{1, 2, 3}, {4, 5, 6}};
+      /*
+      std::vector<std::vector<T>> buffer = {{1, 2, 3}, {4, 5, 9}};
+
+      np::ndarray np_buffer = np::from_data(buffer.data(), // data ->
+          np::dtype::get_builtin<T>(),                     // dtype -> double
+          p::make_tuple(buffer.size()),                    // shape -> size
+          p::make_tuple(sizeof(T)), p::object());          // stride = 1
+
+      */
+
+      return np_buffer;
     }
     /*
     template<typename T>
     void getBuffer(ChimeraTK::TwoDRegisterAccessor<T>& self) {
       return;
     }
-  */
+    */
   } // namespace TwoDRegisterAccessor
 
   namespace DeviceAccess {
