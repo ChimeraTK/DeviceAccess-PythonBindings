@@ -14,11 +14,11 @@ def getDMapFilePath(dmapFilePath):
 
 class Device:
     def __init__(self, aliasName=None):
+        self.aliasName = aliasName
         if aliasName:
-            self.aliasName = aliasName
             self._device = pb.getDevice(aliasName)
         else:
-            self._device = pb.getDevice()
+            self._device = pb.getDevice_no_alias()
 
     def open(self, aliasName=None):
         if not aliasName:
@@ -28,7 +28,8 @@ class Device:
                 raise SyntaxError(
                     "No backend is assigned: the device is not opened"
                 )
-        elif aliasName is self.aliasName:
+        elif not self.aliasName:
+            self.aliasName = aliasName
             self._device.open(aliasName)
         else:
             raise SyntaxError(
@@ -53,3 +54,33 @@ class Device:
 class AccessMode(enum.Enum):
     raw = pb.AccessMode.raw
     wait_for_new_data = pb.AccessMode.wait_for_new_data
+
+
+class TwoDRegisterAccessor(np.ndarray):
+
+    def __new__(cls, input_array, info=None):
+        # Input array is an already formed ndarray instance
+        # We first cast to be our class type
+        obj = np.asarray(input_array).view(cls)
+        # add the new attribute to the created instance
+        obj.info = info
+        # Finally, we must return the newly created object:
+        return obj
+
+    def __array_finalize__(self, obj):
+        # see InfoArray.__array_finalize__ for comments
+        if obj is None:
+            return
+        self.info = getattr(obj, 'info', None)
+
+    def read():
+        pass
+
+    def readLatest():
+        return False
+
+    def readNonBlocking():
+        return False
+
+    def write():
+        return False
