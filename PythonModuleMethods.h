@@ -35,15 +35,13 @@ namespace mtca4upy {
     np::ndarray getBuffer(ChimeraTK::TwoDRegisterAccessor<T>& self) {
       size_t channels = self.getNChannels();
       size_t elementsPerChannel = self.getNElementsPerChannel();
-      /*
+
       std::vector<std::vector<T>> buffer = {{1, 2, 3}, {4, 5, 9}};
 
       np::ndarray np_buffer = np::from_data(buffer.data(), // data ->
           np::dtype::get_builtin<T>(),                     // dtype -> double
           p::make_tuple(buffer.size()),                    // shape -> size
           p::make_tuple(sizeof(T)), p::object());          // stride = 1
-
-      */
 
       return np_buffer;
     }

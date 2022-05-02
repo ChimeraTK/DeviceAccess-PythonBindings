@@ -49,10 +49,12 @@ get_desired_python_major_release(py_major_release_num)
 find_package(PythonLibs ${py_major_release_num} REQUIRED)
 
 find_package(Boost REQUIRED) # hack to get Boost_VERSION_STRING populated
-get_boost_python_component_name(PYTHONLIBS_VERSION_STRING Boost_VERSION_STRING boost_python)
-find_package(Boost REQUIRED COMPONENTS ${boost_python})
+get_boost_python_component_name(PYTHONLIBS_VERSION_STRING Boost_VERSION_STRING boost_python boost_numpy) 
+message("Boost Python aka ${boost_python} ")
+message("Boost Numpy aka ${boost_numpy} ")
+find_package(Boost REQUIRED COMPONENTS ${boost_python} ${boost_numpy})
 
-find_package(NumPy REQUIRED)
+#find_package(NumPy REQUIRED)
 find_package(ChimeraTK-DeviceAccess ${min_req_chimeratk_version} REQUIRED)
 #==============================================================================#
 
@@ -112,7 +114,8 @@ target_link_libraries(${boost_python_core_module} ${TSAN_LIBS}
                       ${ChimeraTK-DeviceAccess_LIBRARIES} 
                       ${PYTHON_LIBRARIES} 
                       ${Boost_LIBRARIES}
-                      Boost::${boost_python} ${TSAN_LIBS})
+                      Boost::${boost_python}
+                      Boost::${boost_numpy} ${TSAN_LIBS})
                   
 #
 # Generate boost test executable
