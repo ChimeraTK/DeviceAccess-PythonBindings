@@ -43,12 +43,15 @@ class Device:
         if userType is np.int32:
             accessor = self._device.getTwoDAccessor_int32(
                 registerPathName, numberOfElements, elementsOffset)
+
         else:
             raise SyntaxError(
                 "userType not supported"
             )
 
-        return accessor.getBuffer()
+        # buffer = accessor.getBuffer()
+        twoDRegisterAccessor = TwoDRegisterAccessor(userType, accessor)
+        return twoDRegisterAccessor
 
 
 class AccessMode(enum.Enum):
@@ -58,12 +61,15 @@ class AccessMode(enum.Enum):
 
 class TwoDRegisterAccessor(np.ndarray):
 
-    def __new__(cls, input_array, info=None):
+    def __new__(cls, userType, accessor):
+        # add the new attribute to the created instance
+        cls._accessor = accessor
         # Input array is an already formed ndarray instance
         # We first cast to be our class type
-        obj = np.asarray(input_array).view(cls)
-        # add the new attribute to the created instance
-        obj.info = info
+        channels = accessor.getNChannels()
+        elementsPerChannel = accessor.getNElementsPerChannel()
+        obj = np.asarray(
+            np.zeros(shape=(channels, elementsPerChannel), dtype=userType)).view(cls)
         # Finally, we must return the newly created object:
         return obj
 
@@ -73,14 +79,20 @@ class TwoDRegisterAccessor(np.ndarray):
             return
         self.info = getattr(obj, 'info', None)
 
-    def read():
-        pass
+    def read(self):
+        self._accessor.read(self.view())
 
-    def readLatest():
+    def readLatest(self):
         return False
 
-    def readNonBlocking():
+    def readNonBlocking(self):
         return False
 
-    def write():
-        return False
+    def write(self):
+        self._accessor.write(self.view())
+
+    def getNChannels(self):
+        return self._accessor.getNChannels()
+
+    def getNElementsPerChannel(self):
+        return self._accessor.getNElementsPerChannel()

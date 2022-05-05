@@ -41,7 +41,12 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("close", da::close);
 
   bp::class_<ChimeraTK::TwoDRegisterAccessor<int32_t>>("TwoDAccessor_int32")
-      .def("getBuffer", mtca4upy::TwoDRegisterAccessor::getBuffer<int32_t>);
+      .def("read", mtca4upy::TwoDRegisterAccessor::read<int32_t>)
+      .def("readLatest", mtca4upy::TwoDRegisterAccessor::readLatest<int32_t>)
+      .def("readNonBlocking", mtca4upy::TwoDRegisterAccessor::readNonBlocking<int32_t>)
+      .def("write", mtca4upy::TwoDRegisterAccessor::write<int32_t>)
+      .def("getNChannels", mtca4upy::TwoDRegisterAccessor::getNChannels<int32_t>)
+      .def("getNElementsPerChannel", mtca4upy::TwoDRegisterAccessor::getNElementsPerChannel<int32_t>);
 
   bp::def("createDevice", createDevice);
   bp::def("getDevice_no_alias", mtca4upy::getDevice_no_alias);

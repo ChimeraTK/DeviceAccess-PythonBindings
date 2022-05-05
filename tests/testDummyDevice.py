@@ -1,4 +1,4 @@
-#!/usr/bin/env ${python_interpreter}
+#!/usr/bin/env python3
 
 import _da_python_bindings as mtca4udeviceaccess
 import os

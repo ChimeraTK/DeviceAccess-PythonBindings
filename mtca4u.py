@@ -2,7 +2,7 @@ import _da_python_bindings as mtca4udeviceaccess  # alias quick fix
 import numpy
 import sys
 
-__version__ = "${${PROJECT_NAME}_VERSION}"
+__version__ = "02.03.00"
 
 # http://stackoverflow.com/questions/4219717/how-to-assert-output-with-nosetest-unittest-in-python
 
@@ -23,11 +23,11 @@ def get_info(outputStream=sys.stdout):
     --------
     >>> import mtca4u
     >>> mtca4u.get_info()
-    mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtca4u-deviceaccess v$ChimeraTK-DeviceAccess_VERSION}
+    mtca4uPy v02.03.00, linked with mtca4u-deviceaccess v$ChimeraTK-DeviceAccess_VERSION}
 
     """
     outputStream.write(
-        "mtca4uPy v${${PROJECT_NAME}_VERSION}, linked with mtca4u-deviceaccess v${ChimeraTK-DeviceAccess_VERSION}")
+        "mtca4uPy v02.03.00, linked with mtca4u-deviceaccess v02.06")
 
 
 def set_dmap_location(dmapFileLocation):
