@@ -45,8 +45,12 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("readLatest", mtca4upy::TwoDRegisterAccessor::readLatest<int32_t>)
       .def("readNonBlocking", mtca4upy::TwoDRegisterAccessor::readNonBlocking<int32_t>)
       .def("write", mtca4upy::TwoDRegisterAccessor::write<int32_t>)
+      .def("writeDestructively", mtca4upy::TwoDRegisterAccessor::writeDestructively<int32_t>)
       .def("getNChannels", mtca4upy::TwoDRegisterAccessor::getNChannels<int32_t>)
-      .def("getNElementsPerChannel", mtca4upy::TwoDRegisterAccessor::getNElementsPerChannel<int32_t>);
+      .def("getNElementsPerChannel", mtca4upy::TwoDRegisterAccessor::getNElementsPerChannel<int32_t>)
+      .def("getUnit", mtca4upy::TwoDRegisterAccessor::getUnit<int32_t>)
+      .def("getDescription", mtca4upy::TwoDRegisterAccessor::getDescription<int32_t>)
+      .def("getName", mtca4upy::TwoDRegisterAccessor::getName<int32_t>);
 
   bp::def("createDevice", createDevice);
   bp::def("getDevice_no_alias", mtca4upy::getDevice_no_alias);

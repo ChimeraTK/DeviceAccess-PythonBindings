@@ -61,13 +61,15 @@ class AccessMode(enum.Enum):
 
 class TwoDRegisterAccessor(np.ndarray):
 
-    def __new__(cls, userType, accessor):
+    def __new__(cls, userType, accessor, accessModeFlags=None):
         # add the new attribute to the created instance
         cls._accessor = accessor
         # Input array is an already formed ndarray instance
         # We first cast to be our class type
         channels = accessor.getNChannels()
         elementsPerChannel = accessor.getNElementsPerChannel()
+        cls.userType = userType
+        cls._AccessModeFlags = accessModeFlags
         obj = np.asarray(
             np.zeros(shape=(channels, elementsPerChannel), dtype=userType)).view(cls)
         # Finally, we must return the newly created object:
@@ -83,16 +85,79 @@ class TwoDRegisterAccessor(np.ndarray):
         self._accessor.read(self.view())
 
     def readLatest(self):
-        return False
+        return self._accessor.readLatest(self.view())
 
     def readNonBlocking(self):
-        return False
+        return self._accessor.readNonBlocking(self.view())
 
     def write(self):
-        self._accessor.write(self.view())
+        return self._accessor.write(self.view())
+
+    def writeDestructively(self):
+        return self._accessor.writeDestructively(self.view())
 
     def getNChannels(self):
         return self._accessor.getNChannels()
 
     def getNElementsPerChannel(self):
         return self._accessor.getNElementsPerChannel()
+
+    def getName(self):
+        return self._accessor.getName()
+
+    def getUnit(self):
+        return self._accessor.getUnit()
+
+    def getValueType(self):
+        return self.userType
+
+    def getDescription(self):
+        return self._accessor.getDescription()
+
+    def getAccessModeFlags(self):
+        return self._AccessModeFlags
+
+    def getVersionNumber(self):
+        # TODO
+        print("Not yet implemented")
+        pass
+
+    def isReadOnly(self):
+        # TODO
+        print("Not yet implemented")
+        pass
+
+    def isReadable(self):
+        # TODO
+        print("Not yet implemented")
+        pass
+
+    def isWriteable(self):
+        # TODO
+        print("Not yet implemented")
+        pass
+
+    def isInitialised(self):
+        # TODO
+        print("Not yet implemented")
+        pass
+
+    def getId(self):
+        # TODO
+        print("Not yet implemented")
+        pass
+
+    def setDataValidity(self):
+        # TODO
+        print("Not yet implemented")
+        pass
+
+    def dataValidity(self):
+        # TODO
+        print("Not yet implemented")
+        pass
+
+    def getVersionNumber(self):
+        # TODO
+        print("Not yet implemented")
+        pass
