@@ -208,12 +208,16 @@ namespace mtca4upy {
         const ChimeraTK::Device& self, const std::string& registerPath);
 
     template<typename T>
-    ChimeraTK::TwoDRegisterAccessor<T> getGeneralTwoDAccessor(
-        const ChimeraTK::Device& self, const std::string& registerPath, size_t numberOfElements, size_t elementsOffset
-        //const ChimeraTK::AccessModeFlags& flags
-    ) {
-      return self.getTwoDRegisterAccessor<T>(registerPath, numberOfElements, elementsOffset, {});
-      // flags);
+    ChimeraTK::TwoDRegisterAccessor<T> getGeneralTwoDAccessor(const ChimeraTK::Device& self,
+        const std::string& registerPath, size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist) {
+      ChimeraTK::AccessModeFlags flags{};
+      size_t count = len((flaglist));
+      for(size_t i = 0; i < count; i++) {
+        //p::object flag = flaglist.pop();
+        flags.add(p::extract<ChimeraTK::AccessMode>(flaglist.pop()));
+      }
+
+      return self.getTwoDRegisterAccessor<T>(registerPath, numberOfElements, elementsOffset, flags);
     }
 
     template<typename T>

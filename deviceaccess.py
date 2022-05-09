@@ -39,10 +39,17 @@ class Device:
     def close(self):
         self._device.close()
 
-    def getTwoDRegisterAccessor(self, userType, registerPathName, numberOfElements=0, elementsOffset=0, AccessModeFlags=None):
+    def getTwoDRegisterAccessor(self, userType, registerPathName, numberOfElements=0, elementsOffset=0, accessModeFlags=[]):
+        convertedFlags = []
+        for mode in accessModeFlags:
+            if mode == AccessMode.raw:
+                convertedFlags.append(pb.AccessMode.raw)
+            elif mode == AccessMode.wait_for_new_data:
+                convertedFlags.append(pb.wait_for_new_data)
+
         if userType is np.int32:
             accessor = self._device.getTwoDAccessor_int32(
-                registerPathName, numberOfElements, elementsOffset)
+                registerPathName, numberOfElements, elementsOffset, convertedFlags)
 
         else:
             raise SyntaxError(
