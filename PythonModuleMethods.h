@@ -171,6 +171,26 @@ namespace mtca4upy {
     const std::string getDescription(ChimeraTK::TwoDRegisterAccessor<T>& self) {
       return self.getDescription();
     }
+
+    template<typename T>
+    bool isReadOnly(ChimeraTK::TwoDRegisterAccessor<T>& self) {
+      return self.isReadOnly();
+    }
+
+    template<typename T>
+    bool isReadable(ChimeraTK::TwoDRegisterAccessor<T>& self) {
+      return self.isReadable();
+    }
+
+    template<typename T>
+    bool isWriteable(ChimeraTK::TwoDRegisterAccessor<T>& self) {
+      return self.isWriteable();
+    }
+
+    template<typename T>
+    bool isInitialised(ChimeraTK::TwoDRegisterAccessor<T>& self) {
+      return self.isInitialised();
+    }
   } // namespace TwoDRegisterAccessor
 
   namespace DeviceAccess {

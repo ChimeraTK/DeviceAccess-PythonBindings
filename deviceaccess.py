@@ -123,24 +123,16 @@ class TwoDRegisterAccessor(np.ndarray):
         pass
 
     def isReadOnly(self):
-        # TODO
-        print("Not yet implemented")
-        pass
+        return self._accessor.isReadOnly()
 
     def isReadable(self):
-        # TODO
-        print("Not yet implemented")
-        pass
+        return self._accessor.isReadable()
 
     def isWriteable(self):
-        # TODO
-        print("Not yet implemented")
-        pass
+        return self._accessor.isWriteable()
 
     def isInitialised(self):
-        # TODO
-        print("Not yet implemented")
-        pass
+        return self._accessor.isInitialised()
 
     def getId(self):
         # TODO

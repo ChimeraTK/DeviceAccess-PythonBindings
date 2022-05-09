@@ -48,6 +48,10 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("writeDestructively", mtca4upy::TwoDRegisterAccessor::writeDestructively<int32_t>)
       .def("getNChannels", mtca4upy::TwoDRegisterAccessor::getNChannels<int32_t>)
       .def("getNElementsPerChannel", mtca4upy::TwoDRegisterAccessor::getNElementsPerChannel<int32_t>)
+      .def("isReadOnly", mtca4upy::TwoDRegisterAccessor::isReadOnly<int32_t>)
+      .def("isReadable", mtca4upy::TwoDRegisterAccessor::isReadable<int32_t>)
+      .def("isWriteable", mtca4upy::TwoDRegisterAccessor::isWriteable<int32_t>)
+      .def("isInitialised", mtca4upy::TwoDRegisterAccessor::isInitialised<int32_t>)
       .def("getUnit", mtca4upy::TwoDRegisterAccessor::getUnit<int32_t>)
       .def("getDescription", mtca4upy::TwoDRegisterAccessor::getDescription<int32_t>)
       .def("getName", mtca4upy::TwoDRegisterAccessor::getName<int32_t>);
