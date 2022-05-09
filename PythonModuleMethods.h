@@ -191,6 +191,16 @@ namespace mtca4upy {
     bool isInitialised(ChimeraTK::TwoDRegisterAccessor<T>& self) {
       return self.isInitialised();
     }
+
+    template<typename T>
+    void setDataValidity(ChimeraTK::TwoDRegisterAccessor<T>& self, ChimeraTK::DataValidity valid) {
+      self.setDataValidity(valid);
+    }
+
+    template<typename T>
+    ChimeraTK::DataValidity dataValidity(ChimeraTK::TwoDRegisterAccessor<T>& self) {
+      return self.dataValidity();
+    }
   } // namespace TwoDRegisterAccessor
 
   namespace DeviceAccess {

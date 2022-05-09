@@ -59,6 +59,11 @@ class AccessMode(enum.Enum):
     wait_for_new_data = pb.AccessMode.wait_for_new_data
 
 
+class DataValidity(enum.Enum):
+    ok = pb.DataValidity.ok
+    faulty = pb.DataValidity.faulty
+
+
 class TwoDRegisterAccessor(np.ndarray):
 
     def __new__(cls, userType, accessor, accessModeFlags=None):
@@ -139,17 +144,16 @@ class TwoDRegisterAccessor(np.ndarray):
         print("Not yet implemented")
         pass
 
-    def setDataValidity(self):
-        # TODO
-        print("Not yet implemented")
-        pass
+    def setDataValidity(self, valid=DataValidity.ok):
+        if valid == DataValidity.ok:
+            valid = pb.DataValidity.ok
+        else:
+            valid = pb.DataValidity.faulty
+        self._accessor.setDataValidity(valid)
 
     def dataValidity(self):
-        # TODO
-        print("Not yet implemented")
-        pass
-
-    def getVersionNumber(self):
-        # TODO
-        print("Not yet implemented")
-        pass
+        valid = self._accessor.dataValidity()
+        if valid == pb.DataValidity.ok:
+            return DataValidity.ok
+        else:
+            return DataValidity.faulty

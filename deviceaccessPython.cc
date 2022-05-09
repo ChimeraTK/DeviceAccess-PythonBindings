@@ -54,6 +54,8 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("isInitialised", mtca4upy::TwoDRegisterAccessor::isInitialised<int32_t>)
       .def("getUnit", mtca4upy::TwoDRegisterAccessor::getUnit<int32_t>)
       .def("getDescription", mtca4upy::TwoDRegisterAccessor::getDescription<int32_t>)
+      .def("setDataValidity", mtca4upy::TwoDRegisterAccessor::setDataValidity<int32_t>)
+      .def("dataValidity", mtca4upy::TwoDRegisterAccessor::dataValidity<int32_t>)
       .def("getName", mtca4upy::TwoDRegisterAccessor::getName<int32_t>);
 
   bp::def("createDevice", createDevice);
@@ -65,6 +67,11 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
   bp::enum_<ChimeraTK::AccessMode>("AccessMode")
       .value("raw", ChimeraTK::AccessMode::raw)
       .value("wait_for_new_data", ChimeraTK::AccessMode::wait_for_new_data)
+      .export_values();
+
+  bp::enum_<ChimeraTK::DataValidity>("DataValidity")
+      .value("ok", ChimeraTK::DataValidity::ok)
+      .value("faulty", ChimeraTK::DataValidity::faulty)
       .export_values();
 
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::Device>>();
