@@ -2,6 +2,47 @@
 #include <ChimeraTK/DummyBackend.h>
 #include <boost/python/numpy.hpp>
 
+// no ; at line endings to be able to reuse in .def format
+#define TEMPLATE_USERTYPE_POPULATION(FUNCTION_TEMPLATE, func_name)                                                     \
+  FUNCTION_TEMPLATE(int8_t, func_name, _int8)                                                                          \
+  FUNCTION_TEMPLATE(uint8_t, func_name, _uint8)                                                                        \
+  FUNCTION_TEMPLATE(int16_t, func_name, _int16)                                                                        \
+  FUNCTION_TEMPLATE(uint16_t, func_name, _uint16)                                                                      \
+  FUNCTION_TEMPLATE(int32_t, func_name, _int32)                                                                        \
+  FUNCTION_TEMPLATE(uint32_t, func_name, _uint32)                                                                      \
+  FUNCTION_TEMPLATE(int64_t, func_name, _int64)                                                                        \
+  FUNCTION_TEMPLATE(uint64_t, func_name, _uint64)                                                                      \
+  FUNCTION_TEMPLATE(float, func_name, _float)                                                                          \
+  FUNCTION_TEMPLATE(double, func_name, _double)                                                                        \
+  FUNCTION_TEMPLATE(std::string, func_name, _string)                                                                   \
+  FUNCTION_TEMPLATE(ChimeraTK::Boolean, func_name, _boolean)
+
+#define STRINGIFY(s) #s
+
+#define CONCAT(pre, post) pre##post
+
+#define TEMPLATECLASS_GET_GENERAL_TWODACCESSOR(userType, funcName, suffix)                                             \
+  .def(STRINGIFY(CONCAT(funcName, suffix)), da::getGeneralTwoDAccessor<userType>)
+
+#define TEMPLATECLASS_TWODREGISTERACCESSOR(userType, className, class_suffix)                                          \
+  bp::class_<ChimeraTK::TwoDRegisterAccessor<userType>>(STRINGIFY(CONCAT(className, class_suffix)))                    \
+      .def("read", mtca4upy::TwoDRegisterAccessor::read<userType>)                                                     \
+      .def("readLatest", mtca4upy::TwoDRegisterAccessor::readLatest<userType>)                                         \
+      .def("readNonBlocking", mtca4upy::TwoDRegisterAccessor::readNonBlocking<userType>)                               \
+      .def("write", mtca4upy::TwoDRegisterAccessor::write<userType>)                                                   \
+      .def("writeDestructively", mtca4upy::TwoDRegisterAccessor::writeDestructively<userType>)                         \
+      .def("getNChannels", mtca4upy::TwoDRegisterAccessor::getNChannels<userType>)                                     \
+      .def("getNElementsPerChannel", mtca4upy::TwoDRegisterAccessor::getNElementsPerChannel<userType>)                 \
+      .def("isReadOnly", mtca4upy::TwoDRegisterAccessor::isReadOnly<userType>)                                         \
+      .def("isReadable", mtca4upy::TwoDRegisterAccessor::isReadable<userType>)                                         \
+      .def("isWriteable", mtca4upy::TwoDRegisterAccessor::isWriteable<userType>)                                       \
+      .def("isInitialised", mtca4upy::TwoDRegisterAccessor::isInitialised<userType>)                                   \
+      .def("getUnit", mtca4upy::TwoDRegisterAccessor::getUnit<userType>)                                               \
+      .def("getDescription", mtca4upy::TwoDRegisterAccessor::getDescription<userType>)                                 \
+      .def("setDataValidity", mtca4upy::TwoDRegisterAccessor::setDataValidity<userType>)                               \
+      .def("dataValidity", mtca4upy::TwoDRegisterAccessor::dataValidity<userType>)                                     \
+      .def("getName", mtca4upy::TwoDRegisterAccessor::getName<userType>);
+
 namespace bp = boost::python;
 namespace np = boost::python::numpy;
 
@@ -35,28 +76,13 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
   np::initialize();
 
   bp::class_<ChimeraTK::Device>("Device") // TODO: Find and change "Device" to a suitable name
-      .def("getTwoDAccessor_int32", da::getGeneralTwoDAccessor<int32_t>)
-      .def("getCatalogueMetadata", da::getCatalogueMetadata)
-      .def("open", (void (*)(ChimeraTK::Device&, std::string const&))0, open_overloads())
-      .def("close", da::close);
+      TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)
+          //.def("getTwoDAccessor_int16", da::getGeneralTwoDAccessor<int16_t>)
+          .def("getCatalogueMetadata", da::getCatalogueMetadata)
+          .def("open", (void (*)(ChimeraTK::Device&, std::string const&))0, open_overloads())
+          .def("close", da::close);
 
-  bp::class_<ChimeraTK::TwoDRegisterAccessor<int32_t>>("TwoDAccessor_int32")
-      .def("read", mtca4upy::TwoDRegisterAccessor::read<int32_t>)
-      .def("readLatest", mtca4upy::TwoDRegisterAccessor::readLatest<int32_t>)
-      .def("readNonBlocking", mtca4upy::TwoDRegisterAccessor::readNonBlocking<int32_t>)
-      .def("write", mtca4upy::TwoDRegisterAccessor::write<int32_t>)
-      .def("writeDestructively", mtca4upy::TwoDRegisterAccessor::writeDestructively<int32_t>)
-      .def("getNChannels", mtca4upy::TwoDRegisterAccessor::getNChannels<int32_t>)
-      .def("getNElementsPerChannel", mtca4upy::TwoDRegisterAccessor::getNElementsPerChannel<int32_t>)
-      .def("isReadOnly", mtca4upy::TwoDRegisterAccessor::isReadOnly<int32_t>)
-      .def("isReadable", mtca4upy::TwoDRegisterAccessor::isReadable<int32_t>)
-      .def("isWriteable", mtca4upy::TwoDRegisterAccessor::isWriteable<int32_t>)
-      .def("isInitialised", mtca4upy::TwoDRegisterAccessor::isInitialised<int32_t>)
-      .def("getUnit", mtca4upy::TwoDRegisterAccessor::getUnit<int32_t>)
-      .def("getDescription", mtca4upy::TwoDRegisterAccessor::getDescription<int32_t>)
-      .def("setDataValidity", mtca4upy::TwoDRegisterAccessor::setDataValidity<int32_t>)
-      .def("dataValidity", mtca4upy::TwoDRegisterAccessor::dataValidity<int32_t>)
-      .def("getName", mtca4upy::TwoDRegisterAccessor::getName<int32_t>);
+  TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_TWODREGISTERACCESSOR, TwoDAccessor)
 
   bp::def("createDevice", createDevice);
   bp::def("getDevice_no_alias", mtca4upy::getDevice_no_alias);

@@ -213,7 +213,6 @@ namespace mtca4upy {
       ChimeraTK::AccessModeFlags flags{};
       size_t count = len((flaglist));
       for(size_t i = 0; i < count; i++) {
-        //p::object flag = flaglist.pop();
         flags.add(p::extract<ChimeraTK::AccessMode>(flaglist.pop()));
       }
 

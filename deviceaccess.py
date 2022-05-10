@@ -1,6 +1,7 @@
 import _da_python_bindings as pb
 import numpy as np
 import enum
+from _da_python_bindings import AccessMode, DataValidity
 
 
 def setDMapFilePath(dmapFilePath):
@@ -13,6 +14,23 @@ def getDMapFilePath(dmapFilePath):
 
 
 class Device:
+    _userTypeExtensions = {
+        np.int32: "int32",
+        np.int16: "int16",
+        np.int8: "int8",
+        np.uint8: "uint8",
+        np.int16: "int16",
+        np.uint16: "uint16",
+        np.int32: "int32",
+        np.uint32: "uint32",
+        np.int64: "int64",
+        np.uint64: "uint64",
+        np.float: "float",
+        np.double: "double",
+        np.str_: "string",
+        np.bool: "boolean"
+    }
+
     def __init__(self, aliasName=None):
         self.aliasName = aliasName
         if aliasName:
@@ -40,35 +58,21 @@ class Device:
         self._device.close()
 
     def getTwoDRegisterAccessor(self, userType, registerPathName, numberOfElements=0, elementsOffset=0, accessModeFlags=[]):
-        convertedFlags = []
-        for mode in accessModeFlags:
-            if mode == AccessMode.raw:
-                convertedFlags.append(pb.AccessMode.raw)
-            elif mode == AccessMode.wait_for_new_data:
-                convertedFlags.append(pb.wait_for_new_data)
 
-        if userType is np.int32:
-            accessor = self._device.getTwoDAccessor_int32(
-                registerPathName, numberOfElements, elementsOffset, convertedFlags)
-
-        else:
+        # get function name according to userType
+        userTypeFunctionExtension = self._userTypeExtensions.get(
+            userType, None)
+        if not userTypeFunctionExtension:
             raise SyntaxError(
                 "userType not supported"
             )
+        getTwoDAccessor = getattr(
+            self._device, "getTwoDAccessor_" + userTypeFunctionExtension)
 
-        # buffer = accessor.getBuffer()
+        accessor = getTwoDAccessor(
+            registerPathName, numberOfElements, elementsOffset, accessModeFlags)
         twoDRegisterAccessor = TwoDRegisterAccessor(userType, accessor)
         return twoDRegisterAccessor
-
-
-class AccessMode(enum.Enum):
-    raw = pb.AccessMode.raw
-    wait_for_new_data = pb.AccessMode.wait_for_new_data
-
-
-class DataValidity(enum.Enum):
-    ok = pb.DataValidity.ok
-    faulty = pb.DataValidity.faulty
 
 
 class TwoDRegisterAccessor(np.ndarray):
@@ -152,15 +156,7 @@ class TwoDRegisterAccessor(np.ndarray):
         pass
 
     def setDataValidity(self, valid=DataValidity.ok):
-        if valid == DataValidity.ok:
-            valid = pb.DataValidity.ok
-        else:
-            valid = pb.DataValidity.faulty
         self._accessor.setDataValidity(valid)
 
     def dataValidity(self):
-        valid = self._accessor.dataValidity()
-        if valid == pb.DataValidity.ok:
-            return DataValidity.ok
-        else:
-            return DataValidity.faulty
+        return self._accessor.dataValidity()
