@@ -19,13 +19,11 @@
 
 #define STRINGIFY(s) #s
 
-#define CONCAT(pre, post) pre##post
-
 #define TEMPLATECLASS_GET_GENERAL_TWODACCESSOR(userType, funcName, suffix)                                             \
-  .def(STRINGIFY(CONCAT(funcName, suffix)), da::getGeneralTwoDAccessor<userType>)
+  .def(STRINGIFY(funcName##suffix), da::getGeneralTwoDAccessor<userType>)
 
 #define TEMPLATECLASS_TWODREGISTERACCESSOR(userType, className, class_suffix)                                          \
-  bp::class_<ChimeraTK::TwoDRegisterAccessor<userType>>(STRINGIFY(CONCAT(className, class_suffix)))                    \
+  bp::class_<ChimeraTK::TwoDRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                            \
       .def("read", mtca4upy::TwoDRegisterAccessor::read<userType>)                                                     \
       .def("readLatest", mtca4upy::TwoDRegisterAccessor::readLatest<userType>)                                         \
       .def("readNonBlocking", mtca4upy::TwoDRegisterAccessor::readNonBlocking<userType>)                               \
