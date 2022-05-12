@@ -37,8 +37,10 @@
       .def("isInitialised", mtca4upy::TwoDRegisterAccessor::isInitialised<userType>)                                   \
       .def("getUnit", mtca4upy::TwoDRegisterAccessor::getUnit<userType>)                                               \
       .def("getDescription", mtca4upy::TwoDRegisterAccessor::getDescription<userType>)                                 \
+      .def("getVersionNumber", mtca4upy::TwoDRegisterAccessor::getVersionNumber<userType>)                             \
       .def("setDataValidity", mtca4upy::TwoDRegisterAccessor::setDataValidity<userType>)                               \
       .def("dataValidity", mtca4upy::TwoDRegisterAccessor::dataValidity<userType>)                                     \
+      .def("getId", mtca4upy::TwoDRegisterAccessor::getId<userType>)                                                   \
       .def("getName", mtca4upy::TwoDRegisterAccessor::getName<userType>);
 
 namespace bp = boost::python;
@@ -98,5 +100,25 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .value("faulty", ChimeraTK::DataValidity::faulty)
       .export_values();
 
+  bp::class_<ChimeraTK::TransferElementID>("TransferElementID")
+      .def("isValid", mtca4upy::TransferElementID::isValid)
+      .def("__lt__", mtca4upy::TransferElementID::lt)
+      .def("__le__", mtca4upy::TransferElementID::le)
+      .def("__gt__", mtca4upy::TransferElementID::gt)
+      .def("__ge__", mtca4upy::TransferElementID::ge)
+      .def("__ne__", mtca4upy::TransferElementID::ne)
+      .def("__eq__", mtca4upy::TransferElementID::eq);
+
+  bp::class_<ChimeraTK::VersionNumber>("VersionNumber")
+      .def("getTime", mtca4upy::VersionNumber::isValid)
+      .def("__str__", mtca4upy::VersionNumber::str)
+      .def("__lt__", mtca4upy::VersionNumber::lt)
+      .def("__le__", mtca4upy::VersionNumber::le)
+      .def("__gt__", mtca4upy::VersionNumber::gt)
+      .def("__ge__", mtca4upy::VersionNumber::ge)
+      .def("__ne__", mtca4upy::VersionNumber::ne)
+      .def("__eq__", mtca4upy::VersionNumber::eq);
+
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::Device>>();
+  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::TransferElementID>>();
 }

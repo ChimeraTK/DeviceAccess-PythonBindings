@@ -3,6 +3,7 @@
 
 //#include "HelperFunctions.h"
 #include <ChimeraTK/Device.h>
+#include <ChimeraTK/TransferElementID.h>
 #include <ChimeraTK/TwoDRegisterAccessor.h>
 #include <boost/python/numpy.hpp>
 #include <vector>
@@ -70,7 +71,7 @@ namespace mtca4upy {
     /*
       template<typename T>
     void read(ChimeraTK::TwoDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      /*
+      
       std::vector<std::vector<T>> buffer = {{1, 2, 3}, {4, 5, 9}};
 
       np::ndarray np_buffer = np::from_data(buffer.data(),           // data ->
@@ -201,6 +202,15 @@ namespace mtca4upy {
     ChimeraTK::DataValidity dataValidity(ChimeraTK::TwoDRegisterAccessor<T>& self) {
       return self.dataValidity();
     }
+    template<typename T>
+    ChimeraTK::TransferElementID getId(ChimeraTK::TwoDRegisterAccessor<T>& self) {
+      return self.getId();
+    }
+
+    template<typename T>
+    ChimeraTK::VersionNumber getVersionNumber(ChimeraTK::TwoDRegisterAccessor<T>& self) {
+      return self.getVersionNumber();
+    }
   } // namespace TwoDRegisterAccessor
 
   namespace DeviceAccess {
@@ -238,6 +248,27 @@ namespace mtca4upy {
 
   void setDmapFile(const std::string& dmapFile);
   std::string getDmapFile();
+
+  namespace TransferElementID {
+    bool isValid(ChimeraTK::TransferElementID& self);
+    bool lt(ChimeraTK::TransferElementID& self, ChimeraTK::TransferElementID& other);
+    bool le(ChimeraTK::TransferElementID& self, ChimeraTK::TransferElementID& other);
+    bool eq(ChimeraTK::TransferElementID& self, ChimeraTK::TransferElementID& other);
+    bool gt(ChimeraTK::TransferElementID& self, ChimeraTK::TransferElementID& other);
+    bool ge(ChimeraTK::TransferElementID& self, ChimeraTK::TransferElementID& other);
+    bool ne(ChimeraTK::TransferElementID& self, ChimeraTK::TransferElementID& other);
+  } // namespace TransferElementID
+
+  namespace VersionNumber {
+    std::string str(ChimeraTK::VersionNumber& self);
+    std::string getTime(ChimeraTK::VersionNumber& self);
+    bool lt(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
+    bool le(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
+    bool eq(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
+    bool gt(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
+    bool ge(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
+    bool ne(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
+  } // namespace VersionNumber
 
 } // namespace mtca4upy
 

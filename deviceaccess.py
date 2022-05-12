@@ -1,7 +1,7 @@
 import _da_python_bindings as pb
 import numpy as np
 import enum
-from _da_python_bindings import AccessMode, DataValidity
+from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber
 
 
 def setDMapFilePath(dmapFilePath):
@@ -14,6 +14,7 @@ def getDMapFilePath(dmapFilePath):
 
 
 class Device:
+    # dict to get the corresponding function for each datatype
     _userTypeExtensions = {
         np.int32: "int32",
         np.int16: "int16",
@@ -27,7 +28,7 @@ class Device:
         np.uint64: "uint64",
         np.float: "float",
         np.double: "double",
-        np.str_: "string",
+        np.string_: "string",
         np.bool: "boolean"
     }
 
@@ -134,9 +135,7 @@ class TwoDRegisterAccessor(np.ndarray):
         return self._AccessModeFlags
 
     def getVersionNumber(self):
-        # TODO
-        print("Not yet implemented")
-        pass
+        return self._accessor.getVersionNumber()
 
     def isReadOnly(self):
         return self._accessor.isReadOnly()
@@ -150,13 +149,11 @@ class TwoDRegisterAccessor(np.ndarray):
     def isInitialised(self):
         return self._accessor.isInitialised()
 
-    def getId(self):
-        # TODO
-        print("Not yet implemented")
-        pass
-
     def setDataValidity(self, valid=DataValidity.ok):
         self._accessor.setDataValidity(valid)
 
     def dataValidity(self):
         return self._accessor.dataValidity()
+
+    def getId(self):
+        return self._accessor.getId()
