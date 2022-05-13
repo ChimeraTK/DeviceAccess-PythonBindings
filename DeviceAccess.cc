@@ -47,7 +47,9 @@ namespace mtca4upy {
   } // namespace TransferElementID
 
   namespace VersionNumber {
-    std::string getTime(ChimeraTK::VersionNumber& self) { return std::string(self.getTime()); }
+    boost::posix_time::ptime getTime([[maybe_unused]] ChimeraTK::VersionNumber& self) {
+      return boost::posix_time::ptime(boost::gregorian::date(1990, 1, 1));
+    }
     std::string str(ChimeraTK::VersionNumber& self) { return std::string(self); }
     bool lt(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other) { return self < other; }
     bool eq(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other) { return self == other; }

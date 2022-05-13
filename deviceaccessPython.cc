@@ -110,7 +110,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("__eq__", mtca4upy::TransferElementID::eq);
 
   bp::class_<ChimeraTK::VersionNumber>("VersionNumber")
-      .def("getTime", mtca4upy::VersionNumber::isValid)
+      .def("getTime", mtca4upy::VersionNumber::getTime)
       .def("__str__", mtca4upy::VersionNumber::str)
       .def("__lt__", mtca4upy::VersionNumber::lt)
       .def("__le__", mtca4upy::VersionNumber::le)

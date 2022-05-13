@@ -6,6 +6,7 @@
 #include <ChimeraTK/TransferElementID.h>
 #include <ChimeraTK/TwoDRegisterAccessor.h>
 #include <boost/python/numpy.hpp>
+#include <boost/date_time.hpp>
 #include <vector>
 
 namespace p = boost::python;
@@ -261,7 +262,7 @@ namespace mtca4upy {
 
   namespace VersionNumber {
     std::string str(ChimeraTK::VersionNumber& self);
-    std::string getTime(ChimeraTK::VersionNumber& self);
+    boost::posix_time::ptime getTime(ChimeraTK::VersionNumber& self);
     bool lt(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
     bool le(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
     bool eq(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
