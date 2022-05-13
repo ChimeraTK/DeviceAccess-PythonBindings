@@ -6,7 +6,7 @@
 #include <ChimeraTK/TransferElementID.h>
 #include <ChimeraTK/TwoDRegisterAccessor.h>
 #include <boost/python/numpy.hpp>
-#include <boost/date_time.hpp>
+#include <chrono>
 #include <vector>
 
 namespace p = boost::python;
@@ -31,6 +31,62 @@ namespace mtca4upy {
   boost::shared_ptr<ChimeraTK::Device> createDevice(const std::string& deviceAlias);
   boost::shared_ptr<ChimeraTK::Device> getDevice_no_alias();
   boost::shared_ptr<ChimeraTK::Device> getDevice(const std::string& deviceAlias);
+
+  namespace GeneralRegisterAccessor {
+    template<typename T>
+    const std::string getName(T& self) {
+      return self.getName();
+    }
+
+    template<typename T>
+    const std::string getUnit(T& self) {
+      return self.getUnit();
+    }
+
+    template<typename T>
+    const std::string getDescription(T& self) {
+      return self.getDescription();
+    }
+
+    template<typename T>
+    bool isReadOnly(T& self) {
+      return self.isReadOnly();
+    }
+
+    template<typename T>
+    bool isReadable(T& self) {
+      return self.isReadable();
+    }
+
+    template<typename T>
+    bool isWriteable(T& self) {
+      return self.isWriteable();
+    }
+
+    template<typename T>
+    bool isInitialised(T& self) {
+      return self.isInitialised();
+    }
+
+    template<typename T>
+    void setDataValidity(T& self, ChimeraTK::DataValidity valid) {
+      self.setDataValidity(valid);
+    }
+
+    template<typename T>
+    ChimeraTK::DataValidity dataValidity(T& self) {
+      return self.dataValidity();
+    }
+    template<typename T>
+    ChimeraTK::TransferElementID getId(T& self) {
+      return self.getId();
+    }
+
+    template<typename T>
+    ChimeraTK::VersionNumber getVersionNumber(T& self) {
+      return self.getVersionNumber();
+    }
+  } // namespace GeneralRegisterAccessor
 
   namespace TwoDRegisterAccessor {
 
@@ -159,59 +215,6 @@ namespace mtca4upy {
       return self.getNElementsPerChannel();
     }
 
-    template<typename T>
-    const std::string getName(ChimeraTK::TwoDRegisterAccessor<T>& self) {
-      return self.getName();
-    }
-
-    template<typename T>
-    const std::string getUnit(ChimeraTK::TwoDRegisterAccessor<T>& self) {
-      return self.getUnit();
-    }
-
-    template<typename T>
-    const std::string getDescription(ChimeraTK::TwoDRegisterAccessor<T>& self) {
-      return self.getDescription();
-    }
-
-    template<typename T>
-    bool isReadOnly(ChimeraTK::TwoDRegisterAccessor<T>& self) {
-      return self.isReadOnly();
-    }
-
-    template<typename T>
-    bool isReadable(ChimeraTK::TwoDRegisterAccessor<T>& self) {
-      return self.isReadable();
-    }
-
-    template<typename T>
-    bool isWriteable(ChimeraTK::TwoDRegisterAccessor<T>& self) {
-      return self.isWriteable();
-    }
-
-    template<typename T>
-    bool isInitialised(ChimeraTK::TwoDRegisterAccessor<T>& self) {
-      return self.isInitialised();
-    }
-
-    template<typename T>
-    void setDataValidity(ChimeraTK::TwoDRegisterAccessor<T>& self, ChimeraTK::DataValidity valid) {
-      self.setDataValidity(valid);
-    }
-
-    template<typename T>
-    ChimeraTK::DataValidity dataValidity(ChimeraTK::TwoDRegisterAccessor<T>& self) {
-      return self.dataValidity();
-    }
-    template<typename T>
-    ChimeraTK::TransferElementID getId(ChimeraTK::TwoDRegisterAccessor<T>& self) {
-      return self.getId();
-    }
-
-    template<typename T>
-    ChimeraTK::VersionNumber getVersionNumber(ChimeraTK::TwoDRegisterAccessor<T>& self) {
-      return self.getVersionNumber();
-    }
   } // namespace TwoDRegisterAccessor
 
   namespace DeviceAccess {
