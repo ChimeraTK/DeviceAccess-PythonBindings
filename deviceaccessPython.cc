@@ -25,54 +25,34 @@
 #define TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR(userType, funcName, suffix)                                             \
   .def(STRINGIFY(funcName##suffix), da::getGeneralOneDAccessor<userType>)
 
+#define TEMPLATE_FILL_COMMON_REGISTER_FUNCS(accessorType, userType)                                                    \
+  .def("isReadOnly", mtca4upy::GeneralRegisterAccessor::isReadOnly<ChimeraTK::accessorType<userType>>)                 \
+      .def("isReadable", mtca4upy::GeneralRegisterAccessor::isReadable<ChimeraTK::accessorType<userType>>)             \
+      .def("isWriteable", mtca4upy::GeneralRegisterAccessor::isWriteable<ChimeraTK::accessorType<userType>>)           \
+      .def("isInitialised", mtca4upy::GeneralRegisterAccessor::isInitialised<ChimeraTK::accessorType<userType>>)       \
+      .def("getDescription", mtca4upy::GeneralRegisterAccessor::getDescription<ChimeraTK::accessorType<userType>>)     \
+      .def("getVersionNumber", mtca4upy::GeneralRegisterAccessor::getVersionNumber<ChimeraTK::accessorType<userType>>) \
+      .def("setDataValidity", mtca4upy::GeneralRegisterAccessor::setDataValidity<ChimeraTK::accessorType<userType>>)   \
+      .def("dataValidity", mtca4upy::GeneralRegisterAccessor::dataValidity<ChimeraTK::accessorType<userType>>)         \
+      .def("getUnit", mtca4upy::GeneralRegisterAccessor::getUnit<ChimeraTK::accessorType<userType>>)                   \
+      .def("getName", mtca4upy::GeneralRegisterAccessor::getName<ChimeraTK::accessorType<userType>>)                   \
+      .def("getId", mtca4upy::GeneralRegisterAccessor::getId<ChimeraTK::accessorType<userType>>)                       \
+      .def("read", mtca4upy::accessorType::read<userType>)                                                             \
+      .def("readLatest", mtca4upy::accessorType::readLatest<userType>)                                                 \
+      .def("readNonBlocking", mtca4upy::accessorType::readNonBlocking<userType>)                                       \
+      .def("write", mtca4upy::accessorType::write<userType>)                                                           \
+      .def("writeDestructively", mtca4upy::accessorType::writeDestructively<userType>)
+
 #define TEMPLATECLASS_TWODREGISTERACCESSOR(userType, className, class_suffix)                                          \
   bp::class_<ChimeraTK::TwoDRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                            \
-      .def("read", mtca4upy::TwoDRegisterAccessor::read<userType>)                                                     \
-      .def("readLatest", mtca4upy::TwoDRegisterAccessor::readLatest<userType>)                                         \
-      .def("readNonBlocking", mtca4upy::TwoDRegisterAccessor::readNonBlocking<userType>)                               \
-      .def("write", mtca4upy::TwoDRegisterAccessor::write<userType>)                                                   \
-      .def("writeDestructively", mtca4upy::TwoDRegisterAccessor::writeDestructively<userType>)                         \
-      .def("getNChannels", mtca4upy::TwoDRegisterAccessor::getNChannels<userType>)                                     \
-      .def("getNElementsPerChannel", mtca4upy::TwoDRegisterAccessor::getNElementsPerChannel<userType>)                 \
-      .def("isReadOnly", mtca4upy::GeneralRegisterAccessor::isReadOnly<ChimeraTK::TwoDRegisterAccessor<userType>>)     \
-      .def("isReadable", mtca4upy::GeneralRegisterAccessor::isReadable<ChimeraTK::TwoDRegisterAccessor<userType>>)     \
-      .def("isWriteable", mtca4upy::GeneralRegisterAccessor::isWriteable<ChimeraTK::TwoDRegisterAccessor<userType>>)   \
-      .def("isInitialised",                                                                                            \
-          mtca4upy::GeneralRegisterAccessor::isInitialised<ChimeraTK::TwoDRegisterAccessor<userType>>)                 \
-      .def("getDescription",                                                                                           \
-          mtca4upy::GeneralRegisterAccessor::getDescription<ChimeraTK::TwoDRegisterAccessor<userType>>)                \
-      .def("getVersionNumber",                                                                                         \
-          mtca4upy::GeneralRegisterAccessor::getVersionNumber<ChimeraTK::TwoDRegisterAccessor<userType>>)              \
-      .def("setDataValidity",                                                                                          \
-          mtca4upy::GeneralRegisterAccessor::setDataValidity<ChimeraTK::TwoDRegisterAccessor<userType>>)               \
-      .def("dataValidity", mtca4upy::GeneralRegisterAccessor::dataValidity<ChimeraTK::TwoDRegisterAccessor<userType>>) \
-      .def("getUnit", mtca4upy::GeneralRegisterAccessor::getUnit<ChimeraTK::TwoDRegisterAccessor<userType>>)           \
-      .def("getName", mtca4upy::GeneralRegisterAccessor::getName<ChimeraTK::TwoDRegisterAccessor<userType>>)           \
-      .def("getId", mtca4upy::GeneralRegisterAccessor::getId<ChimeraTK::TwoDRegisterAccessor<userType>>);
+      TEMPLATE_FILL_COMMON_REGISTER_FUNCS(TwoDRegisterAccessor, userType)                                              \
+          .def("getNChannels", mtca4upy::TwoDRegisterAccessor::getNChannels<userType>)                                 \
+          .def("getNElementsPerChannel", mtca4upy::TwoDRegisterAccessor::getNElementsPerChannel<userType>);
 
 #define TEMPLATECLASS_ONEDREGISTERACCESSOR(userType, className, class_suffix)                                          \
   bp::class_<ChimeraTK::OneDRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                            \
-      .def("read", mtca4upy::OneDRegisterAccessor::read<userType>)                                                     \
-      .def("readLatest", mtca4upy::OneDRegisterAccessor::readLatest<userType>)                                         \
-      .def("readNonBlocking", mtca4upy::OneDRegisterAccessor::readNonBlocking<userType>)                               \
-      .def("write", mtca4upy::OneDRegisterAccessor::write<userType>)                                                   \
-      .def("writeDestructively", mtca4upy::OneDRegisterAccessor::writeDestructively<userType>)                         \
-      .def("getNElements", mtca4upy::OneDRegisterAccessor::getNElements<userType>)                                     \
-      .def("isReadOnly", mtca4upy::GeneralRegisterAccessor::isReadOnly<ChimeraTK::OneDRegisterAccessor<userType>>)     \
-      .def("isReadable", mtca4upy::GeneralRegisterAccessor::isReadable<ChimeraTK::OneDRegisterAccessor<userType>>)     \
-      .def("isWriteable", mtca4upy::GeneralRegisterAccessor::isWriteable<ChimeraTK::OneDRegisterAccessor<userType>>)   \
-      .def("isInitialised",                                                                                            \
-          mtca4upy::GeneralRegisterAccessor::isInitialised<ChimeraTK::OneDRegisterAccessor<userType>>)                 \
-      .def("getDescription",                                                                                           \
-          mtca4upy::GeneralRegisterAccessor::getDescription<ChimeraTK::OneDRegisterAccessor<userType>>)                \
-      .def("getVersionNumber",                                                                                         \
-          mtca4upy::GeneralRegisterAccessor::getVersionNumber<ChimeraTK::OneDRegisterAccessor<userType>>)              \
-      .def("setDataValidity",                                                                                          \
-          mtca4upy::GeneralRegisterAccessor::setDataValidity<ChimeraTK::OneDRegisterAccessor<userType>>)               \
-      .def("dataValidity", mtca4upy::GeneralRegisterAccessor::dataValidity<ChimeraTK::OneDRegisterAccessor<userType>>) \
-      .def("getUnit", mtca4upy::GeneralRegisterAccessor::getUnit<ChimeraTK::OneDRegisterAccessor<userType>>)           \
-      .def("getName", mtca4upy::GeneralRegisterAccessor::getName<ChimeraTK::OneDRegisterAccessor<userType>>)           \
-      .def("getId", mtca4upy::GeneralRegisterAccessor::getId<ChimeraTK::OneDRegisterAccessor<userType>>);
+      TEMPLATE_FILL_COMMON_REGISTER_FUNCS(OneDRegisterAccessor, userType)                                              \
+          .def("getNElements", mtca4upy::OneDRegisterAccessor::getNElements<userType>);
 
 namespace bp = boost::python;
 namespace np = boost::python::numpy;
