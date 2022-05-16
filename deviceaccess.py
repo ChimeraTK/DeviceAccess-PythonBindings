@@ -92,16 +92,25 @@ class Device:
         oneDRegisterAccessor = OneDRegisterAccessor(userType, accessor)
         return oneDRegisterAccessor
 
+    def getScalarRegisterAccessor(self, userType, registerPathName, elementsOffset=0, accessModeFlags=[]):
 
-class GeneralRegisterAccessor(np.ndarray):
-    def __new__(cls, userType, accessor, accessModeFlags=None):
-        pass
+        # get function name according to userType
+        userTypeFunctionExtension = self._userTypeExtensions.get(
+            userType, None)
+        if not userTypeFunctionExtension:
+            raise SyntaxError(
+                "userType not supported"
+            )
+        getScalarAccessor = getattr(
+            self._device, "getScalarAccessor_" + userTypeFunctionExtension)
 
-    def __array_finalize__(self, obj):
-        # see InfoArray.__array_finalize__ for comments
-        if obj is None:
-            return
+        accessor = getScalarAccessor(
+            registerPathName, elementsOffset, accessModeFlags)
+        scalarRegisterAccessor = ScalarRegisterAccessor(userType, accessor)
+        return scalarRegisterAccessor
 
+
+class GeneralRegisterAccessor:
     def read(self):
         self._accessor.read(self.view())
 
@@ -157,7 +166,7 @@ class GeneralRegisterAccessor(np.ndarray):
         return self._accessor.getId()
 
 
-class TwoDRegisterAccessor(GeneralRegisterAccessor):
+class TwoDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     def __new__(cls, userType, accessor, accessModeFlags=None):
         # add the new attribute to the created instance
@@ -173,6 +182,11 @@ class TwoDRegisterAccessor(GeneralRegisterAccessor):
         # Finally, we must return the newly created object:
         return obj
 
+    def __array_finalize__(self, obj):
+        # see InfoArray.__array_finalize__ for comments
+        if obj is None:
+            return
+
     def getNChannels(self):
         return self._accessor.getNChannels()
 
@@ -180,7 +194,7 @@ class TwoDRegisterAccessor(GeneralRegisterAccessor):
         return self._accessor.getNElementsPerChannel()
 
 
-class OneDRegisterAccessor(GeneralRegisterAccessor):
+class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     def __new__(cls, userType, accessor, accessModeFlags=None):
         cls._accessor = accessor
@@ -190,7 +204,34 @@ class OneDRegisterAccessor(GeneralRegisterAccessor):
         obj = np.asarray(
             np.zeros(shape=(1, elements), dtype=userType)).view(cls)
         accessor.linkUserBufferToNpArray(obj)
+        obj = obj.ravel()  # obj was 2d beforehand
         return obj
+
+    def __array_finalize__(self, obj):
+        # see InfoArray.__array_finalize__ for comments
+        if obj is None:
+            return
+
+    def getNElements(self):
+        return self._accessor.getNElements()
+
+
+class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
+
+    def __new__(cls, userType, accessor, accessModeFlags=None):
+        cls._accessor = accessor
+        elements = 1
+        cls.userType = userType
+        cls._AccessModeFlags = accessModeFlags
+        obj = np.asarray(
+            np.zeros(shape=(1, elements), dtype=userType)).view(cls)
+        accessor.linkUserBufferToNpArray(obj)
+        return obj
+
+    def __array_finalize__(self, obj):
+        # see InfoArray.__array_finalize__ for comments
+        if obj is None:
+            return
 
     def getNElements(self):
         return self._accessor.getNElements()

@@ -27,6 +27,9 @@
 #define TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR(userType, funcName, suffix)                                             \
   .def(STRINGIFY(funcName##suffix), da::getGeneralOneDAccessor<userType>)
 
+#define TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR(userType, funcName, suffix)                                           \
+  .def(STRINGIFY(funcName##suffix), da::getGeneralScalarAccessor<userType>)
+
 #define TEMPLATE_FILL_COMMON_REGISTER_FUNCS(accessorType, userType)                                                    \
   .def("isReadOnly", mtca4upy::GeneralRegisterAccessor::isReadOnly<ChimeraTK::accessorType<userType>>)                 \
       .def("isReadable", mtca4upy::GeneralRegisterAccessor::isReadable<ChimeraTK::accessorType<userType>>)             \
@@ -56,6 +59,11 @@
       TEMPLATE_FILL_COMMON_REGISTER_FUNCS(OneDRegisterAccessor, userType)                                              \
           .def("linkUserBufferToNpArray", mtca4upy::OneDRegisterAccessor::linkUserBufferToNpArray<userType>)           \
           .def("getNElements", mtca4upy::OneDRegisterAccessor::getNElements<userType>);
+
+#define TEMPLATECLASS_SCALARREGISTERACCESSOR(userType, className, class_suffix)                                        \
+  bp::class_<ChimeraTK::ScalarRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                          \
+      TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ScalarRegisterAccessor, userType)                                            \
+          .def("linkUserBufferToNpArray", mtca4upy::ScalarRegisterAccessor::linkUserBufferToNpArray<userType>);
 
 namespace bp = boost::python;
 namespace np = boost::python::numpy;
@@ -92,10 +100,12 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
   bp::class_<ChimeraTK::Device>("Device") // TODO: Find and change "Device" to a suitable name
       TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)
           TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR, getOneDAccessor)
-              .def("getCatalogueMetadata", da::getCatalogueMetadata)
-              .def("open", (void (*)(ChimeraTK::Device&, std::string const&))0, open_overloads())
-              .def("close", da::close);
+              TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR, getScalarAccessor)
+                  .def("getCatalogueMetadata", da::getCatalogueMetadata)
+                  .def("open", (void (*)(ChimeraTK::Device&, std::string const&))0, open_overloads())
+                  .def("close", da::close);
 
+  TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_SCALARREGISTERACCESSOR, ScalarAccessor)
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_ONEDREGISTERACCESSOR, OneDAccessor)
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_TWODREGISTERACCESSOR, TwoDAccessor)
 
