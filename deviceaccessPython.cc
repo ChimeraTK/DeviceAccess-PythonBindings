@@ -3,6 +3,7 @@
 #include <boost/python/numpy.hpp>
 
 // no ; at line endings to be able to reuse in .def format
+// any changes have to mirror the _userTypeExtensions dict in the python Device class
 #define TEMPLATE_USERTYPE_POPULATION(FUNCTION_TEMPLATE, func_name)                                                     \
   FUNCTION_TEMPLATE(int8_t, func_name, _int8)                                                                          \
   FUNCTION_TEMPLATE(uint8_t, func_name, _uint8)                                                                        \
@@ -11,11 +12,12 @@
   FUNCTION_TEMPLATE(int32_t, func_name, _int32)                                                                        \
   FUNCTION_TEMPLATE(uint32_t, func_name, _uint32)                                                                      \
   FUNCTION_TEMPLATE(int64_t, func_name, _int64)                                                                        \
-  FUNCTION_TEMPLATE(uint64_t, func_name, _uint64)                                                                      \
-  FUNCTION_TEMPLATE(float, func_name, _float)                                                                          \
+  FUNCTION_TEMPLATE(uint64_t, func_name, _uint64)
+
+/*FUNCTION_TEMPLATE(float, func_name, _float)                                                                          \
   FUNCTION_TEMPLATE(double, func_name, _double)                                                                        \
   FUNCTION_TEMPLATE(std::string, func_name, _string)                                                                   \
-  FUNCTION_TEMPLATE(ChimeraTK::Boolean, func_name, _boolean)
+  FUNCTION_TEMPLATE(ChimeraTK::Boolean, func_name, _boolean)*/
 
 #define STRINGIFY(s) #s
 
@@ -52,6 +54,7 @@
 #define TEMPLATECLASS_ONEDREGISTERACCESSOR(userType, className, class_suffix)                                          \
   bp::class_<ChimeraTK::OneDRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                            \
       TEMPLATE_FILL_COMMON_REGISTER_FUNCS(OneDRegisterAccessor, userType)                                              \
+          .def("linkUserBufferToNpArray", mtca4upy::OneDRegisterAccessor::linkUserBufferToNpArray<userType>)           \
           .def("getNElements", mtca4upy::OneDRegisterAccessor::getNElements<userType>);
 
 namespace bp = boost::python;
@@ -60,7 +63,7 @@ namespace np = boost::python::numpy;
 namespace da = mtca4upy::DeviceAccess;
 
 // This section defines function pointers used for overloading methods//
-//****************************************************************************//
+//****************************************************************************/
 
 static boost::shared_ptr<ChimeraTK::Device> (*createDevice)(const std::string&) = &mtca4upy::createDevice;
 

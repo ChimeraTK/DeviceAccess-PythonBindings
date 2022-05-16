@@ -4,10 +4,10 @@
 //#include "HelperFunctions.h"
 #include <ChimeraTK/Device.h>
 #include <ChimeraTK/TransferElementID.h>
+#include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/TwoDRegisterAccessor.h>
 #include <boost/python/numpy.hpp>
-#include <chrono>
-#include <vector>
+#include <boost/config/auto_link.hpp>
 
 namespace p = boost::python;
 namespace np = boost::python::numpy;
@@ -104,6 +104,7 @@ namespace mtca4upy {
       if(hasNewData) copyUserBufferToNumpyNDArray(self, np_buffer);
       return hasNewData;
     }
+    /*
     template<typename T>
     void read(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
       genericReadFuntion(self, np_buffer, [&]() {
@@ -111,6 +112,7 @@ namespace mtca4upy {
         return true;
       });
     }
+    
 
     template<typename T>
     bool readNonBlocking(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
@@ -121,63 +123,18 @@ namespace mtca4upy {
     bool readLatest(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
       return genericReadFuntion(self, np_buffer, [&]() { return self.readLatest(); });
     }
-    /*
-      template<typename T>
+
+    template<typename T>
     void read(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      
-      std::vector<std::vector<T>> buffer = {{1, 2, 3}, {4, 5, 9}};
-
-      np::ndarray np_buffer = np::from_data(buffer.data(),           // data ->
-          np::dtype::get_builtin<T>(),                               // dtype -> T
-          p::make_tuple(channels, elementsPerChannel),               // shape -> size
-          p::make_tuple(sizeof(T) * 0, sizeof(T) * 1), p::object()); // stride = 1*1
-
-      std::vector<std::vector<int32_t>> originalVector = {{5, 5, 3, 5, 905}, {23, 15, 33, 35, 5}};
-
-      // std::cout << "sizeOfArray = " << sizeOfVector << std::endl;
-
-      np::ndarray py_array = np::from_data(
-
-          originalVector.data(), // origin
-
-          np::dtype::get_builtin<T>(), // type
-
-          p::make_tuple(2, 5), // shape
-
-          p::make_tuple(0, 1), // stride
-
-          p::object() // owner
-
-      );
-
-      np::ndarray copy_array = np::empty(p::make_tuple(elementsPerChannel, channels), np::dtype::get_builtin<T>());
-
-      for(int i = 0; i < channels; ++i) {
-        for(int j = 0; j < elementsPerChannel; ++j) {
-          copy_array[i][j] = self[i][j];
-        }
-      }
-
-      return copy_array; // .copy(); // https://stackoverflow.com/a/54888186/4919081
-      
       self.read();
-      copyUserBufferToNumpyNDArray(self, np_buffer);
+      np_buffer = np::from_data(self.data(),  // data ->
+          np::dtype::get_builtin<T>(),        // dtype -> T
+          p::make_tuple(self.getNElements()), // shape -> size
+          p::make_tuple(sizeof(T)),           // stride = 1*1
+          p::object());                       // owner
+      // np_buffer; // .copy(); // https://stackoverflow.com/a/54888186/4919081
     }
 
-    template<typename T>
-    bool readLatest(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      bool hasNewData = self.readLatest();
-      if(hasNewData) copyUserBufferToNumpyNDArray(self, np_buffer);
-      return hasNewData;
-    }
-
-    template<typename T>
-    bool readNonBlocking(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      bool hasNewData = self.readNonBlocking();
-      if(hasNewData) copyUserBufferToNumpyNDArray(self, np_buffer);
-      return hasNewData;
-    }
-    */
     template<typename T>
     void transferNumpyArrayToUserBuffer(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
       size_t elements = self.getNElements();
@@ -203,7 +160,45 @@ namespace mtca4upy {
     int getNElements(ChimeraTK::OneDRegisterAccessor<T>& self) {
       return self.getNElements();
     }
+    */
+    template<typename T>
+    void linkUserBufferToNpArray(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
+      np_buffer = np::from_data(self.data(),  // data ->
+          np::dtype::get_builtin<T>(),        // dtype -> T
+          p::make_tuple(self.getNElements()), // shape -> size
+          p::make_tuple(sizeof(T)),           // stride = 1*1
+          p::object());                       // owner
+    }
 
+    template<typename T>
+    bool write(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
+      return self.write();
+    }
+
+    template<typename T>
+    bool writeDestructively(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
+      return self.writeDestructively();
+    }
+
+    template<typename T>
+    int getNElements(ChimeraTK::OneDRegisterAccessor<T>& self) {
+      return self.getNElements();
+    }
+
+    template<typename T>
+    void read(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
+      self.read();
+    }
+
+    template<typename T>
+    bool readNonBlocking(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
+      return self.readNonBlocking();
+    }
+
+    template<typename T>
+    bool readLatest(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
+      return self.readLatest();
+    }
   } // namespace OneDRegisterAccessor
 
   namespace TwoDRegisterAccessor {
@@ -243,63 +238,7 @@ namespace mtca4upy {
     bool readLatest(ChimeraTK::TwoDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
       return genericReadFuntion(self, np_buffer, [&]() { return self.readLatest(); });
     }
-    /*
-      template<typename T>
-    void read(ChimeraTK::TwoDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      
-      std::vector<std::vector<T>> buffer = {{1, 2, 3}, {4, 5, 9}};
 
-      np::ndarray np_buffer = np::from_data(buffer.data(),           // data ->
-          np::dtype::get_builtin<T>(),                               // dtype -> T
-          p::make_tuple(channels, elementsPerChannel),               // shape -> size
-          p::make_tuple(sizeof(T) * 0, sizeof(T) * 1), p::object()); // stride = 1*1
-
-      std::vector<std::vector<int32_t>> originalVector = {{5, 5, 3, 5, 905}, {23, 15, 33, 35, 5}};
-
-      // std::cout << "sizeOfArray = " << sizeOfVector << std::endl;
-
-      np::ndarray py_array = np::from_data(
-
-          originalVector.data(), // origin
-
-          np::dtype::get_builtin<T>(), // type
-
-          p::make_tuple(2, 5), // shape
-
-          p::make_tuple(0, 1), // stride
-
-          p::object() // owner
-
-      );
-
-      np::ndarray copy_array = np::empty(p::make_tuple(elementsPerChannel, channels), np::dtype::get_builtin<T>());
-
-      for(int i = 0; i < channels; ++i) {
-        for(int j = 0; j < elementsPerChannel; ++j) {
-          copy_array[i][j] = self[i][j];
-        }
-      }
-
-      return copy_array; // .copy(); // https://stackoverflow.com/a/54888186/4919081
-      
-      self.read();
-      copyUserBufferToNumpyNDArray(self, np_buffer);
-    }
-
-    template<typename T>
-    bool readLatest(ChimeraTK::TwoDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      bool hasNewData = self.readLatest();
-      if(hasNewData) copyUserBufferToNumpyNDArray(self, np_buffer);
-      return hasNewData;
-    }
-
-    template<typename T>
-    bool readNonBlocking(ChimeraTK::TwoDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      bool hasNewData = self.readNonBlocking();
-      if(hasNewData) copyUserBufferToNumpyNDArray(self, np_buffer);
-      return hasNewData;
-    }
-    */
     template<typename T>
     void transferNumpyArrayToUserBuffer(ChimeraTK::TwoDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
       size_t channels = self.getNChannels();

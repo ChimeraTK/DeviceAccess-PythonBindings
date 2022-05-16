@@ -183,16 +183,13 @@ class TwoDRegisterAccessor(GeneralRegisterAccessor):
 class OneDRegisterAccessor(GeneralRegisterAccessor):
 
     def __new__(cls, userType, accessor, accessModeFlags=None):
-        # add the new attribute to the created instance
         cls._accessor = accessor
-        # Input array is an already formed ndarray instance
-        # We first cast to be our class type
         elements = accessor.getNElements()
         cls.userType = userType
         cls._AccessModeFlags = accessModeFlags
         obj = np.asarray(
             np.zeros(shape=(1, elements), dtype=userType)).view(cls)
-        # Finally, we must return the newly created object:
+        accessor.linkUserBufferToNpArray(obj)
         return obj
 
     def getNElements(self):
