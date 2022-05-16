@@ -204,7 +204,8 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         obj = np.asarray(
             np.zeros(shape=(1, elements), dtype=userType)).view(cls)
         accessor.linkUserBufferToNpArray(obj)
-        obj = obj.ravel()  # obj was 2d beforehand
+        # obj was 2d beforehand, ravel does not copy compared to flatten.
+        obj = obj.ravel()
         return obj
 
     def __array_finalize__(self, obj):
