@@ -109,37 +109,36 @@ class Device:
         scalarRegisterAccessor = ScalarRegisterAccessor(userType, accessor)
         return scalarRegisterAccessor
 
+    def getVoidRegisterAccessor(self, registerPathName, elementsOffset=0, accessModeFlags=[]):
+        accessor = self._device.getVoidAccessor(
+            registerPathName, elementsOffset, accessModeFlags)
+        voidRegisterAccessor = VoidRegisterAccessor(accessor)
+        return voidRegisterAccessor
+
 
 class GeneralRegisterAccessor:
-    def read(self):
+
+    def __addArgumentsIfNotOneD(self, funcName):
+        func = getattr(self._accessor, funcName)
         if type(self) == OneDRegisterAccessor:
-            self._accessor.read()
+            return func()
         else:
-            self._accessor.read(self.view())
+            return func(self.view())
+
+    def read(self):
+        self.__addArgumentsIfNotOneD("read")
 
     def readLatest(self):
-        if type(self) == OneDRegisterAccessor:
-            return self._accessor.readLatest()
-        else:
-            return self._accessor.readLatest(self.view())
+        return self.__addArgumentsIfNotOneD("readLatest")
 
     def readNonBlocking(self):
-        if type(self) == OneDRegisterAccessor:
-            return self._accessor.readNonBlocking()
-        else:
-            return self._accessor.readNonBlocking(self.view())
+        return self.__addArgumentsIfNotOneD("readNonBlocking")
 
     def write(self):
-        if type(self) == OneDRegisterAccessor:
-            return self._accessor.write()
-        else:
-            return self._accessor.write(self.view())
+        return self.__addArgumentsIfNotOneD("write")
 
     def writeDestructively(self):
-        if type(self) == OneDRegisterAccessor:
-            return self._accessor.writeDestructively()
-        else:
-            return self._accessor.writeDestructively(self.view())
+        return self.__addArgumentsIfNotOneD("writeDestructively")
 
     def getName(self):
         return self._accessor.getName()
@@ -233,6 +232,23 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
 
 class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
+
+    def __new__(cls, userType, accessor, accessModeFlags=None):
+        cls._accessor = accessor
+        cls.userType = userType
+        cls._AccessModeFlags = accessModeFlags
+        obj = np.asarray(
+            np.zeros(shape=(1, 1), dtype=userType)).view(cls)
+        obj = obj.ravel()
+        return obj
+
+    def __array_finalize__(self, obj):
+        # see InfoArray.__array_finalize__ for comments
+        if obj is None:
+            return
+
+
+class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     def __new__(cls, userType, accessor, accessModeFlags=None):
         cls._accessor = accessor
