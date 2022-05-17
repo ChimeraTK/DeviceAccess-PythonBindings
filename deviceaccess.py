@@ -112,19 +112,34 @@ class Device:
 
 class GeneralRegisterAccessor:
     def read(self):
-        self._accessor.read(self.view())
+        if type(self) == OneDRegisterAccessor:
+            self._accessor.read()
+        else:
+            self._accessor.read(self.view())
 
     def readLatest(self):
-        return self._accessor.readLatest(self.view())
+        if type(self) == OneDRegisterAccessor:
+            return self._accessor.readLatest()
+        else:
+            return self._accessor.readLatest(self.view())
 
     def readNonBlocking(self):
-        return self._accessor.readNonBlocking(self.view())
+        if type(self) == OneDRegisterAccessor:
+            return self._accessor.readNonBlocking()
+        else:
+            return self._accessor.readNonBlocking(self.view())
 
     def write(self):
-        return self._accessor.write(self.view())
+        if type(self) == OneDRegisterAccessor:
+            return self._accessor.write()
+        else:
+            return self._accessor.write(self.view())
 
     def writeDestructively(self):
-        return self._accessor.writeDestructively(self.view())
+        if type(self) == OneDRegisterAccessor:
+            return self._accessor.writeDestructively()
+        else:
+            return self._accessor.writeDestructively(self.view())
 
     def getName(self):
         return self._accessor.getName()
@@ -221,18 +236,14 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     def __new__(cls, userType, accessor, accessModeFlags=None):
         cls._accessor = accessor
-        elements = 1
         cls.userType = userType
         cls._AccessModeFlags = accessModeFlags
         obj = np.asarray(
-            np.zeros(shape=(1, elements), dtype=userType)).view(cls)
-        accessor.linkUserBufferToNpArray(obj)
+            np.zeros(shape=(1, 1), dtype=userType)).view(cls)
+        obj = obj.ravel()
         return obj
 
     def __array_finalize__(self, obj):
         # see InfoArray.__array_finalize__ for comments
         if obj is None:
             return
-
-    def getNElements(self):
-        return self._accessor.getNElements()
