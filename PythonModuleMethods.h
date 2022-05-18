@@ -6,8 +6,8 @@
 #include <ChimeraTK/TransferElementID.h>
 #include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/TwoDRegisterAccessor.h>
+#include <ChimeraTK/VoidRegisterAccessor.h>
 #include <boost/python/numpy.hpp>
-#include <boost/config/auto_link.hpp>
 
 namespace p = boost::python;
 namespace np = boost::python::numpy;
@@ -329,6 +329,19 @@ namespace mtca4upy {
 
       return self.getScalarRegisterAccessor<T>(registerPath, elementsOffset, flags);
     }
+
+    /*
+    ChimeraTK::VoidRegisterAccessor getVoidRegisterAccessor(
+        const ChimeraTK::Device& self, const std::string& registerPath, boost::python::list flaglist) {
+      ChimeraTK::AccessModeFlags flags{};
+      size_t count = len((flaglist));
+      for(size_t i = 0; i < count; i++) {
+        flags.add(p::extract<ChimeraTK::AccessMode>(flaglist.pop()));
+      }
+
+      return self.getVoidRegisterAccessor(registerPath, flags);
+    }
+    */
 
     template<typename T>
     ChimeraTK::OneDRegisterAccessor<T> getOneDAccessor(const ChimeraTK::Device& self, const std::string& registerPath,

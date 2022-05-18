@@ -72,7 +72,8 @@ class Device:
 
         accessor = getTwoDAccessor(
             registerPathName, numberOfElements, elementsOffset, accessModeFlags)
-        twoDRegisterAccessor = TwoDRegisterAccessor(userType, accessor)
+        twoDRegisterAccessor = TwoDRegisterAccessor(
+            userType, accessor, accessModeFlags)
         return twoDRegisterAccessor
 
     def getOneDRegisterAccessor(self, userType, registerPathName, numberOfElements=0, elementsOffset=0, accessModeFlags=[]):
@@ -89,7 +90,8 @@ class Device:
 
         accessor = getOneDAccessor(
             registerPathName, numberOfElements, elementsOffset, accessModeFlags)
-        oneDRegisterAccessor = OneDRegisterAccessor(userType, accessor)
+        oneDRegisterAccessor = OneDRegisterAccessor(
+            userType, accessor, accessModeFlags)
         return oneDRegisterAccessor
 
     def getScalarRegisterAccessor(self, userType, registerPathName, elementsOffset=0, accessModeFlags=[]):
@@ -106,13 +108,14 @@ class Device:
 
         accessor = getScalarAccessor(
             registerPathName, elementsOffset, accessModeFlags)
-        scalarRegisterAccessor = ScalarRegisterAccessor(userType, accessor)
+        scalarRegisterAccessor = ScalarRegisterAccessor(
+            userType, accessor, accessModeFlags)
         return scalarRegisterAccessor
 
     def getVoidRegisterAccessor(self, registerPathName, elementsOffset=0, accessModeFlags=[]):
         accessor = self._device.getVoidAccessor(
-            registerPathName, elementsOffset, accessModeFlags)
-        voidRegisterAccessor = VoidRegisterAccessor(accessor)
+            registerPathName, accessModeFlags)
+        voidRegisterAccessor = VoidRegisterAccessor(accessor, accessModeFlags)
         return voidRegisterAccessor
 
 
@@ -250,12 +253,11 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
 class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
-    def __new__(cls, userType, accessor, accessModeFlags=None):
+    def __new__(cls, accessor, accessModeFlags=None):
         cls._accessor = accessor
-        cls.userType = userType
         cls._AccessModeFlags = accessModeFlags
         obj = np.asarray(
-            np.zeros(shape=(1, 1), dtype=userType)).view(cls)
+            np.zeros(shape=(1, 1), dtype=np.void)).view(cls)
         obj = obj.ravel()
         return obj
 

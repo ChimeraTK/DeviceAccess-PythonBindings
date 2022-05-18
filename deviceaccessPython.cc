@@ -100,6 +100,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)
           TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR, getOneDAccessor)
               TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR, getScalarAccessor)
+                  //.def("getVoidRegisterAccessor", da::getVoidRegisterAccessor)
                   .def("getCatalogueMetadata", da::getCatalogueMetadata)
                   .def("open", (void (*)(ChimeraTK::Device&, std::string const&))0, open_overloads())
                   .def("close", da::close);
