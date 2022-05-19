@@ -100,7 +100,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)
           TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR, getOneDAccessor)
               TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR, getScalarAccessor)
-                  //.def("getVoidRegisterAccessor", da::getVoidRegisterAccessor)
+                  .def("getVoidAccessor", da::getVoidRegisterAccessor)
                   .def("getCatalogueMetadata", da::getCatalogueMetadata)
                   .def("open", (void (*)(ChimeraTK::Device&, std::string const&))0, open_overloads())
                   .def("close", da::close);
@@ -108,6 +108,23 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_SCALARREGISTERACCESSOR, ScalarAccessor)
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_ONEDREGISTERACCESSOR, OneDAccessor)
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_TWODREGISTERACCESSOR, TwoDAccessor)
+  bp::class_<ChimeraTK::VoidRegisterAccessor>(
+      "VoidRegisterAccessor", bp::init<boost::shared_ptr<ChimeraTK::NDRegisterAccessor<ChimeraTK::Void>>>())
+      .def("isReadOnly", mtca4upy::GeneralRegisterAccessor::isReadOnly<ChimeraTK::VoidRegisterAccessor>)
+      .def("isReadable", mtca4upy::GeneralRegisterAccessor::isReadable<ChimeraTK::VoidRegisterAccessor>)
+      .def("isWriteable", mtca4upy::GeneralRegisterAccessor::isWriteable<ChimeraTK::VoidRegisterAccessor>)
+      .def("isInitialised", mtca4upy::GeneralRegisterAccessor::isInitialised<ChimeraTK::VoidRegisterAccessor>)
+      .def("getDescription", mtca4upy::GeneralRegisterAccessor::getDescription<ChimeraTK::VoidRegisterAccessor>)
+      .def("getVersionNumber", mtca4upy::GeneralRegisterAccessor::getVersionNumber<ChimeraTK::VoidRegisterAccessor>)
+      .def("setDataValidity", mtca4upy::GeneralRegisterAccessor::setDataValidity<ChimeraTK::VoidRegisterAccessor>)
+      .def("dataValidity", mtca4upy::GeneralRegisterAccessor::dataValidity<ChimeraTK::VoidRegisterAccessor>)
+      .def("getUnit", mtca4upy::GeneralRegisterAccessor::getUnit<ChimeraTK::VoidRegisterAccessor>)
+      .def("getName", mtca4upy::GeneralRegisterAccessor::getName<ChimeraTK::VoidRegisterAccessor>)
+      .def("getId", mtca4upy::GeneralRegisterAccessor::getId<ChimeraTK::VoidRegisterAccessor>)
+      .def("read", mtca4upy::VoidRegisterAccessor::read)
+      .def("readLatest", mtca4upy::VoidRegisterAccessor::readLatest)
+      .def("readNonBlocking", mtca4upy::VoidRegisterAccessor::readNonBlocking)
+      .def("write", mtca4upy::VoidRegisterAccessor::write);
 
   bp::def("createDevice", createDevice);
   bp::def("getDevice_no_alias", mtca4upy::getDevice_no_alias);

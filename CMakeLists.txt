@@ -103,6 +103,7 @@ endif(SUPPORTED_SPHINX_VERSION_AVAILABLE)
 #
 # Define the build target for python module 
 add_library(${boost_python_core_module} SHARED deviceaccessPython.cc 
+                                               PythonModuleMethods.cc
                                                CreateDevice.cc
                                                DeviceAccess.cc)
 

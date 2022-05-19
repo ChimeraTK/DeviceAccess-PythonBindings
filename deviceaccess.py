@@ -112,7 +112,7 @@ class Device:
             userType, accessor, accessModeFlags)
         return scalarRegisterAccessor
 
-    def getVoidRegisterAccessor(self, registerPathName, elementsOffset=0, accessModeFlags=[]):
+    def getVoidRegisterAccessor(self, registerPathName, accessModeFlags=[]):
         accessor = self._device.getVoidAccessor(
             registerPathName, accessModeFlags)
         voidRegisterAccessor = VoidRegisterAccessor(accessor, accessModeFlags)
@@ -121,27 +121,27 @@ class Device:
 
 class GeneralRegisterAccessor:
 
-    def __addArgumentsIfNotOneD(self, funcName):
+    def __addArgumentsIfNotOneDorVoid(self, funcName):
         func = getattr(self._accessor, funcName)
-        if type(self) == OneDRegisterAccessor:
+        if type(self) in [OneDRegisterAccessor, VoidRegisterAccessor]:
             return func()
         else:
             return func(self.view())
 
     def read(self):
-        self.__addArgumentsIfNotOneD("read")
+        self.__addArgumentsIfNotOneDorVoid("read")
 
     def readLatest(self):
-        return self.__addArgumentsIfNotOneD("readLatest")
+        return self.__addArgumentsIfNotOneDorVoid("readLatest")
 
     def readNonBlocking(self):
-        return self.__addArgumentsIfNotOneD("readNonBlocking")
+        return self.__addArgumentsIfNotOneDorVoid("readNonBlocking")
 
     def write(self):
-        return self.__addArgumentsIfNotOneD("write")
+        return self.__addArgumentsIfNotOneDorVoid("write")
 
     def writeDestructively(self):
-        return self.__addArgumentsIfNotOneD("writeDestructively")
+        return self.__addArgumentsIfNotOneDorVoid("writeDestructively")
 
     def getName(self):
         return self._accessor.getName()
@@ -249,6 +249,9 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         # see InfoArray.__array_finalize__ for comments
         if obj is None:
             return
+
+    def __lt__(self, other):
+        return self[0] < other
 
 
 class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
