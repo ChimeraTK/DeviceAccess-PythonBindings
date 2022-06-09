@@ -120,16 +120,11 @@ namespace mtca4upy {
       return self.writeDestructively();
     }
 
-    template<typename T>
-    int getNElements(ChimeraTK::ScalarRegisterAccessor<T>& self) {
-      return self.getNElements();
-    }
-
     template<typename T, typename ReadFunction>
     bool genericReadFuntion(
         ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer, ReadFunction readFunction) {
       bool hasNewData = readFunction();
-      if(hasNewData) np_buffer[0][0] = self;
+      if(hasNewData) np_buffer[0] = self;
       return hasNewData;
     }
     template<typename T>
@@ -163,12 +158,31 @@ namespace mtca4upy {
     }
 
     template<typename T>
-    bool write(ChimeraTK::OneDRegisterAccessor<T>& self) {
+    void copyUserBufferToNpArray(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
+      size_t elements = self.getNElements();
+      for(size_t i = 0; i < elements; ++i) {
+        np_buffer[i] = self[i];
+      }
+    }
+
+    template<typename T>
+    void copyNpArrayToUserBuffer(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
+      size_t elements = self.getNElements();
+      T* input_ptr = reinterpret_cast<T*>(np_buffer.get_data());
+      for(size_t i = 0; i < elements; ++i) {
+        self[i] = *(input_ptr + i);
+      }
+    }
+
+    template<typename T>
+    bool write(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
+      copyNpArrayToUserBuffer(self, np_buffer);
       return self.write();
     }
 
     template<typename T>
-    bool writeDestructively(ChimeraTK::OneDRegisterAccessor<T>& self) {
+    bool writeDestructively(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
+      copyNpArrayToUserBuffer(self, np_buffer);
       return self.writeDestructively();
     }
 
@@ -178,18 +192,21 @@ namespace mtca4upy {
     }
 
     template<typename T>
-    void read(ChimeraTK::OneDRegisterAccessor<T>& self) {
+    void read(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
       self.read();
+      copyUserBufferToNpArray(self, np_buffer);
     }
 
     template<typename T>
-    bool readNonBlocking(ChimeraTK::OneDRegisterAccessor<T>& self) {
+    bool readNonBlocking(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
       return self.readNonBlocking();
+      copyUserBufferToNpArray(self, np_buffer);
     }
 
     template<typename T>
-    bool readLatest(ChimeraTK::OneDRegisterAccessor<T>& self) {
+    bool readLatest(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
       return self.readLatest();
+      copyUserBufferToNpArray(self, np_buffer);
     }
   } // namespace OneDRegisterAccessor
 

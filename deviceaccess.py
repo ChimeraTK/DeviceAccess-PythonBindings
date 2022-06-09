@@ -26,8 +26,8 @@ class Device:
         np.uint32: "uint32",
         np.int64: "int64",
         np.uint64: "uint64",
-        np.float: "float",
-        np.double: "double",
+        np.float32: "float",
+        np.float64: "double",
         np.string_: "string",
         np.bool: "boolean"
     }
@@ -121,27 +121,20 @@ class Device:
 
 class GeneralRegisterAccessor:
 
-    def __addArgumentsIfNotOneDorVoid(self, funcName):
-        func = getattr(self._accessor, funcName)
-        if type(self) in [OneDRegisterAccessor, VoidRegisterAccessor]:
-            return func()
-        else:
-            return func(self.view())
-
     def read(self):
-        self.__addArgumentsIfNotOneDorVoid("read")
+        self._accessor.read(self.view())
 
     def readLatest(self):
-        return self.__addArgumentsIfNotOneDorVoid("readLatest")
+        return self._accessor.readLatest(self.view())
 
     def readNonBlocking(self):
-        return self.__addArgumentsIfNotOneDorVoid("readNonBlocking")
+        return self._accessor.readNonBlocking(self.view())
 
     def write(self):
-        return self.__addArgumentsIfNotOneDorVoid("write")
+        return self._accessor.write(self.view())
 
     def writeDestructively(self):
-        return self.__addArgumentsIfNotOneDorVoid("writeDestructively")
+        return self._accessor.writeDestructively(self.view())
 
     def getName(self):
         return self._accessor.getName()
@@ -219,16 +212,33 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         cls.userType = userType
         cls._AccessModeFlags = accessModeFlags
         obj = np.asarray(
-            np.zeros(shape=(1, elements), dtype=userType)).view(cls)
+            np.zeros(shape=(elements), dtype=userType)).view(cls)
         accessor.linkUserBufferToNpArray(obj)
         # obj was 2d beforehand, ravel does not copy compared to flatten.
-        obj = obj.ravel()
+        #obj = obj
         return obj
 
     def __array_finalize__(self, obj):
         # see InfoArray.__array_finalize__ for comments
         if obj is None:
             return
+
+    """ remove to get zero-copy
+    def read(self):
+        self._accessor.read()
+
+    def readLatest(self):
+        return self._accessor.readLatest()
+
+    def readNonBlocking(self):
+        return self._accessor.readNonBlocking()
+
+    def write(self):
+        return self._accessor.write()
+
+    def writeDestructively(self):
+        return self._accessor.writeDestructively()
+        """
 
     def getNElements(self):
         return self._accessor.getNElements()
@@ -241,8 +251,7 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         cls.userType = userType
         cls._AccessModeFlags = accessModeFlags
         obj = np.asarray(
-            np.zeros(shape=(1, 1), dtype=userType)).view(cls)
-        obj = obj.ravel()
+            np.zeros(shape=(1,), dtype=userType)).view(cls)
         return obj
 
     def __array_finalize__(self, obj):

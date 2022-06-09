@@ -57,6 +57,8 @@
 #define TEMPLATECLASS_ONEDREGISTERACCESSOR(userType, className, class_suffix)                                          \
   bp::class_<ChimeraTK::OneDRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                            \
       TEMPLATE_FILL_COMMON_REGISTER_FUNCS(OneDRegisterAccessor, userType)                                              \
+          .def("copyUserBufferToNpArray", mtca4upy::OneDRegisterAccessor::copyUserBufferToNpArray<userType>)           \
+          .def("copyNpArrayToUserBuffer", mtca4upy::OneDRegisterAccessor::copyNpArrayToUserBuffer<userType>)           \
           .def("linkUserBufferToNpArray", mtca4upy::OneDRegisterAccessor::linkUserBufferToNpArray<userType>)           \
           .def("getNElements", mtca4upy::OneDRegisterAccessor::getNElements<userType>);
 
