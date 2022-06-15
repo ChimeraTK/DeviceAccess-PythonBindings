@@ -12,11 +12,10 @@
   FUNCTION_TEMPLATE(int32_t, func_name, _int32)                                                                        \
   FUNCTION_TEMPLATE(uint32_t, func_name, _uint32)                                                                      \
   FUNCTION_TEMPLATE(int64_t, func_name, _int64)                                                                        \
-  FUNCTION_TEMPLATE(uint64_t, func_name, _uint64)
-
-/*FUNCTION_TEMPLATE(float, func_name, _float)                                                                          \
-  FUNCTION_TEMPLATE(double, func_name, _double)                                                                        \
-  FUNCTION_TEMPLATE(std::string, func_name, _string)                                                                   \
+  FUNCTION_TEMPLATE(uint64_t, func_name, _uint64)                                                                      \
+  FUNCTION_TEMPLATE(float, func_name, _float)                                                                          \
+  FUNCTION_TEMPLATE(double, func_name, _double)
+/*FUNCTION_TEMPLATE(std::string, func_name, _string)                                                                   \
   FUNCTION_TEMPLATE(ChimeraTK::Boolean, func_name, _boolean)*/
 
 #define STRINGIFY(s) #s

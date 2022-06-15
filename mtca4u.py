@@ -222,11 +222,11 @@ class Device:
         """
         if registerPath is None:
             registerPath = '/' + moduleName + '/' + registerName
-        registerAccessor = self.__openedDevice.get1DAccessor_double(registerPath,
-                                                                    numberOfElementsToRead,
-                                                                    elementIndexInRegister)
+        registerAccessor = self.__openedDevice.getOneDAccessor_double(registerPath,
+                                                                      numberOfElementsToRead,
+                                                                      elementIndexInRegister, [])
 
-        registerSize = registerAccessor.getNumElements()
+        registerSize = registerAccessor.getNElements()
         array = numpy.empty(registerSize, numpy.double)
         registerAccessor.read(array)
 
@@ -317,18 +317,18 @@ class Device:
             registerPath = '/' + moduleName + '/' + registerName
         arguments = (registerPath,
                      numberOfElementsToWrite,
-                     elementIndexInRegister)
+                     elementIndexInRegister, [])
 
         device = self.__openedDevice
         dtype = data.dtype
         if(dtype == numpy.int32):
-            accessor = device.get1DAccessor_int32(*arguments)
+            accessor = device.getOneDAccessor_int32(*arguments)
         elif(dtype == numpy.int64):
-            accessor = device.get1DAccessor_int64(*arguments)
+            accessor = device.getOneDAccessor_int64(*arguments)
         elif(dtype == numpy.float32):
-            accessor = device.get1DAccessor_float(*arguments)
+            accessor = device.getOneDAccessor_float(*arguments)
         elif(dtype == numpy.float64):
-            accessor = device.get1DAccessor_double(*arguments)
+            accessor = device.getOneDAccessor_double(*arguments)
         else:
             raise RuntimeError("Data format used is unsupported")
 
@@ -417,13 +417,14 @@ class Device:
         """
         if registerPath is None:
             registerPath = '/' + moduleName + '/' + registerName
-        registerAccessor = self.__openedDevice.getRaw1DAccessor(registerPath,
-                                                                numberOfElementsToRead,
-                                                                elementIndexInRegister)
-
-        registerSize = registerAccessor.getNumElements()
+        # legacy implemention is done with int32
+        registerAccessor = self.__openedDevice.getOneDAccessor_int32(registerPath,
+                                                                     numberOfElementsToRead,
+                                                                     elementIndexInRegister, [mtca4udeviceaccess.AccessMode.raw])
+        registerSize = registerAccessor.getNElements()
         array = numpy.empty(registerSize, numpy.int32)
-        registerAccessor.read(array)
+        registerAccessor.copyUserBufferToNpArray(array)
+
         return array
 
     def write_raw(self, moduleName='', registerName=None, dataToWrite=None,
@@ -496,9 +497,12 @@ class Device:
 
         if registerPath == None:
             registerPath = '/' + moduleName + '/' + registerName
-        accessor = self.__openedDevice.getRaw1DAccessor(registerPath,
-                                                        numberOfElementsToWrite,
-                                                        elementIndexInRegister)
+
+        # old binding:
+        # accessor = self.__openedDevice.getRaw1DAccessor(registerPath, numberOfElementsToWrite, elementIndexInRegister)
+        accessor = self.__openedDevice.getOneDAccessor_int32(
+            registerPath, numberOfElementsToWrite, elementIndexInRegister, [mtca4udeviceaccess.AccessMode.raw])
+        accessor.copyNpArrayToUserBuffer(dataToWrite)
         accessor.write(dataToWrite)
 
     def read_dma_raw(self, moduleName='', DMARegisterName=None,
@@ -625,7 +629,9 @@ class Device:
 
         if registerPath is None:
             registerPath = '/' + moduleName + '/' + regionName
-        accessor = self.__openedDevice.get2DAccessor(registerPath)
+        # accessor = self.__openedDevice.get2DAccessor(registerPath) # old
+        accessor = self.__openedDevice.getTwoDAccessor_double(
+            registerPath, 0, 0, [])
 
         # readFromDevice fetches data from the card to its intenal buffer of the
         # c++ accessor
@@ -635,7 +641,7 @@ class Device:
                                        numberOfSequences)
 
         accessor.read(array2D)
-        return array2D
+        return numpy.transpose(array2D)
 
     def getCatalogueMetadata(self, parameterName):
         """ Reads out metadata form the device catalogue

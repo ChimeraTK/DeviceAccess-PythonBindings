@@ -26,7 +26,10 @@ class Device:
         np.uint32: "uint32",
         np.int64: "int64",
         np.uint64: "uint64",
+        float: "float",
+        np.float: "float",
         np.float32: "float",
+        np.double: "double",
         np.float64: "double",
         np.string_: "string",
         np.bool: "boolean"
