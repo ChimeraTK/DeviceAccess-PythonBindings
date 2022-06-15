@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import _da_python_bindings as mtca4udeviceaccess
+import mtca4u
 import os
 import sys
 import unittest
@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath(os.curdir))
 class TestDummyDevice(unittest.TestCase):
 
     def testCreateDummyDevice(self):
-        self.assertRaisesRegexp(RuntimeError, "Cannot open file \".*someBogusMapFile.map\"", mtca4udeviceaccess.createDevice,
+        self.assertRaisesRegexp(RuntimeError, "Cannot open file \".*someBogusMapFile.map\"", mtca4u.Device,
                                 "sdm://./dummy=someBogusMapFile.map")
 
 

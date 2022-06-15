@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-import _da_python_bindings as mtca4udeviceaccess
-import os
+import mtca4u
 import sys
 import unittest
 import numpy
+import os
 
 # This is a hack for nw. What this does is, add the build directory to python's
 # path, so that it can find the deviceaccess module.
@@ -16,7 +16,7 @@ class TestOpeningException(unittest.TestCase):
         # We use the dummy with a bad map file as we know that deviceaccess
         # is throwing here.
         self.assertRaisesRegexp(RuntimeError, "Cannot open file \".*badMapFile.map\"",
-                                mtca4udeviceaccess.createDevice, "sdm://./dummy=badMapFile.map")
+                                mtca4u.Device, "sdm://./dummy=badMapFile.map")
 
 
 if __name__ == '__main__':
