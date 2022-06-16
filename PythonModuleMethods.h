@@ -327,6 +327,8 @@ namespace mtca4upy {
     void open(ChimeraTK::Device& self);
     void close(ChimeraTK::Device& self);
 
+    void activateAsyncRead(ChimeraTK::Device& self);
+
   } // namespace DeviceAccess
 
   void setDmapFile(const std::string& dmapFile);

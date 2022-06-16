@@ -14,6 +14,10 @@ ChimeraTK::VoidRegisterAccessor mtca4upy::DeviceAccess::getVoidRegisterAccessor(
   return self.getVoidRegisterAccessor(registerPath, convertFlagsFromPython(flaglist));
 }
 
+void mtca4upy::DeviceAccess::activateAsyncRead(ChimeraTK::Device& self) {
+  self.activateAsyncRead();
+}
+
 namespace mtca4upy::VoidRegisterAccessor {
 
   bool write(ChimeraTK::VoidRegisterAccessor& self) { return self.write(); }

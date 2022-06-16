@@ -121,6 +121,9 @@ class Device:
         voidRegisterAccessor = VoidRegisterAccessor(accessor, accessModeFlags)
         return voidRegisterAccessor
 
+    def activateAsyncRead(self):
+        self._device.activateAsyncRead()
+
 
 class GeneralRegisterAccessor:
 
@@ -280,3 +283,18 @@ class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         # see InfoArray.__array_finalize__ for comments
         if obj is None:
             return
+
+    def read(self):
+        self._accessor.read()
+
+    def readLatest(self):
+        return self._accessor.readLatest()
+
+    def readNonBlocking(self):
+        return self._accessor.readNonBlocking()
+
+    def write(self):
+        return self._accessor.write()
+
+    def writeDestructively(self):
+        return self._accessor.writeDestructively()
