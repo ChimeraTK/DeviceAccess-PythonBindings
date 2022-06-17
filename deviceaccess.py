@@ -212,6 +212,10 @@ class TwoDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
     def getNElementsPerChannel(self):
         return self._accessor.getNElementsPerChannel()
 
+    def set(self, array):
+        self *= 0
+        self += array
+
 
 class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
@@ -255,6 +259,10 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
     def getNElements(self):
         return self._accessor.getNElements()
 
+    def set(self, array):
+        self *= 0
+        self += array
+
 
 class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
@@ -276,6 +284,10 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     def __lt__(self, other):
         return self[0] < other
+
+    def set(self, scalar):
+        self *= 0
+        self += scalar
 
 
 class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
