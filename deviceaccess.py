@@ -184,17 +184,17 @@ class GeneralRegisterAccessor:
 
 class TwoDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
-    def __new__(cls, userType, accessor, accessModeFlags=None):
+    def __new__(self, userType, accessor, accessModeFlags=None):
         # add the new attribute to the created instance
-        cls._accessor = accessor
         # Input array is an already formed ndarray instance
         # We first cast to be our class type
         channels = accessor.getNChannels()
         elementsPerChannel = accessor.getNElementsPerChannel()
-        cls.userType = userType
-        cls._AccessModeFlags = accessModeFlags
         obj = np.asarray(
-            np.zeros(shape=(channels, elementsPerChannel), dtype=userType)).view(cls)
+            np.zeros(shape=(channels, elementsPerChannel), dtype=userType)).view(self)
+        obj._accessor = accessor
+        obj.userType = userType
+        obj._AccessModeFlags = accessModeFlags
         # Finally, we must return the newly created object:
         return obj
 
@@ -202,6 +202,9 @@ class TwoDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         # see InfoArray.__array_finalize__ for comments
         if obj is None:
             return
+        self._accessor = getattr(obj, '_accessor', None)
+        self.userType = getattr(obj, 'userType', None)
+        self._AccessModeFlags = getattr(obj, '_AccessModeFlags', None)
 
     def getNChannels(self):
         return self._accessor.getNChannels()
@@ -213,21 +216,24 @@ class TwoDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     def __new__(cls, userType, accessor, accessModeFlags=None):
-        cls._accessor = accessor
         elements = accessor.getNElements()
-        cls.userType = userType
-        cls._AccessModeFlags = accessModeFlags
         obj = np.asarray(
             np.zeros(shape=(elements), dtype=userType)).view(cls)
         accessor.linkUserBufferToNpArray(obj)
         # obj was 2d beforehand, ravel does not copy compared to flatten.
         #obj = obj
+        obj._accessor = accessor
+        obj.userType = userType
+        obj._AccessModeFlags = accessModeFlags
         return obj
 
     def __array_finalize__(self, obj):
         # see InfoArray.__array_finalize__ for comments
         if obj is None:
             return
+        self._accessor = getattr(obj, '_accessor', None)
+        self.userType = getattr(obj, 'userType', None)
+        self._AccessModeFlags = getattr(obj, '_AccessModeFlags', None)
 
     """ remove to get zero-copy
     def read(self):
@@ -253,17 +259,20 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     def __new__(cls, userType, accessor, accessModeFlags=None):
-        cls._accessor = accessor
-        cls.userType = userType
-        cls._AccessModeFlags = accessModeFlags
         obj = np.asarray(
             np.zeros(shape=(1,), dtype=userType)).view(cls)
+        obj._accessor = accessor
+        obj.userType = userType
+        obj._AccessModeFlags = accessModeFlags
         return obj
 
     def __array_finalize__(self, obj):
         # see InfoArray.__array_finalize__ for comments
         if obj is None:
             return
+        self._accessor = getattr(obj, '_accessor', None)
+        self.userType = getattr(obj, 'userType', None)
+        self._AccessModeFlags = getattr(obj, '_AccessModeFlags', None)
 
     def __lt__(self, other):
         return self[0] < other
@@ -272,17 +281,19 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     def __new__(cls, accessor, accessModeFlags=None):
-        cls._accessor = accessor
-        cls._AccessModeFlags = accessModeFlags
         obj = np.asarray(
             np.zeros(shape=(1, 1), dtype=np.void)).view(cls)
         obj = obj.ravel()
+        obj._accessor = accessor
+        obj._AccessModeFlags = accessModeFlags
         return obj
 
     def __array_finalize__(self, obj):
         # see InfoArray.__array_finalize__ for comments
         if obj is None:
             return
+        self._accessor = getattr(obj, '_accessor', None)
+        self._AccessModeFlags = getattr(obj, '_AccessModeFlags', None)
 
     def read(self):
         self._accessor.read()
