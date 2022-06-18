@@ -103,47 +103,45 @@ namespace mtca4upy {
   namespace ScalarRegisterAccessor {
 
     template<typename T>
-    void npBufferToUserBuffer(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
+    void copyNpArrayToUserBuffer(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
       T* input_ptr = reinterpret_cast<T*>(np_buffer.get_data());
       self = *(input_ptr);
+    }
+    template<typename T>
+    void copyUserBufferToNpArray(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
+      np_buffer[0] = static_cast<T>(self);
     }
 
     template<typename T>
     bool write(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      npBufferToUserBuffer(self, np_buffer);
+      copyNpArrayToUserBuffer(self, np_buffer);
       return self.write();
     }
 
     template<typename T>
     bool writeDestructively(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      npBufferToUserBuffer(self, np_buffer);
+      copyNpArrayToUserBuffer(self, np_buffer);
       return self.writeDestructively();
     }
 
-    template<typename T, typename ReadFunction>
-    bool genericReadFuntion(
-        ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer, ReadFunction readFunction) {
-      bool hasNewData = readFunction();
-      if(hasNewData) np_buffer[0] = self;
-      return hasNewData;
-    }
     template<typename T>
     void read(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      genericReadFuntion(self, np_buffer, [&]() {
-        self.read();
-        return true;
-      });
+      self.read();
+      copyUserBufferToNpArray(self, np_buffer);
     }
 
     template<typename T>
     bool readNonBlocking(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      return genericReadFuntion(self, np_buffer, [&]() { return self.readNonBlocking(); });
+      return self.readNonBlocking();
+      copyUserBufferToNpArray(self, np_buffer);
     }
 
     template<typename T>
     bool readLatest(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      return genericReadFuntion(self, np_buffer, [&]() { return self.readLatest(); });
+      return self.readLatest();
+      copyUserBufferToNpArray(self, np_buffer);
     }
+
   } // namespace ScalarRegisterAccessor
 
   namespace OneDRegisterAccessor {

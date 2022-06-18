@@ -63,7 +63,9 @@
 
 #define TEMPLATECLASS_SCALARREGISTERACCESSOR(userType, className, class_suffix)                                        \
   bp::class_<ChimeraTK::ScalarRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                          \
-      TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ScalarRegisterAccessor, userType);
+      TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ScalarRegisterAccessor, userType)                                            \
+          .def("copyUserBufferToNpArray", mtca4upy::ScalarRegisterAccessor::copyUserBufferToNpArray<userType>)         \
+          .def("copyNpArrayToUserBuffer", mtca4upy::ScalarRegisterAccessor::copyNpArrayToUserBuffer<userType>);
 
 namespace bp = boost::python;
 namespace np = boost::python::numpy;

@@ -267,8 +267,11 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     def __new__(cls, userType, accessor, accessModeFlags=None):
+        elements = 1
         obj = np.asarray(
-            np.zeros(shape=(1,), dtype=userType)).view(cls)
+            np.zeros(shape=(elements), dtype=userType)).view(cls)
+        # obj was 2d beforehand, ravel does not copy compared to flatten.
+        #obj = obj
         obj._accessor = accessor
         obj.userType = userType
         obj._AccessModeFlags = accessModeFlags

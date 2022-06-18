@@ -19,12 +19,12 @@ class TestAccessors(unittest.TestCase):
         dev = da.Device("CARD_WITH_MODULES")
         acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
         dev.open()
-        reference = 99
+        reference = [99]
 
         acc.set(reference)
         acc.write()
 
-        otherAcc = acc = dev.getScalarRegisterAccessor(
+        otherAcc = dev.getScalarRegisterAccessor(
             np.int32, "ADC/WORD_CLK_CNT_1")
         otherAcc.read()
         self.assertTrue(reference == otherAcc.view())
@@ -42,7 +42,7 @@ class TestAccessors(unittest.TestCase):
         acc.set(reference)
         acc.write()
 
-        otherAcc = acc = dev.getOneDRegisterAccessor(
+        otherAcc = dev.getOneDRegisterAccessor(
             np.int32, "BOARD/WORD_CLK_MUX")
         otherAcc.read()
         self.assertTrue(np.array_equal(reference, otherAcc.view()))
@@ -62,13 +62,13 @@ class TestAccessors(unittest.TestCase):
         acc.set(reference)
         acc.write()
 
-        otherAcc = acc = dev.getTwoDRegisterAccessor(np.int32, "BOARD/DMA")
+        otherAcc = dev.getTwoDRegisterAccessor(np.int32, "BOARD/DMA")
         otherAcc.read()
         self.assertTrue(np.array_equal(reference, otherAcc.view()))
         dev.close()
 
     def testTypes(self):
-        #TODO test all the different userTypes from the Cpp lib
+        # TODO test all the different userTypes from the Cpp lib
         pass
 
 
