@@ -31,3 +31,11 @@ namespace mtca4upy::VoidRegisterAccessor {
   bool readLatest(ChimeraTK::VoidRegisterAccessor& self) { return self.readLatest(); }
 
 } // namespace mtca4upy::VoidRegisterAccessor
+
+namespace mtca4upy::ScalarRegisterAccessor {
+  template<>
+  void copyUserBufferToNpArray<ChimeraTK::Boolean>(
+        ChimeraTK::ScalarRegisterAccessor<ChimeraTK::Boolean>& self, np::ndarray& np_buffer) {
+      np_buffer[0] = static_cast<bool>(self);
+    }
+}

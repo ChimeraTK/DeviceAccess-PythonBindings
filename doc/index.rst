@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 4
 
    mtca4u
+   deviceaccess
 
 
 Indices and tables

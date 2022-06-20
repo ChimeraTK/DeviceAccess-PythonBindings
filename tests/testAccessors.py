@@ -17,8 +17,8 @@ class TestAccessors(unittest.TestCase):
 
         da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
         dev = da.Device("CARD_WITH_MODULES")
-        acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
         dev.open()
+        acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
         reference = [99]
 
         acc.set(reference)
@@ -34,8 +34,8 @@ class TestAccessors(unittest.TestCase):
 
         da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
         dev = da.Device("CARD_WITH_MODULES")
-        acc = dev.getOneDRegisterAccessor(np.int32, "BOARD/WORD_CLK_MUX")
         dev.open()
+        acc = dev.getOneDRegisterAccessor(np.int32, "BOARD/WORD_CLK_MUX")
         elements = acc.getNElements()
         reference = [i+42 for i in range(elements)]
 
@@ -52,8 +52,8 @@ class TestAccessors(unittest.TestCase):
 
         da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
         dev = da.Device("CARD_WITH_MODULES")
-        acc = dev.getTwoDRegisterAccessor(np.int32, "BOARD/DMA")
         dev.open()
+        acc = dev.getTwoDRegisterAccessor(np.int32, "BOARD/DMA")
         channels = acc.getNChannels()
         elementsPerChannel = acc.getNElementsPerChannel()
         reference = [

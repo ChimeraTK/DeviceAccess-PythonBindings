@@ -107,11 +107,16 @@ namespace mtca4upy {
       T* input_ptr = reinterpret_cast<T*>(np_buffer.get_data());
       self = *(input_ptr);
     }
+
     template<typename T>
     void copyUserBufferToNpArray(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
       np_buffer[0] = static_cast<T>(self);
     }
-
+    
+    template<>
+    void copyUserBufferToNpArray<ChimeraTK::Boolean>(
+        ChimeraTK::ScalarRegisterAccessor<ChimeraTK::Boolean>& self, np::ndarray& np_buffer);
+  
     template<typename T>
     bool write(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
       copyNpArrayToUserBuffer(self, np_buffer);
