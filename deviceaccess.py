@@ -2,7 +2,7 @@ import _da_python_bindings as pb
 import numpy as np
 import enum
 from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber
-import abc
+from abc import ABC
 
 
 def setDMapFilePath(dmapFilePath):
@@ -105,7 +105,8 @@ class Device:
     def close(self):
         """Close the :py:class:`Device`.
 
-        The connection with the alias name is kept so the device can be re-opened using the :py:func:`open` function without argument. 
+        The connection with the alias name is kept so the device can be re-opened 
+        using the :py:func:`open` function without argument. 
 
         Examples
         --------
@@ -118,7 +119,7 @@ class Device:
         """
         self._device.close()
 
-    def getTwoDRegisterAccessor(self, userType, registerPathName, numberOfElements=0, elementsOffset=0, accessModeFlags=[]):
+    def getTwoDRegisterAccessor(self, userType, registerPathName, numberOfElements=0, elementsOffset=0, accessModeFlags=None):
         """Get a :py:class:`TwoDRegisterAccessor` object for the given register. 
 
         This allows to read and write transparently 2-dimensional registers. 
@@ -181,6 +182,8 @@ class Device:
           >>> acc
           TwoDRegisterAccessor([[42, 43, 44, 45]], dtype=uint8)
         """
+        if not accessModeFlags:
+            accessModeFlags = []
         # get function name according to userType
         userTypeFunctionExtension = self._userTypeExtensions.get(
             userType, None)
@@ -197,7 +200,7 @@ class Device:
             userType, accessor, accessModeFlags)
         return twoDRegisterAccessor
 
-    def getOneDRegisterAccessor(self, userType, registerPathName, numberOfElements=0, elementsOffset=0, accessModeFlags=[]):
+    def getOneDRegisterAccessor(self, userType, registerPathName, numberOfElements=0, elementsOffset=0, accessModeFlags=None):
         """Get a :py:class:`OneDRegisterAccessor` object for the given register. 
 
         The OneDRegisterAccessor allows to read and write registers transparently by using 
@@ -258,6 +261,8 @@ class Device:
           >>> acc
           OneDRegisterAccessor([42., 43., 44., 45.], dtype=float32)
         """
+        if not accessModeFlags:
+            accessModeFlags = []
         # get function name according to userType
         userTypeFunctionExtension = self._userTypeExtensions.get(
             userType, None)
@@ -274,7 +279,7 @@ class Device:
             userType, accessor, accessModeFlags)
         return oneDRegisterAccessor
 
-    def getScalarRegisterAccessor(self, userType, registerPathName, elementsOffset=0, accessModeFlags=[]):
+    def getScalarRegisterAccessor(self, userType, registerPathName, elementsOffset=0, accessModeFlags=None):
         """Get a :py:class:`ScalarRegisterAccessor` object for the given register. 
 
         The ScalarRegisterObject allows to read and write registers transparently by using
@@ -316,6 +321,8 @@ class Device:
           ScalarRegisterAccessor([32767], dtype=int16)
 
         """
+        if not accessModeFlags:
+            accessModeFlags = []
         # get function name according to userType
         userTypeFunctionExtension = self._userTypeExtensions.get(
             userType, None)
@@ -332,7 +339,7 @@ class Device:
             userType, accessor, accessModeFlags)
         return scalarRegisterAccessor
 
-    def getVoidRegisterAccessor(self, registerPathName, accessModeFlags=[]):
+    def getVoidRegisterAccessor(self, registerPathName, accessModeFlags=None):
         """Get a :py:class:`VoidRegisterAccessor` object for the given register. 
 
         The VoidRegisterAccessor allows to read and write registers. Getting a read
@@ -377,6 +384,8 @@ class Device:
             OneDRegisterAccessor([ 2,  4,  6,  8, 10, 12, 14, 16, 18, 20], dtype=int32)
 
         """
+        if not accessModeFlags:
+            accessModeFlags = []
         accessor = self._device.getVoidAccessor(
             registerPathName, accessModeFlags)
         voidRegisterAccessor = VoidRegisterAccessor(accessor, accessModeFlags)
@@ -385,7 +394,7 @@ class Device:
     def activateAsyncRead(self):
         """
         Activate asynchronous read for all transfer elements where 
-        :py:object:`AccessMode.wait_for_new_data` is set.
+        :py:obj:`AccessMode.wait_for_new_data` is set.
 
         If this method is called while the device is not opened or has an error, 
         this call has no effect. If it is called when no deactivated transfer 
@@ -400,60 +409,337 @@ class Device:
         self._device.activateAsyncRead()
 
 
-class GeneralRegisterAccessor:
+class GeneralRegisterAccessor(ABC):
+    """
+    This is a super class to avoid code duplication. It contains
+    methods that are common for the inheriting accessors.
+    """
 
     def read(self):
+        """
+        Read the data from the device.
+
+        If :py:obj:`AccessMode.wait_for_new_data` was set, this function 
+        will block until new data has arrived. Otherwise it still might block 
+        for a short time until the data transfer is complete. 
+
+        Examples
+        --------
+        Reading from a ScalarRegisterAccessor
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+          >>> acc.read()
+          >>> acc
+            ScalarRegisterAccessor([99], dtype=int32)
+
+        """
         self._accessor.read(self.view())
 
     def readLatest(self):
+        """
+        Read the latest value, discarding any other update since the last read if present. 
+
+        Otherwise this function is identical to :py:func:`readNonBlocking`,
+        i.e. it will never wait for new values and it will return 
+        whether a new value was available if 
+        :py:obj:`AccessMode.wait_for_new_data` is set. 
+        """
         return self._accessor.readLatest(self.view())
 
     def readNonBlocking(self):
+        """
+        Read the next value, if available in the input buffer. 
+
+        If :py:obj:`AccessMode.wait_for_new_data` was set, this function returns
+        immediately and the return value indicated if a new value was 
+        available (`True`) or not (`False`).
+
+        If :py:obj:`AccessMode.wait_for_new_data` was not set, this function is 
+        identical to :py:meth:`.read` , which will still return quickly. Depending on 
+        the actual transfer implementation, the backend might need to 
+        transfer data to obtain the current value before returning. Also 
+        this function is not guaranteed to be lock free. The return value 
+        will be always true in this mode. 
+        """
         return self._accessor.readNonBlocking(self.view())
 
     def write(self):
+        """
+        Write the data to device. 
+
+        The return value is true, old data was lost on the write transfer 
+        (e.g. due to an buffer overflow). In case of an unbuffered write 
+        transfer, the return value will always be false. 
+
+        Examples
+        --------
+        Writing to a ScalarRegisterAccessor
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+          >>> reference = [199]
+          >>> acc.set(reference)
+          >>> acc.write()
+            ScalarRegisterAccessor([199], dtype=int32)
+        """
         return self._accessor.write(self.view())
 
     def writeDestructively(self):
+        """
+        Just like :py:meth:`.write`, but allows the implementation
+        to destroy the content of the user buffer in the process.
+
+        The application must expect the user buffer of the 
+        TransferElement to contain undefined data after calling this function. 
+        """
         return self._accessor.writeDestructively(self.view())
 
     def getName(self):
+        """
+        Returns the name that identifies the process variable. 
+
+        Examples
+        --------
+        Getting the name of a ScalarRegisterAccessor
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+          >>> acc.getName()
+            '/ADC/WORD_CLK_CNT_1'
+
+        """
         return self._accessor.getName()
 
     def getUnit(self):
+        """
+        Returns the engineering unit.
+
+        If none was specified, it will default to "n./a."  
+
+        Examples
+        --------
+        Getting the engineering unit of a ScalarRegisterAccessor
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+          >>> acc.getUnit()
+            'n./a.'
+
+        """
         return self._accessor.getUnit()
 
     def getValueType(self):
+        """
+        Returns the type for the userType of this transfer element, that 
+        was given at the initialization of the accessor.  
+
+        Examples
+        --------
+        Getting the userType of a ScalarRegisterAccessor
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+          >>> acc.getValueType()
+            numpy.int32
+
+        """
         return self.userType
 
     def getDescription(self):
+        """
+        Returns the description of this variable/register, if there is any. 
+
+        Examples
+        --------
+        Getting the description of a ScalarRegisterAccessor
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+          >>> acc.getDescription()
+            ''
+
+        """
         return self._accessor.getDescription()
 
     def getAccessModeFlags(self):
+        """
+        Returns the access modes flags, that 
+        were given at the initialization of the accessor.  
+
+        Examples
+        --------
+        Getting the access modes flags of a OneDRegisterAccessor with the wait_for_new_data flag:
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getOneDRegisterAccessor(
+            np.int32, "MODULE1/TEST_AREA_PUSH", 0, 0, [da.AccessMode.wait_for_new_data])
+          >>> acc.getAccessModeFlags()
+            [da.AccessMode.wait_for_new_data]
+
+        """
         return self._AccessModeFlags
 
     def getVersionNumber(self):
+        """
+        Returns the version number that is associated with the last transfer 
+        (i.e. last read or write). See :py:class:`VersionNumber` for details. 
+
+        Examples
+        --------
+        Getting the version number of a OneDRegisterAccessor:
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getOneDRegisterAccessor(
+            np.int32, "MODULE1/TEST_AREA_PUSH", 0, 0, [da.AccessMode.wait_for_new_data])
+          >>> acc.getVersionNumber()
+            <_da_python_bindings.VersionNumber at 0x7f52b5f8a740>
+
+        """
         return self._accessor.getVersionNumber()
 
     def isReadOnly(self):
+        """
+        Check if transfer element is read only, i.e.
+        it is readable but not writeable. 
+
+        Examples
+        --------
+        Getting the readOnly status of a OneDRegisterAccessor:
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getOneDRegisterAccessor(
+            np.int32, "MODULE1/TEST_AREA_PUSH", 0, 0, [da.AccessMode.wait_for_new_data])
+          >>> acc.isReadOnly()
+            True
+
+        """
         return self._accessor.isReadOnly()
 
     def isReadable(self):
+        """
+        Check if transfer element is readable.
+
+        It throws an exception if you try to read and :py:meth:`isReadable` is not True.  
+
+        Examples
+        --------
+        Getting the readable status of a OneDRegisterAccessor:
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getOneDRegisterAccessor(
+            np.int32, "MODULE1/TEST_AREA_PUSH", 0, 0, [da.AccessMode.wait_for_new_data])
+          >>> acc.isReadable()
+            True
+
+        """
         return self._accessor.isReadable()
 
     def isWriteable(self):
+        """
+        Check if transfer element is writeable.
+
+        It throws an exception if you try to write and :py:meth:`isWriteable` is not True. 
+
+        Examples
+        --------
+        Getting the writeable status of a OneDRegisterAccessor
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getOneDRegisterAccessor(
+            np.int32, "MODULE1/TEST_AREA_PUSH", 0, 0, [da.AccessMode.wait_for_new_data])
+          >>> acc.isReadable()
+            False
+
+        """
         return self._accessor.isWriteable()
 
     def isInitialised(self):
+        """
+        Return if the accessor is properly initialized.
+
+        It is initialized if it was constructed passing the 
+        pointer to an implementation, it is not 
+        initialized if it was constructed only using the placeholder 
+        constructor without arguments. Which should currently not happen,
+        as the registerPath is a required argument for this module, but might
+        be true for other implementations.
+
+        Examples
+        --------
+        Getting the initialized status of a OneDRegisterAccessor
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getOneDRegisterAccessor(
+            np.int32, "MODULE1/TEST_AREA_PUSH", 0, 0, [da.AccessMode.wait_for_new_data])
+          >>> acc.isInitialised()
+              True
+
+        """
         return self._accessor.isInitialised()
 
     def setDataValidity(self, valid=DataValidity.ok):
+        """
+        Associate a persistent data storage object to be updated 
+        on each write operation of this ProcessArray.
+
+        If no persistent data storage as associated previously, the 
+        value from the persistent storage is read and send to the receiver.
+
+        .. note:: A call to this function will be ignored, if the 
+            TransferElement does not support persistent data storage 
+            (e.g. read-only variables or device registers)
+
+        Parameters
+        ----------
+        valid: DataValidity
+            DataValidity.ok or DataValidity.faulty
+
+        """
         self._accessor.setDataValidity(valid)
 
     def dataValidity(self):
+        """
+        Return current validity of the data.
+
+        Will always return :py:obj:`DataValidity.ok` if the backend does not support it 
+
+        """
         return self._accessor.dataValidity()
 
     def getId(self):
+        """
+        Obtain unique ID for the actual implementation of this TransferElement. 
+
+        This means that e.g. two instances of ScalarRegisterAccessor
+        created by the same call to :py:meth:`Device.getScalarRegisterAccessor`
+        will have the same ID, while two instances obtained by to 
+        difference calls to :py:meth:`Device.getScalarRegisterAccessor`
+        will have a different ID even when accessing the very same register. 
+
+        Examples
+        --------
+        Getting the name of a ScalarRegisterAccessor
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+          >>> acc.getId()
+            <_da_python_bindings.TransferElementID at 0x7f5298a8f400>
+
+        """
         return self._accessor.getId()
 
 
@@ -494,7 +780,7 @@ class TwoDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
 class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
-    def __new__(cls, userType, accessor, accessModeFlags=None):
+    def __new__(cls, userType, accessor, accessModeFlags):
         elements = accessor.getNElements()
         obj = np.asarray(
             np.zeros(shape=(elements), dtype=userType)).view(cls)
