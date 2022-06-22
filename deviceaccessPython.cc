@@ -1,6 +1,7 @@
 #include "PythonModuleMethods.h"
 #include <ChimeraTK/DummyBackend.h>
 #include <boost/python/numpy.hpp>
+#include <boost/python/args.hpp>
 
 // no ; at line endings to be able to reuse in .def format
 // any changes have to mirror the _userTypeExtensions dict in the python Device class
@@ -15,7 +16,8 @@
   FUNCTION_TEMPLATE(uint64_t, func_name, _uint64)                                                                      \
   FUNCTION_TEMPLATE(float, func_name, _float)                                                                          \
   FUNCTION_TEMPLATE(double, func_name, _double)
-/*FUNCTION_TEMPLATE(std::string, func_name, _string)                                                                   \
+/* TODO: Implement String and Bool Type 
+  FUNCTION_TEMPLATE(std::string, func_name, _string)                                                                   \
   FUNCTION_TEMPLATE(ChimeraTK::Boolean, func_name, _boolean)*/
 
 #define STRINGIFY(s) #s
@@ -84,20 +86,13 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(open_overloads, da::open, 1, 2)
 
 //****************************************************************************//
 
-// accessed through mtca4upy.py
-// and not directly
-BOOST_PYTHON_MODULE(discarded) { // This module is
-
-  // needed for the numpy ndarray c api to function correctly.
-  //Py_Initialize();
-  //boost::python::numpy::initialize();
-
-  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::Device>>();
-}
-
 BOOST_PYTHON_MODULE(_da_python_bindings) {
   Py_Initialize();
   np::initialize();
+
+  bool show_user_defined = true;
+  bool show_signatures = false;
+  bp::docstring_options doc_options(show_user_defined, show_signatures);
 
   bp::class_<ChimeraTK::Device>("Device") // TODO: Find and change "Device" to a suitable name
       TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)
@@ -155,8 +150,18 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("__ne__", mtca4upy::TransferElementID::ne)
       .def("__eq__", mtca4upy::TransferElementID::eq);
 
-  bp::class_<ChimeraTK::VersionNumber>("VersionNumber")
-      .def("getTime", mtca4upy::VersionNumber::getTime)
+  bp::class_<ChimeraTK::VersionNumber>("VersionNumber",
+      "Class for generating and holding version numbers without exposing a numeric representation.\n"
+      "\n"
+      "Version numbers are used to resolve competing updates that are applied to the same process variable. For "
+      "example, it they can help in breaking an infinite update loop that might occur when two process variables are "
+      "related and update each other.\n"
+      "\n"
+      "They are also used to determine the order of updates made to different process variables.\n"
+      "\n")
+      .def("getTime", mtca4upy::VersionNumber::getTime, bp::args(""),
+          "Return the time stamp associated with this version number. )\n"
+          "\n")
       .def("__str__", mtca4upy::VersionNumber::str)
       .def("__lt__", mtca4upy::VersionNumber::lt)
       .def("__le__", mtca4upy::VersionNumber::le)

@@ -1,3 +1,16 @@
+"""
+This module offers the functionality of the DeviceAccess C++ library for python.
+
+The ChimeraTK DeviceAccess library provides an abstract interface for register 
+based devices. Registers are identified by a name and usually accessed though 
+an accessor object. Since this library also allows access to other control 
+system applications, it can be understood as the client library of the 
+ChimeraTK framework.
+
+More information on ChimeraTK can be found at the project's
+`github.io <https://chimeratk.github.io/>`_.
+"""
+
 from typing import Sequence
 import _da_python_bindings as pb
 import numpy as np
@@ -6,11 +19,24 @@ from abc import ABC
 
 
 def setDMapFilePath(dmapFilePath: str) -> None:
-    # dmapFilePath	Relative or absolute path of the dmap file (directory and file name).
+    """
+    Set the location of the dmap file.
+
+    The library will parse this dmap file for the device(alias) lookup. 
+    Relative or absolute path of the dmap file (directory and file name).
+
+    Examples
+    --------
+    Reading from a ScalarRegisterAccessor
+      >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+    """
     pb.setDmapFile(dmapFilePath)
 
 
 def getDMapFilePath() -> str:
+    """
+    Returns the dmap file name which the library currently uses for looking up device(alias) names. 
+    """
     return pb.getDmapFile()
 
 
@@ -362,9 +388,6 @@ class TwoDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
     """
 
     def __new__(self, userType, accessor, accessModeFlags: Sequence[AccessMode] = None) -> None:
-        # add the new attribute to the created instance
-        # Input array is an already formed ndarray instance
-        # We first cast to be our class type
         channels = accessor.getNChannels()
         elementsPerChannel = accessor.getNElementsPerChannel()
         obj = np.asarray(
@@ -372,11 +395,9 @@ class TwoDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         obj._accessor = accessor
         obj.userType = userType
         obj._AccessModeFlags = accessModeFlags
-        # Finally, we must return the newly created object:
         return obj
 
     def __array_finalize__(self, obj):
-        # see InfoArray.__array_finalize__ for comments
         if obj is None:
             return
         self._accessor = getattr(obj, '_accessor', None)
@@ -453,15 +474,12 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         obj = np.asarray(
             np.zeros(shape=(elements), dtype=userType)).view(cls)
         accessor.linkUserBufferToNpArray(obj)
-        # obj was 2d beforehand, ravel does not copy compared to flatten.
-        # obj = obj
         obj._accessor = accessor
         obj.userType = userType
         obj._AccessModeFlags = accessModeFlags
         return obj
 
     def __array_finalize__(self, obj):
-        # see InfoArray.__array_finalize__ for comments
         if obj is None:
             return
         self._accessor = getattr(obj, '_accessor', None)
@@ -521,15 +539,12 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         elements = 1
         obj = np.asarray(
             np.zeros(shape=(elements), dtype=userType)).view(cls)
-        # obj was 2d beforehand, ravel does not copy compared to flatten.
-        # obj = obj
         obj._accessor = accessor
         obj.userType = userType
         obj._AccessModeFlags = accessModeFlags
         return obj
 
     def __array_finalize__(self, obj):
-        # see InfoArray.__array_finalize__ for comments
         if obj is None:
             return
         self._accessor = getattr(obj, '_accessor', None)
@@ -586,7 +601,6 @@ class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         return obj
 
     def __array_finalize__(self, obj):
-        # see InfoArray.__array_finalize__ for comments
         if obj is None:
             return
         self._accessor = getattr(obj, '_accessor', None)

@@ -112,11 +112,11 @@ namespace mtca4upy {
     void copyUserBufferToNpArray(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
       np_buffer[0] = static_cast<T>(self);
     }
-    
+
     template<>
     void copyUserBufferToNpArray<ChimeraTK::Boolean>(
         ChimeraTK::ScalarRegisterAccessor<ChimeraTK::Boolean>& self, np::ndarray& np_buffer);
-  
+
     template<typename T>
     bool write(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
       copyNpArrayToUserBuffer(self, np_buffer);
@@ -151,6 +151,8 @@ namespace mtca4upy {
 
   namespace OneDRegisterAccessor {
 
+    // supposed to skip the copy mechanism of the user buffer to the np-array, but
+    // is gliched in the current version.
     template<typename T>
     void linkUserBufferToNpArray(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
       np_buffer = np::from_data(self.data(),  // data ->
