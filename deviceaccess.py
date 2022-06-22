@@ -27,7 +27,7 @@ def setDMapFilePath(dmapFilePath: str) -> None:
 
     Examples
     --------
-    Reading from a ScalarRegisterAccessor
+    Setting the location of the dmap file
       >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
     """
     pb.setDmapFile(dmapFilePath)
