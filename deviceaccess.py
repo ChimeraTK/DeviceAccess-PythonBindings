@@ -525,6 +525,10 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
     Conversion to and from the UserType will be handled by a data 
     converter matching the register description in the map (if applicable).
 
+    .. note:: As all accessors inherit from :py:obj:`GeneralRegisterAccessor`, 
+              please refer to the respective examples for the behaviour of 
+              mathematical operations and slicing with accessors.
+
     .. note:: Transfers between the device and the internal buffer need 
             to be triggered using the read() and write() functions before reading
             from resp. after writing to the buffer using the operators. 
@@ -590,6 +594,10 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     Conversion to and from the UserType will be handled by a data 
     converter matching the register description in the map (if applicable).
+
+    .. note:: As all accessors inherit from :py:obj:`GeneralRegisterAccessor`, 
+              please refer to the respective examples for the behaviour of 
+              mathematical operations and slicing with accessors.
 
     .. note:: Transfers between the device and the internal buffer need 
             to be triggered using the read() and write() functions before reading
