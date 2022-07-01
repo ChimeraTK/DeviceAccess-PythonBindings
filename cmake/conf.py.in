@@ -24,7 +24,7 @@ sys.path.insert(0,
 
 #
 # Remove dependency of doc generation dependency from compilation.
-autodoc_mock_imports = ["mtca4udeviceaccess"]
+autodoc_mock_imports = ["_da_python_bindings"]
 
 # -- General configuration ------------------------------------------------
 
@@ -135,8 +135,8 @@ html_theme_options = {
 
 html_sidebars = {
     '**': [
-        'about.html',
         'navigation.html',
+        'about.html',
         'relations.html',
         'searchbox.html',
     ]

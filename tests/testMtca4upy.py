@@ -1,4 +1,4 @@
-#!/usr/bin/env ${python_interpreter}
+#!/usr/bin/env python3
 import fcntl
 #import versionnumbers as vn
 import mtca4u

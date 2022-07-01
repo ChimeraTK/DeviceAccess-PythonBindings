@@ -24,3 +24,4 @@ CMakeLists.txt.user
 # If they are generally useful consider adding them to the 
 # project-template and the merge them in.
 ######################
+*.code-workspace
