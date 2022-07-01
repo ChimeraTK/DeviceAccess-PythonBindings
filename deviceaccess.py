@@ -44,6 +44,63 @@ class GeneralRegisterAccessor(ABC):
     """
     This is a super class to avoid code duplication. It contains
     methods that are common for the inheriting accessors.
+
+    .. note:: As all accessors inherit from numpy's ndarray, the 
+              behaviour concerning slicing and mathematical operations
+              is simimlar. Result accessors share the attributes of the left 
+              operand, hence they are shallow copies of it. This leads to 
+              functionality that is not available in the C++ implementation. 
+              Please refer to the examples below.
+
+    Examples
+    --------
+    Slicing and writing. Operations are shared with the original accessor.
+      >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+      >>> dev = da.Device("CARD_WITH_MODULES")
+      >>> dev.open()
+      >>> originAcc = dev.getTwoDRegisterAccessor(np.int32, "BOARD/DMA")
+      >>> originAcc.set(7)
+      >>> originAcc.write() # all elements are now 7.
+      >>> print(originAcc)
+          [[7 7 7 7 7 7]
+          [7 7 7 7 7 7]
+          [7 7 7 7 7 7]
+          [7 7 7 7 7 7]]
+      >>> channels = originAcc.getNChannels()
+      >>> elementsPerChannel = originAcc.getNElementsPerChannel()
+      >>> print(channels, elementsPerChannel) # there are 4 channels, each with 6 elements
+          4 6
+      >>> slicedAcc = originAcc[:][1] # the second element of every channel
+      >>> slicedAcc.set(21) # set these to 21
+      >>> slicedAcc.write()
+      >>> print(originAcc) # originAcc is changed as well
+          [[ 7  7  7  7  7  7]
+           [21 21 21 21 21 21]
+           [ 7  7  7  7  7  7]
+           [ 7  7  7  7  7  7]] 
+
+    Results from mathematical operations are shallow copies of the left operand.
+      >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+      >>> dev = da.Device("CARD_WITH_MODULES")
+      >>> dev.open()
+      >>> oneAcc = dev.getScalarRegisterAccessor(np.uint32, "ADC/WORD_CLK_CNT")
+      >>> oneAcc.set(72)
+      >>> oneAcc.write() # oneAcc is now 72
+      >>> otherAcc = dev.getScalarRegisterAccessor(np.uint32, "ADC/WORD_CLK_CNT_1")
+      >>> otherAcc.set(47)
+      >>> otherAcc.write() #  otherAcc is now 47.
+      >>> resultAcc = oneAcc + otherAcc # resultAcc's numpy buffer is now 119 
+      >>> print(resultAcc) 
+          [119]
+      >>> resultAcc.write() # write() will also write into the register of oneAcc
+      >>> oneAcc.read()
+      >>> print(oneAcc) 
+          [119]
+      >>> otherAcc.read() # the buffer's and registers of the right operand are not touched
+      >>> print(otherAcc) 
+          [47]
+      >>> resultAcc.getName() # the resultAcc is a shallow copy of the left operand 
+          '/ADC/WORD_CLK_CNT'
     """
 
     def read(self) -> None:
@@ -381,6 +438,10 @@ class TwoDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     Conversion to and from the UserType will be handled by a data 
     converter matching the register description in the map (if applicable).
+
+    .. note:: As all accessors inherit from :py:obj:`GeneralRegisterAccessor`, 
+              please refer to the respective examples for the behaviour of 
+              mathematical operations and slicing with accessors.
 
     .. note:: Transfers between the device and the internal buffer need 
             to be triggered using the read() and write() functions before reading
