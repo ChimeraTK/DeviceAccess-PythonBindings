@@ -100,14 +100,13 @@ function(get_python_module_install_path python_version_string install_path)
     
 endfunction()
 
-function (get_boost_python_component_name pythonlib_version boost_version python_component_name numpy_component_name)
+function (get_boost_python_component_name pythonlib_version boost_version python_component_name)
 
     convert_version_string_to_list(${pythonlib_version} version_list)
     list(GET version_list 0 py_major_version)
     list(GET version_list 1 py_minor_version)
 
     set(${python_component_name} "python${py_major_version}${py_minor_version}" PARENT_SCOPE)
-    set(${numpy_component_name} "numpy${py_major_version}${py_minor_version}" PARENT_SCOPE)
 
 endfunction()
 
