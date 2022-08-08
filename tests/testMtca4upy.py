@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-import fcntl
-#import versionnumbers as vn
-import mtca4u
 import os
 import sys
+import fcntl
 import unittest
 import numpy
 
@@ -11,6 +9,8 @@ import numpy
 # path, so that it can find the module mtca4u.
 sys.path.insert(0, os.path.abspath(os.curdir))
 # to lock the mtcadummy driver against simulteneous usage by other tests
+
+import mtca4u
 
 
 class TestPCIEDevice(unittest.TestCase):

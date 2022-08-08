@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import mtca4u
 import sys
 import unittest
 import numpy
@@ -9,6 +8,7 @@ import os
 # path, so that it can find the deviceaccess module.
 sys.path.insert(0, os.path.abspath(os.curdir))
 
+import mtca4u
 
 class TestOpeningException(unittest.TestCase):
 

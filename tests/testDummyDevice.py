@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-
-import mtca4u
 import os
 import sys
+
+# This is a hack so mtca4u is found in the current dir.
+sys.path.insert(0, os.path.abspath(os.curdir))
+
+import mtca4u
 import unittest
 import numpy
-
-# This is a hack for nw
-sys.path.insert(0, os.path.abspath(os.curdir))
 
 
 class TestDummyDevice(unittest.TestCase):
