@@ -637,8 +637,7 @@ class Device:
         # c++ accessor
         numberOfSequences = accessor.getNChannels()
         numberOfBlocks = accessor.getNElementsPerChannel()
-        array2D = self.__create2DArray(numpy.double, numberOfBlocks,
-                                       numberOfSequences)
+        array2D = self.__create2DArray(numpy.double,  numberOfSequences, numberOfBlocks)
 
         accessor.read(array2D)
         return numpy.transpose(array2D)
