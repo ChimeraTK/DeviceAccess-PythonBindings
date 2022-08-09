@@ -423,7 +423,7 @@ class Device:
                                                                      elementIndexInRegister, [mtca4udeviceaccess.AccessMode.raw])
         registerSize = registerAccessor.getNElements()
         array = numpy.empty(registerSize, numpy.int32)
-        registerAccessor.copyUserBufferToNpArray(array)
+        registerAccessor.read(array)
 
         return array
 
@@ -502,7 +502,6 @@ class Device:
         # accessor = self.__openedDevice.getRaw1DAccessor(registerPath, numberOfElementsToWrite, elementIndexInRegister)
         accessor = self.__openedDevice.getOneDAccessor_int32(
             registerPath, numberOfElementsToWrite, elementIndexInRegister, [mtca4udeviceaccess.AccessMode.raw])
-        accessor.copyNpArrayToUserBuffer(dataToWrite)
         accessor.write(dataToWrite)
 
     def read_dma_raw(self, moduleName='', DMARegisterName=None,
