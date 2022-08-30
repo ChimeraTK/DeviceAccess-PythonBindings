@@ -137,14 +137,16 @@ namespace mtca4upy {
 
     template<typename T>
     bool readNonBlocking(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      return self.readNonBlocking();
+      bool status = self.readNonBlocking();
       copyUserBufferToNpArray(self, np_buffer);
+      return status;
     }
 
     template<typename T>
     bool readLatest(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      return self.readLatest();
+      bool status = self.readLatest();
       copyUserBufferToNpArray(self, np_buffer);
+      return status;
     }
 
   } // namespace ScalarRegisterAccessor
@@ -204,14 +206,16 @@ namespace mtca4upy {
 
     template<typename T>
     bool readNonBlocking(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      return self.readNonBlocking();
+      bool status = self.readNonBlocking();
       copyUserBufferToNpArray(self, np_buffer);
+      return status;
     }
 
     template<typename T>
     bool readLatest(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      return self.readLatest();
+      bool status = self.readLatest();
       copyUserBufferToNpArray(self, np_buffer);
+      return status;
     }
   } // namespace OneDRegisterAccessor
 
