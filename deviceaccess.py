@@ -723,12 +723,12 @@ class Device:
         np.int64: "int64",
         np.uint64: "uint64",
         float: "float",
-        np.float: "float",
+        np.single: "float",
         np.float32: "float",
         np.double: "double",
         np.float64: "double",
         np.str_: "string",
-        np.bool: "boolean"
+        np.bool_: "boolean"
     }
 
     def __init__(self, aliasName: str = None) -> None:

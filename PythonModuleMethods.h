@@ -8,11 +8,17 @@
 #include <ChimeraTK/TwoDRegisterAccessor.h>
 #include <ChimeraTK/VoidRegisterAccessor.h>
 #include <boost/python/numpy.hpp>
+#include <ChimeraTK/RegisterInfo.h>
+#include <ChimeraTK/RegisterCatalogue.h>
 
 namespace p = boost::python;
 namespace np = boost::python::numpy;
 
 namespace mtca4upy {
+
+
+  //ChimeraTK::RegisterInfo getRegister(const std::string& registerPathName);
+  //bool hasRegisters(const std::string& registerPathName);
 
   /*
    * Returns mtca4u-deviceaccess type Device. Inputs are the device identifier
@@ -337,6 +343,9 @@ namespace mtca4upy {
     void close(ChimeraTK::Device& self);
 
     void activateAsyncRead(ChimeraTK::Device& self);
+    ChimeraTK::RegisterCatalogue getRegisterCatalogue(ChimeraTK::Device& self);
+
+    np::ndarray read(const ChimeraTK::Device& self, np::ndarray& arr, const std::string& registerPath, boost::python::list flaglist);
 
   } // namespace DeviceAccess
 
@@ -363,6 +372,22 @@ namespace mtca4upy {
     bool ge(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
     bool ne(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
   } // namespace VersionNumber
+
+  namespace RegisterCatalogue {
+     bool hasRegister(ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName);
+     ChimeraTK::RegisterInfo getRegister(ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName);
+  } // namespace RegisterCatalogue
+
+  namespace RegisterInfo {
+    unsigned int getNumberOfElements(ChimeraTK::RegisterInfo& self);
+    unsigned int getNumberOfChannels(ChimeraTK::RegisterInfo& self);
+    unsigned int getNumberOfDimensions(ChimeraTK::RegisterInfo& self);
+    bool isReadable(ChimeraTK::RegisterInfo& self);
+    bool isValid(ChimeraTK::RegisterInfo& self);
+    bool isWriteable(ChimeraTK::RegisterInfo& self);
+    std::string getRegisterName(ChimeraTK::RegisterInfo& self);
+    boost::python::list getSupportedAccessModes(ChimeraTK::RegisterInfo& self);
+  } // namespace RegisterInfo
 
 } // namespace mtca4upy
 

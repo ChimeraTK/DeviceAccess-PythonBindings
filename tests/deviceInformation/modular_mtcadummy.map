@@ -1,3 +1,5 @@
+@META_DATA_TEST 0.1.0-1-test
+
 # name                    nr of elements       address          size           bar    width   fracbits    signed   
 BOARD.WORD_FIRMWARE           0x00000001    0x00000000    0x00000004    0x00000000       32         0         0
 BOARD.WORD_COMPILATION        0x00000001    0x00000004    0x00000004    0x00000000       32         0         0

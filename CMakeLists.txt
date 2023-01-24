@@ -107,6 +107,7 @@ endif(SUPPORTED_SPHINX_VERSION_AVAILABLE)
 add_library(${boost_python_core_module} SHARED deviceaccessPython.cc
   PythonModuleMethods.cc
   CreateDevice.cc
+  Register.cc
   DeviceAccess.cc)
 
 if(ENABLE_TSAN)
