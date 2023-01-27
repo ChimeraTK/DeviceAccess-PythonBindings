@@ -345,7 +345,9 @@ namespace mtca4upy {
     void activateAsyncRead(ChimeraTK::Device& self);
     ChimeraTK::RegisterCatalogue getRegisterCatalogue(ChimeraTK::Device& self);
 
-    np::ndarray read(const ChimeraTK::Device& self, np::ndarray& arr, const std::string& registerPath, boost::python::list flaglist);
+    void write(const ChimeraTK::Device& self, np::ndarray& arr, const std::string& registerPath, size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist);
+    np::ndarray read(const ChimeraTK::Device& self, np::ndarray& arr, const std::string& registerPath, size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist);
+    ChimeraTK::DataType convert_dytpe_to_usertype(np::dtype dtype);
 
   } // namespace DeviceAccess
 

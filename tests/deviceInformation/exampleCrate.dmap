@@ -1,2 +1,2 @@
-CARD_WITH_MODULES (dummy?map=./modular_mtcadummy.map)
-CARD_WITH_OUT_MODULES  (dummy?map=./mtcadummy.map)
+CARD_WITH_MODULES (sharedMemoryDummy?map=./modular_mtcadummy.map)
+CARD_WITH_OUT_MODULES  (sharedMemoryDummy?map=./mtcadummy.map)

@@ -105,6 +105,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
                   .def("getCatalogueMetadata", da::getCatalogueMetadata)
                   .def("open", (void (*)(ChimeraTK::Device&, std::string const&))0, open_overloads())
                   .def("read", da::read)
+                  .def("write", da::write)
                   .def("close", da::close);
 
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_SCALARREGISTERACCESSOR, ScalarAccessor)
@@ -135,7 +136,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
   bp::def("getDmapFile", mtca4upy::getDmapFile);
 
   bp::class_<ChimeraTK::RegisterCatalogue>("RegisterCatalogue", bp::init<ChimeraTK::RegisterCatalogue>())
-      //.def("__iter__", bp::iterator<ChimeraTK::RegisterCatalogue, bp::return_value_policy<bp::return_by_value>>()) // TODO: fix iteration implementation
+      //.def("__iter__", bp::range(&ChimeraTK::RegisterCatalogue::begin, &ChimeraTK::RegisterCatalogue::end)) // TODO: fix iteration implementation
       .def("hasRegister", mtca4upy::RegisterCatalogue::hasRegister)
       .def("getRegister", mtca4upy::RegisterCatalogue::getRegister);
 

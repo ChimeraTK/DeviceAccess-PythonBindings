@@ -1,4 +1,8 @@
 #include "PythonModuleMethods.h"
+#include <ChimeraTK/SupportedUserTypes.h>
+#include <unordered_map>
+#include <stdexcept>
+#include <limits>
 
 ChimeraTK::AccessModeFlags mtca4upy::DeviceAccess::convertFlagsFromPython(boost::python::list flaglist) {
   ChimeraTK::AccessModeFlags flags{};
@@ -45,10 +49,116 @@ namespace mtca4upy::ScalarRegisterAccessor {
 }
 
 np::ndarray mtca4upy::DeviceAccess::read(
-    const ChimeraTK::Device& self, np::ndarray& arr, const std::string& registerPath, boost::python::list flaglist) {
-      uint8_t mul_data[][4] = {{1,2,3,4},{5,6,7,8},{1,3,5,7}};
-      // np::dtype dt1 = np::dtype::get_builtin<uint8_t>();
-      p::tuple shape = p::make_tuple(3,4);
-      p::tuple stride = p::make_tuple(4,1);
-      return np::from_data(mul_data, arr.get_dtype(), shape, stride,  p::object());
+    const ChimeraTK::Device& self, np::ndarray& arr, const std::string& registerPath, size_t numberOfElements, size_t elementsOffset,  boost::python::list flaglist) {
+      
+      auto usertype = convert_dytpe_to_usertype(arr.get_dtype());
+       
+      auto bufferTransfer = [&](auto arg) { 
+        if(arr.shape(1) > 1) {
+        // 2D:
+        auto acc = self.getTwoDRegisterAccessor<decltype(arg)>(registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
+        acc.read();
+        TwoDRegisterAccessor::copyUserBufferToNumpyNDArray(acc, arr);
+        }
+        else if (arr.shape(0) > 1)
+        {
+        // 1D:
+        auto acc = self.getOneDRegisterAccessor<decltype(arg)>(registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
+        acc.read();
+        OneDRegisterAccessor::copyUserBufferToNpArray(acc, arr);
+        } else {
+        // Scalar:
+        auto acc = self.getScalarRegisterAccessor<decltype(arg)>(registerPath, elementsOffset, convertFlagsFromPython(flaglist));
+        acc.read();
+        ScalarRegisterAccessor::copyUserBufferToNpArray(acc, arr);
+        } 
+      };
+
+      ChimeraTK::callForTypeNoVoid(usertype, bufferTransfer);
+      return arr;
+}
+
+void mtca4upy::DeviceAccess::write(
+    const ChimeraTK::Device& self, np::ndarray& arr, const std::string& registerPath, size_t numberOfElements, size_t elementsOffset,  boost::python::list flaglist) {
+      
+      auto usertype = convert_dytpe_to_usertype(arr.get_dtype());
+       
+      auto bufferTransfer = [&](auto arg) { 
+        if(arr.shape(1) > 1) {
+        // 2D:
+        auto acc = self.getTwoDRegisterAccessor<decltype(arg)>(registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
+        TwoDRegisterAccessor::transferNumpyArrayToUserBuffer(acc, arr);
+        acc.write();
+        }
+        else if (arr.shape(0) > 1)
+        {
+        // 1D:
+        auto acc = self.getOneDRegisterAccessor<decltype(arg)>(registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
+        OneDRegisterAccessor::copyNpArrayToUserBuffer(acc, arr);
+        acc.write();
+        } else {
+        // Scalar:
+        auto acc = self.getScalarRegisterAccessor<decltype(arg)>(registerPath, elementsOffset, convertFlagsFromPython(flaglist));
+        ScalarRegisterAccessor::copyNpArrayToUserBuffer(acc, arr);
+        acc.write();
+        } 
+      };
+
+      ChimeraTK::callForTypeNoVoid(usertype, bufferTransfer);
+}
+
+ChimeraTK::DataType mtca4upy::DeviceAccess::convert_dytpe_to_usertype(np::dtype dtype) {
+  /*
+  Inlcuded UserTypes in ChimeratTK::DataType::TheType:
+
+  none,    ///< The data type/concept does not exist, e.g. there is no raw transfer (do not confuse with Void)
+  int8,    ///< Signed 8 bit integer
+  uint8,   ///< Unsigned 8 bit integer
+  int16,   ///< Signed 16 bit integer
+  uint16,  ///< Unsigned 16 bit integer
+  int32,   ///< Signed 32 bit integer
+  uint32,  ///< Unsigned 32 bit integer
+  int64,   ///< Signed 64 bit integer
+  uint64,  ///< Unsigned 64 bit integer
+  float32, ///< Single precision float
+  float64, ///< Double precision float
+  string,  ///< std::string
+  Boolean, ///< Boolean
+  Void     ///< Void
+
+  Possible NumpyTypes:
+
+  numpy.bool_ ///< bool ///< Boolean (True or False) stored as a byte
+  numpy.byte  ///< signed char   ///< Platform-defined
+  numpy.ubyte ///< unsigned char    ///< Platform-defined
+  numpy.short ///< short    ///< Platform-defined
+  numpy.ushort    ///< unsigned short  ///< Platform-defined
+  numpy.intc  ///< int   ///< Platform-defined
+  numpy.uintc ///< unsigned int ///< Platform-defined
+  numpy.int_  ///< long  ///< Platform-defined
+  numpy.uint  ///< unsigned long ///< Platform-defined
+  numpy.longlong  ///< long long ///< Platform-defined
+  numpy.ulonglong ///< unsigned long long   ///< Platform-defined
+  numpy.half / numpy.float16    ///< Half precision float: sign bit, 5 bits exponent, 10 bits mantissa
+  numpy.single    ///< float   ///< Platform-defined single precision float: typically sign bit, 8 bits exponent, 23 bits mantissa
+  numpy.double    ///< double  ///< Platform-defined double precision float: typically sign bit, 11 bits exponent, 52 bits mantissa.
+  numpy.longdouble    ///< long double ///< Platform-defined extended-precision float
+  numpy.csingle   ///< float complex  ///< Complex number, represented by two single-precision floats (real and imaginary components)
+  numpy.cdouble   ///< double complex ///< Complex number, represented by two double-precision floats (real and imaginary components).
+  numpy.clongdouble   ///< long double complex    ///< Complex number, represented by two extended-precision floats (real and imaginary components).
+
+  */
+  auto usertype = ChimeraTK::DataType::none;
+  if (dtype == np::dtype::get_builtin<int8_t>()) usertype = ChimeraTK::DataType::int8;
+  else if (dtype == np::dtype::get_builtin<int16_t>()) usertype = ChimeraTK::DataType::int16;
+  else if (dtype == np::dtype::get_builtin<int32_t>()) usertype = ChimeraTK::DataType::int32;
+  else if (dtype == np::dtype::get_builtin<int64_t>()) usertype = ChimeraTK::DataType::int64;
+  else if (dtype == np::dtype::get_builtin<uint8_t>()) usertype = ChimeraTK::DataType::uint8;
+  else if (dtype == np::dtype::get_builtin<uint16_t>()) usertype = ChimeraTK::DataType::uint16;
+  else if (dtype == np::dtype::get_builtin<uint32_t>()) usertype = ChimeraTK::DataType::uint32;
+  else if (dtype == np::dtype::get_builtin<uint64_t>()) usertype = ChimeraTK::DataType::uint64;
+  else if (dtype == np::dtype::get_builtin<float>()) usertype = ChimeraTK::DataType::float32; // TODO: Change to std::float32_t with C++23
+  else if (dtype == np::dtype::get_builtin<double>()) usertype = ChimeraTK::DataType::float64; // TODO: Change to std::float64_t with C++23
+  else throw std::invalid_argument("Invalid numpy dtype");
+  return usertype;
 }
