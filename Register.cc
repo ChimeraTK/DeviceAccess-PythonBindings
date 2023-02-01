@@ -1,8 +1,9 @@
 #include "PythonModuleMethods.h"
+
 #include <ChimeraTK/RegisterInfo.h>
 
 namespace mtca4upy::RegisterCatalogue {
-  
+
   ChimeraTK::RegisterInfo getRegister(ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName) {
     return self.getRegister(registerPathName);
   }
@@ -14,7 +15,7 @@ namespace mtca4upy::RegisterCatalogue {
 } /* namespace mtca4upy::RegisterCatalogue */
 
 namespace mtca4upy::RegisterInfo {
-  
+
   unsigned int getNumberOfElements(ChimeraTK::RegisterInfo& self) {
     return self.getNumberOfElements();
   }
@@ -47,7 +48,8 @@ namespace mtca4upy::RegisterInfo {
     ChimeraTK::AccessModeFlags flags = self.getSupportedAccessModes();
     boost::python::list python_flags{};
     if(flags.has(ChimeraTK::AccessMode::raw)) python_flags.append(ChimeraTK::AccessMode::raw);
-    if(flags.has(ChimeraTK::AccessMode::wait_for_new_data)) python_flags.append(ChimeraTK::AccessMode::wait_for_new_data);
+    if(flags.has(ChimeraTK::AccessMode::wait_for_new_data))
+      python_flags.append(ChimeraTK::AccessMode::wait_for_new_data);
     return python_flags;
   }
 } /* namespace mtca4upy::RegisterInfo */

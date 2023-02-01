@@ -1,5 +1,6 @@
 #include "PythonExceptions.h"
 #include "PythonModuleMethods.h"
+
 #include <ChimeraTK/Device.h>
 #include <ChimeraTK/Utilities.h>
 
@@ -21,25 +22,37 @@ namespace mtca4upy {
       return self.getMetadataCatalogue().getMetadata(parameterName);
     }
 
-    void open(ChimeraTK::Device& self) { self.open(); }
-    void open(ChimeraTK::Device& self, std::string const& aliasName) { self.open(aliasName); }
-    void close(ChimeraTK::Device& self) { self.close(); }
+    void open(ChimeraTK::Device& self) {
+      self.open();
+    }
+    void open(ChimeraTK::Device& self, std::string const& aliasName) {
+      self.open(aliasName);
+    }
+    void close(ChimeraTK::Device& self) {
+      self.close();
+    }
 
   } // namespace DeviceAccess
 
   namespace TransferElementID {
-    bool isValid(ChimeraTK::TransferElementID& self) { return self.isValid(); }
+    bool isValid(ChimeraTK::TransferElementID& self) {
+      return self.isValid();
+    }
     bool lt(ChimeraTK::TransferElementID& self, ChimeraTK::TransferElementID& other) {
       return self != other && std::less<ChimeraTK::TransferElementID>{}(self, other);
     }
-    bool eq(ChimeraTK::TransferElementID& self, ChimeraTK::TransferElementID& other) { return self == other; }
+    bool eq(ChimeraTK::TransferElementID& self, ChimeraTK::TransferElementID& other) {
+      return self == other;
+    }
     bool ge(ChimeraTK::TransferElementID& self, ChimeraTK::TransferElementID& other) {
       return self == other || std::less<ChimeraTK::TransferElementID>{}(other, self);
     }
     bool le(ChimeraTK::TransferElementID& self, ChimeraTK::TransferElementID& other) {
       return self == other || std::less<ChimeraTK::TransferElementID>{}(self, other);
     }
-    bool ne(ChimeraTK::TransferElementID& self, ChimeraTK::TransferElementID& other) { return self != other; }
+    bool ne(ChimeraTK::TransferElementID& self, ChimeraTK::TransferElementID& other) {
+      return self != other;
+    }
     bool gt(ChimeraTK::TransferElementID& self, ChimeraTK::TransferElementID& other) {
       return self != other && std::less<ChimeraTK::TransferElementID>{}(other, self);
     }
@@ -50,13 +63,27 @@ namespace mtca4upy {
     boost::posix_time::ptime getTime([[maybe_unused]] ChimeraTK::VersionNumber& self) {
       return boost::posix_time::ptime(boost::gregorian::date(1990, 1, 1));
     }
-    std::string str(ChimeraTK::VersionNumber& self) { return std::string(self); }
-    bool lt(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other) { return self < other; }
-    bool eq(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other) { return self == other; }
-    bool ge(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other) { return self >= other; }
-    bool le(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other) { return self <= other; }
-    bool ne(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other) { return self != other; }
-    bool gt(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other) { return self > other; }
+    std::string str(ChimeraTK::VersionNumber& self) {
+      return std::string(self);
+    }
+    bool lt(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other) {
+      return self < other;
+    }
+    bool eq(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other) {
+      return self == other;
+    }
+    bool ge(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other) {
+      return self >= other;
+    }
+    bool le(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other) {
+      return self <= other;
+    }
+    bool ne(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other) {
+      return self != other;
+    }
+    bool gt(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other) {
+      return self > other;
+    }
 
   } // namespace VersionNumber
 } // namespace mtca4upy

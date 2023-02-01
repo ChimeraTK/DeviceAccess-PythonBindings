@@ -3,22 +3,22 @@
 
 //#include "HelperFunctions.h"
 #include <ChimeraTK/Device.h>
-#include <ChimeraTK/TransferElementID.h>
 #include <ChimeraTK/OneDRegisterAccessor.h>
+#include <ChimeraTK/RegisterCatalogue.h>
+#include <ChimeraTK/RegisterInfo.h>
+#include <ChimeraTK/TransferElementID.h>
 #include <ChimeraTK/TwoDRegisterAccessor.h>
 #include <ChimeraTK/VoidRegisterAccessor.h>
+
 #include <boost/python/numpy.hpp>
-#include <ChimeraTK/RegisterInfo.h>
-#include <ChimeraTK/RegisterCatalogue.h>
 
 namespace p = boost::python;
 namespace np = boost::python::numpy;
 
 namespace mtca4upy {
 
-
-  //ChimeraTK::RegisterInfo getRegister(const std::string& registerPathName);
-  //bool hasRegisters(const std::string& registerPathName);
+  // ChimeraTK::RegisterInfo getRegister(const std::string& registerPathName);
+  // bool hasRegisters(const std::string& registerPathName);
 
   /*
    * Returns mtca4u-deviceaccess type Device. Inputs are the device identifier
@@ -345,8 +345,10 @@ namespace mtca4upy {
     void activateAsyncRead(ChimeraTK::Device& self);
     ChimeraTK::RegisterCatalogue getRegisterCatalogue(ChimeraTK::Device& self);
 
-    void write(const ChimeraTK::Device& self, np::ndarray& arr, const std::string& registerPath, size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist);
-    np::ndarray read(const ChimeraTK::Device& self, np::ndarray& arr, const std::string& registerPath, size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist);
+    void write(const ChimeraTK::Device& self, np::ndarray& arr, const std::string& registerPath,
+        size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist);
+    np::ndarray read(const ChimeraTK::Device& self, np::ndarray& arr, const std::string& registerPath,
+        size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist);
     ChimeraTK::DataType convert_dytpe_to_usertype(np::dtype dtype);
 
   } // namespace DeviceAccess
@@ -376,8 +378,8 @@ namespace mtca4upy {
   } // namespace VersionNumber
 
   namespace RegisterCatalogue {
-     bool hasRegister(ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName);
-     ChimeraTK::RegisterInfo getRegister(ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName);
+    bool hasRegister(ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName);
+    ChimeraTK::RegisterInfo getRegister(ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName);
   } // namespace RegisterCatalogue
 
   namespace RegisterInfo {

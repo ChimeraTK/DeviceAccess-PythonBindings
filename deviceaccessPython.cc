@@ -1,8 +1,10 @@
 #include "PythonModuleMethods.h"
+
 #include <ChimeraTK/DummyBackend.h>
-#include <boost/python/numpy.hpp>
+
 #include <boost/python/args.hpp>
 #include <boost/python/iterator.hpp>
+#include <boost/python/numpy.hpp>
 
 // no ; at line endings to be able to reuse in .def format
 // any changes have to mirror the _userTypeExtensions dict in the python Device class
@@ -17,7 +19,7 @@
   FUNCTION_TEMPLATE(uint64_t, func_name, _uint64)                                                                      \
   FUNCTION_TEMPLATE(float, func_name, _float)                                                                          \
   FUNCTION_TEMPLATE(double, func_name, _double)
-/* TODO: Implement String and Bool Type 
+/* TODO: Implement String and Bool Type
   FUNCTION_TEMPLATE(std::string, func_name, _string)                                                                   \
   FUNCTION_TEMPLATE(ChimeraTK::Boolean, func_name, _boolean)*/
 
@@ -136,7 +138,8 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
   bp::def("getDmapFile", mtca4upy::getDmapFile);
 
   bp::class_<ChimeraTK::RegisterCatalogue>("RegisterCatalogue", bp::init<ChimeraTK::RegisterCatalogue>())
-      //.def("__iter__", bp::range(&ChimeraTK::RegisterCatalogue::begin, &ChimeraTK::RegisterCatalogue::end)) // TODO: fix iteration implementation
+      //.def("__iter__", bp::range(&ChimeraTK::RegisterCatalogue::begin, &ChimeraTK::RegisterCatalogue::end)) // TODO:
+      //fix iteration implementation
       .def("hasRegister", mtca4upy::RegisterCatalogue::hasRegister)
       .def("getRegister", mtca4upy::RegisterCatalogue::getRegister);
 
