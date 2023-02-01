@@ -17,9 +17,6 @@ namespace np = boost::python::numpy;
 
 namespace mtca4upy {
 
-  // ChimeraTK::RegisterInfo getRegister(const std::string& registerPathName);
-  // bool hasRegisters(const std::string& registerPathName);
-
   /*
    * Returns mtca4u-deviceaccess type Device. Inputs are the device identifier
    * (/dev/..) and the location of the map file. A mtca4u-deviceaccess Dummy
