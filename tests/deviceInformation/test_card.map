@@ -1,0 +1,25 @@
+@META_DATA_TEST 0.1.0-1-test
+
+# name                               nr of elements       address          size           bar    width   fracbits    signed   
+FLOAT32_TEST.SCALAR                    0x00000001    0x00000000    0x00000004    0x00000001       32   IEEE754            1
+FLOAT32_TEST.1DARRAY                   0x00000004    0x00000004    0x00000010    0x00000001       32   IEEE754            1
+
+FLOAT32_TEST.AREA_MULTIPLEXED_SEQUENCE_2DARRAY  0xc   0x00000000    0x30   0x2
+FLOAT32_TEST.SEQUENCE_2DARRAY_0                 1     0x00          4      0x2  32   IEEE754            1
+FLOAT32_TEST.SEQUENCE_2DARRAY_1                 1     0x04          4      0x2  32   IEEE754            1
+FLOAT32_TEST.SEQUENCE_2DARRAY_2                 1     0x08          4      0x2  32   IEEE754            1
+
+INT32_TEST.SCALAR                    0x00000001    0x00000000    0x00000004    0x00000001       32         0         1
+
+INT8_TEST.1DARRAY                    0x00000004    0x00000004    0x00000010    0x00000001        8         0         1
+INT16_TEST.1DARRAY                   0x00000004    0x00000004    0x00000010    0x00000001       16         0         1
+INT32_TEST.1DARRAY                   0x00000004    0x00000004    0x00000010    0x00000001       32         0         1
+
+UINT8_TEST.1DARRAY                    0x00000004    0x00000004    0x00000010    0x00000001        8         0         0
+UINT16_TEST.1DARRAY                   0x00000004    0x00000004    0x00000010    0x00000001       16         0         0
+UINT32_TEST.1DARRAY                   0x00000004    0x00000004    0x00000010    0x00000001       32         0         0
+
+INT32_TEST.AREA_MULTIPLEXED_SEQUENCE_2DARRAY  0xc   0x00000000    0x30   0x2
+INT32_TEST.SEQUENCE_2DARRAY_0                 1     0x00          4      0x2  32         0         1
+INT32_TEST.SEQUENCE_2DARRAY_1                 1     0x04          4      0x2  32         0         1
+INT32_TEST.SEQUENCE_2DARRAY_2                 1     0x08          4      0x2  32         0         1

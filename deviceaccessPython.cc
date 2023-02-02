@@ -1,7 +1,10 @@
 #include "PythonModuleMethods.h"
+
 #include <ChimeraTK/DummyBackend.h>
-#include <boost/python/numpy.hpp>
+
 #include <boost/python/args.hpp>
+#include <boost/python/iterator.hpp>
+#include <boost/python/numpy.hpp>
 
 // no ; at line endings to be able to reuse in .def format
 // any changes have to mirror the _userTypeExtensions dict in the python Device class
@@ -16,7 +19,7 @@
   FUNCTION_TEMPLATE(uint64_t, func_name, _uint64)                                                                      \
   FUNCTION_TEMPLATE(float, func_name, _float)                                                                          \
   FUNCTION_TEMPLATE(double, func_name, _double)
-/* TODO: Implement String and Bool Type 
+/* TODO: Implement String, ChimeraTK::Void and ChimeraTK::Boolean Types. See redmine ticket #11246
   FUNCTION_TEMPLATE(std::string, func_name, _string)                                                                   \
   FUNCTION_TEMPLATE(ChimeraTK::Boolean, func_name, _boolean)*/
 
@@ -99,9 +102,12 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
           TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR, getOneDAccessor)
               TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR, getScalarAccessor)
                   .def("getVoidAccessor", da::getVoidRegisterAccessor)
+                  .def("getRegisterCatalogue", da::getRegisterCatalogue)
                   .def("activateAsyncRead", da::activateAsyncRead)
                   .def("getCatalogueMetadata", da::getCatalogueMetadata)
                   .def("open", (void (*)(ChimeraTK::Device&, std::string const&))0, open_overloads())
+                  .def("read", da::read)
+                  .def("write", da::write)
                   .def("close", da::close);
 
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_SCALARREGISTERACCESSOR, ScalarAccessor)
@@ -130,6 +136,22 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
   bp::def("getDevice", mtca4upy::getDevice);
   bp::def("setDmapFile", mtca4upy::setDmapFile);
   bp::def("getDmapFile", mtca4upy::getDmapFile);
+
+  bp::class_<ChimeraTK::RegisterCatalogue>("RegisterCatalogue", bp::init<ChimeraTK::RegisterCatalogue>())
+      //.def("__iter__", bp::range(&ChimeraTK::RegisterCatalogue::begin, &ChimeraTK::RegisterCatalogue::end)) // TODO:
+      //fix iteration implementation
+      .def("hasRegister", mtca4upy::RegisterCatalogue::hasRegister)
+      .def("getRegister", mtca4upy::RegisterCatalogue::getRegister);
+
+  bp::class_<ChimeraTK::RegisterInfo>("RegisterInfo", bp::init<ChimeraTK::RegisterInfo>())
+      .def("isReadable", mtca4upy::RegisterInfo::isReadable)
+      .def("isValid", mtca4upy::RegisterInfo::isValid)
+      .def("isWriteable", mtca4upy::RegisterInfo::isWriteable)
+      .def("getRegisterName", mtca4upy::RegisterInfo::getRegisterName)
+      .def("getSupportedAccessModes", mtca4upy::RegisterInfo::getSupportedAccessModes)
+      .def("getNumberOfElements", mtca4upy::RegisterInfo::getNumberOfElements)
+      .def("getNumberOfDimensions", mtca4upy::RegisterInfo::getNumberOfDimensions)
+      .def("getNumberOfChannels", mtca4upy::RegisterInfo::getNumberOfChannels);
 
   bp::enum_<ChimeraTK::AccessMode>("AccessMode")
       .value("raw", ChimeraTK::AccessMode::raw)
@@ -172,4 +194,6 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
 
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::Device>>();
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::TransferElementID>>();
+  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::RegisterCatalogue>>();
+  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::RegisterInfo>>();
 }

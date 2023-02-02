@@ -723,12 +723,11 @@ class Device:
         np.int64: "int64",
         np.uint64: "uint64",
         float: "float",
-        np.float: "float",
         np.float32: "float",
         np.double: "double",
         np.float64: "double",
         np.str_: "string",
-        np.bool: "boolean"
+        np.bool_: "boolean"
     }
 
     def __init__(self, aliasName: str = None) -> None:
@@ -1086,3 +1085,50 @@ class Device:
         :py:func:`getVoidRegisterAccessor`: has a usage example.
         """
         self._device.activateAsyncRead()
+
+    def getRegisterCatalogue(self) -> pb.RegisterCatalogue:
+        """
+        Return the register catalogue with detailed information on all registers. 
+        """
+        return self._device.getRegisterCatalogue()
+
+    def read(self, registerPath: str, dtype: np.dtype=np.float64, wordOffsetInRegister: int=0, accessModeFlags: Sequence[AccessMode]=None) -> np.ndarray|np.number: 
+      """ 
+      Inefficient convenience function to read a register without obtaining an accessor. 
+      If no dtype is selected, the returned ndarray will default to np.float64.
+      """
+      catalogue = self.getRegisterCatalogue()
+      register = catalogue.getRegister(registerPath)
+      numberOfElements = register.getNumberOfElements() - wordOffsetInRegister
+      numberOfChannels = register.getNumberOfChannels()
+      arr = np.empty([numberOfChannels, numberOfElements], dtype=dtype)
+      accessModeFlags = [] if accessModeFlags is None else accessModeFlags
+      arr = self._device.read(arr, registerPath, numberOfElements, wordOffsetInRegister, accessModeFlags)
+      if arr.shape == (1,1):
+        return arr[0][0]
+      if arr.shape[0] == 1:
+        return arr[:][0]
+      return arr
+
+    def write(self, registerPath: str, dataToWrite: np.ndarray|np.number, wordOffsetInRegister: int=0, accessModeFlags: Sequence[AccessMode]=None) -> None: 
+      """
+      Inefficient convenience function to write a register without obtaining an accessor. 
+      If no dtype is selected, the returned ndarray will default to np.float64.
+      """
+      
+      catalogue = self.getRegisterCatalogue()
+      register = catalogue.getRegister(registerPath)
+      numberOfElements = register.getNumberOfElements() - wordOffsetInRegister
+      # make proper array, if number was submitted
+      if isinstance(dataToWrite, list):
+        array = np.array(dataToWrite)
+        # upgrade 1d-list input two the 2d that is expected for scalar and 1d lists:
+        if not array.ndim == 2:
+          array = np.array([dataToWrite])
+      elif not isinstance(dataToWrite, np.ndarray):
+        array = np.array([[dataToWrite]])
+      else:
+        array = dataToWrite
+
+      accessModeFlags = [] if accessModeFlags is None else accessModeFlags
+      self._device.write(array, registerPath, numberOfElements, wordOffsetInRegister, accessModeFlags)
