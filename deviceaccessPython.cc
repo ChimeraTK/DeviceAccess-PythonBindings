@@ -19,7 +19,7 @@
   FUNCTION_TEMPLATE(uint64_t, func_name, _uint64)                                                                      \
   FUNCTION_TEMPLATE(float, func_name, _float)                                                                          \
   FUNCTION_TEMPLATE(double, func_name, _double)
-/* TODO: Implement String and Bool Type
+/* TODO: Implement String, ChimeraTK::Void and ChimeraTK::Boolean Types. See redmine ticket #11246
   FUNCTION_TEMPLATE(std::string, func_name, _string)                                                                   \
   FUNCTION_TEMPLATE(ChimeraTK::Boolean, func_name, _boolean)*/
 
