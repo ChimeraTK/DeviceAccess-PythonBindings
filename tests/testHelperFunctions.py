@@ -31,7 +31,7 @@ class TestHelpers(unittest.TestCase):
     self.assertEqual(testmodule.extractDataType(a), 
                      testmodule.numpyDataTypes.FLOAT64)
     
-    a = numpy.empty([1, 2], dtype = numpy.bool)
+    a = numpy.empty([1, 2], dtype = numpy.bool_)
     self.assertEqual(testmodule.extractDataType(a), 
                      testmodule.numpyDataTypes.USUPPORTED_TYPE)
     
