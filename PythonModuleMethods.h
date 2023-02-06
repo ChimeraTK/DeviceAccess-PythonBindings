@@ -152,6 +152,12 @@ namespace mtca4upy {
       return status;
     }
 
+    template<typename T>
+    T readAndGet(ChimeraTK::ScalarRegisterAccessor<T>& self) {
+      self.read();
+      return static_cast<T>(self);
+    }
+
   } // namespace ScalarRegisterAccessor
 
   namespace OneDRegisterAccessor {

@@ -652,6 +652,24 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         self *= 0
         self += scalar
 
+    def readAndGet(self) -> np.number:
+      """
+      Convenience function to read and return a value of UserType. 
+
+      Examples
+      --------
+      Reading and Getting from a ScalarRegisterAccessor
+        >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+        >>> dev = da.Device("CARD_WITH_MODULES")
+        >>> dev.open()
+        >>> dev.write("ADC/WORD_CLK_CNT_1", 37)
+        >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+        >>> acc.readAndGet()
+          37
+
+      """
+      return self._accessor.readAndGet()
+
 
 class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
     """
