@@ -162,6 +162,12 @@ namespace mtca4upy {
       self.setAndWrite(newValue, versionNumber);
     }
 
+    template<typename T>
+    void writeIfDifferent(
+        ChimeraTK::ScalarRegisterAccessor<T>& self, T newValue, ChimeraTK::VersionNumber versionNumber) {
+      self.writeIfDifferent(newValue, versionNumber);
+    }
+
   } // namespace ScalarRegisterAccessor
 
   namespace OneDRegisterAccessor {

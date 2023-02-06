@@ -696,6 +696,33 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
       """
       self._accessor.setAndWrite(newValue, versionNumber)
 
+    def writeIfDifferent(self, newValue : np.number, versionNumber : VersionNumber=VersionNumber()) -> None:
+      """
+      Convenience function to set and write new value if it differes from the current value.
+
+      The given version number is only used in case the value differs. 
+
+      Parameters
+      ----------
+      newValue : numpy.number and compatible types
+        The contentthat should be written to the register.
+
+      versionmNumber: VersionNumber, optional
+        The versionNumber that should be used for the write action.
+
+      Examples 
+      --------
+      Reading and Getting from a ScalarRegisterAccessor
+        >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+        >>> dev = da.Device("CARD_WITH_MODULES")
+        >>> dev.open()
+        >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+        >>> acc.setAndWrite(38)
+        >>> acc.writeIfDifferent(38) # will not write
+
+      """
+      self._accessor.writeIfDifferent(newValue, versionNumber)
+
 
 class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
     """

@@ -72,6 +72,7 @@
           .def("copyUserBufferToNpArray", mtca4upy::ScalarRegisterAccessor::copyUserBufferToNpArray<userType>)         \
           .def("readAndGet", mtca4upy::ScalarRegisterAccessor::readAndGet<userType>)                                   \
           .def("setAndWrite", mtca4upy::ScalarRegisterAccessor::setAndWrite<userType>)                                 \
+          .def("writeIfDifferent", mtca4upy::ScalarRegisterAccessor::writeIfDifferent<userType>)                       \
           .def("copyNpArrayToUserBuffer", mtca4upy::ScalarRegisterAccessor::copyNpArrayToUserBuffer<userType>);
 
 namespace bp = boost::python;
@@ -141,7 +142,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
 
   bp::class_<ChimeraTK::RegisterCatalogue>("RegisterCatalogue", bp::init<ChimeraTK::RegisterCatalogue>())
       //.def("__iter__", bp::range(&ChimeraTK::RegisterCatalogue::begin, &ChimeraTK::RegisterCatalogue::end)) // TODO:
-      //if someone needs to iterate through the register.
+      // if someone needs to iterate through the register.
       // fix iteration implementation
       .def("hasRegister", mtca4upy::RegisterCatalogue::hasRegister)
       .def("getRegister", mtca4upy::RegisterCatalogue::getRegister);
