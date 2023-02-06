@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import deviceaccess as da
 from concurrent.futures import thread
 import sys
 import unittest
@@ -11,7 +12,6 @@ from time import sleep
 # This is a hack for nw. What this does is, add the build directory to python's
 # path, so that it can find the deviceaccess module.
 sys.path.insert(0, os.path.abspath(os.curdir))
-import deviceaccess as da
 
 
 class TestDeviceReadWrite(unittest.TestCase):
@@ -21,9 +21,12 @@ class TestDeviceReadWrite(unittest.TestCase):
         self.dev = da.Device("TEST_CARD")
         self.dev.open()
 
-        self.twoD_in32_acc = self.dev.getTwoDRegisterAccessor(np.int32, "INT32_TEST/2DARRAY")
-        self.oneD_int32_acc = self.dev.getOneDRegisterAccessor(np.int32, "INT32_TEST/1DARRAY")
-        self.scalar_int32_acc = self.dev.getScalarRegisterAccessor(np.int32, "INT32_TEST/SCALAR")
+        self.twoD_in32_acc = self.dev.getTwoDRegisterAccessor(
+            np.int32, "INT32_TEST/2DARRAY")
+        self.oneD_int32_acc = self.dev.getOneDRegisterAccessor(
+            np.int32, "INT32_TEST/1DARRAY")
+        self.scalar_int32_acc = self.dev.getScalarRegisterAccessor(
+            np.int32, "INT32_TEST/SCALAR")
 
     def tearDown(self) -> None:
         self.dev.close()
@@ -33,7 +36,8 @@ class TestDeviceReadWrite(unittest.TestCase):
         self.scalar_int32_acc.set(scalarTestValue)
         self.scalar_int32_acc.write()
 
-        self.assertEqual(self.dev.read("INT32_TEST/SCALAR", np.int32), scalarTestValue)
+        self.assertEqual(self.dev.read(
+            "INT32_TEST/SCALAR", np.int32), scalarTestValue)
 
         oneDTestArray = [1, 2, 9, 18]
         self.oneD_int32_acc.set(oneDTestArray)

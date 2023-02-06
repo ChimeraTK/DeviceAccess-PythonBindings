@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import deviceaccess as da
 from concurrent.futures import thread
 import sys
 import unittest
@@ -11,7 +12,6 @@ from time import sleep
 # This is a hack for nw. What this does is, add the build directory to python's
 # path, so that it can find the deviceaccess module.
 sys.path.insert(0, os.path.abspath(os.curdir))
-import deviceaccess as da
 
 
 class TestConvenienceFunctions(unittest.TestCase):
@@ -21,9 +21,12 @@ class TestConvenienceFunctions(unittest.TestCase):
         self.dev = da.Device("TEST_CARD")
         self.dev.open()
 
-        self.twoD_in32_acc = self.dev.getTwoDRegisterAccessor(np.int32, "INT32_TEST/2DARRAY")
-        self.oneD_int32_acc = self.dev.getOneDRegisterAccessor(np.int32, "INT32_TEST/1DARRAY")
-        self.scalar_int32_acc = self.dev.getScalarRegisterAccessor(np.int32, "INT32_TEST/SCALAR")
+        self.twoD_in32_acc = self.dev.getTwoDRegisterAccessor(
+            np.int32, "INT32_TEST/2DARRAY")
+        self.oneD_int32_acc = self.dev.getOneDRegisterAccessor(
+            np.int32, "INT32_TEST/1DARRAY")
+        self.scalar_int32_acc = self.dev.getScalarRegisterAccessor(
+            np.int32, "INT32_TEST/SCALAR")
 
     def tearDown(self) -> None:
         self.dev.close()
@@ -44,12 +47,11 @@ class TestConvenienceFunctions(unittest.TestCase):
 
         self.assertEqual(actual_register, scalarTestValue)
 
-
     def testWriteIfDifferent(self):
         scalarTestValue = 232
         vn_first = da.VersionNumber()
         self.scalar_int32_acc.writeIfDifferent(scalarTestValue, vn_first)
-        vn_second= da.VersionNumber()
+        vn_second = da.VersionNumber()
         self.scalar_int32_acc.writeIfDifferent(scalarTestValue, vn_second)
         vn_after = self.scalar_int32_acc.getVersionNumber()
         self.assertEqual(vn_first, vn_after)

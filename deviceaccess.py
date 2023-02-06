@@ -653,75 +653,75 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         self += scalar
 
     def readAndGet(self) -> np.number:
-      """
-      Convenience function to read and return a value of UserType. 
+        """
+        Convenience function to read and return a value of UserType. 
 
-      Examples 
-      --------
-      Reading and Getting from a ScalarRegisterAccessor
-        >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
-        >>> dev = da.Device("CARD_WITH_MODULES")
-        >>> dev.open()
-        >>> dev.write("ADC/WORD_CLK_CNT_1", 37)
-        >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
-        >>> acc.readAndGet()
-          37
+        Examples 
+        --------
+        Reading and Getting from a ScalarRegisterAccessor
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> dev.write("ADC/WORD_CLK_CNT_1", 37)
+          >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+          >>> acc.readAndGet()
+            37
 
-      """
-      return self._accessor.readAndGet()
+        """
+        return self._accessor.readAndGet()
 
-    def setAndWrite(self, newValue : np.number, versionNumber : VersionNumber=VersionNumber()) -> None:
-      """
-      Convenience function to set and write new value. 
+    def setAndWrite(self, newValue: np.number, versionNumber: VersionNumber = VersionNumber()) -> None:
+        """
+        Convenience function to set and write new value. 
 
-      Parameters
-      ----------
-      newValue : numpy.number and compatible types
-        The contentthat should be written to the register.
+        Parameters
+        ----------
+        newValue : numpy.number and compatible types
+          The contentthat should be written to the register.
 
-      versionmNumber: VersionNumber, optional
-        The versionNumber that should be used for the write action.
+        versionmNumber: VersionNumber, optional
+          The versionNumber that should be used for the write action.
 
-      Examples 
-      --------
-      Reading and Getting from a ScalarRegisterAccessor
-        >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
-        >>> dev = da.Device("CARD_WITH_MODULES")
-        >>> dev.open()
-        >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
-        >>> acc.setAndWrite(38)
-        >>> acc.readAndGet()
-          38
+        Examples 
+        --------
+        Reading and Getting from a ScalarRegisterAccessor
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+          >>> acc.setAndWrite(38)
+          >>> acc.readAndGet()
+            38
 
-      """
-      self._accessor.setAndWrite(newValue, versionNumber)
+        """
+        self._accessor.setAndWrite(newValue, versionNumber)
 
-    def writeIfDifferent(self, newValue : np.number, versionNumber : VersionNumber=VersionNumber()) -> None:
-      """
-      Convenience function to set and write new value if it differes from the current value.
+    def writeIfDifferent(self, newValue: np.number, versionNumber: VersionNumber = VersionNumber()) -> None:
+        """
+        Convenience function to set and write new value if it differes from the current value.
 
-      The given version number is only used in case the value differs. 
+        The given version number is only used in case the value differs. 
 
-      Parameters
-      ----------
-      newValue : numpy.number and compatible types
-        The contentthat should be written to the register.
+        Parameters
+        ----------
+        newValue : numpy.number and compatible types
+          The contentthat should be written to the register.
 
-      versionmNumber: VersionNumber, optional
-        The versionNumber that should be used for the write action.
+        versionmNumber: VersionNumber, optional
+          The versionNumber that should be used for the write action.
 
-      Examples 
-      --------
-      Reading and Getting from a ScalarRegisterAccessor
-        >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
-        >>> dev = da.Device("CARD_WITH_MODULES")
-        >>> dev.open()
-        >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
-        >>> acc.setAndWrite(38)
-        >>> acc.writeIfDifferent(38) # will not write
+        Examples 
+        --------
+        Reading and Getting from a ScalarRegisterAccessor
+          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+          >>> dev = da.Device("CARD_WITH_MODULES")
+          >>> dev.open()
+          >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+          >>> acc.setAndWrite(38)
+          >>> acc.writeIfDifferent(38) # will not write
 
-      """
-      self._accessor.writeIfDifferent(newValue, versionNumber)
+        """
+        self._accessor.writeIfDifferent(newValue, versionNumber)
 
 
 class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
@@ -1163,43 +1163,45 @@ class Device:
         """
         return self._device.getRegisterCatalogue()
 
-    def read(self, registerPath: str, dtype: np.dtype=np.float64, wordOffsetInRegister: int=0, accessModeFlags: Sequence[AccessMode]=None) -> np.ndarray|np.number: 
-      """ 
-      Inefficient convenience function to read a register without obtaining an accessor. 
-      If no dtype is selected, the returned ndarray will default to np.float64.
-      """
-      catalogue = self.getRegisterCatalogue()
-      register = catalogue.getRegister(registerPath)
-      numberOfElements = register.getNumberOfElements() - wordOffsetInRegister
-      numberOfChannels = register.getNumberOfChannels()
-      arr = np.empty([numberOfChannels, numberOfElements], dtype=dtype)
-      accessModeFlags = [] if accessModeFlags is None else accessModeFlags
-      arr = self._device.read(arr, registerPath, numberOfElements, wordOffsetInRegister, accessModeFlags)
-      if arr.shape == (1,1):
-        return arr[0][0]
-      if arr.shape[0] == 1:
-        return arr[:][0]
-      return arr
+    def read(self, registerPath: str, dtype: np.dtype = np.float64, wordOffsetInRegister: int = 0, accessModeFlags: Sequence[AccessMode] = None) -> np.ndarray | np.number:
+        """ 
+        Inefficient convenience function to read a register without obtaining an accessor. 
+        If no dtype is selected, the returned ndarray will default to np.float64.
+        """
+        catalogue = self.getRegisterCatalogue()
+        register = catalogue.getRegister(registerPath)
+        numberOfElements = register.getNumberOfElements() - wordOffsetInRegister
+        numberOfChannels = register.getNumberOfChannels()
+        arr = np.empty([numberOfChannels, numberOfElements], dtype=dtype)
+        accessModeFlags = [] if accessModeFlags is None else accessModeFlags
+        arr = self._device.read(
+            arr, registerPath, numberOfElements, wordOffsetInRegister, accessModeFlags)
+        if arr.shape == (1, 1):
+            return arr[0][0]
+        if arr.shape[0] == 1:
+            return arr[:][0]
+        return arr
 
-    def write(self, registerPath: str, dataToWrite: np.ndarray|np.number, wordOffsetInRegister: int=0, accessModeFlags: Sequence[AccessMode]=None) -> None: 
-      """
-      Inefficient convenience function to write a register without obtaining an accessor. 
-      If no dtype is selected, the returned ndarray will default to np.float64.
-      """
-      
-      catalogue = self.getRegisterCatalogue()
-      register = catalogue.getRegister(registerPath)
-      numberOfElements = register.getNumberOfElements() - wordOffsetInRegister
-      # make proper array, if number was submitted
-      if isinstance(dataToWrite, list):
-        array = np.array(dataToWrite)
-        # upgrade 1d-list input two the 2d that is expected for scalar and 1d lists:
-        if not array.ndim == 2:
-          array = np.array([dataToWrite])
-      elif not isinstance(dataToWrite, np.ndarray):
-        array = np.array([[dataToWrite]])
-      else:
-        array = dataToWrite
+    def write(self, registerPath: str, dataToWrite: np.ndarray | np.number, wordOffsetInRegister: int = 0, accessModeFlags: Sequence[AccessMode] = None) -> None:
+        """
+        Inefficient convenience function to write a register without obtaining an accessor. 
+        If no dtype is selected, the returned ndarray will default to np.float64.
+        """
 
-      accessModeFlags = [] if accessModeFlags is None else accessModeFlags
-      self._device.write(array, registerPath, numberOfElements, wordOffsetInRegister, accessModeFlags)
+        catalogue = self.getRegisterCatalogue()
+        register = catalogue.getRegister(registerPath)
+        numberOfElements = register.getNumberOfElements() - wordOffsetInRegister
+        # make proper array, if number was submitted
+        if isinstance(dataToWrite, list):
+            array = np.array(dataToWrite)
+            # upgrade 1d-list input two the 2d that is expected for scalar and 1d lists:
+            if not array.ndim == 2:
+                array = np.array([dataToWrite])
+        elif not isinstance(dataToWrite, np.ndarray):
+            array = np.array([[dataToWrite]])
+        else:
+            array = dataToWrite
+
+        accessModeFlags = [] if accessModeFlags is None else accessModeFlags
+        self._device.write(array, registerPath, numberOfElements,
+                           wordOffsetInRegister, accessModeFlags)
