@@ -71,6 +71,7 @@
       TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ScalarRegisterAccessor, userType)                                            \
           .def("copyUserBufferToNpArray", mtca4upy::ScalarRegisterAccessor::copyUserBufferToNpArray<userType>)         \
           .def("readAndGet", mtca4upy::ScalarRegisterAccessor::readAndGet<userType>)                                   \
+          .def("setAndWrite", mtca4upy::ScalarRegisterAccessor::setAndWrite<userType>)                                 \
           .def("copyNpArrayToUserBuffer", mtca4upy::ScalarRegisterAccessor::copyNpArrayToUserBuffer<userType>);
 
 namespace bp = boost::python;
@@ -98,7 +99,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
   bool show_signatures = false;
   bp::docstring_options doc_options(show_user_defined, show_signatures);
 
-  bp::class_<ChimeraTK::Device>("Device") // TODO: Find and change "Device" to a suitable name
+  bp::class_<ChimeraTK::Device>("Device")
       TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)
           TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR, getOneDAccessor)
               TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR, getScalarAccessor)
@@ -140,6 +141,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
 
   bp::class_<ChimeraTK::RegisterCatalogue>("RegisterCatalogue", bp::init<ChimeraTK::RegisterCatalogue>())
       //.def("__iter__", bp::range(&ChimeraTK::RegisterCatalogue::begin, &ChimeraTK::RegisterCatalogue::end)) // TODO:
+      //if someone needs to iterate through the register.
       // fix iteration implementation
       .def("hasRegister", mtca4upy::RegisterCatalogue::hasRegister)
       .def("getRegister", mtca4upy::RegisterCatalogue::getRegister);
@@ -194,6 +196,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("__eq__", mtca4upy::VersionNumber::eq);
 
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::Device>>();
+  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::VersionNumber>>();
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::TransferElementID>>();
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::RegisterCatalogue>>();
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::RegisterInfo>>();

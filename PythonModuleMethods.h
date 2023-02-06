@@ -154,8 +154,12 @@ namespace mtca4upy {
 
     template<typename T>
     T readAndGet(ChimeraTK::ScalarRegisterAccessor<T>& self) {
-      self.read();
-      return static_cast<T>(self);
+      return self.readAndGet();
+    }
+
+    template<typename T>
+    void setAndWrite(ChimeraTK::ScalarRegisterAccessor<T>& self, T newValue, ChimeraTK::VersionNumber versionNumber) {
+      self.setAndWrite(newValue, versionNumber);
     }
 
   } // namespace ScalarRegisterAccessor

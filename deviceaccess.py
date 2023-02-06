@@ -656,7 +656,7 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
       """
       Convenience function to read and return a value of UserType. 
 
-      Examples
+      Examples 
       --------
       Reading and Getting from a ScalarRegisterAccessor
         >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
@@ -669,6 +669,32 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
       """
       return self._accessor.readAndGet()
+
+    def setAndWrite(self, newValue : np.number, versionNumber : VersionNumber=VersionNumber()) -> None:
+      """
+      Convenience function to set and write new value. 
+
+      Parameters
+      ----------
+      newValue : numpy.number and compatible types
+        The contentthat should be written to the register.
+
+      versionmNumber: VersionNumber, optional
+        The versionNumber that should be used for the write action.
+
+      Examples 
+      --------
+      Reading and Getting from a ScalarRegisterAccessor
+        >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+        >>> dev = da.Device("CARD_WITH_MODULES")
+        >>> dev.open()
+        >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+        >>> acc.setAndWrite(38)
+        >>> acc.readAndGet()
+          38
+
+      """
+      self._accessor.setAndWrite(newValue, versionNumber)
 
 
 class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
