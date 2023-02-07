@@ -85,6 +85,10 @@ namespace mtca4upy {
       return self > other;
     }
 
+    ChimeraTK::VersionNumber getNullVersion() {
+      return ChimeraTK::VersionNumber(nullptr);
+    }
+
   } // namespace VersionNumber
 } // namespace mtca4upy
 void mtca4upy::setDmapFile(const std::string& dmapFile) {

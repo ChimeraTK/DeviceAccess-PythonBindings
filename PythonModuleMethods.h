@@ -388,6 +388,7 @@ namespace mtca4upy {
     bool gt(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
     bool ge(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
     bool ne(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
+    ChimeraTK::VersionNumber getNullVersion();
   } // namespace VersionNumber
 
   namespace RegisterCatalogue {

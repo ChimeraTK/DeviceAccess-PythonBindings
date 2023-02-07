@@ -59,27 +59,41 @@ class TestConvenienceFunctions(unittest.TestCase):
             self.scalar_int32_acc.setAndWrite(scalarTestValue, first_version_number)
 
     def testWriteIfDifferent(self):
+        # Test if values are correctly written
+        scalarTestValue = 232
+        vn_first = da.VersionNumber()
+        vn_second = da.VersionNumber()
+        self.scalar_int32_acc.writeIfDifferent(scalarTestValue, vn_first)
+        self.scalar_int32_acc.read()
+        self.assertEqual(scalarTestValue, self.scalar_int32_acc)
+        self.scalar_int32_acc.writeIfDifferent(scalarTestValue, vn_second)
+        self.scalar_int32_acc.read()
+        self.assertEqual(scalarTestValue, self.scalar_int32_acc)
+
+        scalarTestValue = 99
+        self.scalar_int32_acc.writeIfDifferent(scalarTestValue)
+        self.scalar_int32_acc.read()
+        self.assertEqual(scalarTestValue, self.scalar_int32_acc)
+        self.scalar_int32_acc.writeIfDifferent(scalarTestValue)
+        self.scalar_int32_acc.read()
+        self.assertEqual(scalarTestValue, self.scalar_int32_acc)
+
+        # assert that version number stays the same as an indicator, that nothing has been written
         scalarTestValue = 232
         vn_first = da.VersionNumber()
         self.scalar_int32_acc.writeIfDifferent(scalarTestValue, vn_first)
         vn_second = da.VersionNumber()
         self.scalar_int32_acc.writeIfDifferent(scalarTestValue, vn_second)
         vn_after = self.scalar_int32_acc.getVersionNumber()
-        self.assertEqual(vn_first, vn_after)
+        self.assertTrue(vn_first == vn_after)
         self.assertGreater(vn_second, vn_after)
-        self.scalar_int32_acc.read()
-        self.assertEqual(scalarTestValue, self.scalar_int32_acc)
 
         scalarTestValue = 99
         self.scalar_int32_acc.writeIfDifferent(scalarTestValue)
         vn_after_first_write_attemp = self.scalar_int32_acc.getVersionNumber()
-        self.scalar_int32_acc.read()
-        self.assertEqual(scalarTestValue, self.scalar_int32_acc)
         self.scalar_int32_acc.writeIfDifferent(scalarTestValue)
         vn_after_second_write_attemp = self.scalar_int32_acc.getVersionNumber()
         self.assertEqual(vn_after_first_write_attemp, vn_after_second_write_attemp)
-        self.scalar_int32_acc.read()
-        self.assertEqual(scalarTestValue, self.scalar_int32_acc)
 
 
 if __name__ == '__main__':

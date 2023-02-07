@@ -189,6 +189,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
           "Return the time stamp associated with this version number. )\n"
           "\n")
       .def("__str__", mtca4upy::VersionNumber::str)
+      .def("getNullVersion", mtca4upy::VersionNumber::getNullVersion)
       .def("__lt__", mtca4upy::VersionNumber::lt)
       .def("__le__", mtca4upy::VersionNumber::le)
       .def("__gt__", mtca4upy::VersionNumber::gt)

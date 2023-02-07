@@ -696,7 +696,7 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         """
         self._accessor.setAndWrite(newValue, versionNumber)
 
-    def writeIfDifferent(self, newValue: np.number, versionNumber: VersionNumber = VersionNumber()) -> None:
+    def writeIfDifferent(self, newValue: np.number, versionNumber: VersionNumber = None) -> None:
         """
         Convenience function to set and write new value if it differes from the current value.
 
@@ -721,6 +721,8 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
           >>> acc.writeIfDifferent(38) # will not write
 
         """
+        if versionNumber is None: 
+          versionNumber = VersionNumber.getNullVersion()
         self._accessor.writeIfDifferent(newValue, versionNumber)
 
 
