@@ -31,7 +31,7 @@ class TestDeviceReadWrite(unittest.TestCase):
     def tearDown(self) -> None:
         self.dev.close()
 
-    def testCorrectRead(self):
+    def testDeviceRead(self):
         scalarTestValue = 14
         self.scalar_int32_acc.set(scalarTestValue)
         self.scalar_int32_acc.write()
@@ -45,7 +45,7 @@ class TestDeviceReadWrite(unittest.TestCase):
         for pair in zip(self.dev.read("INT32_TEST/1DARRAY", np.int32), oneDTestArray):
             self.assertEqual(pair[0], pair[1])
 
-    def testCorrectWrite(self):
+    def testDeviceWrite(self):
         scalarTestValue = 145
         self.dev.write("INT32_TEST/SCALAR", scalarTestValue)
         self.scalar_int32_acc.read()

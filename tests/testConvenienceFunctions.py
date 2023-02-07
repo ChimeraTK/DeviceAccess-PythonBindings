@@ -47,6 +47,17 @@ class TestConvenienceFunctions(unittest.TestCase):
 
         self.assertEqual(actual_register, scalarTestValue)
 
+        scalarTestValue = 14
+        first_version_number = da.VersionNumber()
+        second_version_number = da.VersionNumber()
+        self.scalar_int32_acc.setAndWrite(scalarTestValue, second_version_number)
+        self.scalar_int32_acc.read()
+        actual_register = self.scalar_int32_acc
+
+        self.assertEqual(actual_register, scalarTestValue)
+        with self.assertRaises(RuntimeError):
+            self.scalar_int32_acc.setAndWrite(scalarTestValue, first_version_number)
+
     def testWriteIfDifferent(self):
         scalarTestValue = 232
         vn_first = da.VersionNumber()
@@ -56,6 +67,19 @@ class TestConvenienceFunctions(unittest.TestCase):
         vn_after = self.scalar_int32_acc.getVersionNumber()
         self.assertEqual(vn_first, vn_after)
         self.assertGreater(vn_second, vn_after)
+        self.scalar_int32_acc.read()
+        self.assertEqual(scalarTestValue, self.scalar_int32_acc)
+
+        scalarTestValue = 99
+        self.scalar_int32_acc.writeIfDifferent(scalarTestValue)
+        vn_after_first_write_attemp = self.scalar_int32_acc.getVersionNumber()
+        self.scalar_int32_acc.read()
+        self.assertEqual(scalarTestValue, self.scalar_int32_acc)
+        self.scalar_int32_acc.writeIfDifferent(scalarTestValue)
+        vn_after_second_write_attemp = self.scalar_int32_acc.getVersionNumber()
+        self.assertEqual(vn_after_first_write_attemp, vn_after_second_write_attemp)
+        self.scalar_int32_acc.read()
+        self.assertEqual(scalarTestValue, self.scalar_int32_acc)
 
 
 if __name__ == '__main__':
