@@ -152,6 +152,22 @@ namespace mtca4upy {
       return status;
     }
 
+    template<typename T>
+    T readAndGet(ChimeraTK::ScalarRegisterAccessor<T>& self) {
+      return self.readAndGet();
+    }
+
+    template<typename T>
+    void setAndWrite(ChimeraTK::ScalarRegisterAccessor<T>& self, T newValue, ChimeraTK::VersionNumber versionNumber) {
+      self.setAndWrite(newValue, versionNumber);
+    }
+
+    template<typename T>
+    void writeIfDifferent(
+        ChimeraTK::ScalarRegisterAccessor<T>& self, T newValue, ChimeraTK::VersionNumber versionNumber) {
+      self.writeIfDifferent(newValue, versionNumber);
+    }
+
   } // namespace ScalarRegisterAccessor
 
   namespace OneDRegisterAccessor {
@@ -372,6 +388,7 @@ namespace mtca4upy {
     bool gt(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
     bool ge(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
     bool ne(ChimeraTK::VersionNumber& self, ChimeraTK::VersionNumber& other);
+    ChimeraTK::VersionNumber getNullVersion();
   } // namespace VersionNumber
 
   namespace RegisterCatalogue {

@@ -70,6 +70,9 @@
   bp::class_<ChimeraTK::ScalarRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                          \
       TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ScalarRegisterAccessor, userType)                                            \
           .def("copyUserBufferToNpArray", mtca4upy::ScalarRegisterAccessor::copyUserBufferToNpArray<userType>)         \
+          .def("readAndGet", mtca4upy::ScalarRegisterAccessor::readAndGet<userType>)                                   \
+          .def("setAndWrite", mtca4upy::ScalarRegisterAccessor::setAndWrite<userType>)                                 \
+          .def("writeIfDifferent", mtca4upy::ScalarRegisterAccessor::writeIfDifferent<userType>)                       \
           .def("copyNpArrayToUserBuffer", mtca4upy::ScalarRegisterAccessor::copyNpArrayToUserBuffer<userType>);
 
 namespace bp = boost::python;
@@ -97,7 +100,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
   bool show_signatures = false;
   bp::docstring_options doc_options(show_user_defined, show_signatures);
 
-  bp::class_<ChimeraTK::Device>("Device") // TODO: Find and change "Device" to a suitable name
+  bp::class_<ChimeraTK::Device>("Device")
       TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)
           TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR, getOneDAccessor)
               TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR, getScalarAccessor)
@@ -139,7 +142,8 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
 
   bp::class_<ChimeraTK::RegisterCatalogue>("RegisterCatalogue", bp::init<ChimeraTK::RegisterCatalogue>())
       //.def("__iter__", bp::range(&ChimeraTK::RegisterCatalogue::begin, &ChimeraTK::RegisterCatalogue::end)) // TODO:
-      //fix iteration implementation
+      // if someone needs to iterate through the register.
+      // fix iteration implementation
       .def("hasRegister", mtca4upy::RegisterCatalogue::hasRegister)
       .def("getRegister", mtca4upy::RegisterCatalogue::getRegister);
 
@@ -185,6 +189,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
           "Return the time stamp associated with this version number. )\n"
           "\n")
       .def("__str__", mtca4upy::VersionNumber::str)
+      .def("getNullVersion", mtca4upy::VersionNumber::getNullVersion)
       .def("__lt__", mtca4upy::VersionNumber::lt)
       .def("__le__", mtca4upy::VersionNumber::le)
       .def("__gt__", mtca4upy::VersionNumber::gt)
@@ -193,6 +198,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("__eq__", mtca4upy::VersionNumber::eq);
 
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::Device>>();
+  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::VersionNumber>>();
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::TransferElementID>>();
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::RegisterCatalogue>>();
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::RegisterInfo>>();
