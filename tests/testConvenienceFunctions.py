@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import deviceaccess as da
 from concurrent.futures import thread
 import sys
 import unittest
@@ -12,7 +11,7 @@ from time import sleep
 # This is a hack for nw. What this does is, add the build directory to python's
 # path, so that it can find the deviceaccess module.
 sys.path.insert(0, os.path.abspath(os.curdir))
-
+import deviceaccess as da
 
 class TestConvenienceFunctions(unittest.TestCase):
 
