@@ -11,6 +11,8 @@ More information on ChimeraTK can be found at the project's
 `github.io <https://chimeratk.github.io/>`_.
 """
 
+from __future__ import annotations
+
 from typing import Sequence
 import _da_python_bindings as pb
 import numpy as np
