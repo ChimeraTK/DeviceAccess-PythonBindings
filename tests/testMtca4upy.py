@@ -5,12 +5,13 @@ import fcntl
 import unittest
 import numpy
 
+# fmt: off
 # This is a hack for nw. What this does is, add the build directory to python's
-# path, so that it can find the module mtca4u.
+# path, so that it can find the deviceaccess module. Formatting is switched off,
+# so the import is not sorted into the others.
 sys.path.insert(0, os.path.abspath(os.curdir))
-# to lock the mtcadummy driver against simulteneous usage by other tests
-
 import mtca4u
+# fmt: on
 
 
 class TestPCIEDevice(unittest.TestCase):
@@ -20,28 +21,23 @@ class TestPCIEDevice(unittest.TestCase):
         mtca4u.set_dmap_location("deviceInformation/exampleCrate.dmap")
 
     def testRead(self):
+        # first open devices, so shared memory dummies work correctly with __prepareDataOnCards and __testRead
+        device1 = mtca4u.Device("(sharedMemoryDummy?map=./mtcadummy.map)")
+        device2 = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
+        device3 = mtca4u.Device("CARD_WITH_MODULES")
+        device4 = mtca4u.Device("CARD_WITH_OUT_MODULES")
+            
         self.__prepareDataOnCards()
 
-        device = mtca4u.Device(
-            "sdm://./pci:mtcadummys1=deviceInformation/mtcadummy.map")
-        self.__testRead(device, "", device.read)
-
-        device = mtca4u.Device(
-            "sdm://./pci:mtcadummys1=deviceInformation/modular_mtcadummy.map")
-        self.__testRead(device, "BOARD", device.read)
-
-        device = mtca4u.Device("CARD_WITH_MODULES")
-        self.__testRead(device, "BOARD", device.read)
-
-        device = mtca4u.Device("CARD_WITH_OUT_MODULES")
-        self.__testRead(device, "", device.read)
+        self.__testRead(device1, "", device1.read)
+        self.__testRead(device2, "BOARD", device2.read)
+        self.__testRead(device3, "BOARD", device3.read)
+        self.__testRead(device4, "", device4.read)
 
     def testWrite(self):
-        device = mtca4u.Device(
-            "sdm://./pci:mtcadummys1=deviceInformation/mtcadummy.map")
+        device = mtca4u.Device("(sharedMemoryDummy?map=./mtcadummy.map)")
         self.__testWrite(device, "", device.write)
-        device = mtca4u.Device(
-            "sdm://./pci:mtcadummys1=deviceInformation/modular_mtcadummy.map")
+        device = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
         self.__testWrite(device, "BOARD", device.write)
 
         device = mtca4u.Device("CARD_WITH_MODULES")
@@ -51,26 +47,23 @@ class TestPCIEDevice(unittest.TestCase):
         self.__testWrite(device, "", device.write)
 
     def testReadRaw(self):
+        # first open devices, so shared memory dummies work correctly with __prepareDataOnCards and __testRead
+        device1 = mtca4u.Device("(sharedMemoryDummy?map=./mtcadummy.map)")
+        device2 = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
+        device3 = mtca4u.Device("CARD_WITH_MODULES")
+        device4 = mtca4u.Device("CARD_WITH_OUT_MODULES")
+            
         self.__prepareDataOnCards()
 
-        device = mtca4u.Device(
-            "sdm://./pci:mtcadummys1=deviceInformation/mtcadummy.map")
-        self.__testRead(device, "", device.read_raw)
-        device = mtca4u.Device(
-            "sdm://./pci:mtcadummys1=deviceInformation/modular_mtcadummy.map")
-        self.__testRead(device, "BOARD", device.read_raw)
-
-        device = mtca4u.Device("CARD_WITH_OUT_MODULES")
-        self.__testRead(device, "", device.read_raw)
-        device = mtca4u.Device("CARD_WITH_MODULES")
-        self.__testRead(device, "BOARD", device.read_raw)
+        self.__testRead(device1, "", device1.read_raw)
+        self.__testRead(device2, "BOARD", device2.read_raw)
+        self.__testRead(device3, "BOARD", device3.read_raw)
+        self.__testRead(device4, "", device4.read_raw)
 
     def testwriteRaw(self):
-        device = mtca4u.Device(
-            "sdm://./pci:mtcadummys1=deviceInformation/mtcadummy.map")
+        device = mtca4u.Device("(sharedMemoryDummy?map=./mtcadummy.map)")
         self.__testWrite(device, "", device.write_raw)
-        device = mtca4u.Device(
-            "sdm://./pci:mtcadummys1=deviceInformation/modular_mtcadummy.map")
+        device = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
         self.__testWrite(device, "BOARD", device.write_raw)
 
         device = mtca4u.Device("CARD_WITH_OUT_MODULES")
@@ -79,24 +72,21 @@ class TestPCIEDevice(unittest.TestCase):
         self.__testWrite(device, "BOARD", device.write_raw)
 
     def testreadDMARaw(self):
-        device = mtca4u.Device(
-            "sdm://./pci:mtcadummys1=deviceInformation/mtcadummy.map")
-        self.__testreadDMARaw(device, "")
-        device = mtca4u.Device(
-            "sdm://./pci:mtcadummys1=deviceInformation/modular_mtcadummy.map")
-        self.__testreadDMARaw(device, "BOARD")
+        device1 = mtca4u.Device("(sharedMemoryDummy?map=./mtcadummy.map)")
+        device2 = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
+        device3 = mtca4u.Device("CARD_WITH_OUT_MODULES")
+        device4 = mtca4u.Device("CARD_WITH_MODULES")
 
-        device = mtca4u.Device("CARD_WITH_OUT_MODULES")
-        self.__testreadDMARaw(device, "")
-        device = mtca4u.Device("CARD_WITH_MODULES")
-        self.__testreadDMARaw(device, "BOARD")
+        self.__testreadDMARaw(device1, "")
+        self.__testreadDMARaw(device2, "BOARD")
+        self.__testreadDMARaw(device3, "")
+        self.__testreadDMARaw(device4, "BOARD")
+
 
     def testReadSequences(self):
-        device = mtca4u.Device(
-            "sdm://./pci:mtcadummys1=deviceInformation/mtcadummy.map")
+        device = mtca4u.Device("(sharedMemoryDummy?map=./mtcadummy.map)")
         self.__testSequences(device, "")
-        device = mtca4u.Device(
-            "sdm://./pci:mtcadummys1=deviceInformation/modular_mtcadummy.map")
+        device = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
         self.__testSequences(device, "BOARD")
 
         device = mtca4u.Device("CARD_WITH_OUT_MODULES")
@@ -121,8 +111,7 @@ class TestPCIEDevice(unittest.TestCase):
         self.assertTrue(True == True)
 
     def testException(self):
-        device = mtca4u.Device(
-            "sdm://./pci:mtcadummys1=deviceInformation/modular_mtcadummy.map")
+        device = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
         array = numpy.array([1, 2, 3, 4], dtype=numpy.int32)
         self.assertRaisesRegex(RuntimeError, "Requested number of words exceeds the size of the register '/BOARD/WORD_STATUS'!",
                                device.write_raw, 'BOARD', 'WORD_STATUS', array)
@@ -187,10 +176,10 @@ class TestPCIEDevice(unittest.TestCase):
         # Test Read from a module register
         # set up the register with a known values
         device = mtca4u.Device(
-            "sdm://./pci:mtcadummys1=deviceInformation/modular_mtcadummy.map")
+            "(sharedMemoryDummy?map=./modular_mtcadummy.map)")
         self.__preSetValuesOnCard(device, True)
         device = mtca4u.Device(
-            "sdm://./pci:llrfdummys4=deviceInformation/mtcadummy.map")
+            "(sharedMemoryDummy?map=./mtcadummy.map)")
         self.__preSetValuesOnCard(device)
 
     def __createRandomArray(self, arrayLength):
@@ -437,25 +426,27 @@ class TestPCIEDevice(unittest.TestCase):
 
     def __testreadDMARaw(self, device, module):
         module = str(module)
-        # Set the parabolic values in the DMA region by writing 1 to WORD_ADC_ENA
-        # register
-        device.write(module, "WORD_ADC_ENA",
-                     numpy.array([1], dtype=numpy.float32))
+
+        # Method: Set some completelty random numbers to AREA_DMAABLE, 
+        # AREA_DMAABLE_FIXEDPOINT16_3 readouts are shifted by 3, but 
+        # read_raw should be the same.
+
+        test_data = numpy.array([4, 8, 15, 16, 23, 42], dtype=numpy.float32)
+
+        device.write(module, "AREA_DMAABLE", test_data)
 
         # Read in the parabolic values from the function
-        readInValues = device.read_dma_raw(module, "AREA_DMA_VIA_DMA",
-                                           numberOfElementsToRead=10)
+        readInValues = device.read_dma_raw(module, "AREA_DMAABLE_FIXEDPOINT16_3",
+                                           numberOfElementsToRead=3)
         self.assertTrue(readInValues.dtype == numpy.int32)
-        self.assertTrue(readInValues.tolist() == [
-                        0, 1, 4, 9, 16, 25, 36, 49, 64, 81])
+        self.assertTrue(readInValues.tolist() == [4, 8, 15])
 
         # Check offset read
-        readInValues = device.read_dma_raw(module, "AREA_DMA_VIA_DMA",
-                                           numberOfElementsToRead=10,
+        readInValues = device.read_dma_raw(module, "AREA_DMAABLE_FIXEDPOINT16_3",
+                                           numberOfElementsToRead=3,
                                            elementIndexInRegister=3)
         self.assertTrue(readInValues.dtype == numpy.int32)
-        self.assertTrue(readInValues.tolist() == [9, 16, 25, 36, 49, 64, 81, 100,
-                                                  121, 144])
+        self.assertTrue(readInValues.tolist() == [16, 23, 42])
 
         # corner cases:
         # bad register name
