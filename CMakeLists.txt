@@ -24,7 +24,7 @@ initialize()
 set(${PROJECT_NAME}_MAJOR_VERSION 03)
 set(${PROJECT_NAME}_MINOR_VERSION 01)
 set(${PROJECT_NAME}_PATCH_VERSION 01)
-set(min_req_chimeratk_version "03.07" CACHE STRING "")
+set(min_req_chimeratk_version "03.09" CACHE STRING "")
 
 #
 # Build up the project version name
@@ -63,11 +63,6 @@ find_package(ChimeraTK-DeviceAccess ${min_req_chimeratk_version} REQUIRED)
 # ==============================================================================#
 INCLUDE(${CMAKE_SOURCE_DIR}/cmake/set_default_build_to_release.cmake)
 
-#
-# Set the compiler flags.
-set(${PROJECT_NAME}_CXX_FLAGS
-  "${${PROJECT_NAME}_CXX_FLAGS} ${ChimeraTK-DeviceAccess_CXX_FLAGS}")
-
 INCLUDE(${CMAKE_SOURCE_DIR}/cmake/set_default_flags.cmake)
 
 #
@@ -84,8 +79,7 @@ add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR}
   ${PYTHON_INCLUDE_DIR}
   ${NUMPY_INCLUDE_DIRS}
-  ${CMAKE_SOURCE_DIR}
-  ${ChimeraTK-DeviceAccess_INCLUDE_DIRS})
+  ${CMAKE_SOURCE_DIR})
 
 # ==============================================================================#
 # Only add the backend subdirectory after having all dependencies and flags
@@ -115,7 +109,7 @@ if(ENABLE_TSAN)
 endif()
 
 target_link_libraries(${boost_python_core_module} ${TSAN_LIBS}
-  ${ChimeraTK-DeviceAccess_LIBRARIES}
+  ChimeraTK::ChimeraTK-DeviceAccess
   ${PYTHON_LIBRARIES}
   ${Boost_LIBRARIES}
   Boost::${boost_python}
@@ -130,10 +124,6 @@ target_link_libraries(testmodule ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} Boost::$
 # donot prefix lib to the generated so:
 set_target_properties(testmodule PROPERTIES PREFIX "")
 set_target_properties(${boost_python_core_module} PROPERTIES PREFIX "")
-
-# obey link flags from DeviceAccess (e.g. rpath)
-set_target_properties(testmodule PROPERTIES LINK_FLAGS "${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
-set_target_properties(${boost_python_core_module} PROPERTIES LINK_FLAGS "${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
 
 # Copy the pure python module to the build directory. This is needed by the
 # tests. Packaging looks for it in this location. The version information in the
@@ -166,28 +156,6 @@ set_tests_properties(testPushType PROPERTIES TIMEOUT 5)
 #
 # enable coverage in debug Mode(CMAKE_BUILD_TYPE == "Debug").
 include(enable_code_coverage_report)
-
-# Create the config files by filling the correct variables into the template (*.cmake.in).
-# All variables @VARIABLE@ are replaced with the current values, but they have to be set first....
-# Only the reference header is needed. The other variables are for dependencies of this library,
-# but there are none.
-set(${PROJECT_NAME}_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/mtca4u
-                                  ${Boost_INCLUDE_DIR}
-                                  ${PYTHON_INCLUDE_DIR}
-                                  ${NUMPY_INCLUDE_DIRS}
-                                  ${ChimeraTK-DeviceAccess_INCLUDE_DIRS}")
-set(${PROJECT_NAME}_LIBRARIES "${ChimeraTK-DeviceAccess_LIBRARIES}
-                               ${PYTHON_LIBRARIES}
-                               ${NUMPY_LIBRARIES}
-                               ${Boost_LIBRARIES}")
-set(${PROJECT_NAME}_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib
-                                  ${ChimeraTK-DeviceAccess_LIBRARY_DIRS}
-                                  ${PYTHON_LIBRARY_DIRS}
-                                  ${NUMPY_LIBRARY_DIRS}
-                                  ${Boost_LIBRARY_DIRS}")
-
-# already set: ${PROJECT_NAME}_CXX_FLAGS
-set(${PROJECT_NAME}_LINKER_FLAGS "-Wl,-rpath=${CMAKE_INSTALL_PREFIX}/lib,--enable-new-dtags ${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
 
 # do not remove runtime path to libmtca-deviceaccess location  from
 # ${boost_python_core_module}  when installing
