@@ -133,7 +133,7 @@ set_target_properties(${boost_python_core_module} PROPERTIES PREFIX "")
 
 # obey link flags from DeviceAccess (e.g. rpath)
 set_target_properties(testmodule PROPERTIES LINK_FLAGS "${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
-set_target_properties(${boost_python_core_module} PROPERTIES LINK_FLAGS "${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
+set_target_properties(${boost_python_core_module} PROPERTIES LINK_FLAGS "-Wl,-rpath=${CMAKE_INSTALL_PREFIX}/lib ${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
 
 # Copy the pure python module to the build directory. This is needed by the
 # tests. Packaging looks for it in this location. The version information in the
