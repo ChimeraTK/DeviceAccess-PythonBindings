@@ -157,28 +157,6 @@ set_tests_properties(testPushType PROPERTIES TIMEOUT 5)
 # enable coverage in debug Mode(CMAKE_BUILD_TYPE == "Debug").
 include(enable_code_coverage_report)
 
-# Create the config files by filling the correct variables into the template (*.cmake.in).
-# All variables @VARIABLE@ are replaced with the current values, but they have to be set first....
-# Only the reference header is needed. The other variables are for dependencies of this library,
-# but there are none.
-set(${PROJECT_NAME}_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/mtca4u
-                                  ${Boost_INCLUDE_DIR}
-                                  ${PYTHON_INCLUDE_DIR}
-                                  ${NUMPY_INCLUDE_DIRS}
-                                  ${ChimeraTK-DeviceAccess_INCLUDE_DIRS}")
-set(${PROJECT_NAME}_LIBRARIES "${ChimeraTK-DeviceAccess_LIBRARIES}
-                               ${PYTHON_LIBRARIES}
-                               ${NUMPY_LIBRARIES}
-                               ${Boost_LIBRARIES}")
-set(${PROJECT_NAME}_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib
-                                  ${ChimeraTK-DeviceAccess_LIBRARY_DIRS}
-                                  ${PYTHON_LIBRARY_DIRS}
-                                  ${NUMPY_LIBRARY_DIRS}
-                                  ${Boost_LIBRARY_DIRS}")
-
-# already set: ${PROJECT_NAME}_CXX_FLAGS
-set(${PROJECT_NAME}_LINKER_FLAGS "-Wl,-rpath=${CMAKE_INSTALL_PREFIX}/lib,--enable-new-dtags ${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
-
 # do not remove runtime path to libmtca-deviceaccess location  from
 # ${boost_python_core_module}  when installing
 set_property(TARGET ${boost_python_core_module}
