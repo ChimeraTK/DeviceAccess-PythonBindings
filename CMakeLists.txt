@@ -121,6 +121,18 @@ add_library(testmodule SHARED
   "${CMAKE_CURRENT_SOURCE_DIR}/tests/testModule.cpp")
 target_link_libraries(testmodule ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} Boost::${boost_python})
 
+# Get numpy dir from python, if not set externally:
+set(${numpy_include_dirs} "" CACHE PATH "Path to numpy headers")
+
+if(NOT numpy_include_dirs)
+execute_process(COMMAND "${python_interpreter}" -c "import numpy; print(numpy.get_include())"
+                OUTPUT_VARIABLE numpy_include_dirs
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+message(STATUS "Numpy header files in: ${numpy_include_dirs}")
+
+target_include_directories(testmodule PUBLIC "${numpy_include_dirs}")
+
 # donot prefix lib to the generated so:
 set_target_properties(testmodule PROPERTIES PREFIX "")
 set_target_properties(${boost_python_core_module} PROPERTIES PREFIX "")
