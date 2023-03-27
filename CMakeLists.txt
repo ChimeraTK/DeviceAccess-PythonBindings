@@ -122,7 +122,7 @@ add_library(testmodule SHARED
 target_link_libraries(testmodule ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} Boost::${boost_python})
 
 # Get numpy dir from python, if not set externally:
-set(${numpy_include_dirs} "" CACHE PATH "Path to numpy headers")
+set(numpy_include_dirs "" CACHE PATH "Path to numpy headers")
 
 if(NOT numpy_include_dirs)
 execute_process(COMMAND "${python_interpreter}" -c "import numpy; print(numpy.get_include())"
