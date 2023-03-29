@@ -1,3 +1,8 @@
 @Library('ChimeraTK') _
 env.CMAKE_EXTRA_ARGS="-DPYTHON3=True"
-autojob(['ChimeraTK/DeviceAccess'], 'https://github.com/ChimeraTK/DeviceAccess-PythonBindings')
+autojob(['ChimeraTK/DeviceAccess'], 'https://github.com/ChimeraTK/DeviceAccess-PythonBindings', ['focal-Debug',
+                                   'focal-Release',
+                                  // 'focal-tsan', // Unless Python is not recompiled with tsan/asan capabilities
+                                  // 'focal-asan', // it is thus not useful to check modules for the bindings
+                                   'tumbleweed-Debug',
+                                   'tumbleweed-Release'])
