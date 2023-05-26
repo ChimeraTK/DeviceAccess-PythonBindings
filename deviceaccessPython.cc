@@ -3,7 +3,6 @@
 #include <ChimeraTK/DummyBackend.h>
 
 #include <boost/python/args.hpp>
-//#include <boost/python/iterator.hpp>
 #include <boost/python/numpy.hpp>
 
 // no ; at line endings to be able to reuse in .def format

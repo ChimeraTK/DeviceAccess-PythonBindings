@@ -9,7 +9,7 @@ from time import sleep
 
 
 # fmt: off
-# This is a hack for nw. What this does is, add the build directory to python's
+# This is a hack for now. What this does is, add the build directory to python's
 # path, so that it can find the deviceaccess module. Formatting is switched off,
 # so the import is not sorted into the others.
 sys.path.insert(0, os.path.abspath(os.curdir))
@@ -130,6 +130,7 @@ class TestDeviceAccessLib(unittest.TestCase):
     def testReadNonBlocking(self):
         # pay attention to use a normal dummy, shared memory dummy will have a race condition that will fail the test
         some_value = 445
+        some_other_value = -9
 
         # discard first, non-blocking read
         self.async_scalar_push.read()
@@ -138,17 +139,25 @@ class TestDeviceAccessLib(unittest.TestCase):
         self.write_scalar.set(some_value)
         self.write_scalar.write()
         self.scalar_data_ready.write()
+        self.write_scalar.set(some_other_value)
+        self.write_scalar.write()
+        self.scalar_data_ready.write()
 
         # queue not empty:
         new_value_available = self.async_scalar_push.readNonBlocking()
         self.assertTrue(new_value_available)
         result = self.async_scalar_push
         self.assertEqual(result, some_value)
+        # twice
+        new_value_available = self.async_scalar_push.readNonBlocking()
+        self.assertTrue(new_value_available)
+        result = self.async_scalar_push
+        self.assertEqual(result, some_other_value)
 
         # queue is empty:
         new_value_available = self.async_scalar_push.readNonBlocking()
         self.assertFalse(new_value_available)
-        self.assertEqual(result, some_value)
+        self.assertEqual(result, some_other_value)
 
     def testWriteDestructivelyDoesWriteAtAll(self):
 

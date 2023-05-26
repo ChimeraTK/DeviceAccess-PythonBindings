@@ -76,10 +76,6 @@ message(STATUS "Numpy header files in: ${numpy_include_dirs}")
 INCLUDE(${CMAKE_SOURCE_DIR}/cmake/set_default_build_to_release.cmake)
 
 
-# ignore BOOST deprecated headers
-#add_definitions("-DBOOST_ALLOW_DEPRECATED_HEADERS")
-#add_definitions("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
-
 #
 # Reference:
 # https://docs.scipy.org/doc/numpy-dev/reference/c-api.deprecations.html
