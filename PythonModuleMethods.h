@@ -89,6 +89,12 @@ namespace mtca4upy {
     ChimeraTK::VersionNumber getVersionNumber(T& self) {
       return self.getVersionNumber();
     }
+
+    template<typename T>
+    std::string getAccessModeFlagsString(T& self) {
+      return self.getAccessModeFlags().serialize();
+    }
+
   } // namespace GeneralRegisterAccessor
 
   namespace VoidRegisterAccessor {
@@ -100,6 +106,8 @@ namespace mtca4upy {
     bool readNonBlocking(ChimeraTK::VoidRegisterAccessor& self);
 
     bool readLatest(ChimeraTK::VoidRegisterAccessor& self);
+
+    bool writeDestructively(ChimeraTK::VoidRegisterAccessor& self);
 
   } // namespace VoidRegisterAccessor
 

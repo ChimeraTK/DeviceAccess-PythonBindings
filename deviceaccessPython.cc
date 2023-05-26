@@ -3,7 +3,6 @@
 #include <ChimeraTK/DummyBackend.h>
 
 #include <boost/python/args.hpp>
-#include <boost/python/iterator.hpp>
 #include <boost/python/numpy.hpp>
 
 // no ; at line endings to be able to reuse in .def format
@@ -46,6 +45,7 @@
       .def("getUnit", mtca4upy::GeneralRegisterAccessor::getUnit<ChimeraTK::accessorType<userType>>)                   \
       .def("getName", mtca4upy::GeneralRegisterAccessor::getName<ChimeraTK::accessorType<userType>>)                   \
       .def("getId", mtca4upy::GeneralRegisterAccessor::getId<ChimeraTK::accessorType<userType>>)                       \
+      .def("getAccessModeFlagsString", mtca4upy::GeneralRegisterAccessor::getAccessModeFlagsString<ChimeraTK::accessorType<userType>>)     \
       .def("read", mtca4upy::accessorType::read<userType>)                                                             \
       .def("readLatest", mtca4upy::accessorType::readLatest<userType>)                                                 \
       .def("readNonBlocking", mtca4upy::accessorType::readNonBlocking<userType>)                                       \
@@ -132,6 +132,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("read", mtca4upy::VoidRegisterAccessor::read)
       .def("readLatest", mtca4upy::VoidRegisterAccessor::readLatest)
       .def("readNonBlocking", mtca4upy::VoidRegisterAccessor::readNonBlocking)
+      .def("writeDestructively", mtca4upy::VoidRegisterAccessor::writeDestructively)
       .def("write", mtca4upy::VoidRegisterAccessor::write);
 
   bp::def("createDevice", createDevice);

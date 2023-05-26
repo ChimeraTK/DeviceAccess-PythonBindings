@@ -10,6 +10,8 @@ list(APPEND CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake
   ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
+
+include(${CMAKE_SOURCE_DIR}/cmake/set_default_flags.cmake)
 include(pythonBindingHelperMacros)
 
 #
@@ -23,7 +25,7 @@ initialize()
 # bump up the version numbers in this section when creating new tags
 set(${PROJECT_NAME}_MAJOR_VERSION 03)
 set(${PROJECT_NAME}_MINOR_VERSION 02)
-set(${PROJECT_NAME}_PATCH_VERSION 00)
+set(${PROJECT_NAME}_PATCH_VERSION 01)
 set(min_req_chimeratk_version "03.09" CACHE STRING "")
 
 #
@@ -60,10 +62,19 @@ find_package(Boost REQUIRED COMPONENTS ${boost_python} ${boost_numpy})
 # find_package(NumPy REQUIRED)
 find_package(ChimeraTK-DeviceAccess ${min_req_chimeratk_version} REQUIRED)
 
+# Get numpy dir from python, if not set externally:
+set(numpy_include_dirs "" CACHE PATH "Path to numpy headers")
+
+if(NOT numpy_include_dirs)
+execute_process(COMMAND "${python_interpreter}" -c "import numpy; print(numpy.get_include())"
+                OUTPUT_VARIABLE numpy_include_dirs
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+message(STATUS "Numpy header files in: ${numpy_include_dirs}")
+
 # ==============================================================================#
 INCLUDE(${CMAKE_SOURCE_DIR}/cmake/set_default_build_to_release.cmake)
 
-INCLUDE(${CMAKE_SOURCE_DIR}/cmake/set_default_flags.cmake)
 
 #
 # Reference:
@@ -104,16 +115,14 @@ add_library(${boost_python_core_module} SHARED deviceaccessPython.cc
   Register.cc
   DeviceAccess.cc)
 
-if(ENABLE_TSAN)
-  SET(TSAN_LIBS "tsan")
-endif()
 
-target_link_libraries(${boost_python_core_module} ${TSAN_LIBS}
+
+target_link_libraries(${boost_python_core_module} 
   ChimeraTK::ChimeraTK-DeviceAccess
   ${PYTHON_LIBRARIES}
   ${Boost_LIBRARIES}
   Boost::${boost_python}
-  Boost::${boost_numpy} ${TSAN_LIBS})
+  Boost::${boost_numpy} )
 
 #
 # Generate boost test executable

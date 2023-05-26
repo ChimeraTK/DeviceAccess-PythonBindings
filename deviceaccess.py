@@ -275,7 +275,15 @@ class GeneralRegisterAccessor(ABC):
             [da.AccessMode.wait_for_new_data]
 
         """
-        return self._AccessModeFlags
+        accessmodeflagstrings = self._accessor.getAccessModeFlagsString()
+        flags = []
+        for flag in accessmodeflagstrings.split(","):
+          if flag == 'wait_for_new_data':
+            flags.append(AccessMode.wait_for_new_data)
+          if flag == 'raw':
+            flags.append(AccessMode.raw)
+        
+        return flags
 
     def getVersionNumber(self) -> VersionNumber:
         """
