@@ -44,7 +44,7 @@ class TestDeviceAccessLib(unittest.TestCase):
             np.int32, "/ASYNC/TEST_AREA_PUSH", accessModeFlags=[da.AccessMode.raw, da.AccessMode.wait_for_new_data])
 
         self.scalar_data_ready = self.dev.getVoidRegisterAccessor(
-            "DUMMY_INTERRUPT_2_3")
+            "DUMMY_INTERRUPT_2")
         self.write_scalar = self.dev.getScalarRegisterAccessor(
             np.int32, "/ASYNC/SCALAR")
         self.async_scalar_push = self.dev.getScalarRegisterAccessor(
@@ -225,7 +225,7 @@ class TestDeviceAccessLib(unittest.TestCase):
         self.assertNotEqual(scalar1.getId(), scalar2.getId())
 
     def testVoidAccessorFunctions(self):
-        write_void = self.dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_2_3")
+        write_void = self.dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_2")
         read_void = self.dev.getVoidRegisterAccessor(
             "/ASYNC/SCALAR_PUSH", accessModeFlags=[da.AccessMode.wait_for_new_data])
 

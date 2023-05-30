@@ -1137,7 +1137,7 @@ class Device:
           >>> # double values of writeAccReg
           >>> writeAcc += arr1to10
           >>> writeAcc.write()
-          >>> interruptAcc = dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_2_3")
+          >>> interruptAcc = dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_2")
           >>> interruptAcc.write() # interrupt needed, otherwise second read would be blocking
           >>>
           >>> readAcc.read()

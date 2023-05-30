@@ -14,7 +14,7 @@
     </redirectedRegister>
     <redirectedRegister name="trigger">
         <targetDevice>SHARED_RAW_DEVICE</targetDevice>
-        <targetRegister>DUMMY_INTERRUPT_2_3</targetRegister>
+        <targetRegister>DUMMY_INTERRUPT_2</targetRegister>
         <plugin name="typeHintModifier">
            <parameter name="type">integer</parameter>
         </plugin>

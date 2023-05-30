@@ -26,7 +26,7 @@ class TestPushType(unittest.TestCase):
 
         readAcc = dev.getOneDRegisterAccessor(
             np.int32, "MODULE1/TEST_AREA_PUSH", 0, 0, [da.AccessMode.wait_for_new_data])
-        interruptAcc = dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_2_3")
+        interruptAcc = dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_2")
         readAcc.read()  # first read should be non-blocking
         self.assertFalse(readAcc.readNonBlocking())
         interruptAcc.write()
@@ -48,7 +48,7 @@ class TestPushType(unittest.TestCase):
 
         readAcc = dev.getOneDRegisterAccessor(
             np.int32, "MODULE1/TEST_AREA_PUSH", 0, 0, [da.AccessMode.wait_for_new_data])
-        interruptAcc = dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_2_3")
+        interruptAcc = dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_2")
         readAcc.read()  # first read is always non-blocking
         barrier = threading.Barrier(2)
 
@@ -85,7 +85,7 @@ class TestPushType(unittest.TestCase):
         writeAcc.write()
         # no new results, as interrupt has not been triggered:
         self.assertFalse(readAcc.readNonBlocking())
-        interruptAcc = dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_2_3")
+        interruptAcc = dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_2")
         interruptAcc.write()
 
         readAcc.read()
