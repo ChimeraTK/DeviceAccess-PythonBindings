@@ -680,7 +680,7 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         """
         return self._accessor.readAndGet()
 
-    def setAndWrite(self, newValue: np.number, versionNumber: VersionNumber = VersionNumber()) -> None:
+    def setAndWrite(self, newValue: np.number, versionNumber: VersionNumber = VersionNumber.getNullVersion()) -> None:
         """
         Convenience function to set and write new value. 
 
