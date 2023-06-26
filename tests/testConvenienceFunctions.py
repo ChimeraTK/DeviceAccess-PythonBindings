@@ -60,6 +60,12 @@ class TestConvenienceFunctions(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.scalar_int32_acc.setAndWrite(scalarTestValue, first_version_number)
 
+    def testSetAndWriteNoVersionNumbner(self):
+        self.scalar_int32_acc.read()
+        scalarTestValue = 145
+        self.scalar_int32_acc.setAndWrite(scalarTestValue)
+
+
     def testWriteIfDifferent(self):
         # Test if values are correctly written
         scalarTestValue = 232
