@@ -791,7 +791,9 @@ class Device:
       >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
       # CARD_WITH_MODULES is an alias in the dmap file above
       >>> dev = da.Device("CARD_WITH_MODULES")
-
+    Supports also with-statements:
+      >>> with da.Device('CARD_WITH_MODULES') as dev:
+      >>>     reg_value = dev.read('/PATH/TO/REGISTER')
     """
     # dict to get the corresponding function for each datatype
     _userTypeExtensions = {
@@ -819,6 +821,18 @@ class Device:
             self._device = pb.getDevice(aliasName)
         else:
             self._device = pb.getDevice_no_alias()
+
+    def __enter__(self):
+       """Helper function for with-statements"""
+       if self.aliasName is None:
+           raise SyntaxError('In a with-statement, an alias has to be provided in the device constructor!')
+       else:
+           self._device.open(self.aliasName)
+           return self
+
+    def __exit__(self, *args):
+       """Helper function for with-statements"""
+       self._device.close()
 
     def open(self, aliasName: str = None) -> None:
         """Open a :py:class:`Device`
