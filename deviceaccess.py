@@ -833,6 +833,19 @@ class Device:
         """Helper function for with-statements"""
         self._device.close()
 
+    def get_mapfile_revision(self) -> str:
+        """Provides the revision from the mapp-file.
+
+        This method uses the metadata catalogue to access the '@MAPFILE_REVISION' value from the mapp file,
+        associated with this device in the dmap-file.
+
+        Returns
+        -------
+        String containing the map file revision, usually in the format: <major>.<minor>.<patch>-<build>-<commit>
+
+        """
+        return self._device.getCatalogueMetadata('MAPFILE_REVISION')
+
     def open(self, aliasName: str = None) -> None:
         """Open a :py:class:`Device`
 
