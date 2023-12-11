@@ -625,14 +625,11 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         self._AccessModeFlags = getattr(obj, '_AccessModeFlags', None)
 
     def getNElements(self) -> int:
-        """
-        Return number of elements/samples in the register.
-        """
+        """Return number of elements/samples in the register."""
         return self._accessor.getNElements()
 
     def set(self, array) -> None:
-        """
-        Set the user buffer to the content of the array.
+        """Set the user buffer to the content of the array.
 
         A dimension mismatch will throw an exception.
         Different types will be converted to the userType of the accessor.
@@ -904,15 +901,22 @@ class Device:
         """Helper function for with-statements"""
         self._device.close()
 
-    def get_catalogue_metadata(self, meta_tag: str) -> str:
-        """Provides the revision from the mapp-file.
+    def getCatalogueMetadata(self, meta_tag: str) -> str:
+        """Provides access to catalogue metadata.
 
-        This method uses the metadata catalogue to access the '@MAPFILE_REVISION' value from the mapp file,
-        associated with this device in the dmap-file.
+        This method uses the metadata catalogue to access the value, defined at the beginning of a mapp file, i.e.:
+        @TAG value
+        By convention the tag is in uppercase.
+
+        Parameters
+        ----------
+
+        meta_tag
+          Tag of the metadata, i.e.: MAPFILE_REVISION
 
         Returns
         -------
-        String containing the map file revision, usually in the format: <major>.<minor>.<patch>-<build>-<commit>
+        String containing the metadata
 
         """
         return self._device.getCatalogueMetadata(meta_tag)
