@@ -45,7 +45,8 @@
       .def("getUnit", mtca4upy::GeneralRegisterAccessor::getUnit<ChimeraTK::accessorType<userType>>)                   \
       .def("getName", mtca4upy::GeneralRegisterAccessor::getName<ChimeraTK::accessorType<userType>>)                   \
       .def("getId", mtca4upy::GeneralRegisterAccessor::getId<ChimeraTK::accessorType<userType>>)                       \
-      .def("getAccessModeFlagsString", mtca4upy::GeneralRegisterAccessor::getAccessModeFlagsString<ChimeraTK::accessorType<userType>>)     \
+      .def("getAccessModeFlagsString",                                                                                 \
+          mtca4upy::GeneralRegisterAccessor::getAccessModeFlagsString<ChimeraTK::accessorType<userType>>)              \
       .def("read", mtca4upy::accessorType::read<userType>)                                                             \
       .def("readLatest", mtca4upy::accessorType::readLatest<userType>)                                                 \
       .def("readNonBlocking", mtca4upy::accessorType::readNonBlocking<userType>)                                       \

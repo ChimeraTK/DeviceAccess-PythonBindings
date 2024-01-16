@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.abspath(os.curdir))
 import mtca4u
 # fmt: on
 
+
 class TestOpeningException(unittest.TestCase):
 
     def testExceptionWhenOpening(self):

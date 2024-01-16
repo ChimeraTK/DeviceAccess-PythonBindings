@@ -167,7 +167,7 @@ namespace mtca4upy {
 
     template<typename T>
     void setAndWrite(ChimeraTK::ScalarRegisterAccessor<T>& self, T newValue, ChimeraTK::VersionNumber versionNumber) {
-      if (versionNumber == ChimeraTK::VersionNumber(nullptr)) {
+      if(versionNumber == ChimeraTK::VersionNumber(nullptr)) {
         versionNumber = ChimeraTK::VersionNumber();
       }
       self.setAndWrite(newValue, versionNumber);
