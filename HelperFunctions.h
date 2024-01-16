@@ -2,8 +2,9 @@
 #define HELPERFUNCTIONS_H_
 #include "NumpyObjectManager.h"
 #include "PythonExceptions.h"
-#include <boost/python.hpp>
 #include <numpy/arrayobject.h>
+
+#include <boost/python.hpp>
 
 namespace bp = boost::python;
 

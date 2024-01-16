@@ -26,7 +26,7 @@ class TestPCIEDevice(unittest.TestCase):
         device2 = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
         device3 = mtca4u.Device("CARD_WITH_MODULES")
         device4 = mtca4u.Device("CARD_WITH_OUT_MODULES")
-            
+
         self.__prepareDataOnCards()
 
         self.__testRead(device1, "", device1.read)
@@ -52,7 +52,7 @@ class TestPCIEDevice(unittest.TestCase):
         device2 = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
         device3 = mtca4u.Device("CARD_WITH_MODULES")
         device4 = mtca4u.Device("CARD_WITH_OUT_MODULES")
-            
+
         self.__prepareDataOnCards()
 
         self.__testRead(device1, "", device1.read_raw)
@@ -82,7 +82,6 @@ class TestPCIEDevice(unittest.TestCase):
         self.__testreadDMARaw(device3, "")
         self.__testreadDMARaw(device4, "BOARD")
 
-
     def testReadSequences(self):
         device = mtca4u.Device("(sharedMemoryDummy?map=./mtcadummy.map)")
         self.__testSequences(device, "")
@@ -107,14 +106,19 @@ class TestPCIEDevice(unittest.TestCase):
         outStream = StringIO()
         mtca4u.get_info(outStream)
         returnedString = outStream.getvalue().strip()
-        #self.assertTrue(expectedString == returnedString)
-        self.assertTrue(True == True)
+        # self.assertTrue(expectedString == returnedString)
+        self.assertTrue(True)
 
     def testException(self):
         device = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
         array = numpy.array([1, 2, 3, 4], dtype=numpy.int32)
-        self.assertRaisesRegex(RuntimeError, "Requested number of words exceeds the size of the register '/BOARD/WORD_STATUS'!",
-                               device.write_raw, 'BOARD', 'WORD_STATUS', array)
+        self.assertRaisesRegex(
+            RuntimeError,
+            "Requested number of words exceeds the size of the register '/BOARD/WORD_STATUS'!",
+            device.write_raw,
+            'BOARD',
+            'WORD_STATUS',
+            array)
         # moduleName='', registerName=None, dataToWrite=None, elementIndexInRegister=0, registerPath=None)
 
     def testDeviceCreation(self):
@@ -132,9 +136,9 @@ class TestPCIEDevice(unittest.TestCase):
             # incorrect usage.
 
         self.assertRaises(RuntimeError, mtca4u.Device, "(dummy?map=NON_EXISTENT_MAPFILE)")
-        self.assertRaisesRegex(SyntaxError, "Syntax Error: please see help\(mtca4u.Device\) for usage instructions.",
+        self.assertRaisesRegex(SyntaxError, "Syntax Error: please see help\\(mtca4u.Device\\) for usage instructions.",
                                mtca4u.Device)
-        self.assertRaisesRegex(SyntaxError, "Syntax Error: please see help\(mtca4u.Device\) for usage instructions.",
+        self.assertRaisesRegex(SyntaxError, "Syntax Error: please see help\\(mtca4u.Device\\) for usage instructions.",
                                mtca4u.Device, "BogusText", "BogusText", "BogusText")
 
         dmapFilePath = mtca4u.get_dmap_location()
@@ -186,7 +190,7 @@ class TestPCIEDevice(unittest.TestCase):
         return array.astype(numpy.int32)
 
     def __preSetValuesOnCard(self, device, modular=False):
-        if modular == False:
+        if not modular:
             word_status = 'WORD_STATUS'
             word_clk_mux = 'WORD_CLK_MUX'
             word_incomplete_2 = 'WORD_INCOMPLETE_2'
@@ -272,7 +276,7 @@ class TestPCIEDevice(unittest.TestCase):
         offset = 5
         elementsToRead = 5
         self.assertRaises(RuntimeError,
-                          readCommand,  str(module),
+                          readCommand, str(module),
                           registerName, elementIndexInRegister=offset)
 
     def __testWrite(self, device, module, writeCommand):
@@ -364,12 +368,12 @@ class TestPCIEDevice(unittest.TestCase):
             self.assertTrue(readInValues.tolist() == [5])
 
             self.assertRaisesRegex(RuntimeError, "Data format used is unsupported",
-                                   writeCommand, module,  word_incomplete_register,
+                                   writeCommand, module, word_incomplete_register,
                                    "")
 
          # Test for Unsupported dtype eg. dtype = numpy.int8
             self.assertRaisesRegex(RuntimeError, "Data format used is unsupported",
-                                   writeCommand, module,  word_incomplete_register,
+                                   writeCommand, module, word_incomplete_register,
                                    numpy.array([2], dtype=numpy.int8))
 
         # check offset functionality
@@ -394,10 +398,15 @@ class TestPCIEDevice(unittest.TestCase):
                                "BAD_REGISTER_NAME",
                                numpy.array([2.125], dtype=dtype))
 
-        # supplied array size exceeds register capacity: !regex /BOARD can be there 1 o 0 times. () and ? have special meaning in regex.
-        self.assertRaisesRegex(RuntimeError, "Requested number of words exceeds the size of the register '(/BOARD)?/WORD_INCOMPLETE_2'!",
-                               writeCommand, module, word_incomplete_register,
-                               word_clk_mux_content)
+        # supplied array size exceeds register capacity: !regex /BOARD can be
+        # there 1 o 0 times. () and ? have special meaning in regex.
+        self.assertRaisesRegex(
+            RuntimeError,
+            "Requested number of words exceeds the size of the register '(/BOARD)?/WORD_INCOMPLETE_2'!",
+            writeCommand,
+            module,
+            word_incomplete_register,
+            word_clk_mux_content)
 
         # supplied offset exceeds register span
         self.assertRaises(RuntimeError, writeCommand, module,
@@ -426,8 +435,8 @@ class TestPCIEDevice(unittest.TestCase):
     def __testreadDMARaw(self, device, module):
         module = str(module)
 
-        # Method: Set some completelty random numbers to AREA_DMAABLE, 
-        # AREA_DMAABLE_FIXEDPOINT16_3 readouts are shifted by 3, but 
+        # Method: Set some completelty random numbers to AREA_DMAABLE,
+        # AREA_DMAABLE_FIXEDPOINT16_3 readouts are shifted by 3, but
         # read_raw should be the same.
 
         test_data = numpy.array([4, 8, 15, 16, 23, 42], dtype=numpy.float32)
@@ -458,7 +467,7 @@ class TestPCIEDevice(unittest.TestCase):
     def __testSequences(self, device, module):
         module = str(module)
         # Basic Interface: Currently supports read of all sequences only
-        #device.write("", "WORD_ADC_ENA", 1)
+        # device.write("", "WORD_ADC_ENA", 1)
         # Arrange the data on the card:
         predefinedSequence = numpy.array([0x00010000,
                                           0x00030002,
@@ -474,8 +483,8 @@ class TestPCIEDevice(unittest.TestCase):
                                           0x00170016], dtype=numpy.int32)
         device.write_raw(module, 'AREA_DMAABLE', predefinedSequence)
 
-        expectedMatrix = numpy.array([[0,  1,  2,  3],
-                                      [4,  5,  6,  7],
+        expectedMatrix = numpy.array([[0, 1, 2, 3],
+                                      [4, 5, 6, 7],
                                       [8, 9, 10, 11],
                                       [12, 13, 14, 15],
                                       [16, 17, 18, 19],

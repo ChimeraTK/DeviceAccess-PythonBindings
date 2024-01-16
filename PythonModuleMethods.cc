@@ -157,8 +157,10 @@ ChimeraTK::DataType mtca4upy::DeviceAccess::convert_dytpe_to_usertype(np::dtype 
   numpy.half / numpy.float16    ///< Half precision float: sign bit, 5 bits exponent, 10 bits mantissa
   numpy.single    ///< float   ///< Platform-defined single precision float: typically sign bit, 8 bits exponent, 23
   bits mantissa numpy.double    ///< double  ///< Platform-defined double precision float: typically sign bit, 11 bits
-  exponent, 52 bits mantissa. numpy.longdouble    ///< long double ///< Platform-defined extended-precision float numpy.csingle
-  ///< float complex  ///< Complex number, represented by two single-precision floats (real and imaginary components) numpy.cdouble
+  exponent, 52 bits mantissa. numpy.longdouble    ///< long double ///< Platform-defined extended-precision float
+  numpy.csingle
+  ///< float complex  ///< Complex number, represented by two single-precision floats (real and imaginary components)
+  numpy.cdouble
   ///< double complex ///< Complex number, represented by two double-precision floats (real and imaginary components).
   numpy.clongdouble   ///< long double complex    ///< Complex number, represented by two extended-precision floats
   (real and imaginary components).

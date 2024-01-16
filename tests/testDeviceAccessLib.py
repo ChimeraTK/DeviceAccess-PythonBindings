@@ -169,7 +169,7 @@ class TestDeviceAccessLib(unittest.TestCase):
 
         one_d_vector = []
         for i in range(self.oneD_int32_acc.getNElements()):
-            one_d_vector.append(2*i + 3)
+            one_d_vector.append(2 * i + 3)
         self.oneD_int32_acc.set(one_d_vector)
         self.oneD_int32_acc.writeDestructively()
         self.oneD_int32_acc.read()
@@ -180,7 +180,7 @@ class TestDeviceAccessLib(unittest.TestCase):
         for i in range(self.twoD_in32_acc.getNChannels()):
             temp = []
             for j in range(self.twoD_in32_acc.getNElementsPerChannel()):
-                temp.append(i*2 + j * 3)
+                temp.append(i * 2 + j * 3)
             two_d_vector.append(temp)
 
         self.twoD_in32_acc.set(two_d_vector)

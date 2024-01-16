@@ -1,10 +1,10 @@
 """
 This module offers the functionality of the DeviceAccess C++ library for python.
 
-The ChimeraTK DeviceAccess library provides an abstract interface for register 
-based devices. Registers are identified by a name and usually accessed though 
-an accessor object. Since this library also allows access to other control 
-system applications, it can be understood as the client library of the 
+The ChimeraTK DeviceAccess library provides an abstract interface for register
+based devices. Registers are identified by a name and usually accessed though
+an accessor object. Since this library also allows access to other control
+system applications, it can be understood as the client library of the
 ChimeraTK framework.
 
 More information on ChimeraTK can be found at the project's
@@ -24,7 +24,7 @@ def setDMapFilePath(dmapFilePath: str) -> None:
     """
     Set the location of the dmap file.
 
-    The library will parse this dmap file for the device(alias) lookup. 
+    The library will parse this dmap file for the device(alias) lookup.
     Relative or absolute path of the dmap file (directory and file name).
 
     Examples
@@ -37,7 +37,7 @@ def setDMapFilePath(dmapFilePath: str) -> None:
 
 def getDMapFilePath() -> str:
     """
-    Returns the dmap file name which the library currently uses for looking up device(alias) names. 
+    Returns the dmap file name which the library currently uses for looking up device(alias) names.
     """
     return pb.getDmapFile()
 
@@ -47,11 +47,11 @@ class GeneralRegisterAccessor(ABC):
     This is a super class to avoid code duplication. It contains
     methods that are common for the inheriting accessors.
 
-    .. note:: As all accessors inherit from numpy's ndarray, the 
+    .. note:: As all accessors inherit from numpy's ndarray, the
               behaviour concerning slicing and mathematical operations
-              is simimlar. Result accessors share the attributes of the left 
-              operand, hence they are shallow copies of it. This leads to 
-              functionality that is not available in the C++ implementation. 
+              is simimlar. Result accessors share the attributes of the left
+              operand, hence they are shallow copies of it. This leads to
+              functionality that is not available in the C++ implementation.
               Please refer to the examples below.
 
     Examples
@@ -79,7 +79,7 @@ class GeneralRegisterAccessor(ABC):
           [[ 7  7  7  7  7  7]
            [21 21 21 21 21 21]
            [ 7  7  7  7  7  7]
-           [ 7  7  7  7  7  7]] 
+           [ 7  7  7  7  7  7]]
 
     Results from mathematical operations are shallow copies of the left operand.
       >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
@@ -91,17 +91,17 @@ class GeneralRegisterAccessor(ABC):
       >>> otherAcc = dev.getScalarRegisterAccessor(np.uint32, "ADC/WORD_CLK_CNT_1")
       >>> otherAcc.set(47)
       >>> otherAcc.write() #  otherAcc is now 47.
-      >>> resultAcc = oneAcc + otherAcc # resultAcc's numpy buffer is now 119 
-      >>> print(resultAcc) 
+      >>> resultAcc = oneAcc + otherAcc # resultAcc's numpy buffer is now 119
+      >>> print(resultAcc)
           [119]
       >>> resultAcc.write() # write() will also write into the register of oneAcc
       >>> oneAcc.read()
-      >>> print(oneAcc) 
+      >>> print(oneAcc)
           [119]
       >>> otherAcc.read() # the buffer's and registers of the right operand are not touched
-      >>> print(otherAcc) 
+      >>> print(otherAcc)
           [47]
-      >>> resultAcc.getName() # the resultAcc is a shallow copy of the left operand 
+      >>> resultAcc.getName() # the resultAcc is a shallow copy of the left operand
           '/ADC/WORD_CLK_CNT'
     """
 
@@ -278,11 +278,11 @@ class GeneralRegisterAccessor(ABC):
         accessmodeflagstrings = self._accessor.getAccessModeFlagsString()
         flags = []
         for flag in accessmodeflagstrings.split(","):
-          if flag == 'wait_for_new_data':
-            flags.append(AccessMode.wait_for_new_data)
-          if flag == 'raw':
-            flags.append(AccessMode.raw)
-        
+            if flag == 'wait_for_new_data':
+                flags.append(AccessMode.wait_for_new_data)
+            if flag == 'raw':
+                flags.append(AccessMode.raw)
+
         return flags
 
     def getVersionNumber(self) -> VersionNumber:
@@ -446,16 +446,16 @@ class TwoDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
     Accessor class to read and write registers transparently by using the accessor object
     like an a 2D array of the type UserType.
 
-    Conversion to and from the UserType will be handled by a data 
+    Conversion to and from the UserType will be handled by a data
     converter matching the register description in the map (if applicable).
 
-    .. note:: As all accessors inherit from :py:obj:`GeneralRegisterAccessor`, 
-              please refer to the respective examples for the behaviour of 
+    .. note:: As all accessors inherit from :py:obj:`GeneralRegisterAccessor`,
+              please refer to the respective examples for the behaviour of
               mathematical operations and slicing with accessors.
 
-    .. note:: Transfers between the device and the internal buffer need 
+    .. note:: Transfers between the device and the internal buffer need
             to be triggered using the read() and write() functions before reading
-            from resp. after writing to the buffer using the operators. 
+            from resp. after writing to the buffer using the operators.
     """
 
     def __new__(self, userType, accessor, accessModeFlags: Sequence[AccessMode] = None) -> None:
@@ -532,16 +532,16 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
     Accessor class to read and write registers transparently by using the accessor object
     like a vector of the type UserType.
 
-    Conversion to and from the UserType will be handled by a data 
+    Conversion to and from the UserType will be handled by a data
     converter matching the register description in the map (if applicable).
 
-    .. note:: As all accessors inherit from :py:obj:`GeneralRegisterAccessor`, 
-              please refer to the respective examples for the behaviour of 
+    .. note:: As all accessors inherit from :py:obj:`GeneralRegisterAccessor`,
+              please refer to the respective examples for the behaviour of
               mathematical operations and slicing with accessors.
 
-    .. note:: Transfers between the device and the internal buffer need 
+    .. note:: Transfers between the device and the internal buffer need
             to be triggered using the read() and write() functions before reading
-            from resp. after writing to the buffer using the operators. 
+            from resp. after writing to the buffer using the operators.
     """
 
     def __new__(cls, userType, accessor, accessModeFlags: Sequence[AccessMode]) -> None:
@@ -563,7 +563,7 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     def getNElements(self) -> int:
         """
-        Return number of elements/samples in the register. 
+        Return number of elements/samples in the register.
         """
         return self._accessor.getNElements()
 
@@ -571,7 +571,7 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         """
         Set the user buffer to the content of the array.
 
-        A dimension mismatch will throw an exception. 
+        A dimension mismatch will throw an exception.
         Different types will be converted to the userType of the accessor.
 
         Parameters
@@ -602,16 +602,16 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
     Accessor class to read and write scalar registers transparently by using the accessor object
     like a vector of the type UserType.
 
-    Conversion to and from the UserType will be handled by a data 
+    Conversion to and from the UserType will be handled by a data
     converter matching the register description in the map (if applicable).
 
-    .. note:: As all accessors inherit from :py:obj:`GeneralRegisterAccessor`, 
-              please refer to the respective examples for the behaviour of 
+    .. note:: As all accessors inherit from :py:obj:`GeneralRegisterAccessor`,
+              please refer to the respective examples for the behaviour of
               mathematical operations and slicing with accessors.
 
-    .. note:: Transfers between the device and the internal buffer need 
+    .. note:: Transfers between the device and the internal buffer need
             to be triggered using the read() and write() functions before reading
-            from resp. after writing to the buffer using the operators. 
+            from resp. after writing to the buffer using the operators.
     """
 
     def __new__(cls, userType, accessor, accessModeFlags: Sequence[AccessMode] = None) -> None:
@@ -637,7 +637,7 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         """
         Set the user buffer to the content of the array.
 
-        A dimension mismatch will throw an exception. 
+        A dimension mismatch will throw an exception.
         Different types will be converted to the userType of the accessor.
 
         Parameters
@@ -664,9 +664,9 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     def readAndGet(self) -> np.number:
         """
-        Convenience function to read and return a value of UserType. 
+        Convenience function to read and return a value of UserType.
 
-        Examples 
+        Examples
         --------
         Reading and Getting from a ScalarRegisterAccessor
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
@@ -682,7 +682,7 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     def setAndWrite(self, newValue: np.number, versionNumber: VersionNumber = VersionNumber.getNullVersion()) -> None:
         """
-        Convenience function to set and write new value. 
+        Convenience function to set and write new value.
 
         Parameters
         ----------
@@ -692,7 +692,7 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         versionmNumber: VersionNumber, optional
           The versionNumber that should be used for the write action.
 
-        Examples 
+        Examples
         --------
         Reading and Getting from a ScalarRegisterAccessor
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
@@ -710,7 +710,7 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         """
         Convenience function to set and write new value if it differes from the current value.
 
-        The given version number is only used in case the value differs. 
+        The given version number is only used in case the value differs.
 
         Parameters
         ----------
@@ -720,7 +720,7 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         versionmNumber: VersionNumber, optional
           The versionNumber that should be used for the write action.
 
-        Examples 
+        Examples
         --------
         Reading and Getting from a ScalarRegisterAccessor
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
@@ -731,8 +731,8 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
           >>> acc.writeIfDifferent(38) # will not write
 
         """
-        if versionNumber is None: 
-          versionNumber = VersionNumber.getNullVersion()
+        if versionNumber is None:
+            versionNumber = VersionNumber.getNullVersion()
         self._accessor.writeIfDifferent(newValue, versionNumber)
 
 
@@ -740,9 +740,9 @@ class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
     """
     Accessor class to read and write void registers transparently by using the accessor object..
 
-    .. note:: Transfers between the device and the internal buffer need 
+    .. note:: Transfers between the device and the internal buffer need
             to be triggered using the read() and write() functions before reading
-            from resp. after writing to the buffer using the operators. 
+            from resp. after writing to the buffer using the operators.
     """
     def __new__(cls, accessor, accessModeFlags: Sequence[AccessMode] = None) -> None:
         obj = np.asarray(
@@ -823,16 +823,16 @@ class Device:
             self._device = pb.getDevice_no_alias()
 
     def __enter__(self):
-       """Helper function for with-statements"""
-       if self.aliasName is None:
-           raise SyntaxError('In a with-statement, an alias has to be provided in the device constructor!')
-       else:
-           self._device.open(self.aliasName)
-           return self
+        """Helper function for with-statements"""
+        if self.aliasName is None:
+            raise SyntaxError('In a with-statement, an alias has to be provided in the device constructor!')
+        else:
+            self._device.open(self.aliasName)
+            return self
 
     def __exit__(self, *args):
-       """Helper function for with-statements"""
-       self._device.close()
+        """Helper function for with-statements"""
+        self._device.close()
 
     def open(self, aliasName: str = None) -> None:
         """Open a :py:class:`Device`
@@ -893,7 +893,13 @@ class Device:
         """
         self._device.close()
 
-    def getTwoDRegisterAccessor(self, userType, registerPathName: str, numberOfElements: int = 0, elementsOffset: int = 0, accessModeFlags: Sequence[AccessMode] = None) -> TwoDRegisterAccessor:
+    def getTwoDRegisterAccessor(
+            self,
+            userType,
+            registerPathName: str,
+            numberOfElements: int = 0,
+            elementsOffset: int = 0,
+            accessModeFlags: Sequence[AccessMode] = None) -> TwoDRegisterAccessor:
         """Get a :py:class:`TwoDRegisterAccessor` object for the given register.
 
         This allows to read and write transparently 2-dimensional registers.
@@ -974,7 +980,13 @@ class Device:
             userType, accessor, accessModeFlags)
         return twoDRegisterAccessor
 
-    def getOneDRegisterAccessor(self, userType, registerPathName: str, numberOfElements: int = 0, elementsOffset: int = 0, accessModeFlags: Sequence[AccessMode] = None):
+    def getOneDRegisterAccessor(
+            self,
+            userType,
+            registerPathName: str,
+            numberOfElements: int = 0,
+            elementsOffset: int = 0,
+            accessModeFlags: Sequence[AccessMode] = None):
         """Get a :py:class:`OneDRegisterAccessor` object for the given register.
 
         The OneDRegisterAccessor allows to read and write registers transparently by using
@@ -1053,7 +1065,12 @@ class Device:
             userType, accessor, accessModeFlags)
         return oneDRegisterAccessor
 
-    def getScalarRegisterAccessor(self, userType, registerPathName: str, elementsOffset: int = 0, accessModeFlags: Sequence[AccessMode] = None):
+    def getScalarRegisterAccessor(
+            self,
+            userType,
+            registerPathName: str,
+            elementsOffset: int = 0,
+            accessModeFlags: Sequence[AccessMode] = None):
         """Get a :py:class:`ScalarRegisterAccessor` object for the given register.
 
         The ScalarRegisterObject allows to read and write registers transparently by using
@@ -1185,13 +1202,14 @@ class Device:
 
     def getRegisterCatalogue(self) -> pb.RegisterCatalogue:
         """
-        Return the register catalogue with detailed information on all registers. 
+        Return the register catalogue with detailed information on all registers.
         """
         return self._device.getRegisterCatalogue()
 
-    def read(self, registerPath: str, dtype: np.dtype = np.float64, wordOffsetInRegister: int = 0, accessModeFlags: Sequence[AccessMode] = None) -> np.ndarray | np.number:
-        """ 
-        Inefficient convenience function to read a register without obtaining an accessor. 
+    def read(self, registerPath: str, dtype: np.dtype = np.float64, wordOffsetInRegister: int = 0,
+             accessModeFlags: Sequence[AccessMode] = None) -> np.ndarray | np.number:
+        """
+        Inefficient convenience function to read a register without obtaining an accessor.
         If no dtype is selected, the returned ndarray will default to np.float64.
         """
         catalogue = self.getRegisterCatalogue()
@@ -1208,9 +1226,14 @@ class Device:
             return arr[:][0]
         return arr
 
-    def write(self, registerPath: str, dataToWrite: np.ndarray | np.number, wordOffsetInRegister: int = 0, accessModeFlags: Sequence[AccessMode] = None) -> None:
+    def write(
+            self,
+            registerPath: str,
+            dataToWrite: np.ndarray | np.number,
+            wordOffsetInRegister: int = 0,
+            accessModeFlags: Sequence[AccessMode] = None) -> None:
         """
-        Inefficient convenience function to write a register without obtaining an accessor. 
+        Inefficient convenience function to write a register without obtaining an accessor.
         If no dtype is selected, the returned ndarray will default to np.float64.
         """
 
