@@ -131,8 +131,7 @@ class TestPCIEDevice(unittest.TestCase):
             # have an exception for an
             # incorrect usage.
 
-        self.assertRaisesRegex(RuntimeError, "Cannot open file \"NON_EXISTENT_MAPFILE\"", mtca4u.Device,
-                               "sdm://./pci:mtcadummys1=NON_EXISTENT_MAPFILE")
+        self.assertRaises(RuntimeError, mtca4u.Device, "(dummy?map=NON_EXISTENT_MAPFILE)")
         self.assertRaisesRegex(SyntaxError, "Syntax Error: please see help\(mtca4u.Device\) for usage instructions.",
                                mtca4u.Device)
         self.assertRaisesRegex(SyntaxError, "Syntax Error: please see help\(mtca4u.Device\) for usage instructions.",
@@ -510,22 +509,4 @@ class TestPCIEDevice(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # Lock the kernel driver dummy against simultaneous usage
-    # First make sure the directory is there. Otherwise the locking command will fail
-    try:
-        os.makedirs('/var/run/lock/mtcadummy')
-    except OSError:
-        # We will end up here if the directory exists. This is ok.
-        # Only raise if the directory is not there.
-        if not os.path.isdir('/var/run/lock/mtcadummy'):
-            raise
-
-    s1 = open('/var/run/lock/mtcadummy/mtcadummys1', 'w+')
-    fcntl.flock(s1, fcntl.LOCK_EX)
-    s4 = open('/var/run/lock/mtcadummy/llrfdummys4', 'w+')
-    fcntl.flock(s4, fcntl.LOCK_EX)
-
     unittest.main()
-
-    fcntl.flock(s1, fcntl.LOCK_UN)
-    fcntl.flock(s4, fcntl.LOCK_UN)
