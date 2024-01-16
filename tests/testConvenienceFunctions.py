@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.abspath(os.curdir))
 import deviceaccess as da
 # fmt: on
 
+
 class TestConvenienceFunctions(unittest.TestCase):
 
     def setUp(self):
@@ -64,7 +65,6 @@ class TestConvenienceFunctions(unittest.TestCase):
         self.scalar_int32_acc.read()
         scalarTestValue = 145
         self.scalar_int32_acc.setAndWrite(scalarTestValue)
-
 
     def testWriteIfDifferent(self):
         # Test if values are correctly written

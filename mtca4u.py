@@ -58,7 +58,7 @@ def set_dmap_location(dmapFileLocation):
     Device : Open device using specified alias names or using device id and mapfile
 
     """
-    #os.environ["DMAP_FILE"] = dmapFileLocation
+    # os.environ["DMAP_FILE"] = dmapFileLocation
     mtca4udeviceaccess.setDmapFile(dmapFileLocation)
 
 
@@ -321,13 +321,13 @@ class Device:
 
         device = self.__openedDevice
         dtype = data.dtype
-        if(dtype == numpy.int32):
+        if (dtype == numpy.int32):
             accessor = device.getOneDAccessor_int32(*arguments)
-        elif(dtype == numpy.int64):
+        elif (dtype == numpy.int64):
             accessor = device.getOneDAccessor_int64(*arguments)
-        elif(dtype == numpy.float32):
+        elif (dtype == numpy.float32):
             accessor = device.getOneDAccessor_float(*arguments)
-        elif(dtype == numpy.float64):
+        elif (dtype == numpy.float64):
             accessor = device.getOneDAccessor_double(*arguments)
         else:
             raise RuntimeError("Data format used is unsupported")
@@ -418,9 +418,9 @@ class Device:
         if registerPath is None:
             registerPath = '/' + moduleName + '/' + registerName
         # legacy implemention is done with int32
-        registerAccessor = self.__openedDevice.getOneDAccessor_int32(registerPath,
-                                                                     numberOfElementsToRead,
-                                                                     elementIndexInRegister, [mtca4udeviceaccess.AccessMode.raw])
+        registerAccessor = self.__openedDevice.getOneDAccessor_int32(
+            registerPath, numberOfElementsToRead, elementIndexInRegister, [
+                mtca4udeviceaccess.AccessMode.raw])
         registerSize = registerAccessor.getNElements()
         array = numpy.empty(registerSize, numpy.int32)
         registerAccessor.read(array)
@@ -495,7 +495,7 @@ class Device:
         if numberOfElementsToWrite == 0:
             return
 
-        if registerPath == None:
+        if registerPath is None:
             registerPath = '/' + moduleName + '/' + registerName
 
         # old binding:
@@ -636,7 +636,7 @@ class Device:
         # c++ accessor
         numberOfSequences = accessor.getNChannels()
         numberOfBlocks = accessor.getNElementsPerChannel()
-        array2D = self.__create2DArray(numpy.double,  numberOfSequences, numberOfBlocks)
+        array2D = self.__create2DArray(numpy.double, numberOfSequences, numberOfBlocks)
 
         accessor.read(array2D)
         return numpy.transpose(array2D)
@@ -669,10 +669,10 @@ class Device:
                 # did this for displaying specific error string without the range when
                 # there is only one element in the register
                 errorString = "Element index: {0} incorrect. Valid index is {1}"\
-                    .format(elementIndexInRegister, registerSize-1)
+                    .format(elementIndexInRegister, registerSize - 1)
             else:
                 errorString = "Element index: {0} incorrect. Valid index range is [0-{1}]"\
-                    .format(elementIndexInRegister, registerSize-1)
+                    .format(elementIndexInRegister, registerSize - 1)
 
             raise ValueError(errorString)
 
@@ -685,7 +685,7 @@ class Device:
             dataToWrite, numpy.int32)
 
     def __raiseExceptionIfNumpyArraydTypeIncorrect(self, numpyArray, dType):
-        if((type(numpyArray) != numpy.ndarray) or
+        if ((not isinstance(numpyArray, numpy.ndarray)) or
            (numpyArray.dtype != dType)):
             raise TypeError("Method expects values in a {0} "
                             " numpy.array".format(dType))
@@ -694,8 +694,8 @@ class Device:
                                    elementOffset):
         elementCountInRegister  # =  registerAccessor.getNumElements()
         maxFetchableElements = elementCountInRegister - elementOffset
-        correctedElementCount = numberOfelements if (numberOfelements != 0 and numberOfelements <= maxFetchableElements) \
-            else maxFetchableElements
+        correctedElementCount = numberOfelements if (
+            numberOfelements != 0 and numberOfelements <= maxFetchableElements) else maxFetchableElements
         return correctedElementCount
 
     def __createArray(self, dType, numberOfElementsInRegister, numberOfElementsToRead,

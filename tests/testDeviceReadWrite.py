@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.abspath(os.curdir))
 import deviceaccess as da
 # fmt: on
 
+
 class TestDeviceReadWrite(unittest.TestCase):
 
     def setUp(self):

@@ -39,7 +39,7 @@ class TestAccessors(unittest.TestCase):
         dev.open()
         acc = dev.getOneDRegisterAccessor(np.int32, "BOARD/WORD_CLK_MUX")
         elements = acc.getNElements()
-        reference = [i+42 for i in range(elements)]
+        reference = [i + 42 for i in range(elements)]
 
         acc.set(reference)
         acc.write()
@@ -59,7 +59,7 @@ class TestAccessors(unittest.TestCase):
         channels = acc.getNChannels()
         elementsPerChannel = acc.getNElementsPerChannel()
         reference = [
-            [i*j+i+j+12 for j in range(elementsPerChannel)] for i in range(channels)]
+            [i * j + i + j + 12 for j in range(elementsPerChannel)] for i in range(channels)]
 
         acc.set(reference)
         acc.write()

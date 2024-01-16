@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import numpy
+import unittest
 import os
 import sys
 
@@ -9,10 +11,6 @@ import sys
 sys.path.insert(0, os.path.abspath(os.curdir))
 import mtca4u
 # fmt: on
-
-
-import unittest
-import numpy
 
 
 class TestDummyDevice(unittest.TestCase):

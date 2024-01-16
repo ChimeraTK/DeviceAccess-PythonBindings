@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.abspath(os.curdir))
 import deviceaccess as da
 # fmt: on
 
+
 class TestPushType(unittest.TestCase):
 
     def testCorrectInterupt(self):
@@ -78,7 +79,7 @@ class TestPushType(unittest.TestCase):
             np.int32, "MODULE1/TEST_AREA_PUSH", 0, 0, [da.AccessMode.wait_for_new_data])
         readAcc.read()
         # check if readAcc has  the correct values:
-        self.assertListEqual(list(arr1to10), list(readAcc.view())) #
+        self.assertListEqual(list(arr1to10), list(readAcc.view()))
 
         # double values of writeAccReg
         writeAcc += arr1to10
@@ -90,8 +91,7 @@ class TestPushType(unittest.TestCase):
 
         readAcc.read()
         # Check if values are also doubled in readAcc
-        self.assertListEqual(list(arr1to10*2), list(readAcc.view()))
-
+        self.assertListEqual(list(arr1to10 * 2), list(readAcc.view()))
 
 
 if __name__ == '__main__':
