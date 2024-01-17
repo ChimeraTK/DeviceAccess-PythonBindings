@@ -1,2 +1,0 @@
-moduleVersion = "${${PROJECT_NAME}_VERSION}"
-deviceaccessVersion = "${ChimeraTK-DeviceAccess_VERSION}"
