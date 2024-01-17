@@ -12,7 +12,7 @@ from time import sleep
 # This is a hack for now. What this does is, add the build directory to python's
 # path, so that it can find the deviceaccess module. Formatting is switched off,
 # so the import is not sorted into the others.
-sys.path.insert(0, os.path.abspath(os.curdir))
+sys.path.insert(0, os.path.abspath(os.path.join(os.curdir,"..")))
 import deviceaccess as da
 import _da_python_bindings as pb
 # fmt: on
