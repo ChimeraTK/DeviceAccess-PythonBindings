@@ -17,10 +17,10 @@
   FUNCTION_TEMPLATE(int64_t, func_name, _int64)                                                                        \
   FUNCTION_TEMPLATE(uint64_t, func_name, _uint64)                                                                      \
   FUNCTION_TEMPLATE(float, func_name, _float)                                                                          \
-  FUNCTION_TEMPLATE(double, func_name, _double)
+  FUNCTION_TEMPLATE(double, func_name, _double)                                                                        \
+  FUNCTION_TEMPLATE(ChimeraTK::Boolean, func_name, _boolean)
 /* TODO: Implement String, ChimeraTK::Void and ChimeraTK::Boolean Types. See redmine ticket #11246
-  FUNCTION_TEMPLATE(std::string, func_name, _string)                                                                   \
-  FUNCTION_TEMPLATE(ChimeraTK::Boolean, func_name, _boolean)*/
+  FUNCTION_TEMPLATE(std::string, func_name, _string)*/
 
 #define STRINGIFY(s) #s
 
@@ -96,6 +96,8 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(open_overloads, da::open, 1, 2)
 BOOST_PYTHON_MODULE(_da_python_bindings) {
   Py_Initialize();
   np::initialize();
+
+  boost::python::to_python_converter<ChimeraTK::Boolean, CtkBoolean_to_python>();
 
   bool show_user_defined = true;
   bool show_signatures = false;
