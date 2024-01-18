@@ -523,8 +523,7 @@ class TwoDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
                       [15, 19, 23, 27, 31, 35]], dtype=int32)
 
         """
-        self *= 0
-        self += array
+        np.copyto(self, array)
 
 
 class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
@@ -593,8 +592,7 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
             OneDRegisterAccessor([  1,   9,  42, -23], dtype=int32)
 
         """
-        self *= 0
-        self += array
+        np.copyto(self, array)
 
 
 class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
@@ -659,8 +657,7 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
             ScalarRegisterAccessor([-23], dtype=int32)
 
         """
-        self *= 0
-        self += scalar
+        np.copyto(self, scalar)
 
     def readAndGet(self) -> np.number:
         """
@@ -812,7 +809,8 @@ class Device:
         np.double: "double",
         np.float64: "double",
         np.str_: "string",
-        np.bool_: "boolean"
+        np.bool_: "boolean",
+        bool: "boolean"
     }
 
     def __init__(self, aliasName: str = None) -> None:
