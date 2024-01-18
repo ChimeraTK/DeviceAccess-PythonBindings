@@ -22,8 +22,8 @@ class TestPCIEDevice(unittest.TestCase):
 
     def testRead(self):
         # first open devices, so shared memory dummies work correctly with __prepareDataOnCards and __testRead
-        device1 = mtca4u.Device("(sharedMemoryDummy?map=./mtcadummy.map)")
-        device2 = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
+        device1 = mtca4u.Device("(dummy?map=./mtcadummy.map)")
+        device2 = mtca4u.Device("(dummy?map=./modular_mtcadummy.map)")
         device3 = mtca4u.Device("CARD_WITH_MODULES")
         device4 = mtca4u.Device("CARD_WITH_OUT_MODULES")
 
@@ -35,9 +35,9 @@ class TestPCIEDevice(unittest.TestCase):
         self.__testRead(device4, "", device4.read)
 
     def testWrite(self):
-        device = mtca4u.Device("(sharedMemoryDummy?map=./mtcadummy.map)")
+        device = mtca4u.Device("(dummy?map=./mtcadummy.map)")
         self.__testWrite(device, "", device.write)
-        device = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
+        device = mtca4u.Device("(dummy?map=./modular_mtcadummy.map)")
         self.__testWrite(device, "BOARD", device.write)
 
         device = mtca4u.Device("CARD_WITH_MODULES")
@@ -48,8 +48,8 @@ class TestPCIEDevice(unittest.TestCase):
 
     def testReadRaw(self):
         # first open devices, so shared memory dummies work correctly with __prepareDataOnCards and __testRead
-        device1 = mtca4u.Device("(sharedMemoryDummy?map=./mtcadummy.map)")
-        device2 = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
+        device1 = mtca4u.Device("(dummy?map=./mtcadummy.map)")
+        device2 = mtca4u.Device("(dummy?map=./modular_mtcadummy.map)")
         device3 = mtca4u.Device("CARD_WITH_MODULES")
         device4 = mtca4u.Device("CARD_WITH_OUT_MODULES")
 
@@ -61,9 +61,9 @@ class TestPCIEDevice(unittest.TestCase):
         self.__testRead(device4, "", device4.read_raw)
 
     def testwriteRaw(self):
-        device = mtca4u.Device("(sharedMemoryDummy?map=./mtcadummy.map)")
+        device = mtca4u.Device("(dummy?map=./mtcadummy.map)")
         self.__testWrite(device, "", device.write_raw)
-        device = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
+        device = mtca4u.Device("(dummy?map=./modular_mtcadummy.map)")
         self.__testWrite(device, "BOARD", device.write_raw)
 
         device = mtca4u.Device("CARD_WITH_OUT_MODULES")
@@ -72,8 +72,8 @@ class TestPCIEDevice(unittest.TestCase):
         self.__testWrite(device, "BOARD", device.write_raw)
 
     def testreadDMARaw(self):
-        device1 = mtca4u.Device("(sharedMemoryDummy?map=./mtcadummy.map)")
-        device2 = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
+        device1 = mtca4u.Device("(dummy?map=./mtcadummy.map)")
+        device2 = mtca4u.Device("(dummy?map=./modular_mtcadummy.map)")
         device3 = mtca4u.Device("CARD_WITH_OUT_MODULES")
         device4 = mtca4u.Device("CARD_WITH_MODULES")
 
@@ -83,9 +83,9 @@ class TestPCIEDevice(unittest.TestCase):
         self.__testreadDMARaw(device4, "BOARD")
 
     def testReadSequences(self):
-        device = mtca4u.Device("(sharedMemoryDummy?map=./mtcadummy.map)")
+        device = mtca4u.Device("(dummy?map=./mtcadummy.map)")
         self.__testSequences(device, "")
-        device = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
+        device = mtca4u.Device("(dummy?map=./modular_mtcadummy.map)")
         self.__testSequences(device, "BOARD")
 
         device = mtca4u.Device("CARD_WITH_OUT_MODULES")
@@ -110,7 +110,7 @@ class TestPCIEDevice(unittest.TestCase):
         self.assertTrue(True)
 
     def testException(self):
-        device = mtca4u.Device("(sharedMemoryDummy?map=./modular_mtcadummy.map)")
+        device = mtca4u.Device("(dummy?map=./modular_mtcadummy.map)")
         array = numpy.array([1, 2, 3, 4], dtype=numpy.int32)
         self.assertRaisesRegex(
             RuntimeError,
@@ -179,10 +179,10 @@ class TestPCIEDevice(unittest.TestCase):
         # Test Read from a module register
         # set up the register with a known values
         device = mtca4u.Device(
-            "(sharedMemoryDummy?map=./modular_mtcadummy.map)")
+            "(dummy?map=./modular_mtcadummy.map)")
         self.__preSetValuesOnCard(device, True)
         device = mtca4u.Device(
-            "(sharedMemoryDummy?map=./mtcadummy.map)")
+            "(dummy?map=./mtcadummy.map)")
         self.__preSetValuesOnCard(device)
 
     def __createRandomArray(self, arrayLength):
