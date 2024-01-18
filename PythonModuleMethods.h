@@ -1,7 +1,6 @@
 #ifndef REGISTERACCESSORWRAPPERFUNCTIONS_H_
 #define REGISTERACCESSORWRAPPERFUNCTIONS_H_
 
-//#include "HelperFunctions.h"
 #include <ChimeraTK/Device.h>
 #include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/RegisterCatalogue.h>
@@ -14,6 +13,26 @@
 
 namespace p = boost::python;
 namespace np = boost::python::numpy;
+
+namespace boost::python::numpy::detail {
+
+  /**
+   * Provide numpy dtype for ChimeraTK::Boolean (conversion is identical as for plain bool)
+   */
+  template<>
+  struct builtin_dtype<ChimeraTK::Boolean, false> {
+    static dtype get() { return builtin_dtype<bool, true>::get(); }
+  };
+} // namespace boost::python::numpy::detail
+
+/**
+ * Provide converter from ChimeraTK::Boolean into Python bool type
+ */
+struct CtkBoolean_to_python {
+  static PyObject* convert(ChimeraTK::Boolean const& value) {
+    return boost::python::incref(boost::python::object(bool(value)).ptr());
+  }
+};
 
 namespace mtca4upy {
 
