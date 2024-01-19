@@ -1206,7 +1206,8 @@ class Device:
         """
         return self._device.getRegisterCatalogue()
 
-    def read(self, registerPath: str, dtype: np.dtype = np.float64, numberOfWords: int = 0, numberOfChannels: int = 0, wordOffsetInRegister: int = 0, accessModeFlags: Sequence[AccessMode] = None) -> np.ndarray | np.number:
+    def read(self, registerPath: str, dtype: np.dtype = np.float64, numberOfWords: int = 0,
+             wordOffsetInRegister: int = 0, accessModeFlags: Sequence[AccessMode] = None) -> np.ndarray | np.number:
         """
         Inefficient convenience function to read a register without obtaining an accessor.
         If no dtype is selected, the returned ndarray will default to np.float64.
@@ -1219,8 +1220,7 @@ class Device:
             numberOfElements = register.getNumberOfElements() - wordOffsetInRegister
         else:
             numberOfElements = numberOfWords
-        if numberOfChannels == 0:
-            numberOfChannels = register.getNumberOfChannels()
+        numberOfChannels = register.getNumberOfChannels()
         arr = np.empty([numberOfChannels, numberOfElements], dtype=dtype)
         accessModeFlags = [] if accessModeFlags is None else accessModeFlags
         arr = self._device.read(
