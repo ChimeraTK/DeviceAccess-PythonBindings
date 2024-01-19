@@ -49,6 +49,23 @@ class TestDeviceReadWrite(unittest.TestCase):
         for pair in zip(self.dev.read("INT32_TEST/1DARRAY", np.int32), oneDTestArray):
             self.assertEqual(pair[0], pair[1])
 
+    def testDeviceReadWithVariableSize(self):
+        oneDTestArray = [1, 2, 9, 18]
+        self.oneD_int32_acc.set(oneDTestArray)
+        self.oneD_int32_acc.write()
+        # test numberOfElements
+        for pair in zip(self.dev.read("INT32_TEST/1DARRAY", np.int32, 2), oneDTestArray[0:2], ):
+            self.assertEqual(pair[0], pair[1])
+        # test invalid numberOfElements
+        with self.assertRaises(RuntimeError):  # Should be logic_error, but boost is not forwarding it as expected
+            self.dev.read("INT32_TEST/1DARRAY", np.int32, 2765)
+        # test offset
+        for pair in zip(self.dev.read("INT32_TEST/1DARRAY", np.int32, 2, 2), oneDTestArray[2:4], ):
+            self.assertEqual(pair[0], pair[1])
+        # test invalid offset
+        with self.assertRaises(RuntimeError):  # Should be logic_error, but boost is not forwarding it as expected
+            self.dev.read("INT32_TEST/1DARRAY", np.int32, 2, 765)
+
     def testDeviceWrite(self):
         scalarTestValue = 145
         self.dev.write("INT32_TEST/SCALAR", scalarTestValue)
