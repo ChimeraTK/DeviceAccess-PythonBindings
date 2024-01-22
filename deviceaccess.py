@@ -125,7 +125,7 @@ class GeneralRegisterAccessor(ABC):
             ScalarRegisterAccessor([99], dtype=int32)
 
         """
-        self._accessor.read(self.view())
+        raise Exception('Not implemented in base class')
 
     def readLatest(self) -> bool:
         """
@@ -136,7 +136,7 @@ class GeneralRegisterAccessor(ABC):
         whether a new value was available if
         :py:obj:`AccessMode.wait_for_new_data` is set.
         """
-        return self._accessor.readLatest(self.view())
+        raise Exception('Not implemented in base class')
 
     def readNonBlocking(self) -> bool:
         """
@@ -153,7 +153,7 @@ class GeneralRegisterAccessor(ABC):
         this function is not guaranteed to be lock free. The return value
         will be always true in this mode.
         """
-        return self._accessor.readNonBlocking(self.view())
+        raise Exception('Not implemented in base class')
 
     def write(self) -> bool:
         """
@@ -175,7 +175,7 @@ class GeneralRegisterAccessor(ABC):
           >>> acc.write()
             ScalarRegisterAccessor([199], dtype=int32)
         """
-        return self._accessor.write(self.view())
+        raise Exception('Not implemented in base class')
 
     def writeDestructively(self) -> bool:
         """
@@ -185,7 +185,7 @@ class GeneralRegisterAccessor(ABC):
         The application must expect the user buffer of the
         TransferElement to contain undefined data after calling this function.
         """
-        return self._accessor.writeDestructively(self.view())
+        raise Exception('Not implemented in base class')
 
     def getName(self) -> str:
         """
@@ -441,7 +441,254 @@ class GeneralRegisterAccessor(ABC):
         return self._accessor.getId()
 
 
-class TwoDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
+class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
+    def __init__(self, channels, elementsPerChannel, userType, accessor,
+                 accessModeFlags: Sequence[AccessMode] = None) -> None:
+        dtype = userType
+        if dtype == str:
+            dtype = 'U1'
+        if channels is None:
+            self.__array = np.zeros(shape=(elementsPerChannel), dtype=dtype)
+        else:
+            self.__array = np.zeros(shape=(channels, elementsPerChannel), dtype=dtype)
+        self._accessor = accessor
+        self.userType = userType
+        self._AccessModeFlags = accessModeFlags
+
+    def get(self):
+        return self.__array
+
+    def set(self, value) -> None:
+        """
+        Set the user buffer to the given value.
+
+        The value shape has to match the accessor, any mismatch will throw an exception.
+        Different types will be converted to the userType of the accessor.
+
+        Parameters
+        ----------
+        value : numpy.array or compatible type
+            The new content of the user buffer.
+
+        Examples
+        --------
+        Setting a ScalarRegisterAccessor
+            >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+            >>> dev = da.Device("CARD_WITH_MODULES")
+            >>> dev.open()
+            >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+            >>> acc.read()
+                ScalarRegisterAccessor([74678], dtype=int32)
+            >>> acc.set([-23])
+            >>> acc.write()
+                ScalarRegisterAccessor([-23], dtype=int32)
+
+        Setting a OneDRegisterAccessor
+            >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+            >>> dev = da.Device("CARD_WITH_MODULES")
+            >>> dev.open()
+            >>> acc = dev.getOneDRegisterAccessor(np.int32, "BOARD/WORD_CLK_MUX")
+            >>> acc.read()
+                OneDRegisterAccessor([342011132 958674678 342011132 958674678], dtype=int32)
+            >>> acc.set([1, 9, 42, -23])
+            >>> acc.write()
+                OneDRegisterAccessor([  1,   9,  42, -23], dtype=int32)
+
+        Setting a TwoDRegisterAccessor
+            >>> dda.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+            >>> dev = da.Device("CARD_WITH_MODULES")
+            >>> dev.open()
+            >>> acc = dev.getTwoDRegisterAccessor(np.int32, "BOARD/DMA")
+            >>> acc.read()
+            TwoDRegisterAccessor([[  0   4  16  36  64 100]
+                    [  0   0   0   0   0   0]
+                    [  1   9  25  49  81 121]
+                    [  0   0   0   0   0   0]], dtype=int32)
+            >>> channels = acc.getNChannels()
+            >>> elementsPerChannel = acc.getNElementsPerChannel()
+            >>> reference = [
+            >>>     [i*j+i+j+12 for j in range(elementsPerChannel)] for i in range(channels)]
+            >>> acc.set(reference)
+            >>> acc.write()
+            TwoDRegisterAccessor([[12, 13, 14, 15, 16, 17],
+                        [13, 15, 17, 19, 21, 23],
+                        [14, 17, 20, 23, 26, 29],
+                        [15, 19, 23, 27, 31, 35]], dtype=int32)
+
+        """
+        # TODO: maybe we should store scalars as such?
+        if self.__array.dtype.kind != 'U':
+            if not np.isscalar(value):
+                newarray = np.asarray(value, dtype=self.__array.dtype)
+            else:
+                newarray = np.asarray([value], dtype=self.__array.dtype)
+        else:
+            if not np.isscalar(value):
+                newarray = np.asarray(value)
+            else:
+                newarray = np.asarray([value])
+
+        if self.__array.shape != newarray.shape:
+            raise ValueError('The shape of the provided value is incompatible with this accessor.')
+        self.__array = newarray
+
+    # pass through all (non-operator) functions to the np array (unless defined here)
+    def __getattr__(self, name):
+        return self.__array.__getattribute__(name)
+
+    # comparison operators
+    def __lt__(self, other):
+        return self.__array < other
+
+    def __le__(self, other):
+        return self.__array <= other
+
+    def __gt__(self, other):
+        return self.__array > other
+
+    def __ge__(self, other):
+        return self.__array >= other
+
+    def __eq__(self, other):
+        return self.__array == other
+
+    def __ne__(self, other):
+        return self.__array != other
+
+    # conversion operators
+    def __str__(self):
+        return str(self.__array)
+
+    def __bool__(self):
+        return bool(self.__array)
+
+    # subscript operator
+    def __getitem__(self, key):
+        return self.__array[key]
+
+    # binary operators
+    def __add__(self, other):
+        return self.__array.__add__(other)
+
+    def __sub__(self, other):
+        return self.__array.__sub__(other)
+
+    def __mul__(self, other):
+        return self.__array.__mul__(other)
+
+    def __truediv__(self, other):
+        return self.__array.__truediv__(other)
+
+    def __floordiv__(self, other):
+        return self.__array.__floordiv__(other)
+
+    def __mod__(self, other):
+        return self.__array.__mod__(other)
+
+    def __pow__(self, other):
+        return self.__array.__pow__(other)
+
+    def __rshift__(self, other):
+        return self.__array.__rshift__(other)
+
+    def ___lshift___mul__(self, other):
+        return self.__array.__lshift__(other)
+
+    def __and__(self, other):
+        return self.__array.__and__(other)
+
+    def __or__(self, other):
+        return self.__array.__or__(other)
+
+    def __xor__(self, other):
+        return self.__array.__xor__(other)
+
+    # assignment operators
+    def __isub__(self, other):
+        self.__array.__isub__(other)
+        return self
+
+    def __iadd__(self, other):
+        self.__array.__iadd__(other)
+        return self
+
+    def __imul__(self, other):
+        self.__array.__imul__(other)
+        return self
+
+    def __idiv__(self, other):
+        self.__array.__idiv__(other)
+        return self
+
+    def __ifloordiv__(self, other):
+        self.__array.__ifloordiv__(other)
+        return self
+
+    def __imod__(self, other):
+        self.__array.__imod__(other)
+        return self
+
+    def __ipow__(self, other):
+        self.__array.__ipow__(other)
+        return self
+
+    def __irshift__(self, other):
+        self.__array.__irshift__(other)
+        return self
+
+    def __ilshift__(self, other):
+        self.__array.__ilshift__(other)
+        return self
+
+    def __iand__(self, other):
+        self.__array.__iand__(other)
+        return self
+
+    def __ior__(self, other):
+        self.__array.__ior__(other)
+        return self
+
+    def __ixor__(self, other):
+        self.__array.__ixor__(other)
+        return self
+
+    # unary operators
+    def __neg__(self):
+        return self.__array.__neg__()
+
+    def __pos__(self):
+        return self.__array.__pos__()
+
+    def __invert__(self):
+        return self.__array.__invert__()
+
+    # accessor functions
+    def read(self) -> None:
+        self.__array = self._accessor.read(self.__array)
+
+    def readNonBlocking(self) -> None:
+        (status, self.__array) = self._accessor.readNonBlocking(self.__array)
+        return status
+
+    def readLatest(self) -> None:
+        (status, self.__array) = self._accessor.readLatest(self.__array)
+        return status
+
+    def write(self) -> None:
+        return self._accessor.write(self.__array)
+
+    def writeDestructively(self) -> None:
+        return self._accessor.writeDestructively(self.__array)
+
+    # transfer doc strings from base class for accessor functions
+    read.__doc__ = GeneralRegisterAccessor.read.__doc__
+    readNonBlocking.__doc__ = GeneralRegisterAccessor.readNonBlocking.__doc__
+    readLatest.__doc__ = GeneralRegisterAccessor.readLatest.__doc__
+    write.__doc__ = GeneralRegisterAccessor.write.__doc__
+    writeDestructively.__doc__ = GeneralRegisterAccessor.writeDestructively.__doc__
+
+
+class TwoDRegisterAccessor(NumpyGeneralRegisterAccessor):
     """
     Accessor class to read and write registers transparently by using the accessor object
     like an a 2D array of the type UserType.
@@ -458,22 +705,10 @@ class TwoDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
             from resp. after writing to the buffer using the operators.
     """
 
-    def __new__(self, userType, accessor, accessModeFlags: Sequence[AccessMode] = None) -> None:
+    def __init__(self, userType, accessor, accessModeFlags: Sequence[AccessMode] = None) -> None:
         channels = accessor.getNChannels()
         elementsPerChannel = accessor.getNElementsPerChannel()
-        obj = np.asarray(
-            np.zeros(shape=(channels, elementsPerChannel), dtype=userType)).view(self)
-        obj._accessor = accessor
-        obj.userType = userType
-        obj._AccessModeFlags = accessModeFlags
-        return obj
-
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
-        self._accessor = getattr(obj, '_accessor', None)
-        self.userType = getattr(obj, 'userType', None)
-        self._AccessModeFlags = getattr(obj, '_AccessModeFlags', None)
+        super().__init__(channels, elementsPerChannel, userType, accessor, accessModeFlags)
 
     def getNChannels(self) -> int:
         """
@@ -487,46 +722,8 @@ class TwoDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         """
         return self._accessor.getNElementsPerChannel()
 
-    def set(self, array) -> None:
-        """
-        Set the user buffer to the content of the array.
 
-        A dimension mismatch will throw an exception.
-        Different types will be converted to the userType of the accessor.
-
-        Parameters
-        ----------
-        array : numpy.array and compatible types
-          The new content of the user buffer.
-
-        Examples
-        --------
-        Setting a TwoDRegisterAccessor
-          >>> dda.setDMapFilePath("deviceInformation/exampleCrate.dmap")
-          >>> dev = da.Device("CARD_WITH_MODULES")
-          >>> dev.open()
-          >>> acc = dev.getTwoDRegisterAccessor(np.int32, "BOARD/DMA")
-          >>> acc.read()
-            TwoDRegisterAccessor([[  0   4  16  36  64 100]
-                    [  0   0   0   0   0   0]
-                    [  1   9  25  49  81 121]
-                    [  0   0   0   0   0   0]], dtype=int32)
-          >>> channels = acc.getNChannels()
-          >>> elementsPerChannel = acc.getNElementsPerChannel()
-          >>> reference = [
-          >>>     [i*j+i+j+12 for j in range(elementsPerChannel)] for i in range(channels)]
-          >>> acc.set(reference)
-          >>> acc.write()
-            TwoDRegisterAccessor([[12, 13, 14, 15, 16, 17],
-                      [13, 15, 17, 19, 21, 23],
-                      [14, 17, 20, 23, 26, 29],
-                      [15, 19, 23, 27, 31, 35]], dtype=int32)
-
-        """
-        np.copyto(self, array)
-
-
-class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
+class OneDRegisterAccessor(NumpyGeneralRegisterAccessor):
     """
     Accessor class to read and write registers transparently by using the accessor object
     like a vector of the type UserType.
@@ -543,22 +740,9 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
             from resp. after writing to the buffer using the operators.
     """
 
-    def __new__(cls, userType, accessor, accessModeFlags: Sequence[AccessMode]) -> None:
+    def __init__(self, userType, accessor, accessModeFlags: Sequence[AccessMode]) -> None:
         elements = accessor.getNElements()
-        obj = np.asarray(
-            np.zeros(shape=(elements), dtype=userType)).view(cls)
-        accessor.linkUserBufferToNpArray(obj)
-        obj._accessor = accessor
-        obj.userType = userType
-        obj._AccessModeFlags = accessModeFlags
-        return obj
-
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
-        self._accessor = getattr(obj, '_accessor', None)
-        self.userType = getattr(obj, 'userType', None)
-        self._AccessModeFlags = getattr(obj, '_AccessModeFlags', None)
+        super().__init__(None, elements, userType, accessor, accessModeFlags)
 
     def getNElements(self) -> int:
         """
@@ -566,36 +750,8 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         """
         return self._accessor.getNElements()
 
-    def set(self, array) -> None:
-        """
-        Set the user buffer to the content of the array.
 
-        A dimension mismatch will throw an exception.
-        Different types will be converted to the userType of the accessor.
-
-        Parameters
-        ----------
-        array : numpy.array and compatible types
-          The new content of the user buffer.
-
-        Examples
-        --------
-        Setting a OneDRegisterAccessor
-          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
-          >>> dev = da.Device("CARD_WITH_MODULES")
-          >>> dev.open()
-          >>> acc = dev.getOneDRegisterAccessor(np.int32, "BOARD/WORD_CLK_MUX")
-          >>> acc.read()
-            OneDRegisterAccessor([342011132 958674678 342011132 958674678], dtype=int32)
-          >>> acc.set([1, 9, 42, -23])
-          >>> acc.write()
-            OneDRegisterAccessor([  1,   9,  42, -23], dtype=int32)
-
-        """
-        np.copyto(self, array)
-
-
-class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
+class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
     """
     Accessor class to read and write scalar registers transparently by using the accessor object
     like a vector of the type UserType.
@@ -612,52 +768,8 @@ class ScalarRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
             from resp. after writing to the buffer using the operators.
     """
 
-    def __new__(cls, userType, accessor, accessModeFlags: Sequence[AccessMode] = None) -> None:
-        elements = 1
-        obj = np.asarray(
-            np.zeros(shape=(elements), dtype=userType)).view(cls)
-        obj._accessor = accessor
-        obj.userType = userType
-        obj._AccessModeFlags = accessModeFlags
-        return obj
-
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
-        self._accessor = getattr(obj, '_accessor', None)
-        self.userType = getattr(obj, 'userType', None)
-        self._AccessModeFlags = getattr(obj, '_AccessModeFlags', None)
-
-    def __lt__(self, other) -> bool:
-        return self[0] < other
-
-    def set(self, scalar) -> None:
-        """
-        Set the user buffer to the content of the array.
-
-        A dimension mismatch will throw an exception.
-        Different types will be converted to the userType of the accessor.
-
-        Parameters
-        ----------
-        array : numpy.array and compatible types
-          The new content of the user buffer.
-
-        Examples
-        --------
-        Setting a ScalarRegisterAccessor
-          >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
-          >>> dev = da.Device("CARD_WITH_MODULES")
-          >>> dev.open()
-          >>> acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
-          >>> acc.read()
-            ScalarRegisterAccessor([74678], dtype=int32)
-          >>> acc.set([-23])
-          >>> acc.write()
-            ScalarRegisterAccessor([-23], dtype=int32)
-
-        """
-        np.copyto(self, scalar)
+    def __init__(self, userType, accessor, accessModeFlags: Sequence[AccessMode] = None) -> None:
+        super().__init__(None, 1, userType, accessor, accessModeFlags)
 
     def readAndGet(self) -> np.number:
         """
@@ -808,9 +920,9 @@ class Device:
         np.float32: "float",
         np.double: "double",
         np.float64: "double",
-        np.str_: "string",
         np.bool_: "boolean",
-        bool: "boolean"
+        bool: "boolean",
+        str: "string",
     }
 
     def __init__(self, aliasName: str = None) -> None:
@@ -963,12 +1075,9 @@ class Device:
         if not accessModeFlags:
             accessModeFlags = []
         # get function name according to userType
-        userTypeFunctionExtension = self._userTypeExtensions.get(
-            userType, None)
+        userTypeFunctionExtension = self._userTypeExtensions.get(userType, None)
         if not userTypeFunctionExtension:
-            raise SyntaxError(
-                "userType not supported"
-            )
+            raise SyntaxError("userType not supported")
         getTwoDAccessor = getattr(
             self._device, "getTwoDAccessor_" + userTypeFunctionExtension)
 
@@ -1048,12 +1157,9 @@ class Device:
         if not accessModeFlags:
             accessModeFlags = []
         # get function name according to userType
-        userTypeFunctionExtension = self._userTypeExtensions.get(
-            userType, None)
+        userTypeFunctionExtension = self._userTypeExtensions.get(userType, None)
         if not userTypeFunctionExtension:
-            raise SyntaxError(
-                "userType not supported"
-            )
+            raise SyntaxError("userType not supported")
         getOneDAccessor = getattr(
             self._device, "getOneDAccessor_" + userTypeFunctionExtension)
 
@@ -1113,12 +1219,9 @@ class Device:
         if not accessModeFlags:
             accessModeFlags = []
         # get function name according to userType
-        userTypeFunctionExtension = self._userTypeExtensions.get(
-            userType, None)
+        userTypeFunctionExtension = self._userTypeExtensions.get(userType, None)
         if not userTypeFunctionExtension:
-            raise SyntaxError(
-                "userType not supported"
-            )
+            raise SyntaxError("userType not supported")
         getScalarAccessor = getattr(
             self._device, "getScalarAccessor_" + userTypeFunctionExtension)
 
@@ -1212,17 +1315,8 @@ class Device:
         If numberOfWords is not specified, it takes the maximm minus the offset.
         If numberOfChannels is not specified, it takes the maximm possible.
         """
-        catalogue = self.getRegisterCatalogue()
-        register = catalogue.getRegister(registerPath)
-        if numberOfWords == 0:
-            numberOfElements = register.getNumberOfElements() - wordOffsetInRegister
-        else:
-            numberOfElements = numberOfWords
-        numberOfChannels = register.getNumberOfChannels()
-        arr = np.empty([numberOfChannels, numberOfElements], dtype=dtype)
         accessModeFlags = [] if accessModeFlags is None else accessModeFlags
-        arr = self._device.read(
-            arr, registerPath, numberOfElements, wordOffsetInRegister, accessModeFlags)
+        arr = self._device.read(registerPath, numberOfWords, wordOffsetInRegister, accessModeFlags)
         if arr.shape == (1, 1):
             return arr[0][0]
         if arr.shape[0] == 1:
