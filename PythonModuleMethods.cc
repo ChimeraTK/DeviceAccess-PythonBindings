@@ -51,44 +51,23 @@ namespace mtca4upy::VoidRegisterAccessor {
 
 } // namespace mtca4upy::VoidRegisterAccessor
 
-namespace mtca4upy::ScalarRegisterAccessor {
-  template<>
-  void copyUserBufferToNpArray<ChimeraTK::Boolean>(
-      ChimeraTK::ScalarRegisterAccessor<ChimeraTK::Boolean>& self, np::ndarray& np_buffer) {
-    np_buffer[0] = static_cast<bool>(self);
-  }
-} // namespace mtca4upy::ScalarRegisterAccessor
+np::ndarray mtca4upy::DeviceAccess::read(const ChimeraTK::Device& self, const std::string& registerPath,
+    size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist) {
+  auto reg = self.getRegisterCatalogue().getRegister(registerPath);
+  auto usertype = reg.getDataDescriptor().minimumDataType();
 
-np::ndarray mtca4upy::DeviceAccess::read(const ChimeraTK::Device& self, np::ndarray& arr,
-    const std::string& registerPath, size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist) {
-  auto usertype = convert_dytpe_to_usertype(arr.get_dtype());
+  std::unique_ptr<np::ndarray> arr;
 
-  auto bufferTransfer = [&](auto arg) {
-    if(arr.shape(1) > 1) {
-      // 2D:
-      auto acc = self.getTwoDRegisterAccessor<decltype(arg)>(
-          registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
-      acc.read();
-      TwoDRegisterAccessor::copyUserBufferToNumpyNDArray(acc, arr);
-    }
-    else if(arr.shape(0) > 1) {
-      // 1D:
-      auto acc = self.getOneDRegisterAccessor<decltype(arg)>(
-          registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
-      acc.read();
-      OneDRegisterAccessor::copyUserBufferToNpArray(acc, arr);
-    }
-    else {
-      // Scalar:
-      auto acc =
-          self.getScalarRegisterAccessor<decltype(arg)>(registerPath, elementsOffset, convertFlagsFromPython(flaglist));
-      acc.read();
-      ScalarRegisterAccessor::copyUserBufferToNpArray(acc, arr);
-    }
-  };
+  ChimeraTK::callForTypeNoVoid(usertype, [&](auto arg) {
+    using UserType = decltype(arg);
+    auto acc = self.getTwoDRegisterAccessor<UserType>(
+        registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
+    acc.read();
+    arr = std::make_unique<np::ndarray>(GeneralRegisterAccessor::copyUserBufferToNpArray(
+        acc, convert_usertype_to_dtype(usertype), reg.getNumberOfDimensions()));
+  });
 
-  ChimeraTK::callForTypeNoVoid(usertype, bufferTransfer);
-  return arr;
+  return *arr;
 }
 
 void mtca4upy::DeviceAccess::write(const ChimeraTK::Device& self, np::ndarray& arr, const std::string& registerPath,
@@ -96,27 +75,10 @@ void mtca4upy::DeviceAccess::write(const ChimeraTK::Device& self, np::ndarray& a
   auto usertype = convert_dytpe_to_usertype(arr.get_dtype());
 
   auto bufferTransfer = [&](auto arg) {
-    if(arr.shape(1) > 1) {
-      // 2D:
-      auto acc = self.getTwoDRegisterAccessor<decltype(arg)>(
-          registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
-      TwoDRegisterAccessor::transferNumpyArrayToUserBuffer(acc, arr);
-      acc.write();
-    }
-    else if(arr.shape(0) > 1) {
-      // 1D:
-      auto acc = self.getOneDRegisterAccessor<decltype(arg)>(
-          registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
-      OneDRegisterAccessor::copyNpArrayToUserBuffer(acc, arr);
-      acc.write();
-    }
-    else {
-      // Scalar:
-      auto acc =
-          self.getScalarRegisterAccessor<decltype(arg)>(registerPath, elementsOffset, convertFlagsFromPython(flaglist));
-      ScalarRegisterAccessor::copyNpArrayToUserBuffer(acc, arr);
-      acc.write();
-    }
+    auto acc = self.getTwoDRegisterAccessor<decltype(arg)>(
+        registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
+    GeneralRegisterAccessor::copyNpArrayToUserBuffer(acc, arr);
+    acc.write();
   };
 
   ChimeraTK::callForTypeNoVoid(usertype, bufferTransfer);
@@ -184,10 +146,29 @@ ChimeraTK::DataType mtca4upy::DeviceAccess::convert_dytpe_to_usertype(np::dtype 
   else if(dtype == np::dtype::get_builtin<uint64_t>())
     usertype = ChimeraTK::DataType::uint64;
   else if(dtype == np::dtype::get_builtin<float>())
-    usertype = ChimeraTK::DataType::float32; // TODO: Change to std::float32_t with C++23
+    usertype = ChimeraTK::DataType::float32;
   else if(dtype == np::dtype::get_builtin<double>())
-    usertype = ChimeraTK::DataType::float64; // TODO: Change to std::float64_t with C++23
+    usertype = ChimeraTK::DataType::float64;
+  else if(dtype == np::dtype::get_builtin<bool>())
+    usertype = ChimeraTK::DataType::Boolean;
   else
     throw std::invalid_argument("Invalid numpy dtype");
   return usertype;
+}
+
+np::dtype mtca4upy::DeviceAccess::convert_usertype_to_dtype(ChimeraTK::DataType usertype) {
+  std::unique_ptr<np::dtype> rv;
+  ChimeraTK::callForTypeNoVoid(usertype, [&](auto arg) {
+    using UserType = decltype(arg);
+    if constexpr(std::is_same<UserType, ChimeraTK::Boolean>::value) {
+      rv = std::make_unique<np::dtype>(np::dtype::get_builtin<bool>());
+    }
+    if constexpr(std::is_same<UserType, std::string>::value) {
+      rv = std::make_unique<np::dtype>(p::make_tuple('U', 1));
+    }
+    else {
+      rv = std::make_unique<np::dtype>(np::dtype::get_builtin<UserType>());
+    }
+  });
+  return *rv;
 }

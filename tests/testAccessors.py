@@ -22,15 +22,16 @@ class TestAccessors(unittest.TestCase):
         dev.open()
 
         acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+        otherAcc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
+
+        # write through one accessor, read through the other
         reference = [99]
         acc.set(reference)
         acc.write()
-
-        otherAcc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
         otherAcc.read()
+        self.assertTrue(reference == otherAcc)
 
-        self.assertTrue(reference == otherAcc.view())
-
+        # test bool data type
         boolAcc = dev.getScalarRegisterAccessor(bool, "ADC/WORD_CLK_CNT_1")
         boolAcc.read()
         self.assertTrue(boolAcc)
@@ -45,6 +46,43 @@ class TestAccessors(unittest.TestCase):
         boolAcc.write()
         acc.read()
         self.assertTrue(acc == 1)
+
+        # test writeDestructively
+        reference = 42
+        acc.set(reference)
+        acc.writeDestructively()
+        otherAcc.read()
+        self.assertTrue(reference == otherAcc)
+
+        # test readNonBlocking
+        reference = 120
+        acc.set(reference)
+        acc.write()
+        otherAcc.readNonBlocking()
+        self.assertTrue(reference == otherAcc)
+
+        # test readLatest
+        reference = 240
+        acc.set(reference)
+        acc.write()
+        otherAcc.readLatest()
+        self.assertTrue(reference == otherAcc)
+
+        # test string data type
+        stringAcc = dev.getScalarRegisterAccessor(str, "ADC/WORD_CLK_CNT_1")
+        stringAcc.read()
+        self.assertTrue(str(reference) == stringAcc)
+
+        stringAcc.set('123456789')
+        stringAcc.write()
+        acc.read()
+        self.assertTrue(acc == 123456789)
+
+        # test that setting the string accessor to a longer string than currently works
+        stringTooShortAcc = dev.getScalarRegisterAccessor(str, "ADC/WORD_CLK_CNT_1")
+        stringTooShortAcc.read()
+
+        self.assertTrue(stringTooShortAcc == '123456789')
 
         dev.close()
 
@@ -64,12 +102,19 @@ class TestAccessors(unittest.TestCase):
 
         otherAcc = dev.getOneDRegisterAccessor(np.int32, "BOARD/WORD_CLK_MUX")
         otherAcc.read()
-        self.assertTrue(np.array_equal(reference, otherAcc.view()))
+        self.assertTrue(np.array_equal(reference, otherAcc))
+        for i in range(0, elements):
+            self.assertTrue(reference[i] == otherAcc[i])
 
         boolAcc = dev.getOneDRegisterAccessor(bool, "BOARD/WORD_CLK_MUX")
         referenceBool = [True]*elements
         boolAcc.read()
-        self.assertTrue(np.array_equal(referenceBool, boolAcc.view()))
+        self.assertTrue(np.array_equal(referenceBool, boolAcc))
+
+        stringAcc = dev.getOneDRegisterAccessor(str, "BOARD/WORD_CLK_MUX")
+        stringAcc.read()
+        stringReference = [str(i) for i in reference]
+        self.assertTrue(np.array_equal(stringReference, stringAcc.get()))
 
         reference = [0, 1, 0, 1]
         referenceBool = [False, True, False, True]
@@ -77,7 +122,7 @@ class TestAccessors(unittest.TestCase):
         acc.write()
 
         boolAcc.read()
-        self.assertTrue(np.array_equal(referenceBool, boolAcc.view()))
+        self.assertTrue(np.array_equal(referenceBool, boolAcc))
 
         referenceBool = [False, False, True, True]
         reference = [0, 0, 1, 1]
@@ -85,7 +130,14 @@ class TestAccessors(unittest.TestCase):
         boolAcc.write()
 
         acc.read()
-        self.assertTrue(np.array_equal(reference, acc.view()))
+        self.assertTrue(np.array_equal(reference, acc))
+
+        reference = [i + 54321 for i in range(elements)]
+        stringReference = [str(i) for i in reference]
+        stringAcc.set(stringReference)
+        stringAcc.write()
+        acc.read()
+        self.assertTrue(np.array_equal(reference, acc))
 
         dev.close()
 
@@ -111,6 +163,14 @@ class TestAccessors(unittest.TestCase):
         referenceBool = [[True]*elementsPerChannel]*channels
         boolAcc.read()
         self.assertTrue(np.array_equal(referenceBool, boolAcc))
+
+        '''
+        # String 2D accessors currently crash in DeviceAccess, see redmine bug #12684
+        stringAcc = dev.getTwoDRegisterAccessor(str, "BOARD/DMA")
+        stringAcc.read()
+        stringReference = [str(i) for i in reference]
+        self.assertTrue(np.array_equal(stringReference, stringAcc))
+        '''
 
         reference = [
             [1 if i == j else 0 for j in range(elementsPerChannel)] for i in range(channels)]

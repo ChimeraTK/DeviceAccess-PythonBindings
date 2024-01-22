@@ -18,9 +18,8 @@
   FUNCTION_TEMPLATE(uint64_t, func_name, _uint64)                                                                      \
   FUNCTION_TEMPLATE(float, func_name, _float)                                                                          \
   FUNCTION_TEMPLATE(double, func_name, _double)                                                                        \
-  FUNCTION_TEMPLATE(ChimeraTK::Boolean, func_name, _boolean)
-/* TODO: Implement String, ChimeraTK::Void and ChimeraTK::Boolean Types. See redmine ticket #11246
-  FUNCTION_TEMPLATE(std::string, func_name, _string)*/
+  FUNCTION_TEMPLATE(ChimeraTK::Boolean, func_name, _boolean)                                                           \
+  FUNCTION_TEMPLATE(std::string, func_name, _string)
 
 #define STRINGIFY(s) #s
 
@@ -47,11 +46,12 @@
       .def("getId", mtca4upy::GeneralRegisterAccessor::getId<ChimeraTK::accessorType<userType>>)                       \
       .def("getAccessModeFlagsString",                                                                                 \
           mtca4upy::GeneralRegisterAccessor::getAccessModeFlagsString<ChimeraTK::accessorType<userType>>)              \
-      .def("read", mtca4upy::accessorType::read<userType>)                                                             \
-      .def("readLatest", mtca4upy::accessorType::readLatest<userType>)                                                 \
-      .def("readNonBlocking", mtca4upy::accessorType::readNonBlocking<userType>)                                       \
-      .def("write", mtca4upy::accessorType::write<userType>)                                                           \
-      .def("writeDestructively", mtca4upy::accessorType::writeDestructively<userType>)
+      .def("read", mtca4upy::GeneralRegisterAccessor::read<ChimeraTK::accessorType<userType>>)                         \
+      .def("readLatest", mtca4upy::GeneralRegisterAccessor::readLatest<ChimeraTK::accessorType<userType>>)             \
+      .def("readNonBlocking", mtca4upy::GeneralRegisterAccessor::readNonBlocking<ChimeraTK::accessorType<userType>>)   \
+      .def("write", mtca4upy::GeneralRegisterAccessor::write<ChimeraTK::accessorType<userType>>)                       \
+      .def("writeDestructively",                                                                                       \
+          mtca4upy::GeneralRegisterAccessor::writeDestructively<ChimeraTK::accessorType<userType>>)
 
 #define TEMPLATECLASS_TWODREGISTERACCESSOR(userType, className, class_suffix)                                          \
   bp::class_<ChimeraTK::TwoDRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                            \
@@ -62,19 +62,14 @@
 #define TEMPLATECLASS_ONEDREGISTERACCESSOR(userType, className, class_suffix)                                          \
   bp::class_<ChimeraTK::OneDRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                            \
       TEMPLATE_FILL_COMMON_REGISTER_FUNCS(OneDRegisterAccessor, userType)                                              \
-          .def("copyUserBufferToNpArray", mtca4upy::OneDRegisterAccessor::copyUserBufferToNpArray<userType>)           \
-          .def("copyNpArrayToUserBuffer", mtca4upy::OneDRegisterAccessor::copyNpArrayToUserBuffer<userType>)           \
-          .def("linkUserBufferToNpArray", mtca4upy::OneDRegisterAccessor::linkUserBufferToNpArray<userType>)           \
           .def("getNElements", mtca4upy::OneDRegisterAccessor::getNElements<userType>);
 
 #define TEMPLATECLASS_SCALARREGISTERACCESSOR(userType, className, class_suffix)                                        \
   bp::class_<ChimeraTK::ScalarRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                          \
       TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ScalarRegisterAccessor, userType)                                            \
-          .def("copyUserBufferToNpArray", mtca4upy::ScalarRegisterAccessor::copyUserBufferToNpArray<userType>)         \
           .def("readAndGet", mtca4upy::ScalarRegisterAccessor::readAndGet<userType>)                                   \
           .def("setAndWrite", mtca4upy::ScalarRegisterAccessor::setAndWrite<userType>)                                 \
-          .def("writeIfDifferent", mtca4upy::ScalarRegisterAccessor::writeIfDifferent<userType>)                       \
-          .def("copyNpArrayToUserBuffer", mtca4upy::ScalarRegisterAccessor::copyNpArrayToUserBuffer<userType>);
+          .def("writeIfDifferent", mtca4upy::ScalarRegisterAccessor::writeIfDifferent<userType>);
 
 namespace bp = boost::python;
 namespace np = boost::python::numpy;
