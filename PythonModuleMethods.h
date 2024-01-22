@@ -11,6 +11,9 @@
 
 #include <boost/python/numpy.hpp>
 
+#include <codecvt>
+#include <locale>
+
 namespace p = boost::python;
 namespace np = boost::python::numpy;
 
@@ -23,6 +26,15 @@ namespace boost::python::numpy::detail {
   struct builtin_dtype<ChimeraTK::Boolean, false> {
     static dtype get() { return builtin_dtype<bool, true>::get(); }
   };
+
+  /**
+   * Provide numpy dtype for std::string (conversion is identical as for plain bool)
+   */
+  template<>
+  struct builtin_dtype<std::string, false> {
+    static dtype get() { return builtin_dtype<char, true>::get(); }
+  };
+
 } // namespace boost::python::numpy::detail
 
 /**
@@ -56,17 +68,17 @@ namespace mtca4upy {
 
   namespace GeneralRegisterAccessor {
     template<typename T>
-    const std::string getName(T& self) {
+    std::string getName(T& self) {
       return self.getName();
     }
 
     template<typename T>
-    const std::string getUnit(T& self) {
+    std::string getUnit(T& self) {
       return self.getUnit();
     }
 
     template<typename T>
-    const std::string getDescription(T& self) {
+    std::string getDescription(T& self) {
       return self.getDescription();
     }
 
@@ -114,6 +126,139 @@ namespace mtca4upy {
       return self.getAccessModeFlags().serialize();
     }
 
+    template<typename T>
+    np::ndarray copyUserBufferToNpArray(
+        ChimeraTK::NDRegisterAccessorAbstractor<T>& self, const np::dtype& dtype, size_t ndim) {
+      auto acc = boost::static_pointer_cast<ChimeraTK::NDRegisterAccessor<T>>(self.getHighLevelImplElement());
+      auto channels = acc->getNumberOfChannels();
+      auto elements = acc->getNumberOfSamples();
+
+      // create new numpy ndarray with proper type
+      np::dtype newdtype = dtype; // not a string: keep dtype unchanged
+      if constexpr(std::is_same<T, std::string>::value) {
+        // string: find longest string in user buffer and set type to unicode string of that length
+        size_t neededlength = 0;
+        for(size_t i = 0; i < channels; ++i) {
+          for(size_t k = 0; k < elements; ++k) {
+            neededlength = std::max(acc->accessChannel(i)[k].length(), neededlength);
+          }
+        }
+        newdtype = np::dtype(p::make_tuple("U", neededlength));
+      }
+
+      // note: keeping the original shape is important, as we need to distinguish a 2D accessor with 1 channel from
+      // a 1D accessor etc.
+      assert(ndim <= 2);
+      auto new_buffer = ndim == 0 ? np::empty(p::make_tuple(1), newdtype) :
+                                    (ndim == 1 ? np::empty(p::make_tuple(elements), newdtype) :
+                                                 np::empty(p::make_tuple(channels, elements), newdtype));
+
+      // copy data into the mumpy ndarray
+      if(ndim <= 1) {
+        for(size_t k = 0; k < elements; ++k) {
+          if constexpr(std::is_same<T, ChimeraTK::Boolean>::value) {
+            new_buffer[k] = bool(acc->accessChannel(0)[k]);
+          }
+          else {
+            new_buffer[k] = T(acc->accessChannel(0)[k]);
+          }
+        }
+      }
+      else {
+        for(size_t i = 0; i < channels; ++i) {
+          for(size_t k = 0; k < elements; ++k) {
+            if constexpr(std::is_same<T, ChimeraTK::Boolean>::value) {
+              new_buffer[i][k] = bool(acc->accessChannel(i)[k]);
+            }
+            else {
+              new_buffer[i][k] = T(acc->accessChannel(i)[k]);
+            }
+          }
+        }
+      }
+      return new_buffer;
+    }
+
+    template<typename T>
+    np::ndarray copyUserBufferToNpArray(ChimeraTK::NDRegisterAccessorAbstractor<T>& self, np::ndarray& np_buffer) {
+      return copyUserBufferToNpArray<T>(self, np_buffer.get_dtype(), np_buffer.get_nd());
+    }
+
+    inline std::string convertStringFromPython(size_t linearIndex, np::ndarray& np_buffer) {
+      // Note: it is unclear why the conversion in this direction has to be so complicated, while in the other
+      // direction an assignment to an std::string is sufficient.
+
+      // create C++ 4-byte string of matching length
+      size_t itemsize = np_buffer.get_dtype().get_itemsize();
+      assert(itemsize % sizeof(char32_t) == 0);
+      std::u32string widestring;
+      widestring.resize(itemsize / 4);
+
+      // copy string to C++ buffer
+      memcpy(widestring.data(), np_buffer.get_data() + itemsize * linearIndex, itemsize);
+
+      // convert to UTF-8 string and store to accessor
+      std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
+      return conv.to_bytes(widestring);
+    }
+
+    template<typename T>
+    void copyNpArrayToUserBuffer(ChimeraTK::NDRegisterAccessorAbstractor<T>& self, np::ndarray& np_buffer) {
+      auto acc = boost::static_pointer_cast<ChimeraTK::NDRegisterAccessor<T>>(self.getHighLevelImplElement());
+      auto channels = acc->getNumberOfChannels();
+      auto elements = acc->getNumberOfSamples();
+
+      size_t itemsize = np_buffer.get_dtype().get_itemsize();
+
+      if constexpr(!std::is_same<T, std::string>::value) {
+        // This check does not work for std::string and is not needed there
+        assert(sizeof(*acc->accessChannel(0).data()) == itemsize);
+      }
+      assert(np_buffer.get_nd() == 2 ? (np_buffer.shape(0) == channels && np_buffer.shape(1) == elements) :
+                                       (np_buffer.get_nd() == 1 ? (np_buffer.shape(0) == elements) : elements == 1));
+
+      for(size_t i = 0; i < channels; ++i) {
+        if constexpr(std::is_same<T, std::string>::value) {
+          for(size_t k = 0; k < elements; ++k) {
+            acc->accessChannel(i)[k] = convertStringFromPython(elements * i + k, np_buffer);
+          }
+        }
+        else {
+          memcpy(acc->accessChannel(i).data(), np_buffer.get_data() + itemsize * elements * i, itemsize * elements);
+        }
+      }
+    }
+
+    template<typename ACCESSOR>
+    np::ndarray read(ACCESSOR& self, np::ndarray& np_buffer) {
+      self.read();
+      return copyUserBufferToNpArray(self, np_buffer);
+    }
+
+    template<typename ACCESSOR>
+    auto readNonBlocking(ACCESSOR& self, np::ndarray& np_buffer) {
+      bool status = self.readNonBlocking();
+      return p::make_tuple(status, copyUserBufferToNpArray(self, np_buffer));
+    }
+
+    template<typename ACCESSOR>
+    auto readLatest(ACCESSOR& self, np::ndarray& np_buffer) {
+      bool status = self.readLatest();
+      return p::make_tuple(status, copyUserBufferToNpArray(self, np_buffer));
+    }
+
+    template<typename ACCESSOR>
+    bool write(ACCESSOR& self, np::ndarray& np_buffer) {
+      copyNpArrayToUserBuffer(self, np_buffer);
+      return self.write();
+    }
+
+    template<typename ACCESSOR>
+    bool writeDestructively(ACCESSOR& self, np::ndarray& np_buffer) {
+      copyNpArrayToUserBuffer(self, np_buffer);
+      return self.writeDestructively();
+    }
+
   } // namespace GeneralRegisterAccessor
 
   namespace VoidRegisterAccessor {
@@ -131,53 +276,6 @@ namespace mtca4upy {
   } // namespace VoidRegisterAccessor
 
   namespace ScalarRegisterAccessor {
-
-    template<typename T>
-    void copyNpArrayToUserBuffer(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      T* input_ptr = reinterpret_cast<T*>(np_buffer.get_data());
-      self = *(input_ptr);
-    }
-
-    template<typename T>
-    void copyUserBufferToNpArray(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      np_buffer[0] = static_cast<T>(self);
-    }
-
-    template<>
-    void copyUserBufferToNpArray<ChimeraTK::Boolean>(
-        ChimeraTK::ScalarRegisterAccessor<ChimeraTK::Boolean>& self, np::ndarray& np_buffer);
-
-    template<typename T>
-    bool write(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      copyNpArrayToUserBuffer(self, np_buffer);
-      return self.write();
-    }
-
-    template<typename T>
-    bool writeDestructively(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      copyNpArrayToUserBuffer(self, np_buffer);
-      return self.writeDestructively();
-    }
-
-    template<typename T>
-    void read(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      self.read();
-      copyUserBufferToNpArray(self, np_buffer);
-    }
-
-    template<typename T>
-    bool readNonBlocking(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      bool status = self.readNonBlocking();
-      copyUserBufferToNpArray(self, np_buffer);
-      return status;
-    }
-
-    template<typename T>
-    bool readLatest(ChimeraTK::ScalarRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      bool status = self.readLatest();
-      copyUserBufferToNpArray(self, np_buffer);
-      return status;
-    }
 
     template<typename T>
     T readAndGet(ChimeraTK::ScalarRegisterAccessor<T>& self) {
@@ -202,133 +300,14 @@ namespace mtca4upy {
 
   namespace OneDRegisterAccessor {
 
-    // supposed to skip the copy mechanism of the user buffer to the np-array, but
-    // is gliched in the current version.
-    template<typename T>
-    void linkUserBufferToNpArray(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      np_buffer = np::from_data(self.data(),  // data ->
-          np::dtype::get_builtin<T>(),        // dtype -> T
-          p::make_tuple(self.getNElements()), // shape -> size
-          p::make_tuple(sizeof(T)),           // stride = 1*1
-          p::object());                       // owner
-    }
-
-    template<typename T>
-    void copyUserBufferToNpArray(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      size_t elements = self.getNElements();
-      for(size_t i = 0; i < elements; ++i) {
-        np_buffer[i] = self[i];
-      }
-    }
-
-    template<typename T>
-    void copyNpArrayToUserBuffer(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      size_t elements = self.getNElements();
-      T* input_ptr = reinterpret_cast<T*>(np_buffer.get_data());
-      for(size_t i = 0; i < elements; ++i) {
-        self[i] = *(input_ptr + i);
-      }
-    }
-
-    template<typename T>
-    bool write(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      copyNpArrayToUserBuffer(self, np_buffer);
-      return self.write();
-    }
-
-    template<typename T>
-    bool writeDestructively(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      copyNpArrayToUserBuffer(self, np_buffer);
-      return self.writeDestructively();
-    }
-
     template<typename T>
     int getNElements(ChimeraTK::OneDRegisterAccessor<T>& self) {
       return self.getNElements();
     }
 
-    template<typename T>
-    void read(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      self.read();
-      copyUserBufferToNpArray(self, np_buffer);
-    }
-
-    template<typename T>
-    bool readNonBlocking(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      bool status = self.readNonBlocking();
-      copyUserBufferToNpArray(self, np_buffer);
-      return status;
-    }
-
-    template<typename T>
-    bool readLatest(ChimeraTK::OneDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      bool status = self.readLatest();
-      copyUserBufferToNpArray(self, np_buffer);
-      return status;
-    }
   } // namespace OneDRegisterAccessor
 
   namespace TwoDRegisterAccessor {
-
-    template<typename T>
-    void copyUserBufferToNumpyNDArray(ChimeraTK::TwoDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      size_t channels = self.getNChannels();
-      size_t elementsPerChannel = self.getNElementsPerChannel();
-      for(size_t i = 0; i < channels; ++i) {
-        for(size_t j = 0; j < elementsPerChannel; ++j) {
-          np_buffer[i][j] = self[i][j];
-        }
-      }
-    }
-
-    template<typename T, typename ReadFunction>
-    bool genericReadFuntion(
-        ChimeraTK::TwoDRegisterAccessor<T>& self, np::ndarray& np_buffer, ReadFunction readFunction) {
-      bool hasNewData = readFunction();
-      if(hasNewData) copyUserBufferToNumpyNDArray(self, np_buffer);
-      return hasNewData;
-    }
-    template<typename T>
-    void read(ChimeraTK::TwoDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      genericReadFuntion(self, np_buffer, [&]() {
-        self.read();
-        return true;
-      });
-    }
-
-    template<typename T>
-    bool readNonBlocking(ChimeraTK::TwoDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      return genericReadFuntion(self, np_buffer, [&]() { return self.readNonBlocking(); });
-    }
-
-    template<typename T>
-    bool readLatest(ChimeraTK::TwoDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      return genericReadFuntion(self, np_buffer, [&]() { return self.readLatest(); });
-    }
-
-    template<typename T>
-    void transferNumpyArrayToUserBuffer(ChimeraTK::TwoDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      size_t channels = self.getNChannels();
-      size_t elementsPerChannel = self.getNElementsPerChannel();
-      T* input_ptr = reinterpret_cast<T*>(np_buffer.get_data());
-      for(size_t i = 0; i < channels; ++i) {
-        for(size_t j = 0; j < elementsPerChannel; ++j) {
-          self[i][j] = *(input_ptr + j + (i * elementsPerChannel));
-        }
-      }
-    }
-
-    template<typename T>
-    bool write(ChimeraTK::TwoDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      transferNumpyArrayToUserBuffer(self, np_buffer);
-      return self.write();
-    }
-
-    template<typename T>
-    bool writeDestructively(ChimeraTK::TwoDRegisterAccessor<T>& self, np::ndarray& np_buffer) {
-      transferNumpyArrayToUserBuffer(self, np_buffer);
-      return self.writeDestructively();
-    }
 
     template<typename T>
     int getNChannels(ChimeraTK::TwoDRegisterAccessor<T>& self) {
@@ -390,9 +369,10 @@ namespace mtca4upy {
 
     void write(const ChimeraTK::Device& self, np::ndarray& arr, const std::string& registerPath,
         size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist);
-    np::ndarray read(const ChimeraTK::Device& self, np::ndarray& arr, const std::string& registerPath,
-        size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist);
+    np::ndarray read(const ChimeraTK::Device& self, const std::string& registerPath, size_t numberOfElements,
+        size_t elementsOffset, boost::python::list flaglist);
     ChimeraTK::DataType convert_dytpe_to_usertype(np::dtype dtype);
+    np::dtype convert_usertype_to_dtype(ChimeraTK::DataType usertype);
 
   } // namespace DeviceAccess
 

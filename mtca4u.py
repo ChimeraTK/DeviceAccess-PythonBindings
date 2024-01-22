@@ -228,9 +228,7 @@ class Device:
 
         registerSize = registerAccessor.getNElements()
         array = numpy.empty(registerSize, numpy.double)
-        registerAccessor.read(array)
-
-        return array
+        return registerAccessor.read(array)
 
     def write(self, moduleName="", registerName=None, dataToWrite=None,
               elementIndexInRegister=0, registerPath=None):
@@ -423,9 +421,7 @@ class Device:
                 mtca4udeviceaccess.AccessMode.raw])
         registerSize = registerAccessor.getNElements()
         array = numpy.empty(registerSize, numpy.int32)
-        registerAccessor.read(array)
-
-        return array
+        return registerAccessor.read(array)
 
     def write_raw(self, moduleName='', registerName=None, dataToWrite=None,
                   elementIndexInRegister=0, registerPath=None):
@@ -638,8 +634,7 @@ class Device:
         numberOfBlocks = accessor.getNElementsPerChannel()
         array2D = self.__create2DArray(numpy.double, numberOfSequences, numberOfBlocks)
 
-        accessor.read(array2D)
-        return numpy.transpose(array2D)
+        return numpy.transpose(accessor.read(array2D))
 
     def getCatalogueMetadata(self, parameterName):
         """ Reads out metadata form the device catalogue
