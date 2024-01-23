@@ -625,14 +625,11 @@ class OneDRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         self._AccessModeFlags = getattr(obj, '_AccessModeFlags', None)
 
     def getNElements(self) -> int:
-        """
-        Return number of elements/samples in the register.
-        """
+        """Return number of elements/samples in the register."""
         return self._accessor.getNElements()
 
     def set(self, array) -> None:
-        """
-        Set the user buffer to the content of the array.
+        """Set the user buffer to the content of the array.
 
         A dimension mismatch will throw an exception.
         Different types will be converted to the userType of the accessor.
@@ -903,6 +900,26 @@ class Device:
     def __exit__(self, *args):
         """Helper function for with-statements"""
         self._device.close()
+
+    def getCatalogueMetadata(self, meta_tag: str) -> str:
+        """Provides access to catalogue metadata.
+
+        This method uses the metadata catalogue to access the value, defined at the beginning of a mapp file, i.e.:
+        @TAG value
+        By convention the tag is in uppercase.
+
+        Parameters
+        ----------
+
+        meta_tag
+          Tag of the metadata, i.e.: MAPFILE_REVISION
+
+        Returns
+        -------
+        String containing the metadata
+
+        """
+        return self._device.getCatalogueMetadata(meta_tag)
 
     def open(self, aliasName: str = None) -> None:
         """Open a :py:class:`Device`
