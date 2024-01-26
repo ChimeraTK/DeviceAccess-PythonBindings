@@ -20,6 +20,8 @@ from _da_python_bindings import AccessMode, DataValidity, TransferElementID, Ver
 from abc import ABC
 
 
+#######################################################################################################################
+
 def setDMapFilePath(dmapFilePath: str) -> None:
     """
     Set the location of the dmap file.
@@ -34,12 +36,17 @@ def setDMapFilePath(dmapFilePath: str) -> None:
     """
     pb.setDmapFile(dmapFilePath)
 
+#######################################################################################################################
+
 
 def getDMapFilePath() -> str:
     """
     Returns the dmap file name which the library currently uses for looking up device(alias) names.
     """
     return pb.getDmapFile()
+
+#######################################################################################################################
+#######################################################################################################################
 
 
 class GeneralRegisterAccessor(ABC):
@@ -440,6 +447,9 @@ class GeneralRegisterAccessor(ABC):
         """
         return self._accessor.getId()
 
+#######################################################################################################################
+#######################################################################################################################
+
 
 class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
     def __init__(self, channels, elementsPerChannel, userType, accessor,
@@ -687,6 +697,9 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
     write.__doc__ = GeneralRegisterAccessor.write.__doc__
     writeDestructively.__doc__ = GeneralRegisterAccessor.writeDestructively.__doc__
 
+#######################################################################################################################
+#######################################################################################################################
+
 
 class TwoDRegisterAccessor(NumpyGeneralRegisterAccessor):
     """
@@ -722,6 +735,9 @@ class TwoDRegisterAccessor(NumpyGeneralRegisterAccessor):
         """
         return self._accessor.getNElementsPerChannel()
 
+#######################################################################################################################
+#######################################################################################################################
+
 
 class OneDRegisterAccessor(NumpyGeneralRegisterAccessor):
     """
@@ -749,6 +765,9 @@ class OneDRegisterAccessor(NumpyGeneralRegisterAccessor):
         Return number of elements/samples in the register.
         """
         return self._accessor.getNElements()
+
+#######################################################################################################################
+#######################################################################################################################
 
 
 class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
@@ -789,7 +808,7 @@ class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
         """
         return self._accessor.readAndGet()
 
-    def setAndWrite(self, newValue: np.number, versionNumber: VersionNumber = VersionNumber.getNullVersion()) -> None:
+    def setAndWrite(self, newValue: np.number, versionNumber: VersionNumber = None) -> None:
         """
         Convenience function to set and write new value.
 
@@ -813,9 +832,12 @@ class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
             38
 
         """
+        if versionNumber is None:
+            versionNumber = VersionNumber()
         self._accessor.setAndWrite(newValue, versionNumber)
 
-    def writeIfDifferent(self, newValue: np.number, versionNumber: VersionNumber = None) -> None:
+    def writeIfDifferent(self, newValue: np.number, versionNumber: VersionNumber = None,
+                         validity: DataValidity = DataValidity.ok) -> None:
         """
         Convenience function to set and write new value if it differes from the current value.
 
@@ -842,7 +864,10 @@ class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
         """
         if versionNumber is None:
             versionNumber = VersionNumber.getNullVersion()
-        self._accessor.writeIfDifferent(newValue, versionNumber)
+        self._accessor.writeIfDifferent(newValue, versionNumber, validity)
+
+#######################################################################################################################
+#######################################################################################################################
 
 
 class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
@@ -881,6 +906,9 @@ class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     def writeDestructively(self) -> bool:
         return self._accessor.writeDestructively()
+
+#######################################################################################################################
+#######################################################################################################################
 
 
 class Device:

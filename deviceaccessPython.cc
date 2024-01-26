@@ -24,57 +24,54 @@
 #define STRINGIFY(s) #s
 
 #define TEMPLATECLASS_GET_GENERAL_TWODACCESSOR(userType, funcName, suffix)                                             \
-  .def(STRINGIFY(funcName##suffix), da::getGeneralTwoDAccessor<userType>)
+  .def(STRINGIFY(funcName##suffix), mtca4upy::Device::getGeneralTwoDAccessor<userType>)
 
 #define TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR(userType, funcName, suffix)                                             \
-  .def(STRINGIFY(funcName##suffix), da::getGeneralOneDAccessor<userType>)
+  .def(STRINGIFY(funcName##suffix), mtca4upy::Device::getGeneralOneDAccessor<userType>)
 
 #define TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR(userType, funcName, suffix)                                           \
-  .def(STRINGIFY(funcName##suffix), da::getGeneralScalarAccessor<userType>)
+  .def(STRINGIFY(funcName##suffix), mtca4upy::Device::getGeneralScalarAccessor<userType>)
 
 #define TEMPLATE_FILL_COMMON_REGISTER_FUNCS(accessorType, userType)                                                    \
-  .def("isReadOnly", mtca4upy::GeneralRegisterAccessor::isReadOnly<ChimeraTK::accessorType<userType>>)                 \
-      .def("isReadable", mtca4upy::GeneralRegisterAccessor::isReadable<ChimeraTK::accessorType<userType>>)             \
-      .def("isWriteable", mtca4upy::GeneralRegisterAccessor::isWriteable<ChimeraTK::accessorType<userType>>)           \
-      .def("isInitialised", mtca4upy::GeneralRegisterAccessor::isInitialised<ChimeraTK::accessorType<userType>>)       \
-      .def("getDescription", mtca4upy::GeneralRegisterAccessor::getDescription<ChimeraTK::accessorType<userType>>)     \
-      .def("getVersionNumber", mtca4upy::GeneralRegisterAccessor::getVersionNumber<ChimeraTK::accessorType<userType>>) \
-      .def("setDataValidity", mtca4upy::GeneralRegisterAccessor::setDataValidity<ChimeraTK::accessorType<userType>>)   \
-      .def("dataValidity", mtca4upy::GeneralRegisterAccessor::dataValidity<ChimeraTK::accessorType<userType>>)         \
-      .def("getUnit", mtca4upy::GeneralRegisterAccessor::getUnit<ChimeraTK::accessorType<userType>>)                   \
-      .def("getName", mtca4upy::GeneralRegisterAccessor::getName<ChimeraTK::accessorType<userType>>)                   \
-      .def("getId", mtca4upy::GeneralRegisterAccessor::getId<ChimeraTK::accessorType<userType>>)                       \
+  .def("isReadOnly", &accessorType<userType>::isReadOnly)                                                              \
+      .def("isReadable", &accessorType<userType>::isReadable)                                                          \
+      .def("isWriteable", &accessorType<userType>::isWriteable)                                                        \
+      .def("isInitialised", &accessorType<userType>::isInitialised)                                                    \
+      .def("getDescription", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::getDescription)                \
+      .def("getUnit", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::getUnit)                              \
+      .def("getName", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::getName)                              \
+      .def("getVersionNumber", &accessorType<userType>::getVersionNumber)                                              \
+      .def("setDataValidity", &accessorType<userType>::setDataValidity)                                                \
+      .def("dataValidity", &accessorType<userType>::dataValidity)                                                      \
+      .def("getId", &accessorType<userType>::getId)                                                                    \
       .def("getAccessModeFlagsString",                                                                                 \
-          mtca4upy::GeneralRegisterAccessor::getAccessModeFlagsString<ChimeraTK::accessorType<userType>>)              \
-      .def("read", mtca4upy::GeneralRegisterAccessor::read<ChimeraTK::accessorType<userType>>)                         \
-      .def("readLatest", mtca4upy::GeneralRegisterAccessor::readLatest<ChimeraTK::accessorType<userType>>)             \
-      .def("readNonBlocking", mtca4upy::GeneralRegisterAccessor::readNonBlocking<ChimeraTK::accessorType<userType>>)   \
-      .def("write", mtca4upy::GeneralRegisterAccessor::write<ChimeraTK::accessorType<userType>>)                       \
-      .def("writeDestructively",                                                                                       \
-          mtca4upy::GeneralRegisterAccessor::writeDestructively<ChimeraTK::accessorType<userType>>)
+          mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::getAccessModeFlagsString)                         \
+      .def("read", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::read)                                    \
+      .def("readLatest", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::readLatest)                        \
+      .def("readNonBlocking", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::readNonBlocking)              \
+      .def("write", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::write)                                  \
+      .def("writeDestructively", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::writeDestructively)
 
 #define TEMPLATECLASS_TWODREGISTERACCESSOR(userType, className, class_suffix)                                          \
   bp::class_<ChimeraTK::TwoDRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                            \
-      TEMPLATE_FILL_COMMON_REGISTER_FUNCS(TwoDRegisterAccessor, userType)                                              \
-          .def("getNChannels", mtca4upy::TwoDRegisterAccessor::getNChannels<userType>)                                 \
-          .def("getNElementsPerChannel", mtca4upy::TwoDRegisterAccessor::getNElementsPerChannel<userType>);
+      TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ChimeraTK::TwoDRegisterAccessor, userType)                                   \
+          .def("getNChannels", &ChimeraTK::TwoDRegisterAccessor<userType>::getNChannels)                               \
+          .def("getNElementsPerChannel", &ChimeraTK::TwoDRegisterAccessor<userType>::getNElementsPerChannel);
 
 #define TEMPLATECLASS_ONEDREGISTERACCESSOR(userType, className, class_suffix)                                          \
   bp::class_<ChimeraTK::OneDRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                            \
-      TEMPLATE_FILL_COMMON_REGISTER_FUNCS(OneDRegisterAccessor, userType)                                              \
-          .def("getNElements", mtca4upy::OneDRegisterAccessor::getNElements<userType>);
+      TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ChimeraTK::OneDRegisterAccessor, userType)                                   \
+          .def("getNElements", &ChimeraTK::OneDRegisterAccessor<userType>::getNElements);
 
 #define TEMPLATECLASS_SCALARREGISTERACCESSOR(userType, className, class_suffix)                                        \
   bp::class_<ChimeraTK::ScalarRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                          \
-      TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ScalarRegisterAccessor, userType)                                            \
-          .def("readAndGet", mtca4upy::ScalarRegisterAccessor::readAndGet<userType>)                                   \
-          .def("setAndWrite", mtca4upy::ScalarRegisterAccessor::setAndWrite<userType>)                                 \
-          .def("writeIfDifferent", mtca4upy::ScalarRegisterAccessor::writeIfDifferent<userType>);
+      TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ChimeraTK::ScalarRegisterAccessor, userType)                                 \
+          .def("readAndGet", &ChimeraTK::ScalarRegisterAccessor<userType>::readAndGet)                                 \
+          .def("setAndWrite", &ChimeraTK::ScalarRegisterAccessor<userType>::setAndWrite)                               \
+          .def("writeIfDifferent", &ChimeraTK::ScalarRegisterAccessor<userType>::writeIfDifferent);
 
 namespace bp = boost::python;
 namespace np = boost::python::numpy;
-
-namespace da = mtca4upy::DeviceAccess;
 
 // This section defines function pointers used for overloading methods//
 //****************************************************************************/
@@ -84,7 +81,7 @@ static boost::shared_ptr<ChimeraTK::Device> (*createDevice)(const std::string&) 
 //****************************************************************************//
 
 // Auto-Overloading
-BOOST_PYTHON_FUNCTION_OVERLOADS(open_overloads, da::open, 1, 2)
+BOOST_PYTHON_FUNCTION_OVERLOADS(open_overloads, mtca4upy::Device::open, 1, 2)
 
 //****************************************************************************//
 
@@ -102,31 +99,33 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)
           TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR, getOneDAccessor)
               TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR, getScalarAccessor)
-                  .def("getVoidAccessor", da::getVoidRegisterAccessor)
-                  .def("getRegisterCatalogue", da::getRegisterCatalogue)
-                  .def("activateAsyncRead", da::activateAsyncRead)
-                  .def("getCatalogueMetadata", da::getCatalogueMetadata)
+                  .def("getVoidAccessor", mtca4upy::Device::getVoidRegisterAccessor)
+                  .def("getRegisterCatalogue", mtca4upy::Device::getRegisterCatalogue)
+                  .def("activateAsyncRead", mtca4upy::Device::activateAsyncRead)
+                  .def("getCatalogueMetadata", mtca4upy::Device::getCatalogueMetadata)
                   .def("open", (void (*)(ChimeraTK::Device&, std::string const&))0, open_overloads())
-                  .def("read", da::read)
-                  .def("write", da::write)
-                  .def("close", da::close);
+                  .def("read", mtca4upy::Device::read)
+                  .def("write", mtca4upy::Device::write)
+                  .def("close", mtca4upy::Device::close);
 
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_SCALARREGISTERACCESSOR, ScalarAccessor)
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_ONEDREGISTERACCESSOR, OneDAccessor)
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_TWODREGISTERACCESSOR, TwoDAccessor)
   bp::class_<ChimeraTK::VoidRegisterAccessor>(
       "VoidRegisterAccessor", bp::init<boost::shared_ptr<ChimeraTK::NDRegisterAccessor<ChimeraTK::Void>>>())
-      .def("isReadOnly", mtca4upy::GeneralRegisterAccessor::isReadOnly<ChimeraTK::VoidRegisterAccessor>)
-      .def("isReadable", mtca4upy::GeneralRegisterAccessor::isReadable<ChimeraTK::VoidRegisterAccessor>)
-      .def("isWriteable", mtca4upy::GeneralRegisterAccessor::isWriteable<ChimeraTK::VoidRegisterAccessor>)
-      .def("isInitialised", mtca4upy::GeneralRegisterAccessor::isInitialised<ChimeraTK::VoidRegisterAccessor>)
-      .def("getDescription", mtca4upy::GeneralRegisterAccessor::getDescription<ChimeraTK::VoidRegisterAccessor>)
-      .def("getVersionNumber", mtca4upy::GeneralRegisterAccessor::getVersionNumber<ChimeraTK::VoidRegisterAccessor>)
-      .def("setDataValidity", mtca4upy::GeneralRegisterAccessor::setDataValidity<ChimeraTK::VoidRegisterAccessor>)
-      .def("dataValidity", mtca4upy::GeneralRegisterAccessor::dataValidity<ChimeraTK::VoidRegisterAccessor>)
-      .def("getUnit", mtca4upy::GeneralRegisterAccessor::getUnit<ChimeraTK::VoidRegisterAccessor>)
-      .def("getName", mtca4upy::GeneralRegisterAccessor::getName<ChimeraTK::VoidRegisterAccessor>)
-      .def("getId", mtca4upy::GeneralRegisterAccessor::getId<ChimeraTK::VoidRegisterAccessor>)
+      .def("isReadOnly", &ChimeraTK::VoidRegisterAccessor::isReadOnly)
+      .def("isReadable", &ChimeraTK::VoidRegisterAccessor::isReadable)
+      .def("isWriteable", &ChimeraTK::VoidRegisterAccessor::isWriteable)
+      .def("isInitialised", &ChimeraTK::VoidRegisterAccessor::isInitialised)
+      .def("getDescription", mtca4upy::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getDescription)
+      .def("getUnit", mtca4upy::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getUnit)
+      .def("getName", mtca4upy::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getName)
+      .def("getVersionNumber", &ChimeraTK::VoidRegisterAccessor::getVersionNumber)
+      .def("setDataValidity", &ChimeraTK::VoidRegisterAccessor::setDataValidity)
+      .def("dataValidity", &ChimeraTK::VoidRegisterAccessor::dataValidity)
+      .def("getId", &ChimeraTK::VoidRegisterAccessor::getId)
+      .def("getAccessModeFlagsString",
+          mtca4upy::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getAccessModeFlagsString)
       .def("read", mtca4upy::VoidRegisterAccessor::read)
       .def("readLatest", mtca4upy::VoidRegisterAccessor::readLatest)
       .def("readNonBlocking", mtca4upy::VoidRegisterAccessor::readNonBlocking)
@@ -147,14 +146,14 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("getRegister", mtca4upy::RegisterCatalogue::getRegister);
 
   bp::class_<ChimeraTK::RegisterInfo>("RegisterInfo", bp::init<ChimeraTK::RegisterInfo>())
-      .def("isReadable", mtca4upy::RegisterInfo::isReadable)
-      .def("isValid", mtca4upy::RegisterInfo::isValid)
-      .def("isWriteable", mtca4upy::RegisterInfo::isWriteable)
+      .def("isReadable", &ChimeraTK::RegisterInfo::isReadable)
+      .def("isValid", &ChimeraTK::RegisterInfo::isValid)
+      .def("isWriteable", &ChimeraTK::RegisterInfo::isWriteable)
       .def("getRegisterName", mtca4upy::RegisterInfo::getRegisterName)
       .def("getSupportedAccessModes", mtca4upy::RegisterInfo::getSupportedAccessModes)
-      .def("getNumberOfElements", mtca4upy::RegisterInfo::getNumberOfElements)
-      .def("getNumberOfDimensions", mtca4upy::RegisterInfo::getNumberOfDimensions)
-      .def("getNumberOfChannels", mtca4upy::RegisterInfo::getNumberOfChannels);
+      .def("getNumberOfElements", &ChimeraTK::RegisterInfo::getNumberOfElements)
+      .def("getNumberOfDimensions", &ChimeraTK::RegisterInfo::getNumberOfDimensions)
+      .def("getNumberOfChannels", &ChimeraTK::RegisterInfo::getNumberOfChannels);
 
   bp::enum_<ChimeraTK::AccessMode>("AccessMode")
       .value("raw", ChimeraTK::AccessMode::raw)
@@ -167,13 +166,9 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .export_values();
 
   bp::class_<ChimeraTK::TransferElementID>("TransferElementID")
-      .def("isValid", mtca4upy::TransferElementID::isValid)
-      .def("__lt__", mtca4upy::TransferElementID::lt)
-      .def("__le__", mtca4upy::TransferElementID::le)
-      .def("__gt__", mtca4upy::TransferElementID::gt)
-      .def("__ge__", mtca4upy::TransferElementID::ge)
-      .def("__ne__", mtca4upy::TransferElementID::ne)
-      .def("__eq__", mtca4upy::TransferElementID::eq);
+      .def("isValid", &ChimeraTK::TransferElementID::isValid)
+      .def("__ne__", &ChimeraTK::TransferElementID::operator!=)
+      .def("__eq__", &ChimeraTK::TransferElementID::operator==);
 
   bp::class_<ChimeraTK::VersionNumber>("VersionNumber",
       "Class for generating and holding version numbers without exposing a numeric representation.\n"
@@ -187,14 +182,14 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("getTime", mtca4upy::VersionNumber::getTime, bp::args(""),
           "Return the time stamp associated with this version number. )\n"
           "\n")
-      .def("__str__", mtca4upy::VersionNumber::str)
+      .def("__str__", &ChimeraTK::VersionNumber::operator std::string)
       .def("getNullVersion", mtca4upy::VersionNumber::getNullVersion)
-      .def("__lt__", mtca4upy::VersionNumber::lt)
-      .def("__le__", mtca4upy::VersionNumber::le)
-      .def("__gt__", mtca4upy::VersionNumber::gt)
-      .def("__ge__", mtca4upy::VersionNumber::ge)
-      .def("__ne__", mtca4upy::VersionNumber::ne)
-      .def("__eq__", mtca4upy::VersionNumber::eq);
+      .def("__lt__", &ChimeraTK::VersionNumber::operator<)
+      .def("__le__", &ChimeraTK::VersionNumber::operator<=)
+      .def("__gt__", &ChimeraTK::VersionNumber::operator>)
+      .def("__ge__", &ChimeraTK::VersionNumber::operator>=)
+      .def("__ne__", &ChimeraTK::VersionNumber::operator!=)
+      .def("__eq__", &ChimeraTK::VersionNumber::operator==);
 
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::Device>>();
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::VersionNumber>>();
