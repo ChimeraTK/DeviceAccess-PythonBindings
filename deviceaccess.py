@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+# SPDX-License-Identifier: LGPL-3.0-or-later
 """
 This module offers the functionality of the DeviceAccess C++ library for python.
 
@@ -13,11 +15,14 @@ More information on ChimeraTK can be found at the project's
 
 from __future__ import annotations
 
-from typing import Sequence
+from typing import Sequence, Union
 import _da_python_bindings as pb
 import numpy as np
 from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber
 from abc import ABC
+from functools import reduce
+
+#######################################################################################################################
 
 
 def setDMapFilePath(dmapFilePath: str) -> None:
@@ -30,9 +35,15 @@ def setDMapFilePath(dmapFilePath: str) -> None:
     Examples
     --------
     Setting the location of the dmap file
-      >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+      >>> import deviceaccess as da
+      >>> da.setDMapFilePath('deviceInformation/exampleCrate.dmap')
+      >>> dmap_path = da.getDMapFilePath()
+      >>> print(dmap_path)
+      deviceInformation/exampleCrate.dmap
     """
     pb.setDmapFile(dmapFilePath)
+
+#######################################################################################################################
 
 
 def getDMapFilePath() -> str:
@@ -40,6 +51,9 @@ def getDMapFilePath() -> str:
     Returns the dmap file name which the library currently uses for looking up device(alias) names.
     """
     return pb.getDmapFile()
+
+#######################################################################################################################
+#######################################################################################################################
 
 
 class GeneralRegisterAccessor(ABC):
@@ -110,12 +124,13 @@ class GeneralRegisterAccessor(ABC):
         Read the data from the device.
 
         If :py:obj:`AccessMode.wait_for_new_data` was set, this function
-        will block until new data has arrived. Otherwise it still might block
+        will block until new data has arrived. Otherwise, it still might block
         for a short time until the data transfer is complete.
 
         Examples
         --------
         Reading from a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -131,8 +146,8 @@ class GeneralRegisterAccessor(ABC):
         """
         Read the latest value, discarding any other update since the last read if present.
 
-        Otherwise this function is identical to :py:func:`readNonBlocking`,
-        i.e. it will never wait for new values and it will return
+        Otherwise, this function is identical to :py:func:`readNonBlocking`,
+        i.e. it will never wait for new values, and it will return
         whether a new value was available if
         :py:obj:`AccessMode.wait_for_new_data` is set.
         """
@@ -166,6 +181,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Writing to a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -194,6 +210,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the name of a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -213,6 +230,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the engineering unit of a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -223,7 +241,7 @@ class GeneralRegisterAccessor(ABC):
         """
         return self._accessor.getUnit()
 
-    def getValueType(self):
+    def getValueType(self) -> UserType:
         """
         Returns the type for the userType of this transfer element, that
         was given at the initialization of the accessor.
@@ -231,6 +249,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the userType of a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -248,6 +267,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the description of a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -266,6 +286,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the access modes flags of a OneDRegisterAccessor with the wait_for_new_data flag:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -275,9 +296,9 @@ class GeneralRegisterAccessor(ABC):
             [da.AccessMode.wait_for_new_data]
 
         """
-        accessmodeflagstrings = self._accessor.getAccessModeFlagsString()
+        accessModeFlagStrings = self._accessor.getAccessModeFlagsString()
         flags = []
-        for flag in accessmodeflagstrings.split(","):
+        for flag in accessModeFlagStrings.split(","):
             if flag == 'wait_for_new_data':
                 flags.append(AccessMode.wait_for_new_data)
             if flag == 'raw':
@@ -293,6 +314,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the version number of a OneDRegisterAccessor:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -312,6 +334,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the readOnly status of a OneDRegisterAccessor:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -332,6 +355,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the readable status of a OneDRegisterAccessor:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -352,6 +376,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the writeable status of a OneDRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -377,11 +402,12 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the initialized status of a OneDRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
           >>> acc = dev.getOneDRegisterAccessor(
-            np.int32, "MODULE1/TEST_AREA_PUSH", 0, 0, [da.AccessMode.wait_for_new_data])
+              np.int32, "MODULE1/TEST_AREA_PUSH", 0, 0, [da.AccessMode.wait_for_new_data])
           >>> acc.isInitialised()
               True
 
@@ -430,6 +456,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the name of a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -439,6 +466,9 @@ class GeneralRegisterAccessor(ABC):
 
         """
         return self._accessor.getId()
+
+#######################################################################################################################
+#######################################################################################################################
 
 
 class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
@@ -455,7 +485,7 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
         self.userType = userType
         self._AccessModeFlags = accessModeFlags
 
-    def get(self):
+    def get(self) -> np.ndarray:
         return self.__array
 
     def set(self, value) -> None:
@@ -473,6 +503,7 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
         Examples
         --------
         Setting a ScalarRegisterAccessor
+            >>> import deviceaccess as da
             >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
             >>> dev = da.Device("CARD_WITH_MODULES")
             >>> dev.open()
@@ -484,6 +515,7 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
                 ScalarRegisterAccessor([-23], dtype=int32)
 
         Setting a OneDRegisterAccessor
+            >>> import deviceaccess as da
             >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
             >>> dev = da.Device("CARD_WITH_MODULES")
             >>> dev.open()
@@ -495,6 +527,7 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
                 OneDRegisterAccessor([  1,   9,  42, -23], dtype=int32)
 
         Setting a TwoDRegisterAccessor
+            >>> import deviceaccess as da
             >>> dda.setDMapFilePath("deviceInformation/exampleCrate.dmap")
             >>> dev = da.Device("CARD_WITH_MODULES")
             >>> dev.open()
@@ -537,129 +570,129 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
         return self.__array.__getattribute__(name)
 
     # comparison operators
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         return self.__array < other
 
-    def __le__(self, other):
+    def __le__(self, other) -> bool:
         return self.__array <= other
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         return self.__array > other
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         return self.__array >= other
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self.__array == other
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         return self.__array != other
 
     # conversion operators
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.__array)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.__array)
 
     # subscript operator
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> UserType:
         return self.__array[key]
 
     # binary operators
-    def __add__(self, other):
+    def __add__(self, other) -> np.ndarray:
         return self.__array.__add__(other)
 
-    def __sub__(self, other):
+    def __sub__(self, other) -> np.ndarray:
         return self.__array.__sub__(other)
 
-    def __mul__(self, other):
+    def __mul__(self, other) -> np.ndarray:
         return self.__array.__mul__(other)
 
-    def __truediv__(self, other):
+    def __truediv__(self, other) -> np.ndarray:
         return self.__array.__truediv__(other)
 
-    def __floordiv__(self, other):
+    def __floordiv__(self, other) -> np.ndarray:
         return self.__array.__floordiv__(other)
 
-    def __mod__(self, other):
+    def __mod__(self, other) -> np.ndarray:
         return self.__array.__mod__(other)
 
-    def __pow__(self, other):
+    def __pow__(self, other) -> np.ndarray:
         return self.__array.__pow__(other)
 
-    def __rshift__(self, other):
+    def __rshift__(self, other) -> np.ndarray:
         return self.__array.__rshift__(other)
 
-    def ___lshift___mul__(self, other):
+    def ___lshift___mul__(self, other) -> np.ndarray:
         return self.__array.__lshift__(other)
 
-    def __and__(self, other):
+    def __and__(self, other) -> np.ndarray:
         return self.__array.__and__(other)
 
-    def __or__(self, other):
+    def __or__(self, other) -> np.ndarray:
         return self.__array.__or__(other)
 
-    def __xor__(self, other):
+    def __xor__(self, other) -> np.ndarray:
         return self.__array.__xor__(other)
 
     # assignment operators
-    def __isub__(self, other):
+    def __isub__(self, other) -> RegisterAccessor:
         self.__array.__isub__(other)
         return self
 
-    def __iadd__(self, other):
+    def __iadd__(self, other) -> RegisterAccessor:
         self.__array.__iadd__(other)
         return self
 
-    def __imul__(self, other):
+    def __imul__(self, other) -> RegisterAccessor:
         self.__array.__imul__(other)
         return self
 
-    def __idiv__(self, other):
+    def __idiv__(self, other) -> RegisterAccessor:
         self.__array.__idiv__(other)
         return self
 
-    def __ifloordiv__(self, other):
+    def __ifloordiv__(self, other) -> RegisterAccessor:
         self.__array.__ifloordiv__(other)
         return self
 
-    def __imod__(self, other):
+    def __imod__(self, other) -> RegisterAccessor:
         self.__array.__imod__(other)
         return self
 
-    def __ipow__(self, other):
+    def __ipow__(self, other) -> RegisterAccessor:
         self.__array.__ipow__(other)
         return self
 
-    def __irshift__(self, other):
+    def __irshift__(self, other) -> RegisterAccessor:
         self.__array.__irshift__(other)
         return self
 
-    def __ilshift__(self, other):
+    def __ilshift__(self, other) -> RegisterAccessor:
         self.__array.__ilshift__(other)
         return self
 
-    def __iand__(self, other):
+    def __iand__(self, other) -> RegisterAccessor:
         self.__array.__iand__(other)
         return self
 
-    def __ior__(self, other):
+    def __ior__(self, other) -> RegisterAccessor:
         self.__array.__ior__(other)
         return self
 
-    def __ixor__(self, other):
+    def __ixor__(self, other) -> RegisterAccessor:
         self.__array.__ixor__(other)
         return self
 
     # unary operators
-    def __neg__(self):
+    def __neg__(self) -> np.ndarray:
         return self.__array.__neg__()
 
-    def __pos__(self):
+    def __pos__(self) -> np.ndarray:
         return self.__array.__pos__()
 
-    def __invert__(self):
+    def __invert__(self) -> np.ndarray:
         return self.__array.__invert__()
 
     # accessor functions
@@ -687,11 +720,14 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
     write.__doc__ = GeneralRegisterAccessor.write.__doc__
     writeDestructively.__doc__ = GeneralRegisterAccessor.writeDestructively.__doc__
 
+#######################################################################################################################
+#######################################################################################################################
+
 
 class TwoDRegisterAccessor(NumpyGeneralRegisterAccessor):
     """
     Accessor class to read and write registers transparently by using the accessor object
-    like an a 2D array of the type UserType.
+    like a 2D array of the type UserType.
 
     Conversion to and from the UserType will be handled by a data
     converter matching the register description in the map (if applicable).
@@ -722,6 +758,9 @@ class TwoDRegisterAccessor(NumpyGeneralRegisterAccessor):
         """
         return self._accessor.getNElementsPerChannel()
 
+#######################################################################################################################
+#######################################################################################################################
+
 
 class OneDRegisterAccessor(NumpyGeneralRegisterAccessor):
     """
@@ -736,8 +775,8 @@ class OneDRegisterAccessor(NumpyGeneralRegisterAccessor):
               mathematical operations and slicing with accessors.
 
     .. note:: Transfers between the device and the internal buffer need
-            to be triggered using the read() and write() functions before reading
-            from resp. after writing to the buffer using the operators.
+              to be triggered using the read() and write() functions before reading
+              from resp. after writing to the buffer using the operators.
     """
 
     def __init__(self, userType, accessor, accessModeFlags: Sequence[AccessMode]) -> None:
@@ -749,6 +788,9 @@ class OneDRegisterAccessor(NumpyGeneralRegisterAccessor):
         Return number of elements/samples in the register.
         """
         return self._accessor.getNElements()
+
+#######################################################################################################################
+#######################################################################################################################
 
 
 class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
@@ -778,6 +820,7 @@ class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
         Examples
         --------
         Reading and Getting from a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -789,21 +832,22 @@ class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
         """
         return self._accessor.readAndGet()
 
-    def setAndWrite(self, newValue: np.number, versionNumber: VersionNumber = VersionNumber.getNullVersion()) -> None:
+    def setAndWrite(self, newValue: np.number, versionNumber: VersionNumber = None) -> None:
         """
         Convenience function to set and write new value.
 
         Parameters
         ----------
         newValue : numpy.number and compatible types
-          The contentthat should be written to the register.
+          The content that should be written to the register.
 
-        versionmNumber: VersionNumber, optional
+        versionNumber: VersionNumber, optional
           The versionNumber that should be used for the write action.
 
         Examples
         --------
         Reading and Getting from a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -813,9 +857,12 @@ class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
             38
 
         """
+        if versionNumber is None:
+            versionNumber = VersionNumber()
         self._accessor.setAndWrite(newValue, versionNumber)
 
-    def writeIfDifferent(self, newValue: np.number, versionNumber: VersionNumber = None) -> None:
+    def writeIfDifferent(self, newValue: np.number, versionNumber: VersionNumber = None,
+                         validity: DataValidity = DataValidity.ok) -> None:
         """
         Convenience function to set and write new value if it differes from the current value.
 
@@ -832,6 +879,7 @@ class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
         Examples
         --------
         Reading and Getting from a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -842,7 +890,10 @@ class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
         """
         if versionNumber is None:
             versionNumber = VersionNumber.getNullVersion()
-        self._accessor.writeIfDifferent(newValue, versionNumber)
+        self._accessor.writeIfDifferent(newValue, versionNumber, validity)
+
+#######################################################################################################################
+#######################################################################################################################
 
 
 class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
@@ -861,7 +912,7 @@ class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         obj._AccessModeFlags = accessModeFlags
         return obj
 
-    def __array_finalize__(self, obj):
+    def __array_finalize__(self, obj) -> None:
         if obj is None:
             return
         self._accessor = getattr(obj, '_accessor', None)
@@ -881,6 +932,9 @@ class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
 
     def writeDestructively(self) -> bool:
         return self._accessor.writeDestructively()
+
+#######################################################################################################################
+#######################################################################################################################
 
 
 class Device:
@@ -906,8 +960,6 @@ class Device:
     """
     # dict to get the corresponding function for each datatype
     _userTypeExtensions = {
-        np.int32: "int32",
-        np.int16: "int16",
         np.int8: "int8",
         np.uint8: "uint8",
         np.int16: "int16",
@@ -916,7 +968,7 @@ class Device:
         np.uint32: "uint32",
         np.int64: "int64",
         np.uint64: "uint64",
-        float: "float",
+        np.single: "float",
         np.float32: "float",
         np.double: "double",
         np.float64: "double",
@@ -932,7 +984,7 @@ class Device:
         else:
             self._device = pb.getDevice_no_alias()
 
-    def __enter__(self):
+    def __enter__(self) -> Device:
         """Helper function for with-statements"""
         if self.aliasName is None:
             raise SyntaxError('In a with-statement, an alias has to be provided in the device constructor!')
@@ -940,7 +992,7 @@ class Device:
             self._device.open(self.aliasName)
             return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args) -> None:
         """Helper function for with-statements"""
         self._device.close()
 
@@ -1019,7 +1071,7 @@ class Device:
         Parameters
         ----------
         userType : type or numpy.dtype
-          The userType for the accessor. Can be float, or any of the numpy.dtype
+          The userType for the accessor. Can be of type float, or any of the numpy.dtype
           combinations of signed, unsigned, double, int, 8, 16, 32 or 64-bit. E.g.
           `numpy.uint8`, or `numpy.float32`.
 
@@ -1052,6 +1104,7 @@ class Device:
         Examples
         --------
         Getting a Two-D Register Accessor of type uint8 from DMA; which is 6 elements long and has 4 channels:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -1064,6 +1117,7 @@ class Device:
                       [15., 19., 23., 27., 31., 35.]], dtype=float32)
 
         Getting a Two-D Register Accessor of type float64 from register "WORD_CLK_MUX" is 4 elements long.
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -1093,7 +1147,7 @@ class Device:
             registerPathName: str,
             numberOfElements: int = 0,
             elementsOffset: int = 0,
-            accessModeFlags: Sequence[AccessMode] = None):
+            accessModeFlags: Sequence[AccessMode] = None) -> OneDRegisterAccessor:
         """Get a :py:class:`OneDRegisterAccessor` object for the given register.
 
         The OneDRegisterAccessor allows to read and write registers transparently by using
@@ -1137,6 +1191,7 @@ class Device:
         Examples
         --------
         Getting a One-D Register Accessor of type uint8 from WORD_STATUS; which is 1 element long:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -1146,6 +1201,7 @@ class Device:
           OneDRegisterAccessor([255], dtype=uint8)
 
         Getting a One-D Register Accessor of type float64 from register "WORD_CLK_MUX" is 4 elements long.
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -1174,7 +1230,7 @@ class Device:
             userType,
             registerPathName: str,
             elementsOffset: int = 0,
-            accessModeFlags: Sequence[AccessMode] = None):
+            accessModeFlags: Sequence[AccessMode] = None) -> ScalarRegisterAccessor:
         """Get a :py:class:`ScalarRegisterAccessor` object for the given register.
 
         The ScalarRegisterObject allows to read and write registers transparently by using
@@ -1207,6 +1263,7 @@ class Device:
         Examples
         --------
         Getting a scalar Register Accessor of type int16 from WORD_STATUS:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -1231,7 +1288,7 @@ class Device:
             userType, accessor, accessModeFlags)
         return scalarRegisterAccessor
 
-    def getVoidRegisterAccessor(self, registerPathName: str, accessModeFlags: Sequence[AccessMode] = None):
+    def getVoidRegisterAccessor(self, registerPathName: str, accessModeFlags: Sequence[AccessMode] = None) -> VoidRegisterAccessor:
         """Get a :py:class:`VoidRegisterAccessor` object for the given register.
 
         The VoidRegisterAccessor allows to read and write registers. Getting a read
@@ -1252,13 +1309,14 @@ class Device:
         Examples
         --------
         Sending interrupts per Void Accessor:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/push.dmap")
           >>> dev = da.Device("SHARED_RAW_DEVICE")
           >>> dev.open()
           >>> dev.activateAsyncRead()
           >>>
           >>> writeAcc = dev.getOneDRegisterAccessor(np.int32, "MODULE1/TEST_AREA")
-          >>> arr1to10 = np.array([i for i in range(1, 11)], dtype=np.int32)
+          >>> arr1to10 = np.array(range(1, 11), dtype=np.int32)
           >>> writeAcc.set(arr1to10)
           >>> writeAcc.write()
           >>>
@@ -1351,3 +1409,13 @@ class Device:
         accessModeFlags = [] if accessModeFlags is None else accessModeFlags
         self._device.write(array, registerPath, numberOfElements,
                            wordOffsetInRegister, accessModeFlags)
+
+#######################################################################################################################
+# Type Definitions
+
+
+UserType = reduce(lambda x, y: Union[x, y], list(Device._userTypeExtensions.values()))
+
+RegisterAccessor = Union[OneDRegisterAccessor,
+                         TwoDRegisterAccessor,
+                         ScalarRegisterAccessor]
