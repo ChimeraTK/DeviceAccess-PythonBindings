@@ -93,6 +93,33 @@ class TestPushType(unittest.TestCase):
         # Check if values are also doubled in readAcc
         self.assertListEqual(list(arr1to10 * 2), list(readAcc.view()))
 
+    def testVoidRead(self):
+        def blockingRead(readAcc, barrier):
+            barrier.wait()
+            readAcc.read()
+            barrier.wait()
+
+        da.setDMapFilePath("deviceInformation/push.dmap")
+        dev = da.Device("SHARED_RAW_DEVICE")
+        dev.open()
+        dev.activateAsyncRead()
+
+        readAcc = dev.getVoidRegisterAccessor("MODULE1/TEST_AREA_PUSH", [da.AccessMode.wait_for_new_data])
+        interruptAcc = dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_2")
+        readAcc.read()  # first read is always non-blocking
+        barrier = threading.Barrier(2)
+
+        readThread = threading.Thread(
+            target=blockingRead, args=(readAcc, barrier), daemon=True)
+        readThread.start()
+
+        barrier.wait()
+        interruptAcc.write()
+        barrier.reset()
+        # if blockingRead is not at the second barrier after 2 sec, the barrier
+        # will throw, so the test will fail.
+        barrier.wait(timeout=2)
+
 
 if __name__ == '__main__':
     unittest.main()
