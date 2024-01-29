@@ -39,11 +39,12 @@ add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 # ==============================================================================#
 
 # Define library for the C++ part
-add_library(${PROJECT_NAME} SHARED deviceaccessPython.cc
-  PythonModuleMethods.cc
-  CreateDevice.cc
-  Register.cc
-  DeviceAccess.cc)
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
+file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*")
+file(GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*")
+
+add_library(${PROJECT_NAME} SHARED ${headers} ${sources})
 
 target_link_libraries(${PROJECT_NAME}
   PRIVATE ChimeraTK::ChimeraTK-DeviceAccess
