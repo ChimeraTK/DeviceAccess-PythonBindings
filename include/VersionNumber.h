@@ -6,7 +6,7 @@
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
-namespace mtca4upy {
+namespace DeviceAccessPython {
 
   class VersionNumber {
    public:
@@ -14,4 +14,4 @@ namespace mtca4upy {
     static ChimeraTK::VersionNumber getNullVersion();
   };
 
-} // namespace mtca4upy
+} // namespace DeviceAccessPython

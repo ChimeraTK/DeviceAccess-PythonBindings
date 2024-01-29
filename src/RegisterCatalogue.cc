@@ -5,7 +5,7 @@
 
 namespace ctk = ChimeraTK;
 
-namespace mtca4upy {
+namespace DeviceAccessPython {
 
   /*******************************************************************************************************************/
 
@@ -39,4 +39,4 @@ namespace mtca4upy {
 
   /*******************************************************************************************************************/
 
-} /* namespace mtca4upy*/
+} /* namespace DeviceAccessPython*/

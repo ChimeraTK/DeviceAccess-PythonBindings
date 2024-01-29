@@ -39,7 +39,7 @@ struct CtkBoolean_to_python {
   }
 };
 
-namespace mtca4upy {
+namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
@@ -155,4 +155,4 @@ namespace mtca4upy {
 
   /*****************************************************************************************************************/
 
-} // namespace mtca4upy
+} // namespace DeviceAccessPython

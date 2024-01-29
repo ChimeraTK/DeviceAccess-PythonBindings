@@ -11,7 +11,7 @@
     NAME(std::string const& message) : Exception(message) {}                                                           \
   };
 
-namespace mtca4upy {
+namespace DeviceAccessPython {
 
   class Exception : public std::exception {
     std::string _errorMsg;
@@ -25,4 +25,4 @@ namespace mtca4upy {
   MTCA4U_PYTHON_EXCEPTION(ArrayOutOfBoundException)
   MTCA4U_PYTHON_EXCEPTION(ArrayElementTypeNotSupported)
 
-} // namespace mtca4upy
+} // namespace DeviceAccessPython

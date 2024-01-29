@@ -30,33 +30,34 @@
 #define STRINGIFY(s) #s
 
 #define TEMPLATECLASS_GET_GENERAL_TWODACCESSOR(userType, funcName, suffix)                                             \
-  .def(STRINGIFY(funcName##suffix), mtca4upy::Device::getGeneralTwoDAccessor<userType>)
+  .def(STRINGIFY(funcName##suffix), DeviceAccessPython::Device::getGeneralTwoDAccessor<userType>)
 
 #define TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR(userType, funcName, suffix)                                             \
-  .def(STRINGIFY(funcName##suffix), mtca4upy::Device::getGeneralOneDAccessor<userType>)
+  .def(STRINGIFY(funcName##suffix), DeviceAccessPython::Device::getGeneralOneDAccessor<userType>)
 
 #define TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR(userType, funcName, suffix)                                           \
-  .def(STRINGIFY(funcName##suffix), mtca4upy::Device::getGeneralScalarAccessor<userType>)
+  .def(STRINGIFY(funcName##suffix), DeviceAccessPython::Device::getGeneralScalarAccessor<userType>)
 
 #define TEMPLATE_FILL_COMMON_REGISTER_FUNCS(accessorType, userType)                                                    \
   .def("isReadOnly", &accessorType<userType>::isReadOnly)                                                              \
       .def("isReadable", &accessorType<userType>::isReadable)                                                          \
       .def("isWriteable", &accessorType<userType>::isWriteable)                                                        \
       .def("isInitialised", &accessorType<userType>::isInitialised)                                                    \
-      .def("getDescription", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::getDescription)                \
-      .def("getUnit", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::getUnit)                              \
-      .def("getName", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::getName)                              \
+      .def("getDescription", DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getDescription)      \
+      .def("getUnit", DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getUnit)                    \
+      .def("getName", DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getName)                    \
       .def("getVersionNumber", &accessorType<userType>::getVersionNumber)                                              \
       .def("setDataValidity", &accessorType<userType>::setDataValidity)                                                \
       .def("dataValidity", &accessorType<userType>::dataValidity)                                                      \
       .def("getId", &accessorType<userType>::getId)                                                                    \
       .def("getAccessModeFlagsString",                                                                                 \
-          mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::getAccessModeFlagsString)                         \
-      .def("read", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::read)                                    \
-      .def("readLatest", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::readLatest)                        \
-      .def("readNonBlocking", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::readNonBlocking)              \
-      .def("write", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::write)                                  \
-      .def("writeDestructively", mtca4upy::GeneralRegisterAccessor<accessorType<userType>>::writeDestructively)
+          DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getAccessModeFlagsString)               \
+      .def("read", DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::read)                          \
+      .def("readLatest", DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::readLatest)              \
+      .def("readNonBlocking", DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::readNonBlocking)    \
+      .def("write", DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::write)                        \
+      .def("writeDestructively",                                                                                       \
+          DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::writeDestructively)
 
 #define TEMPLATECLASS_TWODREGISTERACCESSOR(userType, className, class_suffix)                                          \
   bp::class_<ChimeraTK::TwoDRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                            \
@@ -82,7 +83,7 @@ namespace np = boost::python::numpy;
 //****************************************************************************//
 
 // Auto-Overloading
-BOOST_PYTHON_FUNCTION_OVERLOADS(open_overloads, mtca4upy::Device::open, 1, 2)
+BOOST_PYTHON_FUNCTION_OVERLOADS(open_overloads, DeviceAccessPython::Device::open, 1, 2)
 
 //****************************************************************************//
 
@@ -100,14 +101,14 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)
           TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR, getOneDAccessor)
               TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR, getScalarAccessor)
-                  .def("getVoidAccessor", mtca4upy::Device::getVoidRegisterAccessor)
-                  .def("getRegisterCatalogue", mtca4upy::Device::getRegisterCatalogue)
-                  .def("activateAsyncRead", mtca4upy::Device::activateAsyncRead)
-                  .def("getCatalogueMetadata", mtca4upy::Device::getCatalogueMetadata)
+                  .def("getVoidAccessor", DeviceAccessPython::Device::getVoidRegisterAccessor)
+                  .def("getRegisterCatalogue", DeviceAccessPython::Device::getRegisterCatalogue)
+                  .def("activateAsyncRead", DeviceAccessPython::Device::activateAsyncRead)
+                  .def("getCatalogueMetadata", DeviceAccessPython::Device::getCatalogueMetadata)
                   .def("open", (void (*)(ChimeraTK::Device&, std::string const&))0, open_overloads())
-                  .def("read", mtca4upy::Device::read)
-                  .def("write", mtca4upy::Device::write)
-                  .def("close", mtca4upy::Device::close);
+                  .def("read", DeviceAccessPython::Device::read)
+                  .def("write", DeviceAccessPython::Device::write)
+                  .def("close", DeviceAccessPython::Device::close);
 
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_SCALARREGISTERACCESSOR, ScalarAccessor)
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_ONEDREGISTERACCESSOR, OneDAccessor)
@@ -118,40 +119,41 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("isReadable", &ChimeraTK::VoidRegisterAccessor::isReadable)
       .def("isWriteable", &ChimeraTK::VoidRegisterAccessor::isWriteable)
       .def("isInitialised", &ChimeraTK::VoidRegisterAccessor::isInitialised)
-      .def("getDescription", mtca4upy::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getDescription)
-      .def("getUnit", mtca4upy::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getUnit)
-      .def("getName", mtca4upy::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getName)
+      .def("getDescription",
+          DeviceAccessPython::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getDescription)
+      .def("getUnit", DeviceAccessPython::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getUnit)
+      .def("getName", DeviceAccessPython::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getName)
       .def("getVersionNumber", &ChimeraTK::VoidRegisterAccessor::getVersionNumber)
       .def("setDataValidity", &ChimeraTK::VoidRegisterAccessor::setDataValidity)
       .def("dataValidity", &ChimeraTK::VoidRegisterAccessor::dataValidity)
       .def("getId", &ChimeraTK::VoidRegisterAccessor::getId)
       .def("getAccessModeFlagsString",
-          mtca4upy::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getAccessModeFlagsString)
-      .def("read", mtca4upy::VoidRegisterAccessor::read)
-      .def("readLatest", mtca4upy::VoidRegisterAccessor::readLatest)
-      .def("readNonBlocking", mtca4upy::VoidRegisterAccessor::readNonBlocking)
-      .def("writeDestructively", mtca4upy::VoidRegisterAccessor::writeDestructively)
-      .def("write", mtca4upy::VoidRegisterAccessor::write);
+          DeviceAccessPython::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getAccessModeFlagsString)
+      .def("read", DeviceAccessPython::VoidRegisterAccessor::read)
+      .def("readLatest", DeviceAccessPython::VoidRegisterAccessor::readLatest)
+      .def("readNonBlocking", DeviceAccessPython::VoidRegisterAccessor::readNonBlocking)
+      .def("writeDestructively", DeviceAccessPython::VoidRegisterAccessor::writeDestructively)
+      .def("write", DeviceAccessPython::VoidRegisterAccessor::write);
 
-  bp::def("createDevice", mtca4upy::createDevice);
-  bp::def("getDevice_no_alias", mtca4upy::getDevice_no_alias);
-  bp::def("getDevice", mtca4upy::getDevice);
-  bp::def("setDmapFile", mtca4upy::setDmapFile);
-  bp::def("getDmapFile", mtca4upy::getDmapFile);
+  bp::def("createDevice", DeviceAccessPython::createDevice);
+  bp::def("getDevice_no_alias", DeviceAccessPython::getDevice_no_alias);
+  bp::def("getDevice", DeviceAccessPython::getDevice);
+  bp::def("setDmapFile", DeviceAccessPython::setDmapFile);
+  bp::def("getDmapFile", DeviceAccessPython::getDmapFile);
 
   bp::class_<ChimeraTK::RegisterCatalogue>("RegisterCatalogue", bp::init<ChimeraTK::RegisterCatalogue>())
       //.def("__iter__", bp::range(&ChimeraTK::RegisterCatalogue::begin, &ChimeraTK::RegisterCatalogue::end)) // TODO:
       // if someone needs to iterate through the register.
       // fix iteration implementation
-      .def("hasRegister", mtca4upy::RegisterCatalogue::hasRegister)
-      .def("getRegister", mtca4upy::RegisterCatalogue::getRegister);
+      .def("hasRegister", DeviceAccessPython::RegisterCatalogue::hasRegister)
+      .def("getRegister", DeviceAccessPython::RegisterCatalogue::getRegister);
 
   bp::class_<ChimeraTK::RegisterInfo>("RegisterInfo", bp::init<ChimeraTK::RegisterInfo>())
       .def("isReadable", &ChimeraTK::RegisterInfo::isReadable)
       .def("isValid", &ChimeraTK::RegisterInfo::isValid)
       .def("isWriteable", &ChimeraTK::RegisterInfo::isWriteable)
-      .def("getRegisterName", mtca4upy::RegisterInfo::getRegisterName)
-      .def("getSupportedAccessModes", mtca4upy::RegisterInfo::getSupportedAccessModes)
+      .def("getRegisterName", DeviceAccessPython::RegisterInfo::getRegisterName)
+      .def("getSupportedAccessModes", DeviceAccessPython::RegisterInfo::getSupportedAccessModes)
       .def("getNumberOfElements", &ChimeraTK::RegisterInfo::getNumberOfElements)
       .def("getNumberOfDimensions", &ChimeraTK::RegisterInfo::getNumberOfDimensions)
       .def("getNumberOfChannels", &ChimeraTK::RegisterInfo::getNumberOfChannels);
@@ -180,11 +182,11 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       "\n"
       "They are also used to determine the order of updates made to different process variables.\n"
       "\n")
-      .def("getTime", mtca4upy::VersionNumber::getTime, bp::args(""),
+      .def("getTime", DeviceAccessPython::VersionNumber::getTime, bp::args(""),
           "Return the time stamp associated with this version number. )\n"
           "\n")
       .def("__str__", &ChimeraTK::VersionNumber::operator std::string)
-      .def("getNullVersion", mtca4upy::VersionNumber::getNullVersion)
+      .def("getNullVersion", DeviceAccessPython::VersionNumber::getNullVersion)
       .def("__lt__", &ChimeraTK::VersionNumber::operator<)
       .def("__le__", &ChimeraTK::VersionNumber::operator<=)
       .def("__gt__", &ChimeraTK::VersionNumber::operator>)

@@ -7,7 +7,7 @@
 
 #include <boost/python/numpy.hpp>
 
-namespace mtca4upy {
+namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
@@ -89,4 +89,4 @@ namespace mtca4upy {
 
   /*****************************************************************************************************************/
 
-} // namespace mtca4upy
+} // namespace DeviceAccessPython

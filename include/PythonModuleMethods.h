@@ -6,7 +6,7 @@
 
 /*****************************************************************************************************************/
 
-namespace mtca4upy {
+namespace DeviceAccessPython {
 
   /*
    * This method uses the factory provided by the device access library for device
@@ -23,4 +23,4 @@ namespace mtca4upy {
 
   /*****************************************************************************************************************/
 
-} // namespace mtca4upy
+} // namespace DeviceAccessPython

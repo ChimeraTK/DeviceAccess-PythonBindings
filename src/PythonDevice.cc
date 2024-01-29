@@ -7,7 +7,7 @@
 #include <ChimeraTK/Device.h>
 #include <ChimeraTK/Utilities.h>
 
-namespace mtca4upy {
+namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
@@ -117,4 +117,4 @@ namespace mtca4upy {
 
   /*****************************************************************************************************************/
 
-} // namespace mtca4upy
+} // namespace DeviceAccessPython

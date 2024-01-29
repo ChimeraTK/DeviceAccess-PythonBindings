@@ -4,7 +4,7 @@
 
 #include <ChimeraTK/Device.h>
 
-namespace mtca4upy {
+namespace DeviceAccessPython {
 
   /**
    * (Static) class implementing special functions for Void register accessors
@@ -22,4 +22,4 @@ namespace mtca4upy {
     static bool writeDestructively(ChimeraTK::VoidRegisterAccessor& self);
   };
 
-} // namespace mtca4upy
+} // namespace DeviceAccessPython

@@ -6,7 +6,7 @@
 
 #include <boost/python/numpy.hpp>
 
-namespace mtca4upy {
+namespace DeviceAccessPython {
 
   /** (Static) class to map ChimeraTK::Device to python */
   class Device {
@@ -64,4 +64,4 @@ namespace mtca4upy {
         size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist);
   };
 
-} // namespace mtca4upy
+} // namespace DeviceAccessPython

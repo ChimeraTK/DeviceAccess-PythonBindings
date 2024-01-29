@@ -3,7 +3,7 @@
 
 #include "VersionNumber.h"
 
-namespace mtca4upy {
+namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
@@ -17,4 +17,4 @@ namespace mtca4upy {
     return ChimeraTK::VersionNumber(nullptr);
   }
 
-} // namespace mtca4upy
+} // namespace DeviceAccessPython

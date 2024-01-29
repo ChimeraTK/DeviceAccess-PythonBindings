@@ -8,7 +8,7 @@
 #include <limits>
 #include <stdexcept>
 
-namespace mtca4upy {
+namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
@@ -45,4 +45,4 @@ namespace mtca4upy {
   }
   /*****************************************************************************************************************/
 
-} // namespace mtca4upy
+} // namespace DeviceAccessPython
