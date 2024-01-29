@@ -79,11 +79,6 @@
 namespace bp = boost::python;
 namespace np = boost::python::numpy;
 
-// This section defines function pointers used for overloading methods//
-//****************************************************************************/
-
-static boost::shared_ptr<ChimeraTK::Device> (*createDevice)(const std::string&) = &mtca4upy::createDevice;
-
 //****************************************************************************//
 
 // Auto-Overloading
@@ -138,7 +133,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("writeDestructively", mtca4upy::VoidRegisterAccessor::writeDestructively)
       .def("write", mtca4upy::VoidRegisterAccessor::write);
 
-  bp::def("createDevice", createDevice);
+  bp::def("createDevice", mtca4upy::createDevice);
   bp::def("getDevice_no_alias", mtca4upy::getDevice_no_alias);
   bp::def("getDevice", mtca4upy::getDevice);
   bp::def("setDmapFile", mtca4upy::setDmapFile);
