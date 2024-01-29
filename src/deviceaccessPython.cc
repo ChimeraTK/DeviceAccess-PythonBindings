@@ -1,9 +1,12 @@
 // SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include "Device.h"
+#include "GeneralAccessor.h"
 #include "PythonModuleMethods.h"
-
-#include <ChimeraTK/DummyBackend.h>
+#include "RegisterCatalogue.h"
+#include "VersionNumber.h"
+#include "VoidAccessor.h"
 
 #include <boost/python/args.hpp>
 #include <boost/python/numpy.hpp>

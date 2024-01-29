@@ -1,48 +1,40 @@
 // SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include "PythonModuleMethods.h"
-
-#include <ChimeraTK/SupportedUserTypes.h>
-
-#include <limits>
-#include <stdexcept>
+#include "VoidAccessor.h"
 
 namespace mtca4upy {
 
   /*****************************************************************************************************************/
 
-  boost::shared_ptr<ChimeraTK::Device> createDevice(const std::string& deviceAlias) {
-    ChimeraTK::Device* device = new ChimeraTK::Device();
-    device->open(deviceAlias);
-    return boost::shared_ptr<ChimeraTK::Device>(device);
+  bool VoidRegisterAccessor::write(ChimeraTK::VoidRegisterAccessor& self) {
+    return self.write();
   }
 
   /*****************************************************************************************************************/
 
-  boost::shared_ptr<ChimeraTK::Device> getDevice_no_alias() {
-    ChimeraTK::Device* device = new ChimeraTK::Device();
-    return boost::shared_ptr<ChimeraTK::Device>(device);
+  bool VoidRegisterAccessor::writeDestructively(ChimeraTK::VoidRegisterAccessor& self) {
+    return self.writeDestructively();
   }
 
   /*****************************************************************************************************************/
 
-  boost::shared_ptr<ChimeraTK::Device> getDevice(const std::string& deviceAlias) {
-    ChimeraTK::Device* device = new ChimeraTK::Device(deviceAlias);
-    return boost::shared_ptr<ChimeraTK::Device>(device);
+  void VoidRegisterAccessor::read(ChimeraTK::VoidRegisterAccessor& self) {
+    return self.read();
   }
 
   /*****************************************************************************************************************/
 
-  void setDmapFile(const std::string& dmapFile) {
-    ChimeraTK::setDMapFilePath(dmapFile);
+  bool VoidRegisterAccessor::readNonBlocking(ChimeraTK::VoidRegisterAccessor& self) {
+    return self.readNonBlocking();
   }
 
   /*****************************************************************************************************************/
 
-  std::string getDmapFile() {
-    return (ChimeraTK::getDMapFilePath());
+  bool VoidRegisterAccessor::readLatest(ChimeraTK::VoidRegisterAccessor& self) {
+    return self.readLatest();
   }
+
   /*****************************************************************************************************************/
 
 } // namespace mtca4upy
