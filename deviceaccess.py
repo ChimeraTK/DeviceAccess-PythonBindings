@@ -34,7 +34,11 @@ def setDMapFilePath(dmapFilePath: str) -> None:
     Examples
     --------
     Setting the location of the dmap file
-      >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+      >>> import deviceaccess as da
+      >>> da.setDMapFilePath('deviceInformation/exampleCrate.dmap')
+      >>> dmap_path = da.getDMapFilePath()
+      >>> print(dmap_path)
+      deviceInformation/exampleCrate.dmap
     """
     pb.setDmapFile(dmapFilePath)
 
@@ -119,12 +123,13 @@ class GeneralRegisterAccessor(ABC):
         Read the data from the device.
 
         If :py:obj:`AccessMode.wait_for_new_data` was set, this function
-        will block until new data has arrived. Otherwise it still might block
+        will block until new data has arrived. Otherwise, it still might block
         for a short time until the data transfer is complete.
 
         Examples
         --------
         Reading from a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -140,8 +145,8 @@ class GeneralRegisterAccessor(ABC):
         """
         Read the latest value, discarding any other update since the last read if present.
 
-        Otherwise this function is identical to :py:func:`readNonBlocking`,
-        i.e. it will never wait for new values and it will return
+        Otherwise, this function is identical to :py:func:`readNonBlocking`,
+        i.e. it will never wait for new values, and it will return
         whether a new value was available if
         :py:obj:`AccessMode.wait_for_new_data` is set.
         """
@@ -175,6 +180,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Writing to a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -203,6 +209,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the name of a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -222,6 +229,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the engineering unit of a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -240,6 +248,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the userType of a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -257,6 +266,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the description of a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -275,6 +285,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the access modes flags of a OneDRegisterAccessor with the wait_for_new_data flag:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -284,9 +295,9 @@ class GeneralRegisterAccessor(ABC):
             [da.AccessMode.wait_for_new_data]
 
         """
-        accessmodeflagstrings = self._accessor.getAccessModeFlagsString()
+        accessModeFlagStrings = self._accessor.getAccessModeFlagsString()
         flags = []
-        for flag in accessmodeflagstrings.split(","):
+        for flag in accessModeFlagStrings.split(","):
             if flag == 'wait_for_new_data':
                 flags.append(AccessMode.wait_for_new_data)
             if flag == 'raw':
@@ -302,6 +313,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the version number of a OneDRegisterAccessor:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -321,6 +333,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the readOnly status of a OneDRegisterAccessor:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -341,6 +354,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the readable status of a OneDRegisterAccessor:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -361,6 +375,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the writeable status of a OneDRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -386,11 +401,12 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the initialized status of a OneDRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
           >>> acc = dev.getOneDRegisterAccessor(
-            np.int32, "MODULE1/TEST_AREA_PUSH", 0, 0, [da.AccessMode.wait_for_new_data])
+              np.int32, "MODULE1/TEST_AREA_PUSH", 0, 0, [da.AccessMode.wait_for_new_data])
           >>> acc.isInitialised()
               True
 
@@ -439,6 +455,7 @@ class GeneralRegisterAccessor(ABC):
         Examples
         --------
         Getting the name of a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -485,6 +502,7 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
         Examples
         --------
         Setting a ScalarRegisterAccessor
+            >>> import deviceaccess as da
             >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
             >>> dev = da.Device("CARD_WITH_MODULES")
             >>> dev.open()
@@ -496,6 +514,7 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
                 ScalarRegisterAccessor([-23], dtype=int32)
 
         Setting a OneDRegisterAccessor
+            >>> import deviceaccess as da
             >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
             >>> dev = da.Device("CARD_WITH_MODULES")
             >>> dev.open()
@@ -507,6 +526,7 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
                 OneDRegisterAccessor([  1,   9,  42, -23], dtype=int32)
 
         Setting a TwoDRegisterAccessor
+            >>> import deviceaccess as da
             >>> dda.setDMapFilePath("deviceInformation/exampleCrate.dmap")
             >>> dev = da.Device("CARD_WITH_MODULES")
             >>> dev.open()
@@ -706,7 +726,7 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
 class TwoDRegisterAccessor(NumpyGeneralRegisterAccessor):
     """
     Accessor class to read and write registers transparently by using the accessor object
-    like an a 2D array of the type UserType.
+    like a 2D array of the type UserType.
 
     Conversion to and from the UserType will be handled by a data
     converter matching the register description in the map (if applicable).
@@ -754,8 +774,8 @@ class OneDRegisterAccessor(NumpyGeneralRegisterAccessor):
               mathematical operations and slicing with accessors.
 
     .. note:: Transfers between the device and the internal buffer need
-            to be triggered using the read() and write() functions before reading
-            from resp. after writing to the buffer using the operators.
+              to be triggered using the read() and write() functions before reading
+              from resp. after writing to the buffer using the operators.
     """
 
     def __init__(self, userType, accessor, accessModeFlags: Sequence[AccessMode]) -> None:
@@ -799,6 +819,7 @@ class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
         Examples
         --------
         Reading and Getting from a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -817,14 +838,15 @@ class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
         Parameters
         ----------
         newValue : numpy.number and compatible types
-          The contentthat should be written to the register.
+          The content that should be written to the register.
 
-        versionmNumber: VersionNumber, optional
+        versionNumber: VersionNumber, optional
           The versionNumber that should be used for the write action.
 
         Examples
         --------
         Reading and Getting from a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -856,6 +878,7 @@ class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
         Examples
         --------
         Reading and Getting from a ScalarRegisterAccessor
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -936,8 +959,6 @@ class Device:
     """
     # dict to get the corresponding function for each datatype
     _userTypeExtensions = {
-        np.int32: "int32",
-        np.int16: "int16",
         np.int8: "int8",
         np.uint8: "uint8",
         np.int16: "int16",
@@ -1049,7 +1070,7 @@ class Device:
         Parameters
         ----------
         userType : type or numpy.dtype
-          The userType for the accessor. Can be float, or any of the numpy.dtype
+          The userType for the accessor. Can be of type float, or any of the numpy.dtype
           combinations of signed, unsigned, double, int, 8, 16, 32 or 64-bit. E.g.
           `numpy.uint8`, or `numpy.float32`.
 
@@ -1082,6 +1103,7 @@ class Device:
         Examples
         --------
         Getting a Two-D Register Accessor of type uint8 from DMA; which is 6 elements long and has 4 channels:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -1094,6 +1116,7 @@ class Device:
                       [15., 19., 23., 27., 31., 35.]], dtype=float32)
 
         Getting a Two-D Register Accessor of type float64 from register "WORD_CLK_MUX" is 4 elements long.
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -1167,6 +1190,7 @@ class Device:
         Examples
         --------
         Getting a One-D Register Accessor of type uint8 from WORD_STATUS; which is 1 element long:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -1176,6 +1200,7 @@ class Device:
           OneDRegisterAccessor([255], dtype=uint8)
 
         Getting a One-D Register Accessor of type float64 from register "WORD_CLK_MUX" is 4 elements long.
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -1237,6 +1262,7 @@ class Device:
         Examples
         --------
         Getting a scalar Register Accessor of type int16 from WORD_STATUS:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
           >>> dev = da.Device("CARD_WITH_MODULES")
           >>> dev.open()
@@ -1282,13 +1308,14 @@ class Device:
         Examples
         --------
         Sending interrupts per Void Accessor:
+          >>> import deviceaccess as da
           >>> da.setDMapFilePath("deviceInformation/push.dmap")
           >>> dev = da.Device("SHARED_RAW_DEVICE")
           >>> dev.open()
           >>> dev.activateAsyncRead()
           >>>
           >>> writeAcc = dev.getOneDRegisterAccessor(np.int32, "MODULE1/TEST_AREA")
-          >>> arr1to10 = np.array([i for i in range(1, 11)], dtype=np.int32)
+          >>> arr1to10 = np.array(range(1, 11), dtype=np.int32)
           >>> writeAcc.set(arr1to10)
           >>> writeAcc.write()
           >>>
