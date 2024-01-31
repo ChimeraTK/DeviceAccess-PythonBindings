@@ -1055,6 +1055,23 @@ class Device:
         """
         self._device.close()
 
+    def getCatalogueMetadata(self, metaTag: str) -> str:
+        """Provides access to catalogue metadata.
+        This method uses the metadata catalogue to access the value, defined at the beginning of a mapp file, i.e.:
+        @TAG value
+        By convention the tag is in uppercase.
+
+        Parameters
+        ----------
+        metaTag
+          Tag of the metadata, i.e.: MAPFILE_REVISION
+
+        Returns
+        -------
+        String containing the metadata
+        """
+        return self._device.getCatalogueMetadata(metaTag)
+
     def getTwoDRegisterAccessor(
             self,
             userType,
