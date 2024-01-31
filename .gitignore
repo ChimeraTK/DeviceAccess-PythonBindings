@@ -23,7 +23,9 @@ CMakeLists.txt.user
 # Project specific 'ignore patterns'
 #
 # Put you project specific ignores below.
-# If they are generally useful consider adding them to the 
+# If they are generally useful consider adding them to the
 # project-template and the merge them in.
 ######################
 *.code-workspace
+#used by PyCharm IDE
+.idea/
