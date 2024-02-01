@@ -15,14 +15,15 @@ More information on ChimeraTK can be found at the project's
 
 from __future__ import annotations
 
-from typing import Sequence
+from typing import Sequence, Union
 import _da_python_bindings as pb
 import numpy as np
 from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber
 from abc import ABC
-
+from functools import reduce
 
 #######################################################################################################################
+
 
 def setDMapFilePath(dmapFilePath: str) -> None:
     """
@@ -240,7 +241,7 @@ class GeneralRegisterAccessor(ABC):
         """
         return self._accessor.getUnit()
 
-    def getValueType(self):
+    def getValueType(self) -> UserType:
         """
         Returns the type for the userType of this transfer element, that
         was given at the initialization of the accessor.
@@ -484,7 +485,7 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
         self.userType = userType
         self._AccessModeFlags = accessModeFlags
 
-    def get(self):
+    def get(self) -> np.ndarray:
         return self.__array
 
     def set(self, value) -> None:
@@ -569,129 +570,129 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
         return self.__array.__getattribute__(name)
 
     # comparison operators
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         return self.__array < other
 
-    def __le__(self, other):
+    def __le__(self, other) -> bool:
         return self.__array <= other
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         return self.__array > other
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         return self.__array >= other
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self.__array == other
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         return self.__array != other
 
     # conversion operators
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.__array)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.__array)
 
     # subscript operator
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> UserType:
         return self.__array[key]
 
     # binary operators
-    def __add__(self, other):
+    def __add__(self, other) -> np.ndarray:
         return self.__array.__add__(other)
 
-    def __sub__(self, other):
+    def __sub__(self, other) -> np.ndarray:
         return self.__array.__sub__(other)
 
-    def __mul__(self, other):
+    def __mul__(self, other) -> np.ndarray:
         return self.__array.__mul__(other)
 
-    def __truediv__(self, other):
+    def __truediv__(self, other) -> np.ndarray:
         return self.__array.__truediv__(other)
 
-    def __floordiv__(self, other):
+    def __floordiv__(self, other) -> np.ndarray:
         return self.__array.__floordiv__(other)
 
-    def __mod__(self, other):
+    def __mod__(self, other) -> np.ndarray:
         return self.__array.__mod__(other)
 
-    def __pow__(self, other):
+    def __pow__(self, other) -> np.ndarray:
         return self.__array.__pow__(other)
 
-    def __rshift__(self, other):
+    def __rshift__(self, other) -> np.ndarray:
         return self.__array.__rshift__(other)
 
-    def ___lshift___mul__(self, other):
+    def ___lshift___mul__(self, other) -> np.ndarray:
         return self.__array.__lshift__(other)
 
-    def __and__(self, other):
+    def __and__(self, other) -> np.ndarray:
         return self.__array.__and__(other)
 
-    def __or__(self, other):
+    def __or__(self, other) -> np.ndarray:
         return self.__array.__or__(other)
 
-    def __xor__(self, other):
+    def __xor__(self, other) -> np.ndarray:
         return self.__array.__xor__(other)
 
     # assignment operators
-    def __isub__(self, other):
+    def __isub__(self, other) -> RegisterAccessor:
         self.__array.__isub__(other)
         return self
 
-    def __iadd__(self, other):
+    def __iadd__(self, other) -> RegisterAccessor:
         self.__array.__iadd__(other)
         return self
 
-    def __imul__(self, other):
+    def __imul__(self, other) -> RegisterAccessor:
         self.__array.__imul__(other)
         return self
 
-    def __idiv__(self, other):
+    def __idiv__(self, other) -> RegisterAccessor:
         self.__array.__idiv__(other)
         return self
 
-    def __ifloordiv__(self, other):
+    def __ifloordiv__(self, other) -> RegisterAccessor:
         self.__array.__ifloordiv__(other)
         return self
 
-    def __imod__(self, other):
+    def __imod__(self, other) -> RegisterAccessor:
         self.__array.__imod__(other)
         return self
 
-    def __ipow__(self, other):
+    def __ipow__(self, other) -> RegisterAccessor:
         self.__array.__ipow__(other)
         return self
 
-    def __irshift__(self, other):
+    def __irshift__(self, other) -> RegisterAccessor:
         self.__array.__irshift__(other)
         return self
 
-    def __ilshift__(self, other):
+    def __ilshift__(self, other) -> RegisterAccessor:
         self.__array.__ilshift__(other)
         return self
 
-    def __iand__(self, other):
+    def __iand__(self, other) -> RegisterAccessor:
         self.__array.__iand__(other)
         return self
 
-    def __ior__(self, other):
+    def __ior__(self, other) -> RegisterAccessor:
         self.__array.__ior__(other)
         return self
 
-    def __ixor__(self, other):
+    def __ixor__(self, other) -> RegisterAccessor:
         self.__array.__ixor__(other)
         return self
 
     # unary operators
-    def __neg__(self):
+    def __neg__(self) -> np.ndarray:
         return self.__array.__neg__()
 
-    def __pos__(self):
+    def __pos__(self) -> np.ndarray:
         return self.__array.__pos__()
 
-    def __invert__(self):
+    def __invert__(self) -> np.ndarray:
         return self.__array.__invert__()
 
     # accessor functions
@@ -911,7 +912,7 @@ class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
         obj._AccessModeFlags = accessModeFlags
         return obj
 
-    def __array_finalize__(self, obj):
+    def __array_finalize__(self, obj) -> None:
         if obj is None:
             return
         self._accessor = getattr(obj, '_accessor', None)
@@ -967,7 +968,7 @@ class Device:
         np.uint32: "uint32",
         np.int64: "int64",
         np.uint64: "uint64",
-        float: "float",
+        np.single: "float",
         np.float32: "float",
         np.double: "double",
         np.float64: "double",
@@ -983,7 +984,7 @@ class Device:
         else:
             self._device = pb.getDevice_no_alias()
 
-    def __enter__(self):
+    def __enter__(self) -> Device:
         """Helper function for with-statements"""
         if self.aliasName is None:
             raise SyntaxError('In a with-statement, an alias has to be provided in the device constructor!')
@@ -991,7 +992,7 @@ class Device:
             self._device.open(self.aliasName)
             return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args) -> None:
         """Helper function for with-statements"""
         self._device.close()
 
@@ -1163,7 +1164,7 @@ class Device:
             registerPathName: str,
             numberOfElements: int = 0,
             elementsOffset: int = 0,
-            accessModeFlags: Sequence[AccessMode] = None):
+            accessModeFlags: Sequence[AccessMode] = None) -> OneDRegisterAccessor:
         """Get a :py:class:`OneDRegisterAccessor` object for the given register.
 
         The OneDRegisterAccessor allows to read and write registers transparently by using
@@ -1246,7 +1247,7 @@ class Device:
             userType,
             registerPathName: str,
             elementsOffset: int = 0,
-            accessModeFlags: Sequence[AccessMode] = None):
+            accessModeFlags: Sequence[AccessMode] = None) -> ScalarRegisterAccessor:
         """Get a :py:class:`ScalarRegisterAccessor` object for the given register.
 
         The ScalarRegisterObject allows to read and write registers transparently by using
@@ -1304,7 +1305,7 @@ class Device:
             userType, accessor, accessModeFlags)
         return scalarRegisterAccessor
 
-    def getVoidRegisterAccessor(self, registerPathName: str, accessModeFlags: Sequence[AccessMode] = None):
+    def getVoidRegisterAccessor(self, registerPathName: str, accessModeFlags: Sequence[AccessMode] = None) -> VoidRegisterAccessor:
         """Get a :py:class:`VoidRegisterAccessor` object for the given register.
 
         The VoidRegisterAccessor allows to read and write registers. Getting a read
@@ -1425,3 +1426,13 @@ class Device:
         accessModeFlags = [] if accessModeFlags is None else accessModeFlags
         self._device.write(array, registerPath, numberOfElements,
                            wordOffsetInRegister, accessModeFlags)
+
+#######################################################################################################################
+# Type Definitions
+
+
+UserType = reduce(lambda x, y: Union[x, y], list(Device._userTypeExtensions.values()))
+
+RegisterAccessor = Union[OneDRegisterAccessor,
+                         TwoDRegisterAccessor,
+                         ScalarRegisterAccessor]
