@@ -1412,9 +1412,6 @@ class Device:
         If no dtype is selected, the returned ndarray will default to np.float64.
         """
 
-        catalogue = self.getRegisterCatalogue()
-        register = catalogue.getRegister(registerPath)
-        numberOfElements = register.getNumberOfElements() - wordOffsetInRegister
         # make proper array, if number was submitted
         if isinstance(dataToWrite, list):
             array = np.array(dataToWrite)
@@ -1425,6 +1422,7 @@ class Device:
             array = np.array([[dataToWrite]])
         else:
             array = dataToWrite
+        numberOfElements = array.shape[1] if array.ndim == 2 else (array.shape[0] if array.ndim == 1 else 1)
 
         accessModeFlags = [] if accessModeFlags is None else accessModeFlags
         self._device.write(array, registerPath, numberOfElements,
