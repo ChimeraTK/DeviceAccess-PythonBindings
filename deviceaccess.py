@@ -19,8 +19,8 @@ from typing import Sequence, Union
 import _da_python_bindings as pb
 import numpy as np
 from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber
-from abc import ABC
-from functools import reduce
+import abc
+import functools
 
 #######################################################################################################################
 
@@ -56,7 +56,7 @@ def getDMapFilePath() -> str:
 #######################################################################################################################
 
 
-class GeneralRegisterAccessor(ABC):
+class GeneralRegisterAccessor(abc.ABC):
     """
     This is a super class to avoid code duplication. It contains
     methods that are common for the inheriting accessors.
@@ -1088,9 +1088,10 @@ class Device:
         Parameters
         ----------
         userType : type or numpy.dtype
-          The userType for the accessor. Can be of type float, or any of the numpy.dtype
-          combinations of signed, unsigned, double, int, 8, 16, 32 or 64-bit. E.g.
-          `numpy.uint8`, or `numpy.float32`.
+          The userType for the accessor. Can be of any of the numpy.dtype
+          combinations of float, int, 32 or 64-bit. Integers are also
+          supported as signed, unsigned, 8 and 16-bit. E.g.
+          `numpy.uint8`, or `numpy.float32`. There are also `str`, `bool`.
 
         registerPathName : str
           The name of the register to read from.
@@ -1175,9 +1176,10 @@ class Device:
         Parameters
         ----------
         userType : type or numpy.dtype
-          The userType for the accessor. Can be float, or any of the numpy.dtype
-          combinations of signed, unsigned, double, int, 8, 16, 32 or 64-bit. E.g.
-          `numpy.uint8`, or `numpy.float32`.
+          The userType for the accessor. Can be of any of the numpy.dtype
+          combinations of float, int, 32 or 64-bit. Integers are also
+          supported as signed, unsigned, 8 and 16-bit. E.g.
+          `numpy.uint8`, or `numpy.float32`. There are also `str`, `bool`.
 
         registerPathName : str
           The name of the register to read from.
@@ -1258,9 +1260,10 @@ class Device:
         Parameters
         ----------
         userType : type or numpy.dtype
-          The userType for the accessor. Can be float, or any of the numpy.dtype
-          combinations of signed, unsigned, double, int, 8, 16, 32 or 64-bit. E.g.
-          `numpy.uint8`, or `numpy.float32`.
+          The userType for the accessor. Can be of any of the numpy.dtype
+          combinations of float, int, 32 or 64-bit. Integers are also
+          supported as signed, unsigned, 8 and 16-bit. E.g.
+          `numpy.uint8`, or `numpy.float32`. There are also `str`, `bool`.
 
         registerPathName : str
           The name of the register to read from.
@@ -1409,9 +1412,6 @@ class Device:
         If no dtype is selected, the returned ndarray will default to np.float64.
         """
 
-        catalogue = self.getRegisterCatalogue()
-        register = catalogue.getRegister(registerPath)
-        numberOfElements = register.getNumberOfElements() - wordOffsetInRegister
         # make proper array, if number was submitted
         if isinstance(dataToWrite, list):
             array = np.array(dataToWrite)
@@ -1422,16 +1422,18 @@ class Device:
             array = np.array([[dataToWrite]])
         else:
             array = dataToWrite
+        numberOfElements = array.shape[1] if array.ndim == 2 else (array.shape[0] if array.ndim == 1 else 1)
 
         accessModeFlags = [] if accessModeFlags is None else accessModeFlags
         self._device.write(array, registerPath, numberOfElements,
                            wordOffsetInRegister, accessModeFlags)
 
+
 #######################################################################################################################
 # Type Definitions
 
 
-UserType = reduce(lambda x, y: Union[x, y], list(Device._userTypeExtensions.values()))
+UserType = functools.reduce(lambda x, y: Union[x, y], list(Device._userTypeExtensions.values()))
 
 RegisterAccessor = Union[OneDRegisterAccessor,
                          TwoDRegisterAccessor,
