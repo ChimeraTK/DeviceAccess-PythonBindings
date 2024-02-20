@@ -1216,7 +1216,6 @@ class Device:
 
         catalogue = self.getRegisterCatalogue()
         register = catalogue.getRegister(registerPath)
-        numberOfElements = register.getNumberOfElements() - wordOffsetInRegister
         # make proper array, if number was submitted
         if isinstance(dataToWrite, list):
             array = np.array(dataToWrite)
@@ -1229,5 +1228,5 @@ class Device:
             array = dataToWrite
 
         accessModeFlags = [] if accessModeFlags is None else accessModeFlags
-        self._device.write(array, registerPath, numberOfElements,
+        self._device.write(array, registerPath, array.size,
                            wordOffsetInRegister, accessModeFlags)
