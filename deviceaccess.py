@@ -595,9 +595,13 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
     def __bool__(self) -> bool:
         return bool(self.__array)
 
-    # subscript operator
+    # subscript operator as getter
     def __getitem__(self, key) -> UserType:
         return self.__array[key]
+
+    # subscript operator as setter
+    def __setitem__(self, key, newvalue) -> None:
+        self.__array[key] = newvalue
 
     # binary operators
     def __add__(self, other) -> np.ndarray:
