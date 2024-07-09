@@ -142,9 +142,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
   bp::def("getDmapFile", DeviceAccessPython::getDmapFile);
 
   bp::class_<ChimeraTK::RegisterCatalogue>("RegisterCatalogue", bp::init<ChimeraTK::RegisterCatalogue>())
-      //.def("__iter__", bp::range(&ChimeraTK::RegisterCatalogue::begin, &ChimeraTK::RegisterCatalogue::end)) // TODO:
-      // if someone needs to iterate through the register.
-      // fix iteration implementation
+      .def("_items", DeviceAccessPython::RegisterCatalogue::items)
       .def("hasRegister", DeviceAccessPython::RegisterCatalogue::hasRegister)
       .def("getRegister", DeviceAccessPython::RegisterCatalogue::getRegister);
 
