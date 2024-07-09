@@ -1434,6 +1434,27 @@ class Device:
 
 
 #######################################################################################################################
+# Middle Layer Class extensions, might be unnecessary in the future with a switch from boost to pybind11
+
+class RegisterClassIterator:
+    def __init__(self, registerCatalogue):
+        self._rc = registerCatalogue
+        self._index = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if len(self._rc._items()) > self._index:
+            self._index += 1
+            return self._rc._items()[self._index-1]
+        else:
+            raise StopIteration
+
+pb.RegisterCatalogue.__iter__ = lambda rc: RegisterClassIterator(rc)
+
+
+#######################################################################################################################
 # Type Definitions
 
 
