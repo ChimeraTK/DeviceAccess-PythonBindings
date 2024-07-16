@@ -18,7 +18,7 @@ from __future__ import annotations
 from typing import Sequence, Union
 import _da_python_bindings as pb
 import numpy as np
-from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber
+from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType
 import abc
 import functools
 
@@ -1450,6 +1450,7 @@ class RegisterClassIterator:
             return self._rc._items()[self._index-1]
         else:
             raise StopIteration
+
 
 pb.RegisterCatalogue.__iter__ = lambda rc: RegisterClassIterator(rc)
 

@@ -56,6 +56,37 @@ class TestRegisterCatalogue(unittest.TestCase):
         # should not have fewer elements
         self.assertEqual(element_counter, len(registers_in_num_dev))
 
+    def testDataDescriptors(self):
+        rc = self.dev.getRegisterCatalogue()
+        ri = rc.getRegister("/APP0/WORD_SCRATCH")
+        dd = ri.getDataDescriptor()
+        self.assertEqual(da.FundamentalType.numeric, dd.fundamentalType())
+        self.assertTrue(dd.isSigned())
+        self.assertEqual(dd.nDigits(), 6)
+        self.assertTrue(dd.isIntegral())
+        self.assertEqual(dd.transportLayerDataType().getAsString(), 'unknown')
+        self.assertEqual(dd.minimumDataType().getAsString(), 'int16')
+        rdt = dd.rawDataType()
+        self.assertEqual(rdt.getAsString(), 'int32')
+        self.assertTrue(rdt.isIntegral())
+        self.assertTrue(rdt.isSigned())
+        self.assertTrue(rdt.isNumeric())
+
+        ri = rc.getRegister("/MODULE0.WORD_USER1")
+        dd = ri.getDataDescriptor()
+        self.assertEqual(da.FundamentalType.numeric, dd.fundamentalType())
+        self.assertTrue(dd.isSigned())
+        self.assertEqual(dd.nDigits(), 7)
+        self.assertFalse(dd.isIntegral())
+        self.assertEqual(dd.nFractionalDigits(), 1)
+        self.assertEqual(dd.transportLayerDataType().getAsString(), 'unknown')
+        self.assertEqual(dd.minimumDataType().getAsString(), 'float32')
+        rdt = dd.rawDataType()
+        self.assertEqual(rdt.getAsString(), 'int32')
+        self.assertTrue(rdt.isIntegral())
+        self.assertTrue(rdt.isSigned())
+        self.assertTrue(rdt.isNumeric())
+
 
 if __name__ == '__main__':
     unittest.main()

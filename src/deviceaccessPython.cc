@@ -147,6 +147,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("getRegister", DeviceAccessPython::RegisterCatalogue::getRegister);
 
   bp::class_<ChimeraTK::RegisterInfo>("RegisterInfo", bp::init<ChimeraTK::RegisterInfo>())
+      .def("getDataDescriptor", DeviceAccessPython::RegisterInfo::getDataDescriptor)
       .def("isReadable", &ChimeraTK::RegisterInfo::isReadable)
       .def("isValid", &ChimeraTK::RegisterInfo::isValid)
       .def("isWriteable", &ChimeraTK::RegisterInfo::isWriteable)
@@ -156,10 +157,34 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("getNumberOfDimensions", &ChimeraTK::RegisterInfo::getNumberOfDimensions)
       .def("getNumberOfChannels", &ChimeraTK::RegisterInfo::getNumberOfChannels);
 
+  bp::class_<ChimeraTK::DataDescriptor>("DataDescriptor", bp::init<ChimeraTK::DataDescriptor>())
+      .def("rawDataType", &ChimeraTK::DataDescriptor::rawDataType)
+      .def("transportLayerDataType", &ChimeraTK::DataDescriptor::transportLayerDataType)
+      .def("minimumDataType", &ChimeraTK::DataDescriptor::minimumDataType)
+      .def("isSigned", &ChimeraTK::DataDescriptor::isSigned)
+      .def("isIntegral", &ChimeraTK::DataDescriptor::isIntegral)
+      .def("nDigits", &ChimeraTK::DataDescriptor::nDigits)
+      .def("nFractionalDigits", &ChimeraTK::DataDescriptor::nFractionalDigits)
+      .def("fundamentalType", DeviceAccessPython::DataDescriptor::fundamentalType);
+
   bp::enum_<ChimeraTK::AccessMode>("AccessMode")
       .value("raw", ChimeraTK::AccessMode::raw)
       .value("wait_for_new_data", ChimeraTK::AccessMode::wait_for_new_data)
       .export_values();
+
+  bp::enum_<ChimeraTK::DataDescriptor::FundamentalType>("FundamentalType")
+      .value("numeric", ChimeraTK::DataDescriptor::FundamentalType::numeric)
+      .value("string", ChimeraTK::DataDescriptor::FundamentalType::string)
+      .value("boolean", ChimeraTK::DataDescriptor::FundamentalType::boolean)
+      .value("nodata", ChimeraTK::DataDescriptor::FundamentalType::nodata)
+      .value("undefined", ChimeraTK::DataDescriptor::FundamentalType::undefined)
+      .export_values();
+
+  bp::class_<ChimeraTK::DataType>("DataType")
+      .def("isNumeric", &ChimeraTK::DataType::isNumeric)
+      .def("getAsString", &ChimeraTK::DataType::getAsString)
+      .def("isIntegral", &ChimeraTK::DataType::isIntegral)
+      .def("isSigned", &ChimeraTK::DataType::isSigned);
 
   bp::enum_<ChimeraTK::DataValidity>("DataValidity")
       .value("ok", ChimeraTK::DataValidity::ok)
@@ -197,4 +222,6 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::TransferElementID>>();
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::RegisterCatalogue>>();
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::RegisterInfo>>();
+  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::DataDescriptor>>();
+  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::DataType>>();
 }
