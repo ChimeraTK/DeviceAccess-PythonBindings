@@ -29,6 +29,10 @@ namespace DeviceAccessPython {
   }
 
   /*******************************************************************************************************************/
+  ChimeraTK::DataDescriptor RegisterInfo::getDataDescriptor(ChimeraTK::RegisterInfo& self) {
+    return self.getDataDescriptor();
+  }
+  /*******************************************************************************************************************/
 
   std::string RegisterInfo::getRegisterName(ChimeraTK::RegisterInfo& self) {
     return self.getRegisterName();
@@ -43,6 +47,12 @@ namespace DeviceAccessPython {
     if(flags.has(ChimeraTK::AccessMode::wait_for_new_data))
       python_flags.append(ChimeraTK::AccessMode::wait_for_new_data);
     return python_flags;
+  }
+
+  /*******************************************************************************************************************/
+
+  ChimeraTK::DataDescriptor::FundamentalType DataDescriptor::fundamentalType(ChimeraTK::DataDescriptor& self) {
+    return self.fundamentalType();
   }
 
   /*******************************************************************************************************************/

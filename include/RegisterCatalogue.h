@@ -17,6 +17,7 @@ namespace DeviceAccessPython {
    public:
     static bool hasRegister(ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName);
     static ChimeraTK::RegisterInfo getRegister(ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName);
+
     static boost::python::list items(ChimeraTK::RegisterCatalogue& self);
   };
 
@@ -27,8 +28,18 @@ namespace DeviceAccessPython {
     // Translate return type from RegisterPath to string
     static std::string getRegisterName(ChimeraTK::RegisterInfo& self);
 
+    static ChimeraTK::DataDescriptor getDataDescriptor(ChimeraTK::RegisterInfo& self);
+
     // convert return type form ChimeraTK::AccessModeFlags to Python list
     static boost::python::list getSupportedAccessModes(ChimeraTK::RegisterInfo& self);
+  };
+
+  /*****************************************************************************************************************/
+
+  class DataDescriptor {
+   public:
+    // Translate return type from RegisterPath to string
+    static ChimeraTK::DataDescriptor::FundamentalType fundamentalType(ChimeraTK::DataDescriptor& self);
   };
 
   /*****************************************************************************************************************/
