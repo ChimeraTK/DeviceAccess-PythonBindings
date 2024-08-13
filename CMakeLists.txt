@@ -91,7 +91,7 @@ if(SPHINX_EXECUTABLE)
 
   # copy the config file to the build directory
   message(STATUS "Html documentation support enabled; use 'make doc' to build it.")
-  add_custom_target(doc
+  add_custom_target(doc ALL
     COMMAND "${SPHINX_EXECUTABLE}" -c "${PROJECT_BINARY_DIR}" -b html "${PROJECT_SOURCE_DIR}/doc" "doc/html"
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating HTML documentation" VERBATIM)
@@ -99,6 +99,9 @@ if(SPHINX_EXECUTABLE)
   # unfortunately sphinx needs to scan the library, so we first have to run the build step before we get proper
   # documentation
   add_dependencies(doc ${PROJECT_NAME})
+
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/ DESTINATION share/doc/${PROJECT_NAME}-${${PROJECT_NAME}_SOVERSION}
+    COMPONENT doc OPTIONAL)
 
   set(DOC_TARGET_ADDED TRUE CACHE INTERNAL "Doc target has been configured")
 else()
