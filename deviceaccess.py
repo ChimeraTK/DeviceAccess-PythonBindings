@@ -16,9 +16,15 @@ More information on ChimeraTK can be found at the project's
 from __future__ import annotations
 
 from typing import Sequence, Union
-import _da_python_bindings as pb
 import numpy as np
-from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType
+
+try:
+    import _da_python_bindings as pb
+    from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType
+except ModuleNotFoundError:
+    from . import _da_python_bindings as pb
+    from ._da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType
+
 import abc
 import functools
 

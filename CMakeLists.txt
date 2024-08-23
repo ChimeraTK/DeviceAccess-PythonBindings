@@ -45,7 +45,7 @@ file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*")
 file(GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*")
 
 if(SKBUILD)
-  python_add_library(${PROJECT_NAME} MODULE ${headers} ${sources}} WITH_SOABI)
+    python_add_library(${PROJECT_NAME} MODULE ${headers} ${sources} WITH_SOABI)
 else()
   add_library(${PROJECT_NAME} SHARED ${headers} ${sources})
 endif()
@@ -115,7 +115,7 @@ endif()
 # ==============================================================================#
 
 if(SKBUILD)
-  install(FILES ${PROJECT_SOURCE_DIR}/deviceaccess.py DESTINATION ${SKBUILD_PROJECT_NAME})
+  install(FILES ${PROJECT_SOURCE_DIR}/deviceaccess.py DESTINATION ${SKBUILD_PROJECT_NAME} RENAME __init__.py)
   install(FILES ${PROJECT_SOURCE_DIR}/mtca4u.py DESTINATION ${SKBUILD_PROJECT_NAME})
   install(TARGETS ${PROJECT_NAME} DESTINATION ${SKBUILD_PROJECT_NAME})
 else()
