@@ -9,7 +9,7 @@ except ModuleNotFoundError:
 import numpy
 import sys
 
-__version__ = "02.03.00"
+__version__ = "2.3.0"
 
 # http://stackoverflow.com/questions/4219717/how-to-assert-output-with-nosetest-unittest-in-python
 

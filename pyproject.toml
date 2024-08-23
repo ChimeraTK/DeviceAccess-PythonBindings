@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "deviceaccess"
-version = "03.03.02"
+version = "3.3.2"
 dependencies = ["numpy"]
 description = "Python bindings for the ChimeraTK's deviceaccess library"
 long_description = "The package provides binding for the ChimeraTK's deviceaccess library"
