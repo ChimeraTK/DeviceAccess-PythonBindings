@@ -56,4 +56,12 @@ build-verbosity = 1
 ## Run pytest to ensure that the package was correctly built
 
 #test-command = "python3 -m unittest discover tests"
+test-skip = "*" # Do not test at the moment
+
+# Add the build directory to the environment variables
+[tool.cibuildwheel.linux.environment]
+BUILD_DIR="${HOME}/build"
+PKG_CONFIG_PATH="${BUILD_DIR}/local/lib/pkgconfig/:${BUILD_DIR}/EPICS/epics-base/lib/pkgconfig/:/usr/lib/pkgconfig:${PKG_CONFIG_PATH}"
+LD_LIBRARY_PATH="${BUILD_DIR}/local/lib/:${BUILD_DIR}/EPICS/epics-base/lib/linux-x86_64/:${LD_LIBRARY_PATH}"
+PATH="${BUILD_DIR}/local/bin/:${PATH}"
 

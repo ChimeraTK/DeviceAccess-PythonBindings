@@ -6,7 +6,6 @@ export PROJECT_PWD=`pwd`
 export PROCS=`nproc`
 
 # Creating local build directories
-export BUILD_DIR="${HOME}/build"
 rm -rf ${BUILD_DIR}
 mkdir ${BUILD_DIR}
 cd ${BUILD_DIR}
@@ -61,11 +60,6 @@ export DEVICEACCESS_EPICS_VERSION="01.00.00"
 export DEVICEACCESS_OPCUA_VERSION="01.03.00"
 export DEVICEACCESS_DOOCS_VERSION="01.09.01"
 export DEVICEACCESS_MODBUS_VERSION="01.05.00"
-
-# Add the build directory to the environment variables
-export PKG_CONFIG_PATH="${BUILD_DIR}/local/lib/pkgconfig/:${BUILD_DIR}/EPICS/epics-base/lib/pkgconfig/:/usr/lib/pkgconfig:${PKG_CONFIG_PATH}"
-export LD_LIBRARY_PATH="${BUILD_DIR}/local/lib/:${BUILD_DIR}/EPICS/epics-base/lib/linux-x86_64/:${LD_LIBRARY_PATH}"
-export PATH="${BUILD_DIR}/local/bin/:${PATH}"
 
 # Install EPICS
 mkdir ${BUILD_DIR}/EPICS
