@@ -19,11 +19,11 @@ from typing import Sequence, Union
 import numpy as np
 
 try:
-    import _da_python_bindings as pb
-    from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType
-except ModuleNotFoundError:
     from . import _da_python_bindings as pb
     from ._da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType
+except ModuleNotFoundError:
+    import _da_python_bindings as pb
+    from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType
 
 import abc
 import functools

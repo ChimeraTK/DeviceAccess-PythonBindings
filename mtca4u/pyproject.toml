@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mtca4u"
+dynamic = ["version"]
+dependencies = ["deviceaccess >= 03.03.02"]
+description = "Legacy ChimeraTK access library"
+long_description = "The package provides binding for the ChimeraTK's mtca4u library"
+requires-python = ">=3.8"
+readme = "../README.md"
+license = {file = "../LICENSE"}
+
+classifiers = [
+"Topic :: Software Development :: Libraries :: Python Modules",
+"Development Status :: 5 - Production/Stable",
+"License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+"Intended Audience :: Developers", 
+"Programming Language :: Python :: 3",
+"Programming Language :: Python :: 3.8",
+"Programming Language :: Python :: 3.9",
+"Programming Language :: Python :: 3.10",
+"Programming Language :: Python :: 3.11",
+"Programming Language :: Python :: 3.12",
+"Programming Language :: Python :: 3.13",
+"Programming Language :: Python :: Implementation :: CPython",
+"Topic :: Scientific/Engineering"
+]
+
+[project.urls]
+Homepage = "https://github.com/ChimeraTK/DeviceAccess-PythonBindings"
+Documentation = "https://chimeratk.github.io/ChimeraTK-DeviceAccess-PythonBindings/head/html/"
+Repository = "https://github.com/ChimeraTK/DeviceAccess-PythonBindings/mtca4u"
+

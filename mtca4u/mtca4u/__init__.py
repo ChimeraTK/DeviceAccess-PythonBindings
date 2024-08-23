@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
 try:
-    import _da_python_bindings as mtca4udeviceaccess  # alias quick fix
+    from deviceaccess import _da_python_bindings as mtca4udeviceaccess
 except ModuleNotFoundError:
-    from . import _da_python_bindings as mtca4udeviceaccess  # alias quick fix
+    import _da_python_bindings as mtca4udeviceaccess  # alias quick fix
 
 import numpy
 import sys

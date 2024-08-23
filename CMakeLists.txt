@@ -65,8 +65,8 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" OUTPUT_NAME "_da_python_bindings")
 
 # Copy Python part to build directory (required for tests to run)
-file(COPY mtca4u.py DESTINATION ${PROJECT_BINARY_DIR})
-file(COPY deviceaccess.py DESTINATION ${PROJECT_BINARY_DIR})
+file(COPY ${PROJECT_SOURCE_DIR}/mtca4u/mtca4u/__init__.py DESTINATION ${PROJECT_BINARY_DIR} RENAME mtca4u.py)
+file(COPY ${PROJECT_SOURCE_DIR}/deviceaccess.py DESTINATION ${PROJECT_BINARY_DIR})
 
 # ==============================================================================#
 ENABLE_TESTING()
@@ -116,7 +116,6 @@ endif()
 
 if(SKBUILD)
   install(FILES ${PROJECT_SOURCE_DIR}/deviceaccess.py DESTINATION ${SKBUILD_PROJECT_NAME} RENAME __init__.py)
-  install(FILES ${PROJECT_SOURCE_DIR}/mtca4u.py DESTINATION ${SKBUILD_PROJECT_NAME})
   install(TARGETS ${PROJECT_NAME} DESTINATION ${SKBUILD_PROJECT_NAME})
 else()
   # install Python modules to correct platform-dependent directory (if installing to system prefix)
