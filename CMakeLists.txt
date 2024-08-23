@@ -44,7 +44,11 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*")
 file(GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*")
 
-add_library(${PROJECT_NAME} SHARED ${headers} ${sources})
+if(SKBUILD)
+  python_add_library(${PROJECT_NAME} MODULE ${headers} ${sources}} WITH_SOABI)
+else()
+  add_library(${PROJECT_NAME} SHARED ${headers} ${sources})
+endif()
 
 target_link_libraries(${PROJECT_NAME}
   PRIVATE ChimeraTK::ChimeraTK-DeviceAccess
@@ -110,13 +114,18 @@ endif()
 
 # ==============================================================================#
 
-# install Python modules to correct platform-dependent directory (if installing to system prefix)
-if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr" OR "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
-  set(install_path ${Python_SITEARCH})
+if(SKBUILD)
+  install(FILES ${PROJECT_SOURCE_DIR}/deviceaccess.py DESTINATION ${SKBUILD_PROJECT_NAME})
+  install(FILES ${PROJECT_SOURCE_DIR}/mtca4u.py DESTINATION ${SKBUILD_PROJECT_NAME})
+  install(TARGETS ${PROJECT_NAME} DESTINATION ${SKBUILD_PROJECT_NAME})
 else()
-  set(install_path "lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages")
+  # install Python modules to correct platform-dependent directory (if installing to system prefix)
+  if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr" OR "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
+    set(install_path ${Python_SITEARCH})
+  else()
+    set(install_path "lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages")
+  endif()
+  install(FILES ${PROJECT_SOURCE_DIR}/deviceaccess.py DESTINATION ${install_path})
+  install(FILES ${PROJECT_SOURCE_DIR}/mtca4u.py DESTINATION ${install_path})
+  install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${install_path})
 endif()
-
-install(FILES ${PROJECT_SOURCE_DIR}/deviceaccess.py DESTINATION ${install_path})
-install(FILES ${PROJECT_SOURCE_DIR}/mtca4u.py DESTINATION ${install_path})
-install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${install_path})
