@@ -19,7 +19,11 @@ include(cmake/enable_code_style_check.cmake)
 # Find dependencies
 find_package(ChimeraTK-DeviceAccess 03.14 REQUIRED)
 
-find_package(Python 3 REQUIRED COMPONENTS Interpreter Development NumPy)
+if(SKBUILD)
+  find_package(Python REQUIRED COMPONENTS Interpreter Development.Module Numpy)
+else()
+  find_package(Python 3 REQUIRED COMPONENTS Interpreter Development NumPy)
+endif()
 
 # Convert Python version into the format we need for BOOST component names
 set(python_version_no_dot "${Python_VERSION_MAJOR}${Python_VERSION_MINOR}")

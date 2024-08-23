@@ -45,6 +45,7 @@ wheel.py-api = "cp312"
 
 [tool.cibuildwheel]
 before-all = "bash pre_build_manylinux.sh"
+before-build = "pip install numpy"
 skip = "cp36-* cp37-* *-musllinux* pp* *-win32"
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-i686-image = "manylinux2_2_28"
