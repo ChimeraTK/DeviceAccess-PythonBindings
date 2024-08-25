@@ -1,11 +1,20 @@
 [build-system]
-requires = ["scikit-build-core", "numpy"]
+requires = [
+  "scikit-build-core",
+  "oldest-supported-numpy; python_version<='3.9'",
+  "numpy>=2.0; python_version>'3.9'",
+  "cmake"
+]
+
 build-backend = "scikit_build_core.build"
 
 [project]
 name = "deviceaccess"
 version = "3.3.2"
-dependencies = ["numpy"]
+dependencies = [
+  "numpy<2.0; python_version<='3.9'",
+  "numpy; python_version>'3.9'"
+]
 description = "Python bindings for the ChimeraTK's deviceaccess library"
 long_description = "The package provides binding for the ChimeraTK's deviceaccess library"
 requires-python = ">=3.8"
@@ -45,8 +54,7 @@ wheel.py-api = "cp312"
 
 [tool.cibuildwheel]
 before-all = "bash pre_build_manylinux.sh"
-before-build = "pip install numpy"
-skip = "cp36-* cp37-* *-musllinux* pp* *-win32"
+skip = "cp36-* cp37-* *-musllinux* pp* *-win32 *_i686"
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-i686-image = "manylinux2_2_28"
 manylinux-aarch64-image = "manylinux2_2_28"
@@ -55,12 +63,31 @@ manylinux-aarch64-image = "manylinux2_2_28"
 build-verbosity = 1
 
 ## Run pytest to ensure that the package was correctly built
+test-skip = "*"
 
-#test-command = "python3 -m unittest discover tests"
-test-skip = "*" # Do not test at the moment
+[tool.cibuildwheel.linux.environment]
+# Enable backends compilation
+DEVICEACCESS_BACKEND_ENABLE="0"
+
+# Dependencies versions
+YAJL_VERSION="2.1.0"
+EPICS_VERSION="R7.0.8"
+CHIMERATK_EPICS_VERSION="01.00.00"
+OPEN62541_VERSION="v1.3.1"
+LIBTIRPC_VERSION="1.3.4"
+TINE_VERSION="08ca83228932c3b08caf3b4c6578f1da8e65f5c5"
+DOOCS_VERSION="DOOCSVERSION_24_3_1"
+DOOCS_SERVER_TEST_HELPER_VERSION="01.07.00"
+CPPEXT_VERSION="01.05.02"
+EXPRTK_VERSION="01.04.01"
+NLOHMANN_JSON_VERSION="v3.7.3"
+DEVICEACCESS_VERSION="03.15.02"
+DEVICEACCESS_EPICS_VERSION="01.00.00"
+DEVICEACCESS_OPCUA_VERSION="01.03.00"
+DEVICEACCESS_DOOCS_VERSION="01.09.01"
+DEVICEACCESS_MODBUS_VERSION="01.05.00"
 
 # Add the build directory to the environment variables
-[tool.cibuildwheel.linux.environment]
 BUILD_DIR="${HOME}/build"
 PKG_CONFIG_PATH="${BUILD_DIR}/local/lib/pkgconfig/:${BUILD_DIR}/EPICS/epics-base/lib/pkgconfig/:/usr/lib/pkgconfig:${PKG_CONFIG_PATH}"
 LD_LIBRARY_PATH="${BUILD_DIR}/local/lib/:${BUILD_DIR}/EPICS/epics-base/lib/linux-x86_64/:${LD_LIBRARY_PATH}"

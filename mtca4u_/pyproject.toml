@@ -4,17 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mtca4u"
-dependencies = ["deviceaccess >= 3.3.2"]
+dependencies = ["deviceaccess"]
 description = "Legacy ChimeraTK mtca4u access library"
 requires-python = ">=3.8"
-readme = "../README.md"
-license = {file = "../LICENSE"}
+readme = "README.md"
+license = {file = "LICENSE"}
+version = "2.3.0"
 
 classifiers = [
 "Topic :: Software Development :: Libraries :: Python Modules",
 "Development Status :: 5 - Production/Stable",
 "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
-"Intended Audience :: Developers", 
+"Intended Audience :: Developers",
 "Programming Language :: Python :: 3",
 "Programming Language :: Python :: 3.8",
 "Programming Language :: Python :: 3.9",
@@ -31,5 +32,3 @@ Homepage = "https://github.com/ChimeraTK/DeviceAccess-PythonBindings"
 Documentation = "https://chimeratk.github.io/ChimeraTK-DeviceAccess-PythonBindings/head/html/"
 Repository = "https://github.com/ChimeraTK/DeviceAccess-PythonBindings/mtca4u"
 
-[metadata]
-version = attr: package.__version__

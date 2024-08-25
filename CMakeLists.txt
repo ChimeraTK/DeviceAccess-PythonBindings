@@ -11,24 +11,14 @@ include(cmake/set_version_numbers.cmake)
 # set default compiler flags (C++)
 include(cmake/set_default_build_to_release.cmake)
 include(cmake/set_default_flags.cmake)
-
 include(cmake/enable_code_style_check.cmake)
 
 # ==============================================================================#
 
 # Find dependencies
 find_package(ChimeraTK-DeviceAccess 03.14 REQUIRED)
-
-if(SKBUILD)
-  find_package(Python REQUIRED COMPONENTS Interpreter Development.Module Numpy)
-else()
-  find_package(Python 3 REQUIRED COMPONENTS Interpreter Development NumPy)
-endif()
-
-# Convert Python version into the format we need for BOOST component names
-set(python_version_no_dot "${Python_VERSION_MAJOR}${Python_VERSION_MINOR}")
-
-find_package(Boost REQUIRED COMPONENTS python${python_version_no_dot} numpy${python_version_no_dot})
+find_package(Python3 COMPONENTS Interpreter Development.Module NumPy REQUIRED)
+find_package(Boost COMPONENTS python3 numpy3 REQUIRED)
 
 # ==============================================================================#
 
@@ -48,19 +38,15 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*")
 file(GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*")
 
-if(SKBUILD)
-    python_add_library(${PROJECT_NAME} MODULE ${headers} ${sources} WITH_SOABI)
-else()
-  add_library(${PROJECT_NAME} SHARED ${headers} ${sources})
-endif()
+add_library(${PROJECT_NAME} SHARED ${headers} ${sources})
 
 target_link_libraries(${PROJECT_NAME}
   PRIVATE ChimeraTK::ChimeraTK-DeviceAccess
-  PRIVATE Python::NumPy
-  PRIVATE Python::Module
+  PRIVATE Python3::NumPy
+  PRIVATE Python3::Module
   PRIVATE ${Boost_LIBRARIES}
-  PRIVATE Boost::python${python_version_no_dot}
-  PRIVATE Boost::numpy${python_version_no_dot})
+  PRIVATE Boost::python3
+  PRIVATE Boost::numpy3)
 
 # do not remove runtime path to libmtca-deviceaccess location from ${boost_python_core_module} when installing
 set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
@@ -70,8 +56,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" OUTPUT_NAME "_da_pyth
 
 # Copy Python part to build directory (required for tests to run)
 if(NOT SKBUILD)
-  file(COPY ${PROJECT_SOURCE_DIR}/mtca4u/mtca4u/__init__.py DESTINATION ${PROJECT_BINARY_DIR}/mtca4u.py)
-  file(COPY ${PROJECT_SOURCE_DIR}/deviceaccess.py DESTINATION ${PROJECT_BINARY_DIR})
+  file(COPY ${PROJECT_SOURCE_DIR}/deviceaccess_/__init__.py DESTINATION ${PROJECT_BINARY_DIR}/deviceacces.py)
+  file(COPY ${PROJECT_SOURCE_DIR}/mtca4u_/mtca4u/__init__.py DESTINATION ${PROJECT_BINARY_DIR}/mtca4u.py)
 endif()
 
 # ==============================================================================#
@@ -121,7 +107,7 @@ endif()
 # ==============================================================================#
 
 if(SKBUILD)
-  install(FILES ${PROJECT_SOURCE_DIR}/deviceaccess.py DESTINATION ${SKBUILD_PROJECT_NAME} RENAME __init__.py)
+  install(FILES ${PROJECT_SOURCE_DIR}/deviceaccess_/__init__.py DESTINATION ${SKBUILD_PROJECT_NAME})
   install(TARGETS ${PROJECT_NAME} DESTINATION ${SKBUILD_PROJECT_NAME})
 else()
   # install Python modules to correct platform-dependent directory (if installing to system prefix)
@@ -130,7 +116,7 @@ else()
   else()
     set(install_path "lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages")
   endif()
-  install(FILES ${PROJECT_SOURCE_DIR}/deviceaccess.py DESTINATION ${install_path})
-  install(FILES ${PROJECT_SOURCE_DIR}/mtca4u.py DESTINATION ${install_path})
+  install(FILES ${PROJECT_SOURCE_DIR}/deviceaccess_/__init__.py DESTINATION ${install_path} RENAME deviceaccess.py)
+  install(FILES ${PROJECT_SOURCE_DIR}/mtca4u_/mtca4u/__init__.py DESTINATION ${install_path} RENAME mtca4u.py)
   install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${install_path})
 endif()
