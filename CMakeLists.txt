@@ -55,7 +55,7 @@ if(SKBUILD)
     PRIVATE ${Boost_LIBRARIES}
     PRIVATE Boost::python3
     PRIVATE Boost::numpy3
-    "-Wl,--no-as-needed" # Force linking of the libraries below
+    "-Wl,--no-as-needed" # Force linking the optional backends
     PRIVATE ChimeraTK::ChimeraTK-DeviceAccess-EPICS-Backend
     PRIVATE ChimeraTK::ChimeraTK-DeviceAccess-OPC-UA-Backend
     PRIVATE ChimeraTK::ChimeraTK-DeviceAccess-DoocsBackend
