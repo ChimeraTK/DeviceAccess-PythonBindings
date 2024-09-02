@@ -4,6 +4,7 @@
 
 import numpy
 import unittest
+from pathlib import Path
 import os
 import sys
 
@@ -15,6 +16,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.curdir,"..")))
 import mtca4u
 # fmt: on
 
+DEVINFO_DIR = Path(__file__).parent / "deviceInformation"
 
 class TestDummyDevice(unittest.TestCase):
 

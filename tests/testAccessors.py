@@ -4,6 +4,7 @@
 
 import sys
 import unittest
+from pathlib import Path
 import numpy as np
 import os
 
@@ -15,12 +16,13 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.curdir,"..")))
 import deviceaccess as da
 # fmt: on
 
+DEVINFO_DIR = Path(__file__).parent / "deviceInformation"
 
 class TestAccessors(unittest.TestCase):
 
     def testScalar(self):
 
-        da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+        da.setDMapFilePath(str(DEVINFO_DIR / "exampleCrate.dmap"))
         dev = da.Device("CARD_WITH_MODULES")
         dev.open()
 
@@ -91,7 +93,7 @@ class TestAccessors(unittest.TestCase):
 
     def testOneD(self):
 
-        da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+        da.setDMapFilePath(str(DEVINFO_DIR / "exampleCrate.dmap"))
         dev = da.Device("CARD_WITH_MODULES")
         dev.open()
 
@@ -146,7 +148,7 @@ class TestAccessors(unittest.TestCase):
 
     def testTwoD(self):
 
-        da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
+        da.setDMapFilePath(str(DEVINFO_DIR / "exampleCrate.dmap"))
         dev = da.Device("CARD_WITH_MODULES")
         dev.open()
         acc = dev.getTwoDRegisterAccessor(np.int32, "BOARD/DMA")

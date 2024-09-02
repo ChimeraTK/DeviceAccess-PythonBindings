@@ -5,6 +5,7 @@
 from concurrent.futures import thread
 import sys
 import unittest
+from pathlib import Path
 import numpy as np
 import os
 import threading
@@ -18,12 +19,13 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.curdir,"..")))
 import deviceaccess as da
 # fmt: on
 
+DEVINFO_DIR = Path(__file__).parent / "deviceInformation"
 
 class TestPushType(unittest.TestCase):
 
     def testCorrectInterupt(self):
 
-        da.setDMapFilePath("deviceInformation/push.dmap")
+        da.setDMapFilePath(str(DEVINFO_DIR / "push.dmap"))
         dev = da.Device("SHARED_RAW_DEVICE")
         dev.open()
         dev.activateAsyncRead()
@@ -45,7 +47,7 @@ class TestPushType(unittest.TestCase):
             readAcc.read()
             barrier.wait()
 
-        da.setDMapFilePath("deviceInformation/push.dmap")
+        da.setDMapFilePath(str(DEVINFO_DIR / "push.dmap"))
         dev = da.Device("SHARED_RAW_DEVICE")
         dev.open()
         dev.activateAsyncRead()
@@ -68,7 +70,7 @@ class TestPushType(unittest.TestCase):
         barrier.wait(timeout=2)
 
     def testCorrectWrite(self):
-        da.setDMapFilePath("deviceInformation/push.dmap")
+        da.setDMapFilePath(str(DEVINFO_DIR /"push.dmap"))
         dev = da.Device("SHARED_RAW_DEVICE")
         dev.open()
         dev.activateAsyncRead()
@@ -102,7 +104,7 @@ class TestPushType(unittest.TestCase):
             readAcc.read()
             barrier.wait()
 
-        da.setDMapFilePath("deviceInformation/push.dmap")
+        da.setDMapFilePath(str(DEVINFO_DIR / "push.dmap"))
         dev = da.Device("SHARED_RAW_DEVICE")
         dev.open()
         dev.activateAsyncRead()

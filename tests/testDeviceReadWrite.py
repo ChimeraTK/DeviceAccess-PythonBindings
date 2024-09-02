@@ -5,6 +5,7 @@
 from concurrent.futures import thread
 import sys
 import unittest
+from pathlib import Path
 import numpy as np
 import os
 import threading
@@ -19,11 +20,12 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.curdir,"..")))
 import deviceaccess as da
 # fmt: on
 
+DEVINFO_DIR = Path(__file__).parent / "deviceInformation"
 
 class TestDeviceReadWrite(unittest.TestCase):
 
     def setUp(self):
-        da.setDMapFilePath("deviceInformation/testCrate.dmap")
+        da.setDMapFilePath(str(DEVINFO_DIR / "testCrate.dmap"))
         self.dev = da.Device("TEST_CARD")
         self.dev.open()
 

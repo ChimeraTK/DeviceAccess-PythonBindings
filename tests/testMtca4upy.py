@@ -6,6 +6,7 @@ import os
 import sys
 import fcntl
 import unittest
+from pathlib import Path
 import numpy
 
 # fmt: off
@@ -16,12 +17,13 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.curdir,"..")))
 import mtca4u
 # fmt: on
 
+DEVINFO_DIR = Path(__file__).parent / "deviceInformation"
 
 class TestPCIEDevice(unittest.TestCase):
     # TODO: Refactor to take care of the harcoded values used for comparisions
 
     def setUp(self):
-        mtca4u.set_dmap_location("deviceInformation/exampleCrate.dmap")
+        mtca4u.set_dmap_location(str(DEVINFO_DIR / "exampleCrate.dmap"))
 
     def testRead(self):
         # first open devices, so shared memory dummies work correctly with __prepareDataOnCards and __testRead
@@ -151,8 +153,7 @@ class TestPCIEDevice(unittest.TestCase):
 
     def testSetGetDmapfile(self):
         # set by the test setUp method
-        self.assertTrue(mtca4u.get_dmap_location() ==
-                        "deviceInformation/exampleCrate.dmap")
+        self.assertTrue(mtca4u.get_dmap_location() == str(DEVINFO_DIR / "exampleCrate.dmap"))
 
     """
   The idea here is to preset data on registers that is then  read in and
