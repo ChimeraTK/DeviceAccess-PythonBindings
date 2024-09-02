@@ -65,7 +65,7 @@ manylinux-aarch64-image = "manylinux2_2_28"
 build-verbosity = 1
 
 ## Run pytest to ensure that the package was correctly built
-test-skip = "*"
+test-command = "python -m unittest discover -v {package}/tests"
 
 [tool.cibuildwheel.linux.environment]
 # Enable backends compilation
