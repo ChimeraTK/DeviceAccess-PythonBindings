@@ -56,8 +56,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" OUTPUT_NAME "_da_pyth
 
 # Copy Python part to build directory (required for tests to run)
 if(NOT SKBUILD)
-  file(COPY ${PROJECT_SOURCE_DIR}/deviceaccess_/__init__.py DESTINATION ${PROJECT_BINARY_DIR}/deviceacces.py)
-  file(COPY ${PROJECT_SOURCE_DIR}/mtca4u_/mtca4u/__init__.py DESTINATION ${PROJECT_BINARY_DIR}/mtca4u.py)
+  file(COPY ${PROJECT_SOURCE_DIR}/src/deviceaccess/__init__.py DESTINATION ${PROJECT_BINARY_DIR}/deviceacces.py)
+  file(COPY ${PROJECT_SOURCE_DIR}/src/mtca4u/__init__.py DESTINATION ${PROJECT_BINARY_DIR}/mtca4u.py)
 endif()
 
 # ==============================================================================#
@@ -107,7 +107,6 @@ endif()
 # ==============================================================================#
 
 if(SKBUILD)
-  install(FILES ${PROJECT_SOURCE_DIR}/deviceaccess_/__init__.py DESTINATION ${SKBUILD_PROJECT_NAME})
   install(TARGETS ${PROJECT_NAME} DESTINATION ${SKBUILD_PROJECT_NAME})
 else()
   # install Python modules to correct platform-dependent directory (if installing to system prefix)
@@ -116,7 +115,7 @@ else()
   else()
     set(install_path "lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages")
   endif()
-  install(FILES ${PROJECT_SOURCE_DIR}/deviceaccess_/__init__.py DESTINATION ${install_path} RENAME deviceaccess.py)
-  install(FILES ${PROJECT_SOURCE_DIR}/mtca4u_/mtca4u/__init__.py DESTINATION ${install_path} RENAME mtca4u.py)
+  install(FILES ${PROJECT_SOURCE_DIR}/src/deviceaccess/__init__.py DESTINATION ${install_path} RENAME deviceaccess.py)
+  install(FILES ${PROJECT_SOURCE_DIR}/src/mtca4u/__init__.py DESTINATION ${install_path} RENAME mtca4u.py)
   install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${install_path})
 endif()

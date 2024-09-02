@@ -19,8 +19,8 @@ from typing import Sequence, Union
 import numpy as np
 
 try:
-    from . import _da_python_bindings as pb
-    from ._da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType
+    from deviceaccess import _da_python_bindings as pb
+    from deviceaccess._da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType
 except ModuleNotFoundError:
     import _da_python_bindings as pb
     from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType
