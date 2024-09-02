@@ -20,6 +20,13 @@ find_package(ChimeraTK-DeviceAccess 03.14 REQUIRED)
 find_package(Python3 COMPONENTS Interpreter Development.Module NumPy REQUIRED)
 find_package(Boost COMPONENTS python3 numpy3 REQUIRED)
 
+if(SKBUILD)
+  find_package(ChimeraTK-DeviceAccess-EPICS-Backend REQUIRED)
+  find_package(ChimeraTK-DeviceAccess-OPC-UA-Backend REQUIRED)
+  find_package(ChimeraTK-DeviceAccess-DoocsBackend REQUIRED)
+  find_package(ChimeraTK-DeviceAccess-ModbusBackend REQUIRED)
+endif()
+
 # ==============================================================================#
 
 # Defining NPY_NO_DEPRECATED_API as NPY_1_7_API_VERSION, should ensure that the
@@ -40,13 +47,29 @@ file(GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*")
 
 add_library(${PROJECT_NAME} SHARED ${headers} ${sources})
 
-target_link_libraries(${PROJECT_NAME}
-  PRIVATE ChimeraTK::ChimeraTK-DeviceAccess
-  PRIVATE Python3::NumPy
-  PRIVATE Python3::Module
-  PRIVATE ${Boost_LIBRARIES}
-  PRIVATE Boost::python3
-  PRIVATE Boost::numpy3)
+if(SKBUILD)
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE ChimeraTK::ChimeraTK-DeviceAccess
+    PRIVATE Python3::NumPy
+    PRIVATE Python3::Module
+    PRIVATE ${Boost_LIBRARIES}
+    PRIVATE Boost::python3
+    PRIVATE Boost::numpy3
+    "-Wl,--no-as-needed -Wl,--whole-archive" # Force linking of the libraries below
+    PRIVATE ChimeraTK::ChimeraTK-DeviceAccess-EPICS-Backend
+    PRIVATE ChimeraTK::ChimeraTK-DeviceAccess-OPC-UA-Backend
+    PRIVATE ChimeraTK::ChimeraTK-DeviceAccess-DoocsBackend
+    PRIVATE ChimeraTK::ChimeraTK-DeviceAccess-ModbusBackend
+    "-Wl,--as-needed -Wl,--no-whole-archive")
+else()
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE ChimeraTK::ChimeraTK-DeviceAccess
+    PRIVATE Python3::NumPy
+    PRIVATE Python3::Module
+    PRIVATE ${Boost_LIBRARIES}
+    PRIVATE Boost::python3
+    PRIVATE Boost::numpy3)
+endif()
 
 # do not remove runtime path to libmtca-deviceaccess location from ${boost_python_core_module} when installing
 set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
@@ -82,7 +105,7 @@ include(cmake/enable_code_coverage_report.cmake)
 # add target for documentation if sphinx is available
 find_package(Sphinx)
 
-if(SPHINX_EXECUTABLE)
+if(SPHINX_EXECUTABLE AND (NOT SKBUILD))
   configure_file("${PROJECT_SOURCE_DIR}/doc/conf.py.in" "${PROJECT_BINARY_DIR}/conf.py")
 
   # copy the config file to the build directory

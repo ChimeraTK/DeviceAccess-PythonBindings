@@ -41,23 +41,7 @@ dnf -y install clang zeromq-devel readline-devel openldap-devel wget libssh2-dev
 
 pipx install meson ninja sphinx
 
-# Install cppext
-git clone --recursive --depth 1 --branch ${CPPEXT_VERSION} https://github.com/ChimeraTK/cppext.git
-build_cmake cppext
-
-# Install exprtk
-git clone --recursive --depth 1 --branch ${EXPRTK_VERSION} https://github.com/ChimeraTK/exprtk-interface.git
-build_cmake exprtk-interface
-
-# Install nlohmann-json
-git clone --recursive --depth 1 --branch ${NLOHMANN_JSON_VERSION} https://github.com/nlohmann/json.git
-build_cmake json
-
-# Install ChimeraTK-DeviceAccess
-git clone --recursive --depth 1 --branch ${DEVICEACCESS_VERSION} https://github.com/ChimeraTK/DeviceAccess.git
-build_cmake DeviceAccess
-
-if [ $DEVICEACCESS_BACKEND_ENABLE != "0"]
+if [ $DEVICEACCESS_BACKEND_ENABLE != "0" ]
 then
 
   # Install EPICS
@@ -127,6 +111,40 @@ then
   #Install open62541
   git clone --recursive --depth 1 --branch ${OPEN62541_VERSION} https://github.com/open62541/open62541.git
   build_cmake open62541
+
+  # Install DOOCSServerTestHelper
+  git clone --recursive --depth 1 --branch ${DOOCS_SERVER_TEST_HELPER_VERSION} https://github.com/ChimeraTK/DoocsServerTestHelper.git
+  build_cmake DoocsServerTestHelper
+
+  #Install ChimeraTK-EPICS
+  git clone --recursive --depth 1 --branch ${CHIMERATK_EPICS_VERSION} https://github.com/ChimeraTK/EPICS-Interface.git
+  cd EPICS-Interface/
+  mkdir builddir
+  cd builddir/
+  cmake -DCMAKE_BUILD_TYPE=Release -DEPICS_VERSION=7 ..
+  make install -j${PROCS}
+  cd ${BUILD_DIR}
+
+fi
+
+# Install cppext
+git clone --recursive --depth 1 --branch ${CPPEXT_VERSION} https://github.com/ChimeraTK/cppext.git
+build_cmake cppext
+
+# Install exprtk
+git clone --recursive --depth 1 --branch ${EXPRTK_VERSION} https://github.com/ChimeraTK/exprtk-interface.git
+build_cmake exprtk-interface
+
+# Install nlohmann-json
+git clone --recursive --depth 1 --branch ${NLOHMANN_JSON_VERSION} https://github.com/nlohmann/json.git
+build_cmake json
+
+# Install ChimeraTK-DeviceAccess
+git clone --recursive --depth 1 --branch ${DEVICEACCESS_VERSION} https://github.com/ChimeraTK/DeviceAccess.git
+build_cmake DeviceAccess
+
+if [ $DEVICEACCESS_BACKEND_ENABLE != "0" ]
+then
 
   # Install ChimeraTK-DeviceAccess-EpicsBackend
   git clone --recursive --depth 1 --branch ${DEVICEACCESS_EPICS_VERSION} https://github.com/ChimeraTK/DeviceAccess-EpicsBackend.git
