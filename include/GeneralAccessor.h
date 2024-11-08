@@ -33,6 +33,14 @@ namespace DeviceAccessPython {
     static bool write(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer);
 
     static bool writeDestructively(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer);
+
+    template<typename UserType>
+    static boost::python::numpy::ndarray setAsCooked(
+        ACCESSOR& self, boost::python::numpy::ndarray& np_buffer, size_t channel, size_t element, UserType value);
+
+    template<typename UserType>
+    static UserType getAsCooked(
+        ACCESSOR& self, boost::python::numpy::ndarray& np_buffer, size_t channel, size_t element);
   };
 
   /*****************************************************************************************************************/
@@ -78,6 +86,25 @@ namespace DeviceAccessPython {
   bool GeneralRegisterAccessor<ACCESSOR>::writeDestructively(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer) {
     copyNpArrayToUserBuffer(self, np_buffer);
     return self.writeDestructively();
+  }
+
+  /*****************************************************************************************************************/
+
+  template<typename ACCESSOR>
+  template<typename UserType>
+  boost::python::numpy::ndarray GeneralRegisterAccessor<ACCESSOR>::setAsCooked(
+      ACCESSOR& self, boost::python::numpy::ndarray& np_buffer, size_t channel, size_t element, UserType value) {
+    self.getImpl()->setAsCooked(channel, element, value);
+    return copyUserBufferToNpArray(self, np_buffer);
+  }
+  /*****************************************************************************************************************/
+
+  template<typename ACCESSOR>
+  template<typename UserType>
+  UserType GeneralRegisterAccessor<ACCESSOR>::getAsCooked(
+      ACCESSOR& self, boost::python::numpy::ndarray& np_buffer, size_t channel, size_t element) {
+    copyNpArrayToUserBuffer(self, np_buffer);
+    return self.getImpl()->template getAsCooked<UserType>(channel, element);
   }
 
   /*****************************************************************************************************************/

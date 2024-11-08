@@ -50,6 +50,38 @@
       .def("setDataValidity", &accessorType<userType>::setDataValidity)                                                \
       .def("dataValidity", &accessorType<userType>::dataValidity)                                                      \
       .def("getId", &accessorType<userType>::getId)                                                                    \
+      .def("getAsCooked_int8",                                                                                         \
+          &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getAsCooked<int8_t>)                   \
+      .def("getAsCooked_uint8",                                                                                        \
+          &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getAsCooked<uint8_t>)                  \
+      .def("getAsCooked_int16",                                                                                        \
+          &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getAsCooked<int16_t>)                  \
+      .def("getAsCooked_uint16",                                                                                       \
+          &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getAsCooked<uint16_t>)                 \
+      .def("getAsCooked_int32",                                                                                        \
+          &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getAsCooked<int32_t>)                  \
+      .def("getAsCooked_uint32",                                                                                       \
+          &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getAsCooked<uint32_t>)                 \
+      .def("getAsCooked_float",                                                                                        \
+          &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getAsCooked<float>)                    \
+      .def("getAsCooked_double",                                                                                       \
+          &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getAsCooked<double>)                   \
+      .def("getAsCooked_string",                                                                                       \
+          &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getAsCooked<std::string>)              \
+      .def("getAsCooked_bool",                                                                                         \
+          &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getAsCooked<ChimeraTK::Boolean>)       \
+      .def("setAsCooked", &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::setAsCooked<int8_t>)   \
+      .def("setAsCooked", &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::setAsCooked<uint8_t>)  \
+      .def("setAsCooked", &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::setAsCooked<int16_t>)  \
+      .def("setAsCooked", &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::setAsCooked<uint16_t>) \
+      .def("setAsCooked", &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::setAsCooked<int32_t>)  \
+      .def("setAsCooked", &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::setAsCooked<uint32_t>) \
+      .def("setAsCooked", &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::setAsCooked<float>)    \
+      .def("setAsCooked", &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::setAsCooked<double>)   \
+      .def("setAsCooked",                                                                                              \
+          &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::setAsCooked<std::string>)              \
+      .def("setAsCooked",                                                                                              \
+          &DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::setAsCooked<ChimeraTK::Boolean>)       \
       .def("getAccessModeFlagsString",                                                                                 \
           DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::getAccessModeFlagsString)               \
       .def("read", DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::read)                          \

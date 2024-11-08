@@ -717,6 +717,16 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
     def writeDestructively(self) -> None:
         return self._accessor.writeDestructively(self.__array)
 
+    def getAsCooked(self, userType, channel: int, element: int):
+        userTypeFunctionExtension = Device._userTypeExtensions.get(userType, None)
+        if not userTypeFunctionExtension:
+            raise SyntaxError("userType not supported" + str(Device._userTypeExtensions))
+        getAsCooked = getattr(self._accessor, "getAsCooked_" + userTypeFunctionExtension)
+        return getAsCooked(self.__array, channel, element)
+
+    def setAsCooked(self, channel: int, element: int, value):
+        self.__array = self._accessor.setAsCooked(self.__array, channel, element, value)
+
     # transfer doc strings from base class for accessor functions
     read.__doc__ = GeneralRegisterAccessor.read.__doc__
     readNonBlocking.__doc__ = GeneralRegisterAccessor.readNonBlocking.__doc__
