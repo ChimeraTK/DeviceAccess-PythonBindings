@@ -4,6 +4,8 @@
 
 #include "HelperFunctions.h"
 
+#include <ChimeraTK/cppext/finally.hpp>
+
 namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
@@ -52,7 +54,11 @@ namespace DeviceAccessPython {
   template<typename ACCESSOR>
   boost::python::numpy::ndarray GeneralRegisterAccessor<ACCESSOR>::read(
       ACCESSOR& self, boost::python::numpy::ndarray& np_buffer) {
-    self.read();
+    {
+      PyThreadState* m_thread_state = PyEval_SaveThread();
+      auto _release = cppext::finally([&] { PyEval_RestoreThread(m_thread_state); });
+      self.read();
+    }
     return copyUserBufferToNpArray(self, np_buffer);
   }
 
