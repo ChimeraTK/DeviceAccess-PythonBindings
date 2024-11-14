@@ -467,6 +467,14 @@ class GeneralRegisterAccessor(abc.ABC):
         """
         return self._accessor.getId()
 
+    def interrupt(self) -> None:
+        """
+        Place a thread interrupted exception on the read queue of this accessor,
+        so the thread currently waiting in a blocking read() will terminate. May
+        only be called for accessors with AccessMode.wait_for_new_data.
+        """
+        self._accessor.interrupt()
+
 #######################################################################################################################
 #######################################################################################################################
 

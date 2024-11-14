@@ -89,7 +89,8 @@
       .def("readNonBlocking", DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::readNonBlocking)    \
       .def("write", DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::write)                        \
       .def("writeDestructively",                                                                                       \
-          DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::writeDestructively)
+          DeviceAccessPython::GeneralRegisterAccessor<accessorType<userType>>::writeDestructively)                     \
+      .def("interrupt", &accessorType<userType>::interrupt)
 
 #define TEMPLATECLASS_TWODREGISTERACCESSOR(userType, className, class_suffix)                                          \
   bp::class_<ChimeraTK::TwoDRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                            \
