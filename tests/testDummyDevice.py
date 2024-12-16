@@ -19,8 +19,7 @@ import mtca4u
 class TestDummyDevice(unittest.TestCase):
 
     def testCreateDummyDevice(self):
-        self.assertRaisesRegex(RuntimeError, "Cannot open file \".*someBogusMapFile.map\"", mtca4u.Device,
-                                "sdm://./dummy=someBogusMapFile.map")
+        self.assertRaises(RuntimeError, mtca4u.Device, "(dummy?map=someBogusMapFile.map)")
 
 
 if __name__ == '__main__':

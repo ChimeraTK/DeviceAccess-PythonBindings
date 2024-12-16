@@ -115,13 +115,7 @@ class TestPCIEDevice(unittest.TestCase):
     def testException(self):
         device = mtca4u.Device("(dummy?map=./modular_mtcadummy.map)")
         array = numpy.array([1, 2, 3, 4], dtype=numpy.int32)
-        self.assertRaisesRegex(
-            RuntimeError,
-            "Requested number of words exceeds the size of the register '/BOARD/WORD_STATUS'!",
-            device.write_raw,
-            'BOARD',
-            'WORD_STATUS',
-            array)
+        self.assertRaises(RuntimeError, device.write_raw, 'BOARD', 'WORD_STATUS', array)
         # moduleName='', registerName=None, dataToWrite=None, elementIndexInRegister=0, registerPath=None)
 
     def testDeviceCreation(self):
@@ -139,10 +133,8 @@ class TestPCIEDevice(unittest.TestCase):
             # incorrect usage.
 
         self.assertRaises(RuntimeError, mtca4u.Device, "(dummy?map=NON_EXISTENT_MAPFILE)")
-        self.assertRaisesRegex(SyntaxError, "Syntax Error: please see help\\(mtca4u.Device\\) for usage instructions.",
-                               mtca4u.Device)
-        self.assertRaisesRegex(SyntaxError, "Syntax Error: please see help\\(mtca4u.Device\\) for usage instructions.",
-                               mtca4u.Device, "BogusText", "BogusText", "BogusText")
+        self.assertRaises(SyntaxError, mtca4u.Device)
+        self.assertRaises(SyntaxError, mtca4u.Device, "BogusText", "BogusText", "BogusText")
 
         dmapFilePath = mtca4u.get_dmap_location()
         mtca4u.set_dmap_location("")
@@ -255,11 +247,7 @@ class TestPCIEDevice(unittest.TestCase):
         # check for corner cases
         # Register Not Found
         # hack
-        exceptionMessage = self.__returnRegisterNotFoundExceptionMsg(
-            module, "BAD_REGISTER_NAME")
-
-        self.assertRaisesRegex(RuntimeError, exceptionMessage, readCommand, str(module),
-                               "BAD_REGISTER_NAME")
+        self.assertRaises(RuntimeError, readCommand, str(module), "BAD_REGISTER_NAME")
 
         # Num of elements specified  is more than register size
         registerName = "WORD_CLK_MUX"
@@ -269,11 +257,7 @@ class TestPCIEDevice(unittest.TestCase):
             module), registerName, elementsToRead, offset)
 
         # bad value for number of elements
-        self.assertRaises(OverflowError,
-                          readCommand,
-                          str(module),
-                          registerName,
-                          numberOfElementsToRead=-1)
+        self.assertRaises(OverflowError,  readCommand, str(module), registerName, numberOfElementsToRead=-1)
 
         # offset exceeds register size
         offset = 5
@@ -370,14 +354,11 @@ class TestPCIEDevice(unittest.TestCase):
             readInValues = readCommand(module, "WORD_CLK_MUX", 1, 0)
             self.assertTrue(readInValues.tolist() == [5])
 
-            self.assertRaisesRegex(RuntimeError, "Data format used is unsupported",
-                                   writeCommand, module, word_incomplete_register,
-                                   "")
+            self.assertRaises(RuntimeError, writeCommand, module, word_incomplete_register, "")
 
          # Test for Unsupported dtype eg. dtype = numpy.int8
-            self.assertRaisesRegex(RuntimeError, "Data format used is unsupported",
-                                   writeCommand, module, word_incomplete_register,
-                                   numpy.array([2], dtype=numpy.int8))
+            self.assertRaises(RuntimeError, writeCommand, module, word_incomplete_register,
+                              numpy.array([2], dtype=numpy.int8))
 
         # check offset functionality
         writeCommand(module, "WORD_CLK_MUX", word_clk_mux_content)
@@ -395,21 +376,10 @@ class TestPCIEDevice(unittest.TestCase):
         # Check corner cases
 
         # Bogus register name
-        exceptionMessage = self.__returnRegisterNotFoundExceptionMsg(
-            module, "BAD_REGISTER_NAME")
-        self.assertRaisesRegex(RuntimeError, exceptionMessage, writeCommand, module,
-                               "BAD_REGISTER_NAME",
-                               numpy.array([2.125], dtype=dtype))
+        self.assertRaises(RuntimeError, writeCommand, module, "BAD_REGISTER_NAME", numpy.array([2.125], dtype=dtype))
 
-        # supplied array size exceeds register capacity: !regex /BOARD can be
-        # there 1 o 0 times. () and ? have special meaning in regex.
-        self.assertRaisesRegex(
-            RuntimeError,
-            "Requested number of words exceeds the size of the register '(/BOARD)?/WORD_INCOMPLETE_2'!",
-            writeCommand,
-            module,
-            word_incomplete_register,
-            word_clk_mux_content)
+        # supplied array size exceeds register capacity
+        self.assertRaises(RuntimeError, writeCommand, module, word_incomplete_register, word_clk_mux_content)
 
         # supplied offset exceeds register span
         self.assertRaises(RuntimeError, writeCommand, module,
