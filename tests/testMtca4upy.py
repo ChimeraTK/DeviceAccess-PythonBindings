@@ -472,19 +472,19 @@ class TestPCIEDevice(unittest.TestCase):
 
         # Check that 32 bit data can be transfered without precision loss (Hack by using double.
         # This is not clean, but works sufficiently well.)
-        predefinedSequence = numpy.array([0x12345678, 0x90abcdef, 0xa5a5a5a5,
-                                          0x5a5a5a5a, 0xffeeffee, 0xcc33cc33,
-                                          0x33cc33cc, 0xdeadbeef, 0x87654321,
-                                          0xfdecba09, 0xb0b00b0b, 0x73533537], dtype=numpy.int32)
+        predefinedSequence = numpy.array([0x12345678, 0x10abcdef, 0x25a5a5a5,
+                                          0x5a5a5a5a, 0x7feeffee, 0x4c33cc33,
+                                          0x33cc33cc, 0x5eadbeef, 0x07654321,
+                                          0x7decba09, 0x30b00b0b, 0x73533537], dtype=numpy.int32)
         device.write_raw(
             module, 'UNSIGNED_INT.MULTIPLEXED_RAW', predefinedSequence)
 
         # Use dtype=numpy.int32 to make sure we don't have rounding errors in the expected values.
         # The comparison array_equiv still works, even if we compare to a different dtype.
-        expectedMatrix = numpy.array([[0x12345678, 0x90abcdef, 0xa5a5a5a5],
-                                      [0x5a5a5a5a, 0xffeeffee, 0xcc33cc33],
-                                      [0x33cc33cc, 0xdeadbeef, 0x87654321],
-                                      [0xfdecba09, 0xb0b00b0b, 0x73533537]], dtype=numpy.uint32)
+        expectedMatrix = numpy.array([[0x12345678, 0x10abcdef, 0x25a5a5a5],
+                                      [0x5a5a5a5a, 0x7feeffee, 0x4c33cc33],
+                                      [0x33cc33cc, 0x5eadbeef, 0x07654321],
+                                      [0x7decba09, 0x30b00b0b, 0x73533537]], dtype=numpy.uint32)
         readInMatrix = device.read_sequences(module, 'UNSIGNED_INT')
         self.assertTrue(numpy.array_equiv(readInMatrix, expectedMatrix))
         self.assertTrue(readInMatrix.dtype == numpy.double)
