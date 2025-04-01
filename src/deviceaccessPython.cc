@@ -8,8 +8,12 @@
 #include "VersionNumber.h"
 #include "VoidAccessor.h"
 
+#include <pybind11/pybind11.h>
+
 #include <boost/python/args.hpp>
 #include <boost/python/numpy.hpp>
+
+namespace py = pybind11;
 
 // no ; at line endings to be able to reuse in .def format
 // any changes have to mirror the _userTypeExtensions dict in the python Device class
@@ -93,18 +97,18 @@
       .def("interrupt", &accessorType<userType>::interrupt)
 
 #define TEMPLATECLASS_TWODREGISTERACCESSOR(userType, className, class_suffix)                                          \
-  bp::class_<ChimeraTK::TwoDRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                            \
+  py::class_<ChimeraTK::TwoDRegisterAccessor<userType>>(m, STRINGIFY(className##class_suffix))                         \
       TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ChimeraTK::TwoDRegisterAccessor, userType)                                   \
           .def("getNChannels", &ChimeraTK::TwoDRegisterAccessor<userType>::getNChannels)                               \
           .def("getNElementsPerChannel", &ChimeraTK::TwoDRegisterAccessor<userType>::getNElementsPerChannel);
 
 #define TEMPLATECLASS_ONEDREGISTERACCESSOR(userType, className, class_suffix)                                          \
-  bp::class_<ChimeraTK::OneDRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                            \
+  py::class_<ChimeraTK::OneDRegisterAccessor<userType>>(m, STRINGIFY(className##class_suffix))                         \
       TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ChimeraTK::OneDRegisterAccessor, userType)                                   \
           .def("getNElements", &ChimeraTK::OneDRegisterAccessor<userType>::getNElements);
 
 #define TEMPLATECLASS_SCALARREGISTERACCESSOR(userType, className, class_suffix)                                        \
-  bp::class_<ChimeraTK::ScalarRegisterAccessor<userType>>(STRINGIFY(className##class_suffix))                          \
+  py::class_<ChimeraTK::ScalarRegisterAccessor<userType>>(m, STRINGIFY(className##class_suffix))                       \
       TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ChimeraTK::ScalarRegisterAccessor, userType)                                 \
           .def("readAndGet", &ChimeraTK::ScalarRegisterAccessor<userType>::readAndGet)                                 \
           .def("setAndWrite", &ChimeraTK::ScalarRegisterAccessor<userType>::setAndWrite)                               \
@@ -120,9 +124,9 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(open_overloads, DeviceAccessPython::Device::open
 
 //****************************************************************************//
 
-BOOST_PYTHON_MODULE(_da_python_bindings) {
-  Py_Initialize();
-  np::initialize();
+PYBIND11_MODULE(_da_python_bindings, m) {
+  // Py_Initialize();
+  // np::initialize();
 
   boost::python::to_python_converter<ChimeraTK::Boolean, CtkBoolean_to_python>();
 
@@ -130,7 +134,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
   bool show_signatures = false;
   bp::docstring_options doc_options(show_user_defined, show_signatures);
 
-  bp::class_<ChimeraTK::Device>("Device")
+  py::class_<ChimeraTK::Device>(m, "Device")
       TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)
           TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR, getOneDAccessor)
               TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR, getScalarAccessor)
@@ -146,8 +150,10 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_SCALARREGISTERACCESSOR, ScalarAccessor)
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_ONEDREGISTERACCESSOR, OneDAccessor)
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_TWODREGISTERACCESSOR, TwoDAccessor)
-  bp::class_<ChimeraTK::VoidRegisterAccessor>(
-      "VoidRegisterAccessor", bp::init<boost::shared_ptr<ChimeraTK::NDRegisterAccessor<ChimeraTK::Void>>>())
+  py::class_<ChimeraTK::VoidRegisterAccessor>(m, "VoidRegisterAccessor"
+      //, bp::init<boost::shared_ptr<ChimeraTK::NDRegisterAccessor<ChimeraTK::Void>>>()
+      )
+      .def(py::init<ChimeraTK::NDRegisterAccessor<ChimeraTK::Void>>())
       .def("isReadOnly", &ChimeraTK::VoidRegisterAccessor::isReadOnly)
       .def("isReadable", &ChimeraTK::VoidRegisterAccessor::isReadable)
       .def("isWriteable", &ChimeraTK::VoidRegisterAccessor::isWriteable)
@@ -168,18 +174,24 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("writeDestructively", DeviceAccessPython::VoidRegisterAccessor::writeDestructively)
       .def("write", DeviceAccessPython::VoidRegisterAccessor::write);
 
-  bp::def("createDevice", DeviceAccessPython::createDevice);
-  bp::def("getDevice_no_alias", DeviceAccessPython::getDevice_no_alias);
-  bp::def("getDevice", DeviceAccessPython::getDevice);
-  bp::def("setDmapFile", DeviceAccessPython::setDmapFile);
-  bp::def("getDmapFile", DeviceAccessPython::getDmapFile);
+  m.def("createDevice", DeviceAccessPython::createDevice);
+  m.def("getDevice_no_alias", DeviceAccessPython::getDevice_no_alias);
+  m.def("getDevice", DeviceAccessPython::getDevice);
+  m.def("setDmapFile", DeviceAccessPython::setDmapFile);
+  m.def("getDmapFile", DeviceAccessPython::getDmapFile);
 
-  bp::class_<ChimeraTK::RegisterCatalogue>("RegisterCatalogue", bp::init<ChimeraTK::RegisterCatalogue>())
+  py::class_<ChimeraTK::RegisterCatalogue>(m, "RegisterCatalogue"
+      //, bp::init<ChimeraTK::RegisterCatalogue>()
+      )
+      .def(py::init<ChimeraTK::RegisterCatalogue>())
       .def("_items", DeviceAccessPython::RegisterCatalogue::items)
       .def("hasRegister", DeviceAccessPython::RegisterCatalogue::hasRegister)
       .def("getRegister", DeviceAccessPython::RegisterCatalogue::getRegister);
 
-  bp::class_<ChimeraTK::RegisterInfo>("RegisterInfo", bp::init<ChimeraTK::RegisterInfo>())
+  py::class_<ChimeraTK::RegisterInfo>(m, "RegisterInfo"
+      //, bp::init<ChimeraTK::RegisterInfo>()
+      )
+      .def(py::init<ChimeraTK::RegisterInfo>())
       .def("getDataDescriptor", DeviceAccessPython::RegisterInfo::getDataDescriptor)
       .def("isReadable", &ChimeraTK::RegisterInfo::isReadable)
       .def("isValid", &ChimeraTK::RegisterInfo::isValid)
@@ -190,7 +202,10 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("getNumberOfDimensions", &ChimeraTK::RegisterInfo::getNumberOfDimensions)
       .def("getNumberOfChannels", &ChimeraTK::RegisterInfo::getNumberOfChannels);
 
-  bp::class_<ChimeraTK::DataDescriptor>("DataDescriptor", bp::init<ChimeraTK::DataDescriptor>())
+  py::class_<ChimeraTK::DataDescriptor>(m, "DataDescriptor"
+      //, bp::init<ChimeraTK::DataDescriptor>()
+      )
+      .def(py::init<ChimeraTK::DataDescriptor>())
       .def("rawDataType", &ChimeraTK::DataDescriptor::rawDataType)
       .def("transportLayerDataType", &ChimeraTK::DataDescriptor::transportLayerDataType)
       .def("minimumDataType", &ChimeraTK::DataDescriptor::minimumDataType)
@@ -200,12 +215,12 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("nFractionalDigits", &ChimeraTK::DataDescriptor::nFractionalDigits)
       .def("fundamentalType", DeviceAccessPython::DataDescriptor::fundamentalType);
 
-  bp::enum_<ChimeraTK::AccessMode>("AccessMode")
+  py::enum_<ChimeraTK::AccessMode>(m, "AccessMode")
       .value("raw", ChimeraTK::AccessMode::raw)
       .value("wait_for_new_data", ChimeraTK::AccessMode::wait_for_new_data)
       .export_values();
 
-  bp::enum_<ChimeraTK::DataDescriptor::FundamentalType>("FundamentalType")
+  py::enum_<ChimeraTK::DataDescriptor::FundamentalType>(m, "FundamentalType")
       .value("numeric", ChimeraTK::DataDescriptor::FundamentalType::numeric)
       .value("string", ChimeraTK::DataDescriptor::FundamentalType::string)
       .value("boolean", ChimeraTK::DataDescriptor::FundamentalType::boolean)
@@ -213,23 +228,23 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .value("undefined", ChimeraTK::DataDescriptor::FundamentalType::undefined)
       .export_values();
 
-  bp::class_<ChimeraTK::DataType>("DataType")
+  py::class_<ChimeraTK::DataType>(m, "DataType")
       .def("isNumeric", &ChimeraTK::DataType::isNumeric)
       .def("getAsString", &ChimeraTK::DataType::getAsString)
       .def("isIntegral", &ChimeraTK::DataType::isIntegral)
       .def("isSigned", &ChimeraTK::DataType::isSigned);
 
-  bp::enum_<ChimeraTK::DataValidity>("DataValidity")
+  py::enum_<ChimeraTK::DataValidity>(m, "DataValidity")
       .value("ok", ChimeraTK::DataValidity::ok)
       .value("faulty", ChimeraTK::DataValidity::faulty)
       .export_values();
 
-  bp::class_<ChimeraTK::TransferElementID>("TransferElementID")
+  py::class_<ChimeraTK::TransferElementID>(m, "TransferElementID")
       .def("isValid", &ChimeraTK::TransferElementID::isValid)
       .def("__ne__", &ChimeraTK::TransferElementID::operator!=)
       .def("__eq__", &ChimeraTK::TransferElementID::operator==);
 
-  bp::class_<ChimeraTK::VersionNumber>("VersionNumber",
+  py::class_<ChimeraTK::VersionNumber>(m, "VersionNumber",
       "Class for generating and holding version numbers without exposing a numeric representation.\n"
       "\n"
       "Version numbers are used to resolve competing updates that are applied to the same process variable. For "

@@ -19,6 +19,22 @@ include(cmake/enable_code_style_check.cmake)
 # Find dependencies
 find_package(ChimeraTK-DeviceAccess 03.14 REQUIRED)
 
+option(BUILD_TESTS "Build tests." ON)
+
+set(PYBIND11_FINDPYTHON ON)
+find_package(pybind11 2.10)
+
+if(${pybind11_FOUND})
+  find_program(STUBGEN stubgen)
+
+  if(${STUBGEN} STREQUAL "STUBGEN-NOTFOUND")
+    message(FATAL_ERROR "Could not find program 'stubgen'. Try installing package 'mypy' or similar.")
+  endif()
+
+else()
+  message(WARNING "pybind11 was not found in an appropriate version, disabling Python support!")
+endif()
+
 find_package(Python 3 REQUIRED COMPONENTS Interpreter Development NumPy)
 
 # Convert Python version into the format we need for BOOST component names
