@@ -4,8 +4,12 @@
 #include "Device.h"
 #include "HelperFunctions.h"
 
+#include <ChimeraTK/AccessMode.h>
 #include <ChimeraTK/Device.h>
 #include <ChimeraTK/Utilities.h>
+
+#include <pybind11/pybind11.h>
+namespace py = pybind11;
 
 namespace DeviceAccessPython {
 
@@ -27,7 +31,7 @@ namespace DeviceAccessPython {
   /*****************************************************************************************************************/
 
   ChimeraTK::VoidRegisterAccessor Device::getVoidRegisterAccessor(
-      const ChimeraTK::Device& self, const std::string& registerPath, boost::python::list flaglist) {
+      const ChimeraTK::Device& self, const std::string& registerPath, const py::list& flaglist) {
     return self.getVoidRegisterAccessor(registerPath, convertFlagsFromPython(flaglist));
   }
 
@@ -57,11 +61,10 @@ namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
-  ChimeraTK::AccessModeFlags Device::convertFlagsFromPython(boost::python::list flaglist) {
+  ChimeraTK::AccessModeFlags Device::convertFlagsFromPython(const py::list& flaglist) {
     ChimeraTK::AccessModeFlags flags{};
-    size_t count = len((flaglist));
-    for(size_t i = 0; i < count; i++) {
-      flags.add(boost::python::extract<ChimeraTK::AccessMode>(flaglist.pop()));
+    for(auto flag : flaglist) {
+      flags.add(flag.cast<ChimeraTK::AccessMode>());
     }
     return flags;
   }
@@ -81,7 +84,7 @@ namespace DeviceAccessPython {
   /*****************************************************************************************************************/
 
   boost::python::numpy::ndarray Device::read(const ChimeraTK::Device& self, const std::string& registerPath,
-      size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist) {
+      size_t numberOfElements, size_t elementsOffset, const py::list& flaglist) {
     auto reg = self.getRegisterCatalogue().getRegister(registerPath);
     auto usertype = reg.getDataDescriptor().minimumDataType();
 
@@ -102,7 +105,7 @@ namespace DeviceAccessPython {
   /*****************************************************************************************************************/
 
   void Device::write(const ChimeraTK::Device& self, boost::python::numpy::ndarray& arr, const std::string& registerPath,
-      size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist) {
+      size_t numberOfElements, size_t elementsOffset, const py::list& flaglist) {
     auto usertype = convert_dytpe_to_usertype(arr.get_dtype());
 
     auto bufferTransfer = [&](auto arg) {

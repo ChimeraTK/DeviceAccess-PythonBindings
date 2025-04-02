@@ -9,11 +9,10 @@
 #include "VoidAccessor.h"
 
 #include <pybind11/pybind11.h>
+namespace py = pybind11;
 
 #include <boost/python/args.hpp>
 #include <boost/python/numpy.hpp>
-
-namespace py = pybind11;
 
 // no ; at line endings to be able to reuse in .def format
 // any changes have to mirror the _userTypeExtensions dict in the python Device class
@@ -97,18 +96,21 @@ namespace py = pybind11;
       .def("interrupt", &accessorType<userType>::interrupt)
 
 #define TEMPLATECLASS_TWODREGISTERACCESSOR(userType, className, class_suffix)                                          \
-  py::class_<ChimeraTK::TwoDRegisterAccessor<userType>>(m, STRINGIFY(className##class_suffix))                         \
+  py::class_<ChimeraTK::TwoDRegisterAccessor<userType>, boost::shared_ptr<ChimeraTK::TwoDRegisterAccessor<userType>>>( \
+      m, STRINGIFY(className##class_suffix))                                                                           \
       TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ChimeraTK::TwoDRegisterAccessor, userType)                                   \
           .def("getNChannels", &ChimeraTK::TwoDRegisterAccessor<userType>::getNChannels)                               \
           .def("getNElementsPerChannel", &ChimeraTK::TwoDRegisterAccessor<userType>::getNElementsPerChannel);
 
 #define TEMPLATECLASS_ONEDREGISTERACCESSOR(userType, className, class_suffix)                                          \
-  py::class_<ChimeraTK::OneDRegisterAccessor<userType>>(m, STRINGIFY(className##class_suffix))                         \
+  py::class_<ChimeraTK::OneDRegisterAccessor<userType>, boost::shared_ptr<ChimeraTK::OneDRegisterAccessor<userType>>>( \
+      m, STRINGIFY(className##class_suffix))                                                                           \
       TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ChimeraTK::OneDRegisterAccessor, userType)                                   \
           .def("getNElements", &ChimeraTK::OneDRegisterAccessor<userType>::getNElements);
 
 #define TEMPLATECLASS_SCALARREGISTERACCESSOR(userType, className, class_suffix)                                        \
-  py::class_<ChimeraTK::ScalarRegisterAccessor<userType>>(m, STRINGIFY(className##class_suffix))                       \
+  py::class_<ChimeraTK::ScalarRegisterAccessor<userType>,                                                              \
+      boost::shared_ptr<ChimeraTK::ScalarRegisterAccessor<userType>>>(m, STRINGIFY(className##class_suffix))           \
       TEMPLATE_FILL_COMMON_REGISTER_FUNCS(ChimeraTK::ScalarRegisterAccessor, userType)                                 \
           .def("readAndGet", &ChimeraTK::ScalarRegisterAccessor<userType>::readAndGet)                                 \
           .def("setAndWrite", &ChimeraTK::ScalarRegisterAccessor<userType>::setAndWrite)                               \
@@ -123,7 +125,8 @@ namespace np = boost::python::numpy;
 // BOOST_PYTHON_FUNCTION_OVERLOADS(open_overloads, DeviceAccessPython::Device::open, 1, 2)
 
 //****************************************************************************//
-// Trampolines as helpers
+// Holder definitions
+PYBIND11_DECLARE_HOLDER_TYPE(T, boost::shared_ptr<T>)
 
 //****************************************************************************//
 
@@ -137,19 +140,21 @@ PYBIND11_MODULE(_da_python_bindings, m) {
   bool show_signatures = false;
   bp::docstring_options doc_options(show_user_defined, show_signatures);
 
-  py::class_<ChimeraTK::Device>(m, "Device") TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_TWODACCESSOR,
-      getTwoDAccessor) TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR,
-      getOneDAccessor) TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR, getScalarAccessor)
-      .def("getVoidAccessor", DeviceAccessPython::Device::getVoidRegisterAccessor)
-      .def("getRegisterCatalogue", DeviceAccessPython::Device::getRegisterCatalogue)
-      .def("activateAsyncRead", DeviceAccessPython::Device::activateAsyncRead)
-      .def("getCatalogueMetadata", DeviceAccessPython::Device::getCatalogueMetadata)
-      //.def("open", (void (*)(ChimeraTK::Device&, std::string const&))0, DeviceAccessPython::Device::open)
-      .def("open", [](ChimeraTK::Device& dev, std::string const& name) { DeviceAccessPython::Device::open(dev, name); })
-      .def("open", [](ChimeraTK::Device& dev) { DeviceAccessPython::Device::open(dev); })
-      .def("read", DeviceAccessPython::Device::read)
-      .def("write", DeviceAccessPython::Device::write)
-      .def("close", DeviceAccessPython::Device::close);
+  py::class_<ChimeraTK::Device, boost::shared_ptr<ChimeraTK::Device>>(m, "Device") TEMPLATE_USERTYPE_POPULATION(
+      TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)
+      TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR, getOneDAccessor)
+          TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR, getScalarAccessor)
+              .def("getVoidAccessor", DeviceAccessPython::Device::getVoidRegisterAccessor)
+              .def("getRegisterCatalogue", DeviceAccessPython::Device::getRegisterCatalogue)
+              .def("activateAsyncRead", DeviceAccessPython::Device::activateAsyncRead)
+              .def("getCatalogueMetadata", DeviceAccessPython::Device::getCatalogueMetadata)
+              //.def("open", (void (*)(ChimeraTK::Device&, std::string const&))0, DeviceAccessPython::Device::open)
+              .def("open", [](ChimeraTK::Device& dev) { DeviceAccessPython::Device::open(dev); })
+              .def("open",
+                  [](ChimeraTK::Device& dev, std::string const& name) { DeviceAccessPython::Device::open(dev, name); })
+              .def("read", DeviceAccessPython::Device::read)
+              .def("write", DeviceAccessPython::Device::write)
+              .def("close", DeviceAccessPython::Device::close);
 
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_SCALARREGISTERACCESSOR, ScalarAccessor)
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_ONEDREGISTERACCESSOR, OneDAccessor)
@@ -257,9 +262,7 @@ PYBIND11_MODULE(_da_python_bindings, m) {
       "\n"
       "They are also used to determine the order of updates made to different process variables.\n"
       "\n")
-      .def("getTime", DeviceAccessPython::VersionNumber::getTime, bp::args(""),
-          "Return the time stamp associated with this version number. )\n"
-          "\n")
+      .def("getTime", &DeviceAccessPython::VersionNumber::getTime)
       .def("__str__", &ChimeraTK::VersionNumber::operator std::string)
       .def("getNullVersion", DeviceAccessPython::VersionNumber::getNullVersion)
       .def("__lt__", &ChimeraTK::VersionNumber::operator<)

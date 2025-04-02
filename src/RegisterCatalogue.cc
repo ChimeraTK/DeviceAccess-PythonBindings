@@ -3,7 +3,10 @@
 
 #include "RegisterCatalogue.h"
 
+#include <pybind11/pybind11.h>
 namespace ctk = ChimeraTK;
+
+namespace py = pybind11;
 
 namespace DeviceAccessPython {
 
@@ -22,8 +25,8 @@ namespace DeviceAccessPython {
 
   /*******************************************************************************************************************/
 
-  boost::python::list RegisterCatalogue::items(ChimeraTK::RegisterCatalogue& self) {
-    boost::python::list registerInfos{};
+  py::list RegisterCatalogue::items(ChimeraTK::RegisterCatalogue& self) {
+    py::list registerInfos{};
     for(const auto& regInfo : self) registerInfos.append(ChimeraTK::RegisterInfo(regInfo.clone()));
     return registerInfos;
   }
@@ -40,9 +43,9 @@ namespace DeviceAccessPython {
 
   /*******************************************************************************************************************/
 
-  boost::python::list RegisterInfo::getSupportedAccessModes(ChimeraTK::RegisterInfo& self) {
+  py::list RegisterInfo::getSupportedAccessModes(ChimeraTK::RegisterInfo& self) {
     ChimeraTK::AccessModeFlags flags = self.getSupportedAccessModes();
-    boost::python::list python_flags{};
+    py::list python_flags{};
     if(flags.has(ChimeraTK::AccessMode::raw)) python_flags.append(ChimeraTK::AccessMode::raw);
     if(flags.has(ChimeraTK::AccessMode::wait_for_new_data))
       python_flags.append(ChimeraTK::AccessMode::wait_for_new_data);
