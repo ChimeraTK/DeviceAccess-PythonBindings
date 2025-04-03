@@ -83,19 +83,19 @@ namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
-  boost::python::numpy::ndarray Device::read(const ChimeraTK::Device& self, const std::string& registerPath,
+  pybind11::array Device::read(const ChimeraTK::Device& self, const std::string& registerPath,
       size_t numberOfElements, size_t elementsOffset, const py::list& flaglist) {
     auto reg = self.getRegisterCatalogue().getRegister(registerPath);
     auto usertype = reg.getDataDescriptor().minimumDataType();
 
-    std::unique_ptr<boost::python::numpy::ndarray> arr;
+    std::unique_ptr<pybind11::array> arr;
 
     ChimeraTK::callForTypeNoVoid(usertype, [&](auto arg) {
       using UserType = decltype(arg);
       auto acc = self.getTwoDRegisterAccessor<UserType>(
           registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
       acc.read();
-      arr = std::make_unique<boost::python::numpy::ndarray>(
+      arr = std::make_unique<pybind11::array>(
           copyUserBufferToNpArray(acc, convert_usertype_to_dtype(usertype), reg.getNumberOfDimensions()));
     });
 

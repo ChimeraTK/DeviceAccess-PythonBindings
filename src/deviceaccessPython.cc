@@ -133,7 +133,7 @@ PYBIND11_MODULE(_da_python_bindings, m) {
   // Py_Initialize();
   // np::initialize();
 
-  // boost::python::to_python_converter<ChimeraTK::Boolean, CtkBoolean_to_python>();
+  // pybind11::to_python_converter<ChimeraTK::Boolean, CtkBoolean_to_python>();
 
   bool show_user_defined = true;
   bool show_signatures = false;
@@ -261,6 +261,7 @@ PYBIND11_MODULE(_da_python_bindings, m) {
       "\n"
       "They are also used to determine the order of updates made to different process variables.\n"
       "\n")
+      .def(py::init<>())
       .def("getTime", &DeviceAccessPython::VersionNumber::getTime)
       .def("__str__", &ChimeraTK::VersionNumber::operator std::string)
       .def("getNullVersion", DeviceAccessPython::VersionNumber::getNullVersion)

@@ -26,23 +26,22 @@ namespace DeviceAccessPython {
 
     static std::string getAccessModeFlagsString(ACCESSOR& self) { return self.getAccessModeFlags().serialize(); }
 
-    static boost::python::numpy::ndarray read(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer);
+    static pybind11::array read(ACCESSOR& self, pybind11::array& np_buffer);
 
-    static auto readNonBlocking(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer);
+    static auto readNonBlocking(ACCESSOR& self, pybind11::array& np_buffer);
 
-    static auto readLatest(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer);
+    static auto readLatest(ACCESSOR& self, pybind11::array& np_buffer);
 
-    static bool write(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer);
+    static bool write(ACCESSOR& self, pybind11::array& np_buffer);
 
-    static bool writeDestructively(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer);
-
-    template<typename UserType>
-    static boost::python::numpy::ndarray setAsCooked(
-        ACCESSOR& self, boost::python::numpy::ndarray& np_buffer, size_t channel, size_t element, UserType value);
+    static bool writeDestructively(ACCESSOR& self, pybind11::array& np_buffer);
 
     template<typename UserType>
-    static UserType getAsCooked(
-        ACCESSOR& self, boost::python::numpy::ndarray& np_buffer, size_t channel, size_t element);
+    static pybind11::array setAsCooked(
+        ACCESSOR& self, pybind11::array& np_buffer, size_t channel, size_t element, UserType value);
+
+    template<typename UserType>
+    static UserType getAsCooked(ACCESSOR& self, pybind11::array& np_buffer, size_t channel, size_t element);
   };
 
   /*****************************************************************************************************************/
@@ -52,8 +51,7 @@ namespace DeviceAccessPython {
   /*****************************************************************************************************************/
 
   template<typename ACCESSOR>
-  boost::python::numpy::ndarray GeneralRegisterAccessor<ACCESSOR>::read(
-      ACCESSOR& self, boost::python::numpy::ndarray& np_buffer) {
+  pybind11::array GeneralRegisterAccessor<ACCESSOR>::read(ACCESSOR& self, pybind11::array& np_buffer) {
     {
       PyThreadState* m_thread_state = PyEval_SaveThread();
       auto _release = cppext::finally([&] { PyEval_RestoreThread(m_thread_state); });
@@ -65,23 +63,23 @@ namespace DeviceAccessPython {
   /*****************************************************************************************************************/
 
   template<typename ACCESSOR>
-  auto GeneralRegisterAccessor<ACCESSOR>::readNonBlocking(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer) {
+  auto GeneralRegisterAccessor<ACCESSOR>::readNonBlocking(ACCESSOR& self, pybind11::array& np_buffer) {
     bool status = self.readNonBlocking();
-    return boost::python::make_tuple(status, copyUserBufferToNpArray(self, np_buffer));
+    return pybind11::make_tuple(status, copyUserBufferToNpArray(self, np_buffer));
   }
 
   /*****************************************************************************************************************/
 
   template<typename ACCESSOR>
-  auto GeneralRegisterAccessor<ACCESSOR>::readLatest(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer) {
+  auto GeneralRegisterAccessor<ACCESSOR>::readLatest(ACCESSOR& self, pybind11::array& np_buffer) {
     bool status = self.readLatest();
-    return boost::python::make_tuple(status, copyUserBufferToNpArray(self, np_buffer));
+    return pybind11::make_tuple(status, copyUserBufferToNpArray(self, np_buffer));
   }
 
   /*****************************************************************************************************************/
 
   template<typename ACCESSOR>
-  bool GeneralRegisterAccessor<ACCESSOR>::write(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer) {
+  bool GeneralRegisterAccessor<ACCESSOR>::write(ACCESSOR& self, pybind11::array& np_buffer) {
     copyNpArrayToUserBuffer(self, np_buffer);
     return self.write();
   }
@@ -89,7 +87,7 @@ namespace DeviceAccessPython {
   /*****************************************************************************************************************/
 
   template<typename ACCESSOR>
-  bool GeneralRegisterAccessor<ACCESSOR>::writeDestructively(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer) {
+  bool GeneralRegisterAccessor<ACCESSOR>::writeDestructively(ACCESSOR& self, pybind11::array& np_buffer) {
     copyNpArrayToUserBuffer(self, np_buffer);
     return self.writeDestructively();
   }
@@ -98,8 +96,8 @@ namespace DeviceAccessPython {
 
   template<typename ACCESSOR>
   template<typename UserType>
-  boost::python::numpy::ndarray GeneralRegisterAccessor<ACCESSOR>::setAsCooked(
-      ACCESSOR& self, boost::python::numpy::ndarray& np_buffer, size_t channel, size_t element, UserType value) {
+  pybind11::array GeneralRegisterAccessor<ACCESSOR>::setAsCooked(
+      ACCESSOR& self, pybind11::array& np_buffer, size_t channel, size_t element, UserType value) {
     self.getImpl()->setAsCooked(channel, element, value);
     return copyUserBufferToNpArray(self, np_buffer);
   }
@@ -108,7 +106,7 @@ namespace DeviceAccessPython {
   template<typename ACCESSOR>
   template<typename UserType>
   UserType GeneralRegisterAccessor<ACCESSOR>::getAsCooked(
-      ACCESSOR& self, boost::python::numpy::ndarray& np_buffer, size_t channel, size_t element) {
+      ACCESSOR& self, pybind11::array& np_buffer, size_t channel, size_t element) {
     copyNpArrayToUserBuffer(self, np_buffer);
     return self.getImpl()->template getAsCooked<UserType>(channel, element);
   }
