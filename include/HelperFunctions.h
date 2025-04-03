@@ -5,10 +5,14 @@
 #include <ChimeraTK/NDRegisterAccessorAbstractor.h>
 #include <ChimeraTK/SupportedUserTypes.h>
 
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+
 #include <boost/python/numpy.hpp>
 
 #include <codecvt>
 #include <locale>
+namespace py = pybind11;
 
 namespace boost::python::numpy::detail {
 
@@ -43,9 +47,9 @@ namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
-  ChimeraTK::DataType convert_dytpe_to_usertype(boost::python::numpy::dtype dtype);
+  ChimeraTK::DataType convert_dytpe_to_usertype(py::dtype dtype);
 
-  boost::python::numpy::dtype convert_usertype_to_dtype(ChimeraTK::DataType usertype);
+  py::dtype convert_usertype_to_dtype(ChimeraTK::DataType usertype);
 
   template<typename T>
   boost::python::numpy::ndarray copyUserBufferToNpArray(

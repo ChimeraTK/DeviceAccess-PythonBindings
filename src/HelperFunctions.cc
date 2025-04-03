@@ -5,44 +5,44 @@
 
 #include <ChimeraTK/SupportedUserTypes.h>
 
-#include <boost/python/numpy.hpp>
+namespace py = pybind11;
 
 namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
-  ChimeraTK::DataType convert_dytpe_to_usertype(boost::python::numpy::dtype dtype) {
-    if(dtype == boost::python::numpy::dtype::get_builtin<int8_t>()) {
+  ChimeraTK::DataType convert_dytpe_to_usertype(py::dtype dtype) {
+    if(dtype == py::dtype::of<int8_t>()) {
       return ChimeraTK::DataType::int8;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<int16_t>()) {
+    if(dtype == py::dtype::of<int16_t>()) {
       return ChimeraTK::DataType::int16;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<int32_t>()) {
+    if(dtype == py::dtype::of<int32_t>()) {
       return ChimeraTK::DataType::int32;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<int64_t>()) {
+    if(dtype == py::dtype::of<int64_t>()) {
       return ChimeraTK::DataType::int64;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<uint8_t>()) {
+    if(dtype == py::dtype::of<uint8_t>()) {
       return ChimeraTK::DataType::uint8;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<uint16_t>()) {
+    if(dtype == py::dtype::of<uint16_t>()) {
       return ChimeraTK::DataType::uint16;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<uint32_t>()) {
+    if(dtype == py::dtype::of<uint32_t>()) {
       return ChimeraTK::DataType::uint32;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<uint64_t>()) {
+    if(dtype == py::dtype::of<uint64_t>()) {
       return ChimeraTK::DataType::uint64;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<float>()) {
+    if(dtype == py::dtype::of<float>()) {
       return ChimeraTK::DataType::float32;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<double>()) {
+    if(dtype == py::dtype::of<double>()) {
       return ChimeraTK::DataType::float64;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<bool>()) {
+    if(dtype == py::dtype::of<bool>()) {
       return ChimeraTK::DataType::Boolean;
     }
     throw std::invalid_argument("Unsupported numpy dtype");
@@ -50,18 +50,18 @@ namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
-  boost::python::numpy::dtype convert_usertype_to_dtype(ChimeraTK::DataType usertype) {
-    std::unique_ptr<boost::python::numpy::dtype> rv;
+  py::dtype convert_usertype_to_dtype(ChimeraTK::DataType usertype) {
+    std::unique_ptr<py::dtype> rv;
     ChimeraTK::callForTypeNoVoid(usertype, [&](auto arg) {
       using UserType = decltype(arg);
       if constexpr(std::is_same<UserType, ChimeraTK::Boolean>::value) {
-        rv = std::make_unique<boost::python::numpy::dtype>(boost::python::numpy::dtype::get_builtin<bool>());
+        rv = std::make_unique<py::dtype>(py::dtype::of<bool>());
       }
       if constexpr(std::is_same<UserType, std::string>::value) {
-        rv = std::make_unique<boost::python::numpy::dtype>(boost::python::make_tuple('U', 1));
+        rv = std::make_unique<py::dtype>(py::dtype::of<std::string>());
       }
       else {
-        rv = std::make_unique<boost::python::numpy::dtype>(boost::python::numpy::dtype::get_builtin<UserType>());
+        rv = std::make_unique<py::dtype>(py::dtype::of<UserType>());
       }
     });
     return *rv;

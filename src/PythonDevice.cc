@@ -104,9 +104,9 @@ namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
-  void Device::write(const ChimeraTK::Device& self, boost::python::numpy::ndarray& arr, const std::string& registerPath,
+  void Device::write(const ChimeraTK::Device& self, py::array& arr, const std::string& registerPath,
       size_t numberOfElements, size_t elementsOffset, const py::list& flaglist) {
-    auto usertype = convert_dytpe_to_usertype(arr.get_dtype());
+    auto usertype = convert_dytpe_to_usertype(arr.dtype());
 
     auto bufferTransfer = [&](auto arg) {
       auto acc = self.getTwoDRegisterAccessor<decltype(arg)>(

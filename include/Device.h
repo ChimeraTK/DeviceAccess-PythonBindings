@@ -4,6 +4,7 @@
 
 #include <ChimeraTK/Device.h>
 
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
 #include <boost/python/numpy.hpp>
@@ -60,8 +61,8 @@ namespace DeviceAccessPython {
     static void activateAsyncRead(ChimeraTK::Device& self);
     static ChimeraTK::RegisterCatalogue getRegisterCatalogue(ChimeraTK::Device& self);
 
-    static void write(const ChimeraTK::Device& self, boost::python::numpy::ndarray& arr,
-        const std::string& registerPath, size_t numberOfElements, size_t elementsOffset, const py::list& flaglist);
+    static void write(const ChimeraTK::Device& self, py::array& arr, const std::string& registerPath,
+        size_t numberOfElements, size_t elementsOffset, const py::list& flaglist);
 
     static boost::python::numpy::ndarray read(const ChimeraTK::Device& self, const std::string& registerPath,
         size_t numberOfElements, size_t elementsOffset, const py::list& flaglist);

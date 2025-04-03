@@ -117,7 +117,6 @@ namespace py = pybind11;
           .def("writeIfDifferent", &ChimeraTK::ScalarRegisterAccessor<userType>::writeIfDifferent);
 
 namespace bp = boost::python;
-namespace np = boost::python::numpy;
 
 //****************************************************************************//
 
