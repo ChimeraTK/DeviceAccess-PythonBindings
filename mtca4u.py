@@ -448,7 +448,6 @@ class Device:
         """
         if registerPath is None:
             registerPath = '/' + moduleName + '/' + registerName
-        print("IN MTCA4U.PY: WRITE_RAW " + registerPath + " data  = " + str(dataToWrite))
         self.__openedDevice.write(registerPath, dataToWrite=dataToWrite,
                                   wordOffsetInRegister=elementIndexInRegister, accessModeFlags=[deviceaccess.AccessMode.raw])
 
