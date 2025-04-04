@@ -64,8 +64,8 @@ namespace DeviceAccessPython {
     static void write(const ChimeraTK::Device& self, py::array& arr, const std::string& registerPath,
         size_t numberOfElements, size_t elementsOffset, const py::list& flaglist);
 
-    static pybind11::array read(const ChimeraTK::Device& self, const std::string& registerPath,
-        size_t numberOfElements, size_t elementsOffset, const py::list& flaglist);
+    static pybind11::array read(const ChimeraTK::Device& self, const std::string& registerPath, size_t numberOfElements,
+        size_t elementsOffset, const py::list& flaglist);
   };
 
 } // namespace DeviceAccessPython
