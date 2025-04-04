@@ -37,11 +37,6 @@ endif()
 
 find_package(Python 3 REQUIRED COMPONENTS Interpreter Development NumPy)
 
-# Convert Python version into the format we need for BOOST component names
-set(python_version_no_dot "${Python_VERSION_MAJOR}${Python_VERSION_MINOR}")
-
-find_package(Boost REQUIRED COMPONENTS python${python_version_no_dot} numpy${python_version_no_dot})
-
 # ==============================================================================#
 
 # Defining NPY_NO_DEPRECATED_API as NPY_1_7_API_VERSION, should ensure that the
@@ -66,9 +61,7 @@ target_link_libraries(${PROJECT_NAME}
   PRIVATE ChimeraTK::ChimeraTK-DeviceAccess
   PRIVATE Python::NumPy
   PRIVATE Python::Module
-  PRIVATE ${Boost_LIBRARIES}
-  PRIVATE Boost::python${python_version_no_dot}
-  PRIVATE Boost::numpy${python_version_no_dot})
+  PRIVATE ${Boost_LIBRARIES})
 
 # do not remove runtime path to libmtca-deviceaccess location from ${boost_python_core_module} when installing
 set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)

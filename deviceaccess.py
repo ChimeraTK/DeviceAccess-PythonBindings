@@ -1446,6 +1446,10 @@ class Device:
             array = dataToWrite
         numberOfElements = array.shape[1] if array.ndim == 2 else (array.shape[0] if array.ndim == 1 else 1)
 
+        # writing an empty array is a noop. This is actually tested for in testMtca4upy.
+        if numberOfElements == 0:
+            return
+
         accessModeFlags = [] if accessModeFlags is None else accessModeFlags
         self._device.write(array, registerPath, numberOfElements,
                            wordOffsetInRegister, accessModeFlags)

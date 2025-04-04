@@ -11,9 +11,6 @@
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
-#include <boost/python/args.hpp>
-#include <boost/python/numpy.hpp>
-
 // no ; at line endings to be able to reuse in .def format
 // any changes have to mirror the _userTypeExtensions dict in the python Device class
 #define TEMPLATE_USERTYPE_POPULATION(FUNCTION_TEMPLATE, func_name)                                                     \
@@ -116,8 +113,6 @@ namespace py = pybind11;
           .def("setAndWrite", &ChimeraTK::ScalarRegisterAccessor<userType>::setAndWrite)                               \
           .def("writeIfDifferent", &ChimeraTK::ScalarRegisterAccessor<userType>::writeIfDifferent);
 
-namespace bp = boost::python;
-
 //****************************************************************************//
 
 // Auto-Overloading
@@ -137,7 +132,6 @@ PYBIND11_MODULE(_da_python_bindings, m) {
 
   bool show_user_defined = true;
   bool show_signatures = false;
-  bp::docstring_options doc_options(show_user_defined, show_signatures);
 
   py::class_<ChimeraTK::Device, boost::shared_ptr<ChimeraTK::Device>>(m, "Device") TEMPLATE_USERTYPE_POPULATION(
       TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)

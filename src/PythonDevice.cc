@@ -83,10 +83,17 @@ namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
-  pybind11::array Device::read(const ChimeraTK::Device& self, const std::string& registerPath,
-      size_t numberOfElements, size_t elementsOffset, const py::list& flaglist) {
+  pybind11::array Device::read(const ChimeraTK::Device& self, const std::string& registerPath, size_t numberOfElements,
+      size_t elementsOffset, const py::list& flaglist) {
     auto reg = self.getRegisterCatalogue().getRegister(registerPath);
-    auto usertype = reg.getDataDescriptor().minimumDataType();
+
+    ChimeraTK::DataType usertype;
+    if(!flaglist.contains(ChimeraTK::AccessMode::raw)) {
+      usertype = reg.getDataDescriptor().minimumDataType();
+    }
+    else {
+      usertype = reg.getDataDescriptor().rawDataType();
+    }
 
     std::unique_ptr<pybind11::array> arr;
 
