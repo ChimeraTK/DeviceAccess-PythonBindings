@@ -159,7 +159,7 @@ namespace DeviceAccessPython {
         }
       }
       else {
-        memcpy(acc->accessChannel(i).data(), np_buffer.data() + itemsize * elements * i, itemsize * elements);
+        memcpy(acc->accessChannel(i).data(), np_buffer.data(i), itemsize * elements);
       }
     }
   }

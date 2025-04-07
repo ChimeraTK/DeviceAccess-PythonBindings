@@ -125,14 +125,6 @@ PYBIND11_DECLARE_HOLDER_TYPE(T, boost::shared_ptr<T>)
 //****************************************************************************//
 
 PYBIND11_MODULE(_da_python_bindings, m) {
-  // Py_Initialize();
-  // np::initialize();
-
-  // pybind11::to_python_converter<ChimeraTK::Boolean, CtkBoolean_to_python>();
-
-  bool show_user_defined = true;
-  bool show_signatures = false;
-
   py::class_<ChimeraTK::Device, boost::shared_ptr<ChimeraTK::Device>>(m, "Device") TEMPLATE_USERTYPE_POPULATION(
       TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)
       TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR, getOneDAccessor)
