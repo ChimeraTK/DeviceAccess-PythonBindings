@@ -22,17 +22,12 @@ find_package(ChimeraTK-DeviceAccess 03.14 REQUIRED)
 option(BUILD_TESTS "Build tests." ON)
 
 set(PYBIND11_FINDPYTHON ON)
-find_package(pybind11 2.10)
+find_package(pybind11 2.10 REQUIRED)
 
-if(${pybind11_FOUND})
-  find_program(STUBGEN stubgen)
+find_program(STUBGEN stubgen)
 
-  if(${STUBGEN} STREQUAL "STUBGEN-NOTFOUND")
-    message(FATAL_ERROR "Could not find program 'stubgen'. Try installing package 'mypy' or similar.")
-  endif()
-
-else()
-  message(WARNING "pybind11 was not found in an appropriate version, disabling Python support!")
+if(${STUBGEN} STREQUAL "STUBGEN-NOTFOUND")
+  message(FATAL_ERROR "Could not find program 'stubgen'. Try installing package 'mypy' or similar.")
 endif()
 
 find_package(Python 3 REQUIRED COMPONENTS Interpreter Development NumPy)
