@@ -114,11 +114,6 @@ namespace py = pybind11;
           .def("writeIfDifferent", &ChimeraTK::ScalarRegisterAccessor<userType>::writeIfDifferent);
 
 //****************************************************************************//
-
-// Auto-Overloading
-// BOOST_PYTHON_FUNCTION_OVERLOADS(open_overloads, DeviceAccessPython::Device::open, 1, 2)
-
-//****************************************************************************//
 // Holder definitions
 PYBIND11_DECLARE_HOLDER_TYPE(T, boost::shared_ptr<T>)
 
@@ -133,7 +128,6 @@ PYBIND11_MODULE(_da_python_bindings, m) {
               .def("getRegisterCatalogue", DeviceAccessPython::Device::getRegisterCatalogue)
               .def("activateAsyncRead", DeviceAccessPython::Device::activateAsyncRead)
               .def("getCatalogueMetadata", DeviceAccessPython::Device::getCatalogueMetadata)
-              //.def("open", (void (*)(ChimeraTK::Device&, std::string const&))0, DeviceAccessPython::Device::open)
               .def("open", [](ChimeraTK::Device& dev) { DeviceAccessPython::Device::open(dev); })
               .def("open",
                   [](ChimeraTK::Device& dev, std::string const& name) { DeviceAccessPython::Device::open(dev, name); })
@@ -144,9 +138,7 @@ PYBIND11_MODULE(_da_python_bindings, m) {
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_SCALARREGISTERACCESSOR, ScalarAccessor)
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_ONEDREGISTERACCESSOR, OneDAccessor)
   TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_TWODREGISTERACCESSOR, TwoDAccessor)
-  py::class_<ChimeraTK::VoidRegisterAccessor>(m, "VoidRegisterAccessor"
-      //, bp::init<boost::shared_ptr<ChimeraTK::NDRegisterAccessor<ChimeraTK::Void>>>()
-      )
+  py::class_<ChimeraTK::VoidRegisterAccessor>(m, "VoidRegisterAccessor")
       .def(py::init<boost::shared_ptr<ChimeraTK::NDRegisterAccessor<ChimeraTK::Void>>>())
       .def("isReadOnly", &ChimeraTK::VoidRegisterAccessor::isReadOnly)
       .def("isReadable", &ChimeraTK::VoidRegisterAccessor::isReadable)
@@ -174,17 +166,13 @@ PYBIND11_MODULE(_da_python_bindings, m) {
   m.def("setDmapFile", DeviceAccessPython::setDmapFile);
   m.def("getDmapFile", DeviceAccessPython::getDmapFile);
 
-  py::class_<ChimeraTK::RegisterCatalogue>(m, "RegisterCatalogue"
-      //, bp::init<ChimeraTK::RegisterCatalogue>()
-      )
+  py::class_<ChimeraTK::RegisterCatalogue>(m, "RegisterCatalogue")
       .def(py::init<ChimeraTK::RegisterCatalogue>())
       .def("_items", DeviceAccessPython::RegisterCatalogue::items)
       .def("hasRegister", DeviceAccessPython::RegisterCatalogue::hasRegister)
       .def("getRegister", DeviceAccessPython::RegisterCatalogue::getRegister);
 
-  py::class_<ChimeraTK::RegisterInfo>(m, "RegisterInfo"
-      //, bp::init<ChimeraTK::RegisterInfo>()
-      )
+  py::class_<ChimeraTK::RegisterInfo>(m, "RegisterInfo")
       .def(py::init<ChimeraTK::RegisterInfo>())
       .def("getDataDescriptor", DeviceAccessPython::RegisterInfo::getDataDescriptor)
       .def("isReadable", &ChimeraTK::RegisterInfo::isReadable)
@@ -196,9 +184,7 @@ PYBIND11_MODULE(_da_python_bindings, m) {
       .def("getNumberOfDimensions", &ChimeraTK::RegisterInfo::getNumberOfDimensions)
       .def("getNumberOfChannels", &ChimeraTK::RegisterInfo::getNumberOfChannels);
 
-  py::class_<ChimeraTK::DataDescriptor>(m, "DataDescriptor"
-      //, bp::init<ChimeraTK::DataDescriptor>()
-      )
+  py::class_<ChimeraTK::DataDescriptor>(m, "DataDescriptor")
       .def(py::init<ChimeraTK::DataDescriptor>())
       .def("rawDataType", &ChimeraTK::DataDescriptor::rawDataType)
       .def("transportLayerDataType", &ChimeraTK::DataDescriptor::transportLayerDataType)
@@ -257,14 +243,4 @@ PYBIND11_MODULE(_da_python_bindings, m) {
       .def("__ge__", &ChimeraTK::VersionNumber::operator>=)
       .def("__ne__", &ChimeraTK::VersionNumber::operator!=)
       .def("__eq__", &ChimeraTK::VersionNumber::operator==);
-
-  /*
-  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::Device>>();
-  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::VersionNumber>>();
-  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::TransferElementID>>();
-  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::RegisterCatalogue>>();
-  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::RegisterInfo>>();
-  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::DataDescriptor>>();
-  bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::DataType>>();
-  */
 }
