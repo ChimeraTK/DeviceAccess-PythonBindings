@@ -24,6 +24,8 @@ import functools
 
 #######################################################################################################################
 
+# will be moved to the C++ library by Christian
+
 
 def setDMapFilePath(dmapFilePath: str) -> None:
     """
@@ -44,6 +46,8 @@ def setDMapFilePath(dmapFilePath: str) -> None:
     pb.setDmapFile(dmapFilePath)
 
 #######################################################################################################################
+
+# will be moved to the C++ library by Christian
 
 
 def getDMapFilePath() -> str:
