@@ -32,18 +32,6 @@ endif()
 
 find_package(Python 3 REQUIRED COMPONENTS Interpreter Development NumPy)
 
-# ==============================================================================#
-
-# Defining NPY_NO_DEPRECATED_API as NPY_1_7_API_VERSION, should ensure that the
-# compilation does not go through if the code uses API's marked as deprecated in
-# numpy v1.7's documentation.
-#
-# Reference:
-# https://docs.scipy.org/doc/numpy-dev/reference/c-api.deprecations.html
-add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
-
-# ==============================================================================#
-
 # Define library for the C++ part
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
