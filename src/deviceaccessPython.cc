@@ -163,8 +163,8 @@ PYBIND11_MODULE(_da_python_bindings, m) {
   m.def("createDevice", DeviceAccessPython::createDevice);
   m.def("getDevice_no_alias", DeviceAccessPython::getDevice_no_alias);
   m.def("getDevice", DeviceAccessPython::getDevice);
-  m.def("setDmapFile", DeviceAccessPython::setDmapFile);
-  m.def("getDmapFile", DeviceAccessPython::getDmapFile);
+  m.def("setDMapFilePath", DeviceAccessPython::setDmapFile);
+  m.def("getDMapFilePath", DeviceAccessPython::getDmapFile);
 
   py::class_<ChimeraTK::RegisterCatalogue>(m, "RegisterCatalogue")
       .def(py::init<ChimeraTK::RegisterCatalogue>())

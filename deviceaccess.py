@@ -18,45 +18,10 @@ from __future__ import annotations
 from typing import Sequence, Union
 import _da_python_bindings as pb
 import numpy as np
-from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType
+from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType, setDMapFilePath, getDMapFilePath
 import abc
 import functools
 
-#######################################################################################################################
-
-# will be moved to the C++ library by Christian
-
-
-def setDMapFilePath(dmapFilePath: str) -> None:
-    """
-    Set the location of the dmap file.
-
-    The library will parse this dmap file for the device(alias) lookup.
-    Relative or absolute path of the dmap file (directory and file name).
-
-    Examples
-    --------
-    Setting the location of the dmap file
-      >>> import deviceaccess as da
-      >>> da.setDMapFilePath('deviceInformation/exampleCrate.dmap')
-      >>> dmap_path = da.getDMapFilePath()
-      >>> print(dmap_path)
-      deviceInformation/exampleCrate.dmap
-    """
-    pb.setDmapFile(dmapFilePath)
-
-#######################################################################################################################
-
-# will be moved to the C++ library by Christian
-
-
-def getDMapFilePath() -> str:
-    """
-    Returns the dmap file name which the library currently uses for looking up device(alias) names.
-    """
-    return pb.getDmapFile()
-
-#######################################################################################################################
 #######################################################################################################################
 
 
