@@ -18,7 +18,7 @@ from __future__ import annotations
 from typing import Sequence, Union
 import _da_python_bindings as pb
 import numpy as np
-from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType, setDMapFilePath, getDMapFilePath
+from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType, setDMapFilePath, getDMapFilePath, TwoDRegisterAccessor
 import abc
 import functools
 
@@ -715,39 +715,39 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
 #######################################################################################################################
 
 
-class TwoDRegisterAccessor(NumpyGeneralRegisterAccessor):
-    """
-    Accessor class to read and write registers transparently by using the accessor object
-    like a 2D array of the type UserType.
+# class TwoDRegisterAccessor(NumpyGeneralRegisterAccessor):
+#     """
+#     Accessor class to read and write registers transparently by using the accessor object
+#     like a 2D array of the type UserType.
 
-    Conversion to and from the UserType will be handled by a data
-    converter matching the register description in the map (if applicable).
+#     Conversion to and from the UserType will be handled by a data
+#     converter matching the register description in the map (if applicable).
 
-    .. note:: As all accessors inherit from :py:obj:`GeneralRegisterAccessor`,
-              please refer to the respective examples for the behaviour of
-              mathematical operations and slicing with accessors.
+#     .. note:: As all accessors inherit from :py:obj:`GeneralRegisterAccessor`,
+#               please refer to the respective examples for the behaviour of
+#               mathematical operations and slicing with accessors.
 
-    .. note:: Transfers between the device and the internal buffer need
-            to be triggered using the read() and write() functions before reading
-            from resp. after writing to the buffer using the operators.
-    """
+#     .. note:: Transfers between the device and the internal buffer need
+#             to be triggered using the read() and write() functions before reading
+#             from resp. after writing to the buffer using the operators.
+#     """
 
-    def __init__(self, userType, accessor, accessModeFlags: Sequence[AccessMode] = None) -> None:
-        channels = accessor.getNChannels()
-        elementsPerChannel = accessor.getNElementsPerChannel()
-        super().__init__(channels, elementsPerChannel, userType, accessor, accessModeFlags)
+#     def __init__(self, userType, accessor, accessModeFlags: Sequence[AccessMode] = None) -> None:
+#         channels = accessor.getNChannels()
+#         elementsPerChannel = accessor.getNElementsPerChannel()
+#         super().__init__(channels, elementsPerChannel, userType, accessor, accessModeFlags)
 
-    def getNChannels(self) -> int:
-        """
-        Return number of channels.
-        """
-        return self._accessor.getNChannels()
+#     def getNChannels(self) -> int:
+#         """
+#         Return number of channels.
+#         """
+#         return self._accessor.getNChannels()
 
-    def getNElementsPerChannel(self) -> int:
-        """
-        Return number of elements/samples per channel.
-        """
-        return self._accessor.getNElementsPerChannel()
+#     def getNElementsPerChannel(self) -> int:
+#         """
+#         Return number of elements/samples per channel.
+#         """
+#         return self._accessor.getNElementsPerChannel()
 
 #######################################################################################################################
 #######################################################################################################################
