@@ -17,6 +17,48 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.curdir,"..")))
 import deviceaccess as da
 # fmt: on
 
+types_to_test = [np.int8, np.uint8, np.int16, np.uint16, np.int32,
+                 np.uint32, np.int64, np.uint64, np.float32, np.float64, bool, str]
+
+generator_seed = 12345689
+
+
+def valueAfterConstruct(type):
+    """
+    Return value-after-construct for the given type.
+    """
+    if type == str:
+        return ""
+    if type == bool:
+        return False
+    return type(0)
+
+
+def value(type, forceUnequal=None):
+    """
+    Generate a value of the given type, which differs from the value "forceUnequal". If "forceUnequal" is None,
+    the generated value will be different from the value-after-construct.
+    """
+    global generator_seed
+
+    if forceUnequal is None:
+        forceUnequal = valueAfterConstruct(type)
+
+    while True:
+        generator_seed += 1
+        if type == str:
+            value = str(generator_seed)
+        elif type == bool:
+            value = (generator_seed % 2 == 0)
+        else:
+            # don't need to cover the full range, so we treat all other's equal
+            value = type(generator_seed % 100)
+
+        if value != forceUnequal:
+            return type(value)
+
+        generator_seed += 1
+
 
 class TestScalarRegisterAccessor(unittest.TestCase):
 
@@ -32,88 +74,131 @@ class TestScalarRegisterAccessor(unittest.TestCase):
         self.backdoor = self.dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
         self.interrupt = self.dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_0")
 
+    def testGetSet(self):
+        for type in types_to_test:
+            with self.subTest(type=type):
+                acc = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
+
+                self.assertTrue(acc.get() == [valueAfterConstruct(type)])
+
+                expected = value(type)
+                acc.set([expected])
+
+                self.assertTrue(acc.get() == [expected])
+
+                expected = value(type, expected)
+                acc.set(expected)
+
+                self.assertTrue(acc.get() == [expected])
+
     def testRead(self):
-        acc = self.dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
-        reference = [99]
-        self.backdoor.set(reference)
-        self.backdoor.write()
-        acc.read()
-        self.assertTrue(acc == reference)
+        for type in types_to_test:
+            with self.subTest(type=type):
+                acc = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
+
+                expected = [value(type)]
+                self.backdoor.set(expected)
+                self.backdoor.write()
+
+                acc.read()
+
+                self.assertTrue(acc == expected)
 
     def testRead_push(self):
-        acc = self.dev.getScalarRegisterAccessor(
-            np.int32, "ADC/WORD_CLK_CNT_1_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
-        acc.read()  # initial value
+        for type in types_to_test:
+            with self.subTest(type=type):
+                acc = self.dev.getScalarRegisterAccessor(
+                    type, "ADC/WORD_CLK_CNT_1_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
+                acc.read()  # initial value
 
-        t = threading.Thread(name='blocking_read', target=lambda acc=acc: acc.read())
-        t.start()
+                t = threading.Thread(name='blocking_read', target=lambda acc=acc: acc.read())
+                t.start()
 
-        time.sleep(0.1)
-        self.assertTrue(t.is_alive())  # read is not yet complete
+                time.sleep(0.1)
+                self.assertTrue(t.is_alive())  # read is not yet complete
 
-        self.backdoor.set(17)
-        self.backdoor.write()
+                expected = [value(type)]
+                self.backdoor.set(expected)
+                self.backdoor.write()
 
-        self.interrupt.write()
-        t.join(1)  # TODO increase to 10s
-        self.assertFalse(t.is_alive())  # read has completed
+                self.interrupt.write()
+                t.join(1)  # TODO increase to 10s
+                self.assertFalse(t.is_alive())  # read has completed
 
-        self.assertTrue(acc[0] == 17)
+                self.assertTrue(acc == expected, f'{acc} == {expected}')
 
     def testReadLatest(self):
-        acc = self.dev.getScalarRegisterAccessor(
-            np.int32, "ADC/WORD_CLK_CNT_1_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
+        for type in types_to_test:
+            with self.subTest(type=type):
+                acc = self.dev.getScalarRegisterAccessor(
+                    type, "ADC/WORD_CLK_CNT_1_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
 
-        reference = [123]
-        self.backdoor.set(reference)
-        self.backdoor.write()
-        self.interrupt.write()
+                expected = [value(type)]
+                self.backdoor.set(expected)
+                self.backdoor.write()
+                self.interrupt.write()
 
-        retval = acc.readLatest()
+                retval = acc.readLatest()
 
-        self.assertTrue(acc == reference)
-        self.assertTrue(retval)
+                self.assertTrue(acc == expected, f'{acc} == {expected}')
+                self.assertTrue(retval)
 
-        retval = acc.readLatest()
-        self.assertFalse(retval)
+                retval = acc.readLatest()
+                self.assertFalse(retval)
 
     def testReadNonBlocking(self):
-        self.backdoor.set(230)
-        self.backdoor.write()
+        for type in types_to_test:
+            with self.subTest(type=type):
+                expected1 = [value(type)]
+                self.backdoor.set(expected1)
+                self.backdoor.write()
 
-        acc = self.dev.getScalarRegisterAccessor(
-            np.int32, "ADC/WORD_CLK_CNT_1_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
+                acc = self.dev.getScalarRegisterAccessor(
+                    type, "ADC/WORD_CLK_CNT_1_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
 
-        self.backdoor.set(231)
-        self.backdoor.write()
-        self.interrupt.write()
+                expected2 = [value(type, expected1)]
+                self.backdoor.set(expected2)
+                self.backdoor.write()
+                self.interrupt.write()
 
-        retval = acc.readNonBlocking()
+                retval = acc.readNonBlocking()
 
-        self.assertTrue(acc == 230)
-        self.assertTrue(retval)
+                self.assertTrue(acc == expected1, f'{acc} == {expected1}')
+                self.assertTrue(retval)
 
-        retval = acc.readNonBlocking()
+                retval = acc.readNonBlocking()
 
-        self.assertTrue(acc == 231)
-        self.assertTrue(retval)
+                self.assertTrue(acc == expected2, f'{acc} == {expected2}')
+                self.assertTrue(retval)
 
-        retval = acc.readNonBlocking()
-        self.assertFalse(retval)
+                retval = acc.readNonBlocking()
+                self.assertFalse(retval)
 
     def testWrite(self):
-        acc = self.dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
-        acc.set(120)
-        acc.write()
-        self.backdoor.read()
-        self.assertTrue(self.backdoor == 120)
+        for type in types_to_test:
+            with self.subTest(type=type):
+                acc = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
+
+                expected = [value(type)]
+                acc.set(expected)
+
+                acc.write()
+
+                self.backdoor.read()
+                self.assertTrue(self.backdoor[0] == int(expected[0]), f'{self.backdoor[0]} == {int(expected[0])}')
 
     def testWriteDestructively(self):
-        acc = self.dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
-        acc.set(240)
-        acc.writeDestructively()
-        self.backdoor.read()
-        self.assertTrue(self.backdoor == 240)
+        for type in types_to_test:
+            with self.subTest(type=type):
+                acc = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
+
+                expected = [value(type)]
+                acc.set(expected)
+
+                acc.writeDestructively()
+
+                self.backdoor.read()
+                self.assertTrue(self.backdoor[0] == int(expected[0]), f'{self.backdoor[0]} == {int(expected[0])}')
 
     def testGetName(self):
         acc = self.dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
