@@ -27,6 +27,8 @@ class TestAccessors(unittest.TestCase):
         acc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
         otherAcc = dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
 
+        self.assertTrue(acc.getName() == "/ADC/WORD_CLK_CNT_1")
+
         # write through one accessor, read through the other
         reference = [99]
         acc.set(reference)
@@ -83,6 +85,8 @@ class TestAccessors(unittest.TestCase):
 
         # test that setting the string accessor to a longer string than currently works
         stringTooShortAcc = dev.getScalarRegisterAccessor(str, "ADC/WORD_CLK_CNT_1")
+        stringTooShortAcc.set('123')
+        self.assertTrue(acc == 123456789)
         stringTooShortAcc.read()
 
         self.assertTrue(stringTooShortAcc == '123456789')
@@ -98,6 +102,8 @@ class TestAccessors(unittest.TestCase):
         acc = dev.getOneDRegisterAccessor(np.int32, "BOARD/WORD_CLK_MUX")
         elements = acc.getNElements()
         self.assertTrue(elements == 4)
+
+        self.assertTrue(acc.getName() == "/BOARD/WORD_CLK_MUX")
 
         reference = [i + 42 for i in range(elements)]
         acc.set(reference)
@@ -149,9 +155,13 @@ class TestAccessors(unittest.TestCase):
         da.setDMapFilePath("deviceInformation/exampleCrate.dmap")
         dev = da.Device("CARD_WITH_MODULES")
         dev.open()
+
         acc = dev.getTwoDRegisterAccessor(np.int32, "BOARD/DMA")
         channels = acc.getNChannels()
         elementsPerChannel = acc.getNElementsPerChannel()
+
+        self.assertTrue(acc.getName() == "/BOARD/DMA")
+
         reference = [
             [i * j + i + j + 12 for j in range(elementsPerChannel)] for i in range(channels)]
 
