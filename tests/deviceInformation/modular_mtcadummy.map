@@ -1,6 +1,6 @@
 @META_DATA_TEST 0.1.0-1-test
 
-# name                    nr of elements       address          size           bar    width   fracbits    signed   
+# name                    nr of elements       address          size           bar    width   fracbits    signed
 BOARD.WORD_FIRMWARE           0x00000001    0x00000000    0x00000004    0x00000000       32         0         0
 BOARD.WORD_COMPILATION        0x00000001    0x00000004    0x00000004    0x00000000       32         0         0
 BOARD.WORD_STATUS             0x00000001    0x00000008    0x00000004    0x00000000       32         0         0
@@ -16,6 +16,11 @@ BOARD.WORD_CLK_MUX_3            0x00000001    0x0000002C    0x00000004    0x0000
 ADC.WORD_CLK_DUMMY            0x00000001    0x0000003C    0x00000004    0x00000000       32         0         0
 ADC.WORD_CLK_RST              0x00000001    0x00000040    0x00000004    0x00000000       32         0         0
 BOARD.WORD_ADC_ENA              0x00000001    0x00000044    0x00000004    0x00000000       32         0         0
+
+ADC.WORD_CLK_CNT_1_RO         0x00000001    0x00000014    0x00000004    0x00000000       32         0         0   RO
+ADC.WORD_CLK_CNT_1_WO         0x00000001    0x00000014    0x00000004    0x00000000       32         0         0   WO
+ADC.WORD_CLK_CNT_1_INT        0x00000001    0x00000014    0x00000004    0x00000000       32         0         0   INTERRUPT0
+
 
 #The broken register cannot be read or written, it always causes an I/O error for testing
 TESTING.BROKEN_REGISTER       0x00000001    0x00000048    0x00000004    0x00000000       32         0         0
@@ -67,7 +72,7 @@ BOARD.SEQUENCE_UNSIGNED_INT_2 1 0x08 4 0x2 32 0 0
 
 
 # Area for push type testing:
-MODULE1.TEST_AREA                 0x0000000A    0x00000028    0x00000028    0x00000001       32         0        0  
+MODULE1.TEST_AREA                 0x0000000A    0x00000028    0x00000028    0x00000001       32         0        0
 MODULE1.TEST_AREA_PUSH            0x0000000A    0x00000028    0x00000028    0x00000001       32         0        0  INTERRUPT2
 MODULE1.DATA_READY                0x00000000    0x00000000    0x00000000    0x00000000        0         0        0  INTERRUPT2
 
