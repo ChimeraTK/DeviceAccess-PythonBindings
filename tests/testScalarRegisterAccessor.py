@@ -54,10 +54,58 @@ def value(type, forceUnequal=None):
             # don't need to cover the full range, so we treat all other's equal
             value = type(generator_seed % 100)
 
-        if value != forceUnequal:
+        useValue = (value != forceUnequal)
+        if type != bool and useValue:
+            useValue = (value != valueAfterConstruct(type))
+
+        if useValue:
             return type(value)
 
         generator_seed += 1
+
+
+# Triplet of operator, useForFloat, useForBool, useForStr
+binaryOps = [
+    ("__lt__", True, True, True),
+    ("__le__", True, True, True),
+    ("__gt__", True, True, True),
+    ("__ge__", True, True, True),
+    ("__eq__", True, True, True),
+    ("__ne__", True, True, True),
+    ("__add__", True, True, False),
+    ("__sub__", True, False, False),
+    ("__mul__", True, True, False),
+    ("__truediv__", True, False, False),
+    ("__floordiv__", True, False, False),
+    ("__mod__", True, False, False),
+    ("__pow__", True, True, False),
+    ("__rshift__", False, True, False),
+    ("__and__", False, True, False),
+    ("__or__", False, True, False),
+    ("__xor__", False, True, False),
+]
+
+unaryOps = [
+    "__str__",
+    "__bool__",
+    "__getitem__",
+    "__setitem__",
+    "__isub__",
+    "__iadd__",
+    "__imul__",
+    "__idiv__",
+    "__ifloordiv__",
+    "__imod__",
+    "__ipow__",
+    "__irshift__",
+    "__ilshift__",
+    "__iand__",
+    "__ior__",
+    "__ixor__",
+    "__neg__",
+    "__pos__",
+    "__invert__",
+]
 
 
 class TestScalarRegisterAccessor(unittest.TestCase):
@@ -308,6 +356,42 @@ class TestScalarRegisterAccessor(unittest.TestCase):
         stringTooShortAcc.read()
 
         self.assertTrue(stringTooShortAcc == '123456789')
+
+    def testOperators(self):
+        for type in types_to_test:
+            # registers don't matter since we do not actually execute any transfer operations
+            acc1 = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
+            acc2 = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
+            for operator, useForFloat, useForBool, useForStr in binaryOps:
+
+                if type == str and not useForStr:
+                    continue
+                if type == bool and not useForBool:
+                    continue
+                if (type == np.float32) or (type == np.float64) and not useForFloat:
+                    continue
+
+                with self.subTest(type=type, operator=operator):
+                    val1 = np.array([value(type)])
+                    val2 = np.array([value(type, val1)])
+                    acc1.set(val1)
+                    acc2.set(val2)
+
+                    expected12 = val1.__getattribute__(operator)(val2)
+                    expected21 = val2.__getattribute__(operator)(val1)
+
+                    self.assertEqual(acc1.__getattribute__(operator)(acc2), expected12)
+                    self.assertEqual(acc1.__getattribute__(operator)(val2), expected12)
+                    self.assertEqual(acc2.__getattribute__(operator)(acc1), expected21)
+                    self.assertEqual(acc2.__getattribute__(operator)(val1), expected21)
+
+                    acc2.set(val1)
+                    expected11 = val1.__getattribute__(operator)(val1)
+
+                    print(f'{type}:  {acc1} {operator} {acc2} == {val1}', flush=True)
+
+                    self.assertEqual(acc1.__getattribute__(operator)(acc2), expected11)
+                    self.assertEqual(acc1.__getattribute__(operator)(val1), expected11)
 
 
 if __name__ == '__main__':
