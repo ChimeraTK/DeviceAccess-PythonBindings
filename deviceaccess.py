@@ -575,6 +575,11 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
 
     # pass through all (non-operator) functions to the np array (unless defined here)
     def __getattr__(self, name):
+        if name == "__array_struct__":
+            # This fixes issues with string type accessors. Casting a string accessor into an np.array via either
+            # "np.array(myAccessor)" or "np.asarray(myAccessor)" delivers incorrect results if __array_struct__
+            # is passed through, while it works when not redirecting it here.
+            return super().__getattr__(name)
         return self.__array.__getattribute__(name)
 
     # comparison operators
