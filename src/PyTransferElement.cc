@@ -10,7 +10,7 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void PyTransferElementBase::bind(py::module& mod) {
-    py::class_<PyTransferElementBase>(mod, "PyTransferElementBase");
+    py::class_<PyTransferElementBase>(mod, "TransferElementBase");
   }
 
   /********************************************************************************************************************/

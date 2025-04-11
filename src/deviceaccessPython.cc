@@ -3,7 +3,9 @@
 
 #include "Device.h"
 #include "GeneralAccessor.h"
+#include "PyOneDRegisterAccessor.h"
 #include "PythonModuleMethods.h"
+#include "PyTwoDRegisterAccessor.h"
 #include "RegisterCatalogue.h"
 #include "VersionNumber.h"
 #include "VoidAccessor.h"
@@ -159,6 +161,10 @@ PYBIND11_MODULE(_da_python_bindings, m) {
       .def("readNonBlocking", DeviceAccessPython::VoidRegisterAccessor::readNonBlocking)
       .def("writeDestructively", DeviceAccessPython::VoidRegisterAccessor::writeDestructively)
       .def("write", DeviceAccessPython::VoidRegisterAccessor::write);
+
+  ChimeraTK::PyTransferElementBase::bind(m);
+  ChimeraTK::PyTwoDRegisterAccessor::bind(m);
+  ChimeraTK::PyOneDRegisterAccessor::bind(m);
 
   m.def("createDevice", DeviceAccessPython::createDevice);
   m.def("getDevice_no_alias", DeviceAccessPython::getDevice_no_alias);

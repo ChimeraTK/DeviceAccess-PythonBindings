@@ -8,7 +8,7 @@
 #include "PyTransferElement.h"
 
 #include <ChimeraTK/AccessMode.h>
-#include <ChimeraTK/TwoDRegisterAccessor.h>
+#include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/VariantUserTypes.h>
 
 #include <pybind11/numpy.h>
@@ -19,28 +19,32 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  class PyTwoDRegisterAccessor : public PyTransferElement<PyTwoDRegisterAccessor> {
+  class PyOneDRegisterAccessor : public PyTransferElement<PyOneDRegisterAccessor> {
    public:
-    PyTwoDRegisterAccessor() : _accessor(TwoDRegisterAccessor<int>()) {}
-    PyTwoDRegisterAccessor(PyTwoDRegisterAccessor&&) = default;
-    ~PyTwoDRegisterAccessor();
+    PyOneDRegisterAccessor() : _accessor(OneDRegisterAccessor<int>()) {}
+    PyOneDRegisterAccessor(PyOneDRegisterAccessor&&) = default;
+    ~PyOneDRegisterAccessor();
 
     template<typename UserType>
-    explicit PyTwoDRegisterAccessor(ChimeraTK::TwoDRegisterAccessor<UserType> acc) : _accessor(acc) {}
+    explicit PyOneDRegisterAccessor(ChimeraTK::OneDRegisterAccessor<UserType> acc) : _accessor(acc) {}
 
     // UserTypeTemplateVariantNoVoid expects a single template argument, std::vector has multiple (with defaults)...
     template<typename T>
     using Vector = std::vector<T>;
 
-    template<typename T>
-    using VVector = std::vector<std::vector<T>>;
+    py::object readAndGet();
 
-    size_t getNChannels();
-    size_t getNElementsPerChannel();
+    void setAndWrite(const UserTypeTemplateVariantNoVoid<Vector>& vec);
 
-    void set(const UserTypeTemplateVariantNoVoid<VVector>& vec);
+    size_t getNElements();
+
+    void set(const UserTypeTemplateVariantNoVoid<Vector>& vec);
 
     py::object get() const;
+
+    py::object getitem(size_t index) const;
+
+    void setitem(size_t index, const UserTypeVariantNoVoid& val);
 
     std::string repr(py::object& acc) const;
 
@@ -50,7 +54,7 @@ namespace ChimeraTK {
 
     static void bind(py::module& mod);
 
-    mutable UserTypeTemplateVariantNoVoid<TwoDRegisterAccessor> _accessor;
+    mutable UserTypeTemplateVariantNoVoid<OneDRegisterAccessor> _accessor;
   };
 
   /********************************************************************************************************************/

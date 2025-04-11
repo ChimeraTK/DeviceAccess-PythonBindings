@@ -1,12 +1,11 @@
 // SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include "PyTwoDRegisterAccessor.h"
+#include "PyOneDRegisterAccessor.h"
 
 #include <pybind11/stl.h>
 
 #include <algorithm>
-#include <cstdint>
 #include <vector>
 
 namespace py = pybind11;
@@ -15,38 +14,23 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  size_t PyTwoDRegisterAccessor::getNElementsPerChannel() {
+  size_t PyOneDRegisterAccessor::getNElements() {
     size_t rv;
-    std::visit([&](auto& acc) { rv = acc.getNElementsPerChannel(); }, _accessor);
+    std::visit([&](auto& acc) { rv = acc.getNElements(); }, _accessor);
     return rv;
   }
-
   /********************************************************************************************************************/
 
-  size_t PyTwoDRegisterAccessor::getNChannels() {
-    size_t rv;
-    std::visit([&](auto& acc) { rv = acc.getNChannels(); }, _accessor);
-    return rv;
-  }
-
-  /********************************************************************************************************************/
-
-  void PyTwoDRegisterAccessor::set(const UserTypeTemplateVariantNoVoid<VVector>& vec) {
+  void PyOneDRegisterAccessor::set(const UserTypeTemplateVariantNoVoid<Vector>& vec) {
     std::visit(
         [&](auto& acc) {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using expectedUserType = typename ACC::value_type;
           std::visit(
-              [&](const auto& outerVector) {
-                VVector<expectedUserType> converted(outerVector.size());
-
-                std::transform(outerVector.begin(), outerVector.end(), converted.begin(), [](auto innerVector) {
-                  std::vector<expectedUserType> resizedInnerVector(innerVector.size());
-                  std::transform(innerVector.begin(), innerVector.end(), resizedInnerVector.begin(),
-                      [](auto v) { return userTypeToUserType<expectedUserType>(v); });
-                  return resizedInnerVector;
-                });
-
+              [&](const auto& vector) {
+                std::vector<expectedUserType> converted(vector.size());
+                std::transform(vector.begin(), vector.end(), converted.begin(),
+                    [](auto v) { return userTypeToUserType<expectedUserType>(v); });
                 acc = converted;
               },
               vec);
@@ -55,7 +39,20 @@ namespace ChimeraTK {
   }
   /********************************************************************************************************************/
 
-  py::object PyTwoDRegisterAccessor::get() const {
+  py::object PyOneDRegisterAccessor::readAndGet() {
+    read();
+    return get();
+  }
+
+  /********************************************************************************************************************/
+
+  void PyOneDRegisterAccessor::setAndWrite(const UserTypeTemplateVariantNoVoid<Vector>& vec) {
+    set(vec);
+    write();
+  }
+  /********************************************************************************************************************/
+
+  py::object PyOneDRegisterAccessor::get() const {
     py::object rv;
     std::visit(
         [&](auto& acc) {
@@ -63,18 +60,12 @@ namespace ChimeraTK {
           using userType = typename ACC::value_type;
           auto ndacc = boost::dynamic_pointer_cast<NDRegisterAccessor<userType>>(acc.getHighLevelImplElement());
           if constexpr(std::is_same<userType, std::string>::value) {
-            // String arrays are not really supported by numpy, so we return a list of lists instead
-            std::vector<std::vector<std::string>> result;
-            for(size_t channel = 0; channel < acc.getNChannels(); ++channel) {
-              result.emplace_back(ndacc->accessChannel(channel));
-            }
-            rv = py::cast(result);
+            // String arrays are not really supported by numpy, so we return a list instead
+            rv = py::cast(ndacc->accessChannel(0));
           }
           else {
-            auto shape = std::vector<size_t>{acc.getNChannels(), acc.getNElementsPerChannel()};
-            auto strides = std::vector<size_t>{acc.getNElementsPerChannel() * sizeof(userType), sizeof(userType)};
-            auto ary =
-                py::array(py::dtype::of<userType>(), shape, strides, ndacc->accessChannel(0).data(), py::cast(this));
+            auto ary = py::array(py::dtype::of<userType>(), {acc.getNElements()}, {sizeof(userType)},
+                ndacc->accessChannel(0).data(), py::cast(this));
             assert(!ary.owndata()); // numpy must not own our buffers
             rv = ary;
           }
@@ -84,8 +75,29 @@ namespace ChimeraTK {
   }
   /********************************************************************************************************************/
 
-  std::string PyTwoDRegisterAccessor::repr(py::object& acc) const {
-    std::string rep{"<TwoDRegisterAccessor(type="};
+  py::object PyOneDRegisterAccessor::getitem(size_t index) const {
+    py::object rv;
+    std::visit([&](auto& acc) { rv = py::cast(acc[index]); }, _accessor);
+    return rv;
+  }
+  /********************************************************************************************************************/
+
+  void PyOneDRegisterAccessor::setitem(size_t index, const UserTypeVariantNoVoid& val) {
+    std::visit(
+        [&](auto& acc) {
+          std::visit(
+              [&](auto& v) {
+                acc[index] = userTypeToUserType<typename std::remove_reference<decltype(acc)>::type::value_type>(v);
+              },
+              val);
+        },
+        _accessor);
+  }
+
+  /********************************************************************************************************************/
+
+  std::string PyOneDRegisterAccessor::repr(py::object& acc) const {
+    std::string rep{"<OneDRegisterAccessor(type="};
     rep.append(py::cast<py::object>(py::cast(&acc).attr("getValueType")()).attr("__repr__")().cast<std::string>());
     rep.append(", name=");
     rep.append(py::cast(&acc).attr("getName")().cast<std::string>());
@@ -100,7 +112,7 @@ namespace ChimeraTK {
   }
   /********************************************************************************************************************/
 
-  py::buffer_info PyTwoDRegisterAccessor::getBufferInfo() {
+  py::buffer_info PyOneDRegisterAccessor::getBufferInfo() {
     py::buffer_info info;
     std::visit(
         [&](auto& acc) {
@@ -119,11 +131,8 @@ namespace ChimeraTK {
           }
           info.ptr = ndacc->accessChannel(0).data();
           info.itemsize = sizeof(userType);
-          info.ndim = acc.getNChannels();
-          std::vector<int64_t> shape;
-          shape.emplace_back(acc.getNChannels());
-          shape.emplace_back(acc.getNElementsPerChannel());
-          info.shape = shape;
+          info.ndim = 1;
+          info.shape = {acc.getNElements()};
           info.strides = {sizeof(userType)};
         },
         _accessor);
@@ -132,76 +141,81 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  PyTwoDRegisterAccessor::~PyTwoDRegisterAccessor() = default;
+  PyOneDRegisterAccessor::~PyOneDRegisterAccessor() = default;
 
   /********************************************************************************************************************/
 
-  void PyTwoDRegisterAccessor::bind(py::module& m) {
-    py::class_<PyTwoDRegisterAccessor, PyTransferElementBase, std::unique_ptr<PyTwoDRegisterAccessor, py::nodelete>>
-        arrayacc(m, "TwoDRegisterAccessor", py::buffer_protocol());
+  void PyOneDRegisterAccessor::bind(py::module& m) {
+    py::class_<PyOneDRegisterAccessor, PyTransferElementBase, std::unique_ptr<PyOneDRegisterAccessor, py::nodelete>>
+        arrayacc(m, "OneDRegisterAccessor", py::buffer_protocol());
     arrayacc.def(py::init<>())
-        .def_buffer(&PyTwoDRegisterAccessor::getBufferInfo)
-        .def("read", &PyTwoDRegisterAccessor::read,
+        .def_buffer(&PyOneDRegisterAccessor::getBufferInfo)
+        .def("read", &PyOneDRegisterAccessor::read,
             "Read the data from the device.\n\nIf AccessMode::wait_for_new_data was set, this function will block "
             "until new data has arrived. Otherwise it still might block for a short time until the data transfer was "
             "complete.")
-        .def("readNonBlocking", &PyTwoDRegisterAccessor::readNonBlocking,
+        .def("readNonBlocking", &PyOneDRegisterAccessor::readNonBlocking,
             "Read the next value, if available in the input buffer.\n\nIf AccessMode::wait_for_new_data was set, this "
             "function returns immediately and the return value indicated if a new value was available (true) or not "
             "(false).\n\nIf AccessMode::wait_for_new_data was not set, this function is identical to read(), which "
             "will still return quickly. Depending on the actual transfer implementation, the backend might need to "
             "transfer data to obtain the current value before returning. Also this function is not guaranteed to be "
             "lock free. The return value will be always true in this mode.")
-        .def("readLatest", &PyTwoDRegisterAccessor::readLatest,
+        .def("readLatest", &PyOneDRegisterAccessor::readLatest,
             "Read the latest value, discarding any other update since the last read if present.\n\nOtherwise this "
             "function is identical to readNonBlocking(), i.e. it will never wait for new values and it will return "
             "whether a new value was available if AccessMode::wait_for_new_data is set.")
-        .def("write", &PyTwoDRegisterAccessor::write,
+        .def("write", &PyOneDRegisterAccessor::write,
             "Write the data to device.\n\nThe return value is true, old data was lost on the write transfer (e.g. due "
             "to an buffer overflow). In case of an unbuffered write transfer, the return value will always be false.")
-        .def("writeDestructively", &PyTwoDRegisterAccessor::writeDestructively,
+        .def("writeDestructively", &PyOneDRegisterAccessor::writeDestructively,
             "Just like write(), but allows the implementation to destroy the content of the user buffer in the "
             "process.\n\nThis is an optional optimisation, hence there is a default implementation which just calls "
             "the normal doWriteTransfer(). In any case, the application must expect the user buffer of the "
             "TransferElement to contain undefined data after calling this function.")
-        .def("getName", &PyTwoDRegisterAccessor::getName, "Returns the name that identifies the process variable.")
-        .def("getUnit", &PyTwoDRegisterAccessor::getUnit,
+        .def("getName", &PyOneDRegisterAccessor::getName, "Returns the name that identifies the process variable.")
+        .def("getUnit", &PyOneDRegisterAccessor::getUnit,
             "Returns the engineering unit.\n\nIf none was specified, it will default to ' n./ a.'")
-        .def("getDescription", &PyTwoDRegisterAccessor::getDescription,
+        .def("getDescription", &PyOneDRegisterAccessor::getDescription,
             "Returns the description of this variable/register.")
-        .def("getValueType", &PyTwoDRegisterAccessor::getValueType,
+        .def("getValueType", &PyOneDRegisterAccessor::getValueType,
             "Returns the std::type_info for the value type of this transfer element.\n\nThis can be used to determine "
             "the type at runtime.")
-        .def("getVersionNumber", &PyTwoDRegisterAccessor::getVersionNumber,
+        .def("getVersionNumber", &PyOneDRegisterAccessor::getVersionNumber,
             "Returns the version number that is associated with the last transfer (i.e. last read or write)")
-        .def("isReadOnly", &PyTwoDRegisterAccessor::isReadOnly,
+        .def("isReadOnly", &PyOneDRegisterAccessor::isReadOnly,
             "Check if transfer element is read only, i.e. it is readable but not writeable.")
-        .def("isReadable", &PyTwoDRegisterAccessor::isReadable, "Check if transfer element is readable.")
-        .def("isWriteable", &PyTwoDRegisterAccessor::isWriteable, "Check if transfer element is writeable.")
-        .def("getId", &PyTwoDRegisterAccessor::getId,
+        .def("isReadable", &PyOneDRegisterAccessor::isReadable, "Check if transfer element is readable.")
+        .def("isWriteable", &PyOneDRegisterAccessor::isWriteable, "Check if transfer element is writeable.")
+        .def("getId", &PyOneDRegisterAccessor::getId,
             "Obtain unique ID for the actual implementation of this TransferElement.\n\nThis means that e.g. two "
             "instances of ScalarRegisterAccessor created by the same call to Device::getScalarRegisterAccessor() (e.g. "
             "by copying the accessor to another using NDRegisterAccessorBridge::replace()) will have the same ID, "
             "while two instances obtained by to difference calls to Device::getScalarRegisterAccessor() will have a "
             "different ID even when accessing the very same register.")
-        .def("dataValidity", &PyTwoDRegisterAccessor::dataValidity,
+        .def("dataValidity", &PyOneDRegisterAccessor::dataValidity,
             "Return current validity of the data.\n\nWill always return DataValidity.ok if the backend does not "
             "support it")
-        .def("getNElements", &PyTwoDRegisterAccessor::getNElementsPerChannel,
-            "Return number of elements/samples per Channel in the register.")
-        .def("getNElements", &PyTwoDRegisterAccessor::getNChannels, "Return number of Channels in the register.")
-        .def("get", &PyTwoDRegisterAccessor::get, "Return an array of UserType (without a previous read).")
-        .def("set", &PyTwoDRegisterAccessor::set, "Set the values of the array of UserType.", py::arg("newValue"))
-        .def("__getattr__", &PyTwoDRegisterAccessor::getattr);
+        .def(
+            "getNElements", &PyOneDRegisterAccessor::getNElements, "Return number of elements/samples in the register.")
+        .def("get", &PyOneDRegisterAccessor::get, "Return an array of UserType (without a previous read).")
+        .def("set", &PyOneDRegisterAccessor::set, "Set the values of the array of UserType.", py::arg("newValue"))
+        .def("setAndWrite", &PyOneDRegisterAccessor::setAndWrite,
+            "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a "
+            "new version number is generated.",
+            py::arg("newValue"))
+        .def("readAndGet", &PyOneDRegisterAccessor::readAndGet,
+            "Convenience function to read and return an array of UserType.")
+        .def("__getattr__", &PyOneDRegisterAccessor::getattr);
     for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {
-      arrayacc.def(fn.c_str(), [fn](PyTwoDRegisterAccessor& acc, PyTwoDRegisterAccessor& other) {
+      arrayacc.def(fn.c_str(), [fn](PyOneDRegisterAccessor& acc, PyOneDRegisterAccessor& other) {
         return acc.get().attr(fn.c_str())(other.get());
       });
       arrayacc.def(fn.c_str(),
-          [fn](PyTwoDRegisterAccessor& acc, py::object& other) { return acc.get().attr(fn.c_str())(other); });
+          [fn](PyOneDRegisterAccessor& acc, py::object& other) { return acc.get().attr(fn.c_str())(other); });
     }
     for(const auto& fn : PyTransferElementBase::specialUnaryFunctionsToEmulateNumeric) {
-      arrayacc.def(fn.c_str(), [fn](PyTwoDRegisterAccessor& acc) { return acc.get().attr(fn.c_str())(); });
+      arrayacc.def(fn.c_str(), [fn](PyOneDRegisterAccessor& acc) { return acc.get().attr(fn.c_str())(); });
     }
   }
 
