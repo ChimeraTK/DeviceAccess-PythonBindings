@@ -17,10 +17,57 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.curdir,"..")))
 import deviceaccess as da
 # fmt: on
 
+#####################################################################################################################
+
 types_to_test = [np.int8, np.uint8, np.int16, np.uint16, np.int32,
                  np.uint32, np.int64, np.uint64, np.float32, np.float64, bool, str]
 
-generator_seed = 12345689
+
+# Triplet of operator, useForFloat, useForBool, useForStr
+binaryOps = [
+    ("__lt__", True, True, True),
+    ("__le__", True, True, True),
+    ("__gt__", True, True, True),
+    ("__ge__", True, True, True),
+    ("__eq__", True, True, True),
+    ("__ne__", True, True, True),
+    ("__add__", True, True, False),
+    ("__iadd__", True, True, False),
+    ("__sub__", True, False, False),
+    ("__isub__", True, False, False),
+    ("__mul__", True, True, False),
+    ("__imul__", True, True, False),
+    ("__truediv__", True, False, False),
+    ("__floordiv__", True, False, False),
+    ("__ifloordiv__", True, False, False),
+    ("__mod__", True, False, False),
+    ("__imod__", True, False, False),
+    ("__pow__", True, True, False),
+    ("__ipow__", True, True, False),
+    ("__rshift__", False, True, False),
+    ("__irshift__", False, True, False),
+    ("__ilshift__", False, True, False),
+    ("__and__", False, True, False),
+    ("__iand__", False, True, False),
+    ("__or__", False, True, False),
+    ("__ior__", False, True, False),
+    ("__xor__", False, True, False),
+    ("__ixor__", False, True, False),
+    ("__getitem__", True, True, True),
+]
+
+unaryOps = [
+    ("__str__", True, True, True),
+    ("__bool__", True, True, True),
+    ("__neg__", True, True, True),
+    ("__pos__", True, True, True),
+    ("__invert__", True, True, True),
+]
+
+# Start value used to generate numbers in the value() function below.
+generator_seed = 10
+
+#####################################################################################################################
 
 
 def valueAfterConstruct(type):
@@ -33,6 +80,8 @@ def valueAfterConstruct(type):
         return False
     return type(0)
 
+#####################################################################################################################
+
 
 def value(type, forceUnequal=None):
     """
@@ -41,7 +90,7 @@ def value(type, forceUnequal=None):
     """
     global generator_seed
 
-    if forceUnequal is None:
+    if forceUnequal is None and type != bool:
         forceUnequal = valueAfterConstruct(type)
 
     while True:
@@ -54,7 +103,10 @@ def value(type, forceUnequal=None):
             # don't need to cover the full range, so we treat all other's equal
             value = type(generator_seed % 100)
 
-        useValue = (value != forceUnequal)
+        if forceUnequal is not None:
+            useValue = (value != forceUnequal)
+        else:
+            useValue = True
         if type != bool and useValue:
             useValue = (value != valueAfterConstruct(type))
 
@@ -63,49 +115,23 @@ def value(type, forceUnequal=None):
 
         generator_seed += 1
 
+#####################################################################################################################
 
-# Triplet of operator, useForFloat, useForBool, useForStr
-binaryOps = [
-    ("__lt__", True, True, True),
-    ("__le__", True, True, True),
-    ("__gt__", True, True, True),
-    ("__ge__", True, True, True),
-    ("__eq__", True, True, True),
-    ("__ne__", True, True, True),
-    ("__add__", True, True, False),
-    ("__sub__", True, False, False),
-    ("__mul__", True, True, False),
-    ("__truediv__", True, False, False),
-    ("__floordiv__", True, False, False),
-    ("__mod__", True, False, False),
-    ("__pow__", True, True, False),
-    ("__rshift__", False, True, False),
-    ("__and__", False, True, False),
-    ("__or__", False, True, False),
-    ("__xor__", False, True, False),
-]
 
-unaryOps = [
-    "__str__",
-    "__bool__",
-    "__getitem__",
-    "__setitem__",
-    "__isub__",
-    "__iadd__",
-    "__imul__",
-    "__idiv__",
-    "__ifloordiv__",
-    "__imod__",
-    "__ipow__",
-    "__irshift__",
-    "__ilshift__",
-    "__iand__",
-    "__ior__",
-    "__ixor__",
-    "__neg__",
-    "__pos__",
-    "__invert__",
-]
+def catchEx(lambdaExpression):
+    """
+    Execute the given lambdaExpression and return its return value. If a ValueError or IndexError is thrown, catch
+    and return it.
+    """
+    try:
+        return lambdaExpression()
+    except ValueError as ex:
+        return ex
+    except IndexError as ex:
+        return ex
+
+#####################################################################################################################
+#####################################################################################################################
 
 
 class TestScalarRegisterAccessor(unittest.TestCase):
@@ -357,7 +383,8 @@ class TestScalarRegisterAccessor(unittest.TestCase):
 
         self.assertTrue(stringTooShortAcc == '123456789')
 
-    def testOperators(self):
+    def testBinaryOperators(self):
+        print(f'HIER 1', flush=True)
         for type in types_to_test:
             # registers don't matter since we do not actually execute any transfer operations
             acc1 = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
@@ -372,26 +399,75 @@ class TestScalarRegisterAccessor(unittest.TestCase):
                     continue
 
                 with self.subTest(type=type, operator=operator):
+                    print(f"HIER 1 Z1 {type}", flush=True)
                     val1 = np.array([value(type)])
+                    print("HIER 1 Z2", flush=True)
                     val2 = np.array([value(type, val1)])
+                    print("HIER 1 Z3", flush=True)
                     acc1.set(val1)
+                    print("HIER 1 Z4", flush=True)
                     acc2.set(val2)
+                    print("HIER 1 Z5", flush=True)
 
-                    expected12 = val1.__getattribute__(operator)(val2)
-                    expected21 = val2.__getattribute__(operator)(val1)
+                    expected12 = catchEx(lambda: val1.__getattribute__(operator)(val2))
+                    print("HIER 1 Z6", flush=True)
+                    expected21 = catchEx(lambda: val2.__getattribute__(operator)(val1))
+                    print("HIER 1 Z7", flush=True)
 
-                    self.assertEqual(acc1.__getattribute__(operator)(acc2), expected12)
-                    self.assertEqual(acc1.__getattribute__(operator)(val2), expected12)
-                    self.assertEqual(acc2.__getattribute__(operator)(acc1), expected21)
-                    self.assertEqual(acc2.__getattribute__(operator)(val1), expected21)
+                    print(f'{type}: ( {acc1} = {val1} ) {operator} ( {acc2} = {val2} ) == {expected12}', flush=True)
+                    print(f'{type}: ( {acc2} = {val2} ) {operator} ( {acc1} = {val1} ) == {expected21}', flush=True)
+
+                    self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(acc2)), expected12)
+                    print("HIER 1A", flush=True)
+                    self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(val2)), expected12)
+                    print("HIER 1B", flush=True)
+                    self.assertEqual(catchEx(lambda: acc2.__getattribute__(operator)(acc1)), expected21)
+                    print("HIER 1C", flush=True)
+                    self.assertEqual(catchEx(lambda: acc2.__getattribute__(operator)(val1)), expected21)
+                    print("HIER 1D", flush=True)
 
                     acc2.set(val1)
+                    print("HIER 1E", flush=True)
                     expected11 = val1.__getattribute__(operator)(val1)
+                    print("HIER 1F", flush=True)
 
-                    print(f'{type}:  {acc1} {operator} {acc2} == {val1}', flush=True)
+                    self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(acc2)), expected11)
+                    print("HIER 1G", flush=True)
+                    self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(val1)), expected11)
+                    print("HIER 1H", flush=True)
 
-                    self.assertEqual(acc1.__getattribute__(operator)(acc2), expected11)
-                    self.assertEqual(acc1.__getattribute__(operator)(val1), expected11)
+                print("HIER 1I", flush=True)
+            print("HIER 1J", flush=True)
+        print("HIER 1K", flush=True)
+
+    def testUnaryOperators(self):
+        print(f'HIER 2', flush=True)
+        for type in types_to_test:
+            # registers don't matter since we do not actually execute any transfer operations
+            acc = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
+            for operator, useForFloat, useForBool, useForStr in unaryOps:
+
+                print(f'{type} {operator}', flush=True)
+                if type == str and not useForStr:
+                    continue
+                if type == bool and not useForBool:
+                    continue
+                if (type == np.float32) or (type == np.float64) and not useForFloat:
+                    continue
+
+                with self.subTest(type=type, operator=operator):
+                    for i in range(0, 2):
+
+                        val = np.array([value(type)])
+                        acc.set(val)
+
+                        expected = catchEx(lambda: val.__getattribute__(operator)())
+
+                        print(f'{type}:  {operator} ( {acc} = {val} ) == {expected}', flush=True)
+
+                        self.assertEqual(catchEx(lambda: acc.__getattribute__(operator)()), expected)
+
+#####################################################################################################################
 
 
 if __name__ == '__main__':
