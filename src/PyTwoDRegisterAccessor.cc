@@ -137,8 +137,8 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void PyTwoDRegisterAccessor::bind(py::module& m) {
-    py::class_<PyTwoDRegisterAccessor, PyTransferElementBase, std::unique_ptr<PyTwoDRegisterAccessor, py::nodelete>>
-        arrayacc(m, "TwoDRegisterAccessor", py::buffer_protocol());
+    py::class_<PyTwoDRegisterAccessor, PyTransferElementBase> arrayacc(
+        m, "TwoDRegisterAccessor", py::buffer_protocol());
     arrayacc.def(py::init<>())
         .def_buffer(&PyTwoDRegisterAccessor::getBufferInfo)
         .def("read", &PyTwoDRegisterAccessor::read,

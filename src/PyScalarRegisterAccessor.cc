@@ -100,8 +100,8 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void PyScalarRegisterAccessor::bind(py::module& m) {
-    py::class_<PyScalarRegisterAccessor, PyTransferElementBase, std::unique_ptr<PyScalarRegisterAccessor, py::nodelete>>
-        arrayacc(m, "ScalarRegisterAccessor", py::buffer_protocol());
+    py::class_<PyScalarRegisterAccessor, PyTransferElementBase> arrayacc(
+        m, "ScalarRegisterAccessor", py::buffer_protocol());
     arrayacc.def(py::init<>())
         .def("read", &PyScalarRegisterAccessor::read,
             "Read the data from the device.\n\nIf AccessMode::wait_for_new_data was set, this function will block "
