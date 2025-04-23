@@ -59,9 +59,9 @@ namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
-  ChimeraTK::DataType convert_dytpe_to_usertype(py::dtype dtype);
+  ChimeraTK::DataType convertDTypeToUsertype(py::dtype dtype);
 
-  py::dtype convert_usertype_to_dtype(ChimeraTK::DataType usertype);
+  py::dtype convertUsertypeToDtype(ChimeraTK::DataType usertype);
 
   template<typename T>
   pybind11::array copyUserBufferToNpArray(

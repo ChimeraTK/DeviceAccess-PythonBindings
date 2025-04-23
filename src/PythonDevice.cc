@@ -103,7 +103,7 @@ namespace DeviceAccessPython {
           registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
       acc.read();
       arr = std::make_unique<pybind11::array>(
-          copyUserBufferToNpArray(acc, convert_usertype_to_dtype(usertype), reg.getNumberOfDimensions()));
+          copyUserBufferToNpArray(acc, convertUsertypeToDtype(usertype), reg.getNumberOfDimensions()));
     });
 
     return *arr;
@@ -113,7 +113,7 @@ namespace DeviceAccessPython {
 
   void Device::write(const ChimeraTK::Device& self, py::array& arr, const std::string& registerPath,
       size_t numberOfElements, size_t elementsOffset, const py::list& flaglist) {
-    auto usertype = convert_dytpe_to_usertype(arr.dtype());
+    auto usertype = convertDTypeToUsertype(arr.dtype());
 
     auto bufferTransfer = [&](auto arg) {
       auto acc = self.getTwoDRegisterAccessor<decltype(arg)>(

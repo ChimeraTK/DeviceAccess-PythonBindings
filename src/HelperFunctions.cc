@@ -11,7 +11,7 @@ namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
-  ChimeraTK::DataType convert_dytpe_to_usertype(py::dtype dtype) {
+  ChimeraTK::DataType convertDTypeToUsertype(py::dtype dtype) {
     if(dtype.is(py::dtype::of<int8_t>())) {
       return ChimeraTK::DataType::int8;
     }
@@ -50,7 +50,7 @@ namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
-  py::dtype convert_usertype_to_dtype(ChimeraTK::DataType usertype) {
+  py::dtype convertUsertypeToDtype(ChimeraTK::DataType usertype) {
     std::unique_ptr<py::dtype> rv;
     ChimeraTK::callForTypeNoVoid(usertype, [&](auto arg) {
       using UserType = decltype(arg);

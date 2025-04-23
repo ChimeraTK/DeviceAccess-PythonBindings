@@ -41,6 +41,15 @@ namespace ChimeraTK {
 
     void activateAsyncRead();
 
+    ChimeraTK::RegisterCatalogue getRegisterCatalogue();
+
+    static std::string getCatalogueMetadata(const std::string& parameterName);
+    void write(py::array& arr, const std::string& registerPath, size_t numberOfElements, size_t elementsOffset,
+        const py::list& flaglist);
+
+    pybind11::array read(
+        const std::string& registerPath, size_t numberOfElements, size_t elementsOffset, const py::list& flaglist);
+
     static void bind(py::module& mod);
 
    private:
