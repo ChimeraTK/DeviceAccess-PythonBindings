@@ -8,7 +8,8 @@
 #include "PyTwoDRegisterAccessor.h"
 #include "RegisterCatalogue.h"
 #include "VersionNumber.h"
-#include "VoidAccessor.h"
+
+#include <ChimeraTK/SupportedUserTypes.h>
 
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
@@ -122,32 +123,33 @@ PYBIND11_DECLARE_HOLDER_TYPE(T, boost::shared_ptr<T>)
 //****************************************************************************//
 
 PYBIND11_MODULE(_da_python_bindings, m) {
+  /*
   py::class_<ChimeraTK::Device, boost::shared_ptr<ChimeraTK::Device>>(m, "Device") TEMPLATE_USERTYPE_POPULATION(
-      TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)
-      TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR, getOneDAccessor)
-          TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR, getScalarAccessor)
-              .def("getVoidAccessor", DeviceAccessPython::Device::getVoidRegisterAccessor)
-              .def("getRegisterCatalogue", DeviceAccessPython::Device::getRegisterCatalogue)
-              .def("activateAsyncRead", DeviceAccessPython::Device::activateAsyncRead)
-              .def("getCatalogueMetadata", DeviceAccessPython::Device::getCatalogueMetadata)
-              .def("open", [](ChimeraTK::Device& dev) { DeviceAccessPython::Device::open(dev); })
-              .def("open",
-                  [](ChimeraTK::Device& dev, std::string const& name) { DeviceAccessPython::Device::open(dev, name); })
-              .def("read", DeviceAccessPython::Device::read)
-              .def("write", DeviceAccessPython::Device::write)
-              .def("close", DeviceAccessPython::Device::close);
+    TEMPLATECLASS_GET_GENERAL_TWODACCESSOR, getTwoDAccessor)
+    TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_ONEDACCESSOR, getOneDAccessor)
+    TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_GET_GENERAL_SCALARACCESSOR, getScalarAccessor)
+    .def("getVoidAccessor", DeviceAccessPython::Device::getVoidRegisterAccessor)
+    .def("getRegisterCatalogue", DeviceAccessPython::Device::getRegisterCatalogue)
+    .def("activateAsyncRead", DeviceAccessPython::Device::activateAsyncRead)
+          .def("getCatalogueMetadata", DeviceAccessPython::Device::getCatalogueMetadata)
+          .def("open", [](ChimeraTK::Device& dev) { DeviceAccessPython::Device::open(dev); })
+          .def("open",
+          [](ChimeraTK::Device& dev, std::string const& name) { DeviceAccessPython::Device::open(dev, name); })
+          .def("read", DeviceAccessPython::Device::read)
+          .def("write", DeviceAccessPython::Device::write)
+          .def("close", DeviceAccessPython::Device::close);
 
-  TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_SCALARREGISTERACCESSOR, ScalarAccessor)
-  TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_ONEDREGISTERACCESSOR, OneDAccessor)
-  TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_TWODREGISTERACCESSOR, TwoDAccessor)
-  py::class_<ChimeraTK::VoidRegisterAccessor>(m, "VoidRegisterAccessor")
-      .def(py::init<boost::shared_ptr<ChimeraTK::NDRegisterAccessor<ChimeraTK::Void>>>())
-      .def("isReadOnly", &ChimeraTK::VoidRegisterAccessor::isReadOnly)
-      .def("isReadable", &ChimeraTK::VoidRegisterAccessor::isReadable)
-      .def("isWriteable", &ChimeraTK::VoidRegisterAccessor::isWriteable)
+          TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_SCALARREGISTERACCESSOR, ScalarAccessor)
+          TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_ONEDREGISTERACCESSOR, OneDAccessor)
+          TEMPLATE_USERTYPE_POPULATION(TEMPLATECLASS_TWODREGISTERACCESSOR, TwoDAccessor)
+          py::class_<ChimeraTK::VoidRegisterAccessor>(m, "VoidRegisterAccessor")
+          .def(py::init<boost::shared_ptr<ChimeraTK::NDRegisterAccessor<ChimeraTK::Void>>>())
+          .def("isReadOnly", &ChimeraTK::VoidRegisterAccessor::isReadOnly)
+          .def("isReadable", &ChimeraTK::VoidRegisterAccessor::isReadable)
+          .def("isWriteable", &ChimeraTK::VoidRegisterAccessor::isWriteable)
       .def("isInitialised", &ChimeraTK::VoidRegisterAccessor::isInitialised)
       .def("getDescription",
-          DeviceAccessPython::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getDescription)
+      DeviceAccessPython::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getDescription)
       .def("getUnit", DeviceAccessPython::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getUnit)
       .def("getName", DeviceAccessPython::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getName)
       .def("getVersionNumber", &ChimeraTK::VoidRegisterAccessor::getVersionNumber)
@@ -155,16 +157,45 @@ PYBIND11_MODULE(_da_python_bindings, m) {
       .def("dataValidity", &ChimeraTK::VoidRegisterAccessor::dataValidity)
       .def("getId", &ChimeraTK::VoidRegisterAccessor::getId)
       .def("getAccessModeFlagsString",
-          DeviceAccessPython::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getAccessModeFlagsString)
+      DeviceAccessPython::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getAccessModeFlagsString)
       .def("read", DeviceAccessPython::VoidRegisterAccessor::read)
       .def("readLatest", DeviceAccessPython::VoidRegisterAccessor::readLatest)
       .def("readNonBlocking", DeviceAccessPython::VoidRegisterAccessor::readNonBlocking)
       .def("writeDestructively", DeviceAccessPython::VoidRegisterAccessor::writeDestructively)
       .def("write", DeviceAccessPython::VoidRegisterAccessor::write);
+      */
 
   ChimeraTK::PyTransferElementBase::bind(m);
   ChimeraTK::PyTwoDRegisterAccessor::bind(m);
   ChimeraTK::PyOneDRegisterAccessor::bind(m);
+
+  /**
+   *  DataType (with internal enum)
+   */
+  py::class_<ChimeraTK::DataType> mDataType(m, "DataType");
+  mDataType.def(py::init<ChimeraTK::DataType::TheType>())
+      .def("__str__", &ChimeraTK::DataType::getAsString)
+      // TODO: add __eq__ and __ne__ to DataType
+      //.def(py::self == py::self)
+      .def("__repr__", [](const ChimeraTK::DataType& type) { return "DataType." + type.getAsString(); });
+  py::enum_<ChimeraTK::DataType::TheType>(mDataType, "TheType")
+      .value("none", ChimeraTK::DataType::none)
+      .value("int8", ChimeraTK::DataType::int8)
+      .value("uint8", ChimeraTK::DataType::uint8)
+      .value("int16", ChimeraTK::DataType::int16)
+      .value("uint16", ChimeraTK::DataType::uint16)
+      .value("int32", ChimeraTK::DataType::int32)
+      .value("uint32", ChimeraTK::DataType::uint32)
+      .value("int64", ChimeraTK::DataType::int64)
+      .value("uint64", ChimeraTK::DataType::uint64)
+      .value("float32", ChimeraTK::DataType::float32)
+      .value("float64", ChimeraTK::DataType::float64)
+      .value("string", ChimeraTK::DataType::string)
+      .value("Boolean", ChimeraTK::DataType::Boolean)
+      .value("Void", ChimeraTK::DataType::Void)
+      .export_values();
+  py::implicitly_convertible<ChimeraTK::DataType::TheType, ChimeraTK::DataType>();
+  py::implicitly_convertible<ChimeraTK::DataType, ChimeraTK::DataType::TheType>();
 
   m.def("createDevice", DeviceAccessPython::createDevice);
   m.def("getDevice_no_alias", DeviceAccessPython::getDevice_no_alias);
