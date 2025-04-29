@@ -31,24 +31,24 @@ namespace ChimeraTK {
     void close();
 
     PyVoidRegisterAccessor getVoidRegisterAccessor(
-        const std::string& registerPathName, const py::list& accessModeFlags);
-    PyScalarRegisterAccessor getScalarRegisterAccessor(UserTypeVariantNoVoid& userType,
-        const std::string& registerPathName, int elementsOffset, const py::list& accessModeFlags);
-    PyOneDRegisterAccessor getOneDRegisterAccessor(UserTypeVariantNoVoid& userType, const std::string& registerPathName,
-        int numberOfElements, int elementsOffset, const py::list& accessModeFlags);
-    PyTwoDRegisterAccessor getTwoDRegisterAccessor(UserTypeVariantNoVoid& userType, const std::string& registerPathName,
-        int numberOfElements, int elementsOffset, const py::list& accessModeFlags);
+        const std::string& registerPathName, const py::list& accessModeFlags = py::list());
+    PyScalarRegisterAccessor getScalarRegisterAccessor(py::object& dType, const std::string& registerPathName,
+        int elementsOffset = 0, const py::list& accessModeFlags = py::list());
+    PyOneDRegisterAccessor getOneDRegisterAccessor(py::object& dType, const std::string& registerPathName,
+        int numberOfElements = 0, int elementsOffset = 0, const py::list& accessModeFlags = py::list());
+    PyTwoDRegisterAccessor getTwoDRegisterAccessor(py::object& dType, const std::string& registerPathName,
+        int numberOfElements = 0, int elementsOffset = 0, const py::list& accessModeFlags = py::list());
 
     void activateAsyncRead();
 
     ChimeraTK::RegisterCatalogue getRegisterCatalogue();
+    std::string getCatalogueMetadata(const std::string& parameterName);
 
-    static std::string getCatalogueMetadata(const std::string& parameterName);
-    void write(py::array& arr, const std::string& registerPath, size_t numberOfElements, size_t elementsOffset,
-        const py::list& flaglist);
+    void write(const std::string& registerPath, py::array& arr, size_t elementsOffset = 0,
+        const py::list& flaglist = py::list());
 
-    pybind11::array read(
-        const std::string& registerPath, size_t numberOfElements, size_t elementsOffset, const py::list& flaglist);
+    pybind11::array read(const std::string& registerPath, size_t numberOfElements = 0, size_t elementsOffset = 0,
+        const py::list& flaglist = py::list());
 
     static void bind(py::module& mod);
 

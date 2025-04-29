@@ -5,13 +5,18 @@
 
 #include "HelperFunctions.h"
 #include "PyOneDRegisterAccessor.h"
+#include "PyScalarRegisterAccessor.h"
 #include "PyVoidRegisterAccessor.h"
 
 #include <ChimeraTK/AccessMode.h>
 #include <ChimeraTK/NDRegisterAccessor.h>
 #include <ChimeraTK/SupportedUserTypes.h>
+#include <ChimeraTK/VariantUserTypes.h>
 #include <ChimeraTK/VoidRegisterAccessor.h>
 
+#include <pybind11/cast.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
 
 #include <boost/smart_ptr/shared_ptr.hpp>
@@ -30,63 +35,6 @@ namespace ChimeraTK {
       flags.add(flag.cast<ChimeraTK::AccessMode>());
     }
     return flags;
-  }
-
-  // Helper function to convert ChimeraTK::DataType to py::dtype
-
-  py::dtype convertUsertypeToDtype(ChimeraTK::DataType usertype) {
-    std::unique_ptr<py::dtype> rv;
-    ChimeraTK::callForTypeNoVoid(usertype, [&](auto arg) {
-      using UserType = decltype(arg);
-      if constexpr(std::is_same<UserType, ChimeraTK::Boolean>::value) {
-        rv = std::make_unique<py::dtype>(py::dtype::of<bool>());
-      }
-      if constexpr(std::is_same<UserType, std::string>::value) {
-        rv = std::make_unique<py::dtype>(py::dtype::of<char*>());
-      }
-      else {
-        rv = std::make_unique<py::dtype>(py::dtype::of<UserType>());
-      }
-    });
-    return *rv;
-  }
-
-  // Helper function to copy data from user buffer to numpy dtype
-  ChimeraTK::DataType convertDytpeToUsertype(py::dtype dtype) {
-    if(dtype.is(py::dtype::of<int8_t>())) {
-      return ChimeraTK::DataType::int8;
-    }
-    if(dtype.is(py::dtype::of<int16_t>())) {
-      return ChimeraTK::DataType::int16;
-    }
-    if(dtype.is(py::dtype::of<int32_t>())) {
-      return ChimeraTK::DataType::int32;
-    }
-    if(dtype.is(py::dtype::of<int64_t>())) {
-      return ChimeraTK::DataType::int64;
-    }
-    if(dtype.is(py::dtype::of<uint8_t>())) {
-      return ChimeraTK::DataType::uint8;
-    }
-    if(dtype.is(py::dtype::of<uint16_t>())) {
-      return ChimeraTK::DataType::uint16;
-    }
-    if(dtype.is(py::dtype::of<uint32_t>())) {
-      return ChimeraTK::DataType::uint32;
-    }
-    if(dtype.is(py::dtype::of<uint64_t>())) {
-      return ChimeraTK::DataType::uint64;
-    }
-    if(dtype.is(py::dtype::of<float>())) {
-      return ChimeraTK::DataType::float32;
-    }
-    if(dtype.is(py::dtype::of<double>())) {
-      return ChimeraTK::DataType::float64;
-    }
-    if(dtype.is(py::dtype::of<bool>())) {
-      return ChimeraTK::DataType::Boolean;
-    }
-    throw std::invalid_argument("Unsupported numpy dtype");
   }
 
   PyDevice::PyDevice(const std::string& aliasName) {
@@ -110,37 +58,40 @@ namespace ChimeraTK {
     return PyVoidRegisterAccessor{acc.getImpl()};
   }
 
-  PyScalarRegisterAccessor PyDevice::getScalarRegisterAccessor(UserTypeVariantNoVoid& userType,
-      const std::string& registerPathName, int elementsOffset, const py::list& accessModeFlags) {
-    return std::visit(
-        [&](auto&& type) {
-          auto acc = _device.getScalarRegisterAccessor<std::decay_t<decltype(type)>>(
-              registerPathName, elementsOffset, convertFlagsFromPython(accessModeFlags));
-          return PyScalarRegisterAccessor{acc};
-        },
-        userType);
+  PyScalarRegisterAccessor PyDevice::getScalarRegisterAccessor(
+      py::object& dType, const std::string& registerPathName, int elementsOffset, const py::list& accessModeFlags) {
+    auto userType = convertDTypeToUsertype(py::dtype::from_args(dType));
+    PyScalarRegisterAccessor pyAcc;
+    callForTypeNoVoid(userType, [&](auto&& type) {
+      auto acc = _device.getScalarRegisterAccessor<std::decay_t<decltype(type)>>(
+          registerPathName, elementsOffset, convertFlagsFromPython(accessModeFlags));
+      pyAcc.setTE(acc);
+    });
+    return pyAcc;
   }
 
-  PyOneDRegisterAccessor PyDevice::getOneDRegisterAccessor(UserTypeVariantNoVoid& userType,
-      const std::string& registerPathName, int numberOfElements, int elementsOffset, const py::list& accessModeFlags) {
-    return std::visit(
-        [&](auto&& type) {
-          auto acc = _device.getOneDRegisterAccessor<std::decay_t<decltype(type)>>(
-              registerPathName, numberOfElements, elementsOffset, convertFlagsFromPython(accessModeFlags));
-          return PyOneDRegisterAccessor{acc};
-        },
-        userType);
+  PyOneDRegisterAccessor PyDevice::getOneDRegisterAccessor(py::object& dType, const std::string& registerPathName,
+      int numberOfElements, int elementsOffset, const py::list& accessModeFlags) {
+    auto userType = convertDTypeToUsertype(py::dtype::from_args(dType));
+    PyOneDRegisterAccessor pyAcc;
+    callForTypeNoVoid(userType, [&](auto&& type) {
+      auto acc = _device.getOneDRegisterAccessor<std::decay_t<decltype(type)>>(
+          registerPathName, numberOfElements, elementsOffset, convertFlagsFromPython(accessModeFlags));
+      pyAcc.setTE(acc);
+    });
+    return pyAcc;
   }
 
-  PyTwoDRegisterAccessor PyDevice::getTwoDRegisterAccessor(UserTypeVariantNoVoid& userType,
-      const std::string& registerPathName, int numberOfElements, int elementsOffset, const py::list& accessModeFlags) {
-    return std::visit(
-        [&](auto&& type) {
-          auto acc = _device.getTwoDRegisterAccessor<std::decay_t<decltype(type)>>(
-              registerPathName, numberOfElements, elementsOffset, convertFlagsFromPython(accessModeFlags));
-          return PyTwoDRegisterAccessor{acc};
-        },
-        userType);
+  PyTwoDRegisterAccessor PyDevice::getTwoDRegisterAccessor(py::object& dType, const std::string& registerPathName,
+      int numberOfElements, int elementsOffset, const py::list& accessModeFlags) {
+    auto userType = convertDTypeToUsertype(py::dtype::from_args(dType));
+    PyTwoDRegisterAccessor pyAcc;
+    callForTypeNoVoid(userType, [&](auto&& type) {
+      auto acc = _device.getTwoDRegisterAccessor<std::decay_t<decltype(type)>>(
+          registerPathName, numberOfElements, elementsOffset, convertFlagsFromPython(accessModeFlags));
+      pyAcc.setTE(acc);
+    });
+    return pyAcc;
   }
 
   ChimeraTK::RegisterCatalogue PyDevice::getRegisterCatalogue() {
@@ -168,21 +119,21 @@ namespace ChimeraTK {
       auto acc = _device.getTwoDRegisterAccessor<UserType>(
           registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
       acc.read();
-      arr = std::make_unique<pybind11::array>(DeviceAccessPython::copyUserBufferToNpArray(
-          acc, convertUsertypeToDtype(usertype), reg.getNumberOfDimensions()));
+      arr = std::make_unique<pybind11::array>(
+          ChimeraTK::copyUserBufferToNpArray(acc, convertUsertypeToDtype(usertype), reg.getNumberOfDimensions()));
     });
 
     return *arr;
   }
 
-  void PyDevice::write(py::array& arr, const std::string& registerPath, size_t numberOfElements, size_t elementsOffset,
-      const py::list& flaglist) {
-    auto usertype = convertDytpeToUsertype(arr.dtype());
+  void PyDevice::write(
+      const std::string& registerPath, py::array& arr, size_t elementsOffset, const py::list& flaglist) {
+    auto usertype = convertDTypeToUsertype(arr.dtype());
 
     auto bufferTransfer = [&](auto arg) {
-      auto acc = _device.getTwoDRegisterAccessor<decltype(arg)>(
-          registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
-      DeviceAccessPython::copyNpArrayToUserBuffer(acc, arr);
+      auto acc = _device.getOneDRegisterAccessor<decltype(arg)>(
+          registerPath, 0, elementsOffset, convertFlagsFromPython(flaglist));
+      ChimeraTK::copyNpArrayToUserBuffer(acc, arr);
       acc.write();
     };
 
@@ -193,17 +144,34 @@ namespace ChimeraTK {
     _device.activateAsyncRead();
   }
 
+  std::string PyDevice::getCatalogueMetadata(const std::string& parameterName) {
+    return _device.getMetadataCatalogue().getMetadata(parameterName);
+  }
+
   void PyDevice::bind(py::module& mod) {
     py::class_<PyDevice> dev(mod, "Device");
     dev.def(py::init<const std::string&>())
-        .def("open", py::overload_cast<const std::string&>(&PyDevice::open))
+        .def(py::init())
+        .def("open", py::overload_cast<const std::string&>(&PyDevice::open), py::arg("aliasName"))
         .def("open", py::overload_cast<>(&PyDevice::open))
         .def("close", &PyDevice::close)
-        .def("getVoidAccessor", &PyDevice::getVoidRegisterAccessor)
-        .def("getScalarAccessor", &PyDevice::getScalarRegisterAccessor)
-        .def("getOneDAccessor", &PyDevice::getOneDRegisterAccessor)
-        .def("getTwoDAccessor", &PyDevice::getTwoDRegisterAccessor)
-        .def("activateAsyncRead", &PyDevice::activateAsyncRead);
+        .def("getVoidRegisterAccessor", &PyDevice::getVoidRegisterAccessor, py::arg("registerPathName"),
+            py::arg("accessModeFlags") = py::list(py::list()))
+        .def("getScalarRegisterAccessor", &PyDevice::getScalarRegisterAccessor, py::arg("userType"),
+            py::arg("registerPathName"), py::arg("elementsOffset") = 0, py::arg("accessModeFlags") = py::list())
+        .def("getOneDRegisterAccessor", &PyDevice::getOneDRegisterAccessor, py::arg("userType"),
+            py::arg("registerPathName"), py::arg("numberOfElements") = 0, py::arg("elementsOffset") = 0,
+            py::arg("accessModeFlags") = py::list())
+        .def("getTwoDRegisterAccessor", &PyDevice::getTwoDRegisterAccessor, py::arg("userType"),
+            py::arg("registerPathName"), py::arg("numberOfElements") = 0, py::arg("elementsOffset") = 0,
+            py::arg("accessModeFlags") = py::list())
+        .def("activateAsyncRead", &PyDevice::activateAsyncRead)
+        .def("getRegisterCatalogue", &PyDevice::getRegisterCatalogue)
+        .def("read", &PyDevice::read, py::arg("registerPath"), py::arg("numberOfWords") = 0,
+            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
+        .def("write", &PyDevice::write, py::arg("registerPath"), py::arg("dataToWrite"),
+            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
+        .def("getCatalogueMetadata", &PyDevice::getCatalogueMetadata, py::arg("metaTag"));
   }
 
 } // namespace ChimeraTK

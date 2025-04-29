@@ -55,7 +55,7 @@ namespace PYBIND11_NAMESPACE { namespace detail {
   };
 }} // namespace PYBIND11_NAMESPACE::detail
 
-namespace DeviceAccessPython {
+namespace ChimeraTK {
 
   /*****************************************************************************************************************/
 
@@ -166,4 +166,4 @@ namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
-} // namespace DeviceAccessPython
+} // namespace ChimeraTK

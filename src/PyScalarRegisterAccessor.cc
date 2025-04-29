@@ -3,6 +3,13 @@
 
 #include "PyScalarRegisterAccessor.h"
 
+#include "HelperFunctions.h"
+
+#include <ChimeraTK/TransferElement.h>
+#include <ChimeraTK/VariantUserTypes.h>
+
+#include <pybind11/cast.h>
+#include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
@@ -22,6 +29,16 @@ namespace ChimeraTK {
         _accessor);
   }
   /********************************************************************************************************************/
+  void PyScalarRegisterAccessor::set(const py::array& val) {
+    std::visit(
+        [&](auto& acc) {
+          using ACC = typename std::remove_reference<decltype(acc)>::type;
+          using expectedUserType = typename ACC::value_type;
+          acc.writeIfDifferent(val[0].cast<expectedUserType>());
+        },
+        _accessor);
+  }
+  /********************************************************************************************************************/
 
   py::object PyScalarRegisterAccessor::readAndGet() {
     read();
@@ -36,6 +53,17 @@ namespace ChimeraTK {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using expectedUserType = typename ACC::value_type;
           std::visit([&](auto value) { acc.setAndWrite(ChimeraTK::userTypeToUserType<expectedUserType>(value)); }, val);
+        },
+        _accessor);
+  }
+  /********************************************************************************************************************/
+
+  void PyScalarRegisterAccessor::setAndWrite(const py::array& val) {
+    std::visit(
+        [&](auto& acc) {
+          using ACC = typename std::remove_reference<decltype(acc)>::type;
+          using expectedUserType = typename ACC::value_type;
+          acc.setAndWrite(val[0].cast<expectedUserType>());
         },
         _accessor);
   }
@@ -65,13 +93,25 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void PyScalarRegisterAccessor::writeIfDifferent(UserTypeVariantNoVoid val) {
+  void PyScalarRegisterAccessor::writeIfDifferent(const UserTypeVariantNoVoid& val) {
     std::visit(
         [&](auto& acc) {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using expectedUserType = typename ACC::value_type;
           std::visit(
               [&](auto value) { acc.writeIfDifferent(ChimeraTK::userTypeToUserType<expectedUserType>(value)); }, val);
+        },
+        _accessor);
+  }
+
+  /********************************************************************************************************************/
+
+  void PyScalarRegisterAccessor::writeIfDifferent(const py::array& val) {
+    std::visit(
+        [&](auto& acc) {
+          using ACC = typename std::remove_reference<decltype(acc)>::type;
+          using expectedUserType = typename ACC::value_type;
+          acc.writeIfDifferent(val[0].cast<expectedUserType>());
         },
         _accessor);
   }
@@ -152,7 +192,10 @@ namespace ChimeraTK {
         .def("get", &PyScalarRegisterAccessor::get, "Return a value of UserType (without a previous read).")
         .def("readAndGet", &PyScalarRegisterAccessor::readAndGet,
             "Convenience function to read and return a value of UserType.")
-        .def("set", &PyScalarRegisterAccessor::set, "Set the value of UserType.", py::arg("val"))
+        .def("set", py::overload_cast<const UserTypeVariantNoVoid&>(&PyScalarRegisterAccessor::set),
+            "Set the value of UserType.", py::arg("val"))
+        .def("set", py::overload_cast<const py::array&>(&PyScalarRegisterAccessor::set), "Set the value of UserType.",
+            py::arg("val"))
         .def("write", &PyScalarRegisterAccessor::write,
             "Write the data to device.\n\nThe return value is true, old data was lost on the write transfer (e.g. due "
             "to an buffer overflow). In case of an unbuffered write transfer, the return value will always be false.")
@@ -161,15 +204,25 @@ namespace ChimeraTK {
             "process.\n\nThis is an optional optimisation, hence there is a default implementation which just calls "
             "the normal doWriteTransfer(). In any case, the application must expect the user buffer of the "
             "TransferElement to contain undefined data after calling this function.")
-        .def("writeIfDifferent", &PyScalarRegisterAccessor::writeIfDifferent,
+        .def("writeIfDifferent",
+            py::overload_cast<const UserTypeVariantNoVoid&>(&PyScalarRegisterAccessor::writeIfDifferent),
             "Convenience function to set and write new value if it differes from the current value.\n\nThe given "
             "version number is only used in case the value differs. If versionNumber == {nullptr}, a new version "
             "number is generated only if the write actually takes place.",
-            py::arg("val"))
-        .def("setAndWrite", &PyScalarRegisterAccessor::setAndWrite,
+            py::arg("newValue"))
+        .def("writeIfDifferent", py::overload_cast<const py::array&>(&PyScalarRegisterAccessor::writeIfDifferent),
+            "Convenience function to set and write new value if it differes from the current value.\n\nThe given "
+            "version number is only used in case the value differs. If versionNumber == {nullptr}, a new version "
+            "number is generated only if the write actually takes place.",
+            py::arg("newValue"))
+        .def("setAndWrite", py::overload_cast<const UserTypeVariantNoVoid&>(&PyScalarRegisterAccessor::setAndWrite),
             "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a "
             "new version number is generated.",
-            py::arg("val"))
+            py::arg("newValue"))
+        .def("setAndWrite", py::overload_cast<const py::array&>(&PyScalarRegisterAccessor::setAndWrite),
+            "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a "
+            "new version number is generated.",
+            py::arg("newValue"))
         .def("__repr__", &PyScalarRegisterAccessor::repr);
     for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {
       arrayacc.def(fn.c_str(), [fn](PyScalarRegisterAccessor& acc, PyScalarRegisterAccessor& other) {

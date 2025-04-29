@@ -7,7 +7,7 @@
 
 namespace py = pybind11;
 
-namespace DeviceAccessPython {
+namespace ChimeraTK {
 
   /*****************************************************************************************************************/
 
@@ -89,4 +89,4 @@ namespace DeviceAccessPython {
 
   /*****************************************************************************************************************/
 
-} // namespace DeviceAccessPython
+} // namespace ChimeraTK

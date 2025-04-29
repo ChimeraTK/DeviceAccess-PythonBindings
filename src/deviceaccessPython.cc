@@ -22,8 +22,10 @@ PYBIND11_DECLARE_HOLDER_TYPE(T, boost::shared_ptr<T>)
 PYBIND11_MODULE(_da_python_bindings, m) {
   ChimeraTK::PyDevice::bind(m);
   ChimeraTK::PyTransferElementBase::bind(m);
+  ChimeraTK::PyScalarRegisterAccessor::bind(m);
   ChimeraTK::PyTwoDRegisterAccessor::bind(m);
   ChimeraTK::PyOneDRegisterAccessor::bind(m);
+  ChimeraTK::PyVoidRegisterAccessor::bind(m);
 
   /**
    *  DataType (with internal enum)
@@ -33,7 +35,12 @@ PYBIND11_MODULE(_da_python_bindings, m) {
       .def("__str__", &ChimeraTK::DataType::getAsString)
       // TODO: add __eq__ and __ne__ to DataType
       //.def(py::self == py::self)
-      .def("__repr__", [](const ChimeraTK::DataType& type) { return "DataType." + type.getAsString(); });
+      .def("__repr__", [](const ChimeraTK::DataType& type) { return "DataType." + type.getAsString(); })
+      .def("isNumeric", &ChimeraTK::DataType::isNumeric)
+      .def("getAsString", &ChimeraTK::DataType::getAsString)
+      .def("isIntegral", &ChimeraTK::DataType::isIntegral)
+      .def("isSigned", &ChimeraTK::DataType::isSigned);
+
   py::enum_<ChimeraTK::DataType::TheType>(mDataType, "TheType")
       .value("none", ChimeraTK::DataType::none)
       .value("int8", ChimeraTK::DataType::int8)
@@ -100,12 +107,6 @@ PYBIND11_MODULE(_da_python_bindings, m) {
       .value("nodata", ChimeraTK::DataDescriptor::FundamentalType::nodata)
       .value("undefined", ChimeraTK::DataDescriptor::FundamentalType::undefined)
       .export_values();
-
-  py::class_<ChimeraTK::DataType>(m, "DataType")
-      .def("isNumeric", &ChimeraTK::DataType::isNumeric)
-      .def("getAsString", &ChimeraTK::DataType::getAsString)
-      .def("isIntegral", &ChimeraTK::DataType::isIntegral)
-      .def("isSigned", &ChimeraTK::DataType::isSigned);
 
   py::enum_<ChimeraTK::DataValidity>(m, "DataValidity")
       .value("ok", ChimeraTK::DataValidity::ok)

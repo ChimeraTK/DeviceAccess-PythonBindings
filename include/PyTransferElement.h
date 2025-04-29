@@ -84,6 +84,12 @@ namespace ChimeraTK {
       return *te;
     }
 
+    template<typename AccessorType>
+    void setTE(AccessorType incomingAcc) {
+      const auto* self = static_cast<const DerivedAccessor*>(this);
+      self->_accessor.template emplace<AccessorType>(incomingAcc);
+    }
+
     // Pass the actual accessor type (e.g. ScalarAccessor<int>) as argument to the given callable
     template<typename CALLABLE>
     void visit(CALLABLE fn) const {

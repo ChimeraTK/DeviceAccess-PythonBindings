@@ -31,10 +31,13 @@ namespace ChimeraTK {
     py::object readAndGet();
 
     void setAndWrite(const UserTypeVariantNoVoid& val);
+    void setAndWrite(const py::array& val);
 
-    void writeIfDifferent(UserTypeVariantNoVoid val);
+    void writeIfDifferent(const UserTypeVariantNoVoid& val);
+    void writeIfDifferent(const py::array& val);
 
     void set(const UserTypeVariantNoVoid& val);
+    void set(const py::array& val);
 
     py::object get() const;
 
