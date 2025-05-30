@@ -7,20 +7,20 @@ namespace ctk = ChimeraTK;
 
 namespace DeviceAccessPython {
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   ChimeraTK::RegisterInfo RegisterCatalogue::getRegister(
       ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName) {
     return self.getRegister(registerPathName);
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   bool RegisterCatalogue::hasRegister(ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName) {
     return self.hasRegister(registerPathName);
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   boost::python::list RegisterCatalogue::items(ChimeraTK::RegisterCatalogue& self) {
     boost::python::list registerInfos{};
@@ -28,17 +28,17 @@ namespace DeviceAccessPython {
     return registerInfos;
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
   ChimeraTK::DataDescriptor RegisterInfo::getDataDescriptor(ChimeraTK::RegisterInfo& self) {
     return self.getDataDescriptor();
   }
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   std::string RegisterInfo::getRegisterName(ChimeraTK::RegisterInfo& self) {
     return self.getRegisterName();
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   boost::python::list RegisterInfo::getSupportedAccessModes(ChimeraTK::RegisterInfo& self) {
     ChimeraTK::AccessModeFlags flags = self.getSupportedAccessModes();
@@ -49,12 +49,12 @@ namespace DeviceAccessPython {
     return python_flags;
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   ChimeraTK::DataDescriptor::FundamentalType DataDescriptor::fundamentalType(ChimeraTK::DataDescriptor& self) {
     return self.fundamentalType();
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
 } /* namespace DeviceAccessPython*/
