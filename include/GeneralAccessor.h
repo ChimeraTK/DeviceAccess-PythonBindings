@@ -8,7 +8,7 @@
 
 namespace DeviceAccessPython {
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   /**
    * (Static) class implementing register accessor functions for all accessor types
@@ -45,11 +45,11 @@ namespace DeviceAccessPython {
         ACCESSOR& self, boost::python::numpy::ndarray& np_buffer, size_t channel, size_t element);
   };
 
-  /*****************************************************************************************************************/
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
+  /********************************************************************************************************************/
   /* Implementations following */
-  /*****************************************************************************************************************/
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
+  /********************************************************************************************************************/
 
   template<typename ACCESSOR>
   boost::python::numpy::ndarray GeneralRegisterAccessor<ACCESSOR>::read(
@@ -62,7 +62,7 @@ namespace DeviceAccessPython {
     return copyUserBufferToNpArray(self, np_buffer);
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   template<typename ACCESSOR>
   auto GeneralRegisterAccessor<ACCESSOR>::readNonBlocking(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer) {
@@ -70,7 +70,7 @@ namespace DeviceAccessPython {
     return boost::python::make_tuple(status, copyUserBufferToNpArray(self, np_buffer));
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   template<typename ACCESSOR>
   auto GeneralRegisterAccessor<ACCESSOR>::readLatest(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer) {
@@ -78,7 +78,7 @@ namespace DeviceAccessPython {
     return boost::python::make_tuple(status, copyUserBufferToNpArray(self, np_buffer));
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   template<typename ACCESSOR>
   bool GeneralRegisterAccessor<ACCESSOR>::write(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer) {
@@ -86,7 +86,7 @@ namespace DeviceAccessPython {
     return self.write();
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   template<typename ACCESSOR>
   bool GeneralRegisterAccessor<ACCESSOR>::writeDestructively(ACCESSOR& self, boost::python::numpy::ndarray& np_buffer) {
@@ -94,7 +94,7 @@ namespace DeviceAccessPython {
     return self.writeDestructively();
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   template<typename ACCESSOR>
   template<typename UserType>
@@ -103,7 +103,7 @@ namespace DeviceAccessPython {
     self.getImpl()->setAsCooked(channel, element, value);
     return copyUserBufferToNpArray(self, np_buffer);
   }
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   template<typename ACCESSOR>
   template<typename UserType>
@@ -113,6 +113,6 @@ namespace DeviceAccessPython {
     return self.getImpl()->template getAsCooked<UserType>(channel, element);
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
 } // namespace DeviceAccessPython

@@ -9,7 +9,7 @@
 
 namespace DeviceAccessPython {
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   ChimeraTK::DataType convert_dytpe_to_usertype(boost::python::numpy::dtype dtype) {
     if(dtype == boost::python::numpy::dtype::get_builtin<int8_t>()) {
@@ -48,7 +48,7 @@ namespace DeviceAccessPython {
     throw std::invalid_argument("Unsupported numpy dtype");
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   boost::python::numpy::dtype convert_usertype_to_dtype(ChimeraTK::DataType usertype) {
     std::unique_ptr<boost::python::numpy::dtype> rv;
@@ -67,7 +67,7 @@ namespace DeviceAccessPython {
     return *rv;
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   std::string convertStringFromPython(size_t linearIndex, boost::python::numpy::ndarray& np_buffer) {
     // Note: it is unclear why the conversion in this direction has to be so complicated, while in the other
@@ -87,6 +87,6 @@ namespace DeviceAccessPython {
     return conv.to_bytes(widestring);
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
 } // namespace DeviceAccessPython

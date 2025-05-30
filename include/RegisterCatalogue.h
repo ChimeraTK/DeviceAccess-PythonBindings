@@ -8,7 +8,7 @@
 
 namespace DeviceAccessPython {
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   /**
    * Map RegisterCatalogue class to avoid dealing with RegisterPath objects in Python
@@ -21,7 +21,7 @@ namespace DeviceAccessPython {
     static boost::python::list items(ChimeraTK::RegisterCatalogue& self);
   };
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   class RegisterInfo {
    public:
@@ -34,7 +34,7 @@ namespace DeviceAccessPython {
     static boost::python::list getSupportedAccessModes(ChimeraTK::RegisterInfo& self);
   };
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   class DataDescriptor {
    public:
@@ -42,6 +42,6 @@ namespace DeviceAccessPython {
     static ChimeraTK::DataDescriptor::FundamentalType fundamentalType(ChimeraTK::DataDescriptor& self);
   };
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
 } // namespace DeviceAccessPython
