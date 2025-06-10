@@ -192,6 +192,9 @@ namespace ChimeraTK {
         .def("getNElements", &PyTwoDRegisterAccessor::getNChannels, "Return number of Channels in the register.")
         .def("get", &PyTwoDRegisterAccessor::get, "Return an array of UserType (without a previous read).")
         .def("set", &PyTwoDRegisterAccessor::set, "Set the values of the array of UserType.", py::arg("newValue"))
+        .def("getAccessModeFlags", &PyTwoDRegisterAccessor::getAccessModeFlags,
+            "Return the access mode flags that were used to create this TransferElement.\n\nThis can be used to "
+            "determine the setting of the `raw` and the `wait_for_new_data` flags")
         .def("__getattr__", &PyTwoDRegisterAccessor::getattr);
     for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {
       arrayacc.def(fn.c_str(), [fn](PyTwoDRegisterAccessor& acc, PyTwoDRegisterAccessor& other) {

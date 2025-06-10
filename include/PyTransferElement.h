@@ -5,6 +5,7 @@
 #include <pybind11/pybind11.h>
 // pybind11.h must come first
 
+#include <ChimeraTK/AccessMode.h>
 #include <ChimeraTK/TransferElementAbstractor.h>
 
 namespace py = pybind11;
@@ -59,6 +60,14 @@ namespace ChimeraTK {
 
     auto getName() const { return getTE().getName(); }
     auto getUnit() const { return getTE().getUnit(); }
+    py::list getAccessModeFlags() const {
+      ChimeraTK::AccessModeFlags flags = getTE().getAccessModeFlags();
+      py::list python_flags{};
+      if(flags.has(ChimeraTK::AccessMode::raw)) python_flags.append(ChimeraTK::AccessMode::raw);
+      if(flags.has(ChimeraTK::AccessMode::wait_for_new_data))
+        python_flags.append(ChimeraTK::AccessMode::wait_for_new_data);
+      return python_flags;
+    }
     auto getDescription() const { return getTE().getDescription(); }
     DataType getValueType() const { return getTE().getValueType(); }
     auto getVersionNumber() const { return getTE().getVersionNumber(); }
