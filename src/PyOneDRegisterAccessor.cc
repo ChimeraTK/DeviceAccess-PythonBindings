@@ -199,17 +199,17 @@ namespace ChimeraTK {
         .def(
             "getNElements", &PyOneDRegisterAccessor::getNElements, "Return number of elements/samples in the register.")
         .def("get", &PyOneDRegisterAccessor::get, "Return an array of UserType (without a previous read).")
-        .def("set", &PyOneDRegisterAccessor::set, "Set the values of the array of UserType.", py::arg("newValue"))
-        .def("setAndWrite", &PyOneDRegisterAccessor::setAndWrite,
-            "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a "
-            "new version number is generated.",
-            py::arg("newValue"))
+        // .def("set", &PyOneDRegisterAccessor::set, "Set the values of the array of UserType.", py::arg("newValue"))
+        // .def("setAndWrite", &PyOneDRegisterAccessor::setAndWrite,
+        //     "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a
+        //     " "new version number is generated.", py::arg("newValue"))
         .def("getAccessModeFlags", &PyOneDRegisterAccessor::getAccessModeFlags,
             "Return the access mode flags that were used to create this TransferElement.\n\nThis can be used to "
             "determine the setting of the `raw` and the `wait_for_new_data` flags")
         .def("readAndGet", &PyOneDRegisterAccessor::readAndGet,
             "Convenience function to read and return an array of UserType.")
         .def("__getattr__", &PyOneDRegisterAccessor::getattr);
+
     for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {
       arrayacc.def(fn.c_str(), [fn](PyOneDRegisterAccessor& acc, PyOneDRegisterAccessor& other) {
         return acc.get().attr(fn.c_str())(other.get());

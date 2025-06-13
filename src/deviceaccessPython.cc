@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include <pybind11/pybind11.h>
+// pybind11.h must come first
+
 #include "PyDevice.h"
 #include "PyOneDRegisterAccessor.h"
 #include "PythonModuleMethods.h"
@@ -10,7 +13,7 @@
 
 #include <ChimeraTK/SupportedUserTypes.h>
 
-#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 namespace py = pybind11;
 
 //****************************************************************************//

@@ -47,7 +47,12 @@ namespace ChimeraTK {
 
     static void bind(py::module& mod);
 
-    mutable UserTypeTemplateVariantNoVoid<ScalarRegisterAccessor> _accessor;
+    // ScalarRegisterAccessor has 2 template parameters (2nd has default), but UserTypeTemplateVariantNoVoid expects a
+    // template template parameter with a single parameter. gcc seems to compile it anyway, but clang does not.
+    template<typename T>
+    using ScalarRegisterAccessorT = ScalarRegisterAccessor<T>;
+
+    mutable UserTypeTemplateVariantNoVoid<ScalarRegisterAccessorT> _accessor;
   };
 
   /********************************************************************************************************************/
