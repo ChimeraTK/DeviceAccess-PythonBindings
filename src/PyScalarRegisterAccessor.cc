@@ -12,6 +12,8 @@
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 
+#include <iostream>
+
 namespace py = pybind11;
 
 namespace ChimeraTK {
@@ -23,8 +25,7 @@ namespace ChimeraTK {
         [&](auto& acc) {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using expectedUserType = typename ACC::value_type;
-          std::visit(
-              [&](auto value) { acc.writeIfDifferent(ChimeraTK::userTypeToUserType<expectedUserType>(value)); }, val);
+          std::visit([&](auto value) { acc = ChimeraTK::userTypeToUserType<expectedUserType>(value); }, val);
         },
         _accessor);
   }
@@ -34,7 +35,7 @@ namespace ChimeraTK {
         [&](auto& acc) {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using expectedUserType = typename ACC::value_type;
-          acc.writeIfDifferent(val[0].cast<expectedUserType>());
+          acc = val[0].cast<expectedUserType>();
         },
         _accessor);
   }
@@ -192,10 +193,20 @@ namespace ChimeraTK {
         .def("get", &PyScalarRegisterAccessor::get, "Return a value of UserType (without a previous read).")
         .def("readAndGet", &PyScalarRegisterAccessor::readAndGet,
             "Convenience function to read and return a value of UserType.")
-        .def("set", py::overload_cast<const UserTypeVariantNoVoid&>(&PyScalarRegisterAccessor::set),
+        .def(
+            "set",
+            []([[maybe_unused]] PyScalarRegisterAccessor& self, [[maybe_unused]] const UserTypeVariantNoVoid& val) {
+              std::cout << "Setting usertypenovoid value in PyScalarRegisterAccessor" << std::endl;
+              // self.set(val);
+            },
             "Set the value of UserType.", py::arg("val"))
-        .def("set", py::overload_cast<const py::array&>(&PyScalarRegisterAccessor::set), "Set the value of UserType.",
-            py::arg("val"))
+        .def(
+            "set2",
+            []([[maybe_unused]] PyScalarRegisterAccessor& self, [[maybe_unused]] const py::array& val) {
+              std::cout << "Setting pyarray value in PyScalarRegisterAccessor" << std::endl;
+              // self.set(val);
+            },
+            "Set the value of UserType.", py::arg("val"))
         .def("write", &PyScalarRegisterAccessor::write,
             "Write the data to device.\n\nThe return value is true, old data was lost on the write transfer (e.g. due "
             "to an buffer overflow). In case of an unbuffered write transfer, the return value will always be false.")
@@ -219,6 +230,9 @@ namespace ChimeraTK {
             "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a "
             "new version number is generated.",
             py::arg("newValue"))
+        .def("getAccessModeFlags", &PyScalarRegisterAccessor::getAccessModeFlags,
+            "Return the access mode flags that were used to create this TransferElement.\n\nThis can be used to "
+            "determine the setting of the `raw` and the `wait_for_new_data` flags")
         .def("setAndWrite", py::overload_cast<const py::array&>(&PyScalarRegisterAccessor::setAndWrite),
             "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a "
             "new version number is generated.",
