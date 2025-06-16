@@ -3,8 +3,6 @@
 
 #include "PyOneDRegisterAccessor.h"
 
-#include <pybind11/stl.h>
-
 #include <algorithm>
 #include <vector>
 
@@ -40,7 +38,7 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   py::object PyOneDRegisterAccessor::readAndGet() {
-    read();
+    // read();
     return get();
   }
 
@@ -48,7 +46,7 @@ namespace ChimeraTK {
 
   void PyOneDRegisterAccessor::setAndWrite(const UserTypeTemplateVariantNoVoid<Vector>& vec) {
     set(vec);
-    write();
+    // write();
   }
   /********************************************************************************************************************/
 
@@ -146,80 +144,83 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void PyOneDRegisterAccessor::bind(py::module& m) {
-    py::class_<PyOneDRegisterAccessor, PyTransferElementBase> arrayacc(
+    py::class_<PyOneDRegisterAccessor> arrayacc( // PyTransferElementBase
         m, "OneDRegisterAccessor", py::buffer_protocol());
     arrayacc.def(py::init<>())
         .def_buffer(&PyOneDRegisterAccessor::getBufferInfo)
-        .def("read", &PyOneDRegisterAccessor::read,
-            "Read the data from the device.\n\nIf AccessMode::wait_for_new_data was set, this function will block "
-            "until new data has arrived. Otherwise it still might block for a short time until the data transfer was "
-            "complete.")
-        .def("readNonBlocking", &PyOneDRegisterAccessor::readNonBlocking,
-            "Read the next value, if available in the input buffer.\n\nIf AccessMode::wait_for_new_data was set, this "
-            "function returns immediately and the return value indicated if a new value was available (true) or not "
-            "(false).\n\nIf AccessMode::wait_for_new_data was not set, this function is identical to read(), which "
-            "will still return quickly. Depending on the actual transfer implementation, the backend might need to "
-            "transfer data to obtain the current value before returning. Also this function is not guaranteed to be "
-            "lock free. The return value will be always true in this mode.")
-        .def("readLatest", &PyOneDRegisterAccessor::readLatest,
-            "Read the latest value, discarding any other update since the last read if present.\n\nOtherwise this "
-            "function is identical to readNonBlocking(), i.e. it will never wait for new values and it will return "
-            "whether a new value was available if AccessMode::wait_for_new_data is set.")
-        .def("write", &PyOneDRegisterAccessor::write,
-            "Write the data to device.\n\nThe return value is true, old data was lost on the write transfer (e.g. due "
-            "to an buffer overflow). In case of an unbuffered write transfer, the return value will always be false.")
-        .def("writeDestructively", &PyOneDRegisterAccessor::writeDestructively,
-            "Just like write(), but allows the implementation to destroy the content of the user buffer in the "
-            "process.\n\nThis is an optional optimisation, hence there is a default implementation which just calls "
-            "the normal doWriteTransfer(). In any case, the application must expect the user buffer of the "
-            "TransferElement to contain undefined data after calling this function.")
-        .def("getName", &PyOneDRegisterAccessor::getName, "Returns the name that identifies the process variable.")
-        .def("getUnit", &PyOneDRegisterAccessor::getUnit,
-            "Returns the engineering unit.\n\nIf none was specified, it will default to ' n./ a.'")
-        .def("getDescription", &PyOneDRegisterAccessor::getDescription,
-            "Returns the description of this variable/register.")
-        .def("getValueType", &PyOneDRegisterAccessor::getValueType,
-            "Returns the std::type_info for the value type of this transfer element.\n\nThis can be used to determine "
-            "the type at runtime.")
-        .def("getVersionNumber", &PyOneDRegisterAccessor::getVersionNumber,
-            "Returns the version number that is associated with the last transfer (i.e. last read or write)")
-        .def("isReadOnly", &PyOneDRegisterAccessor::isReadOnly,
-            "Check if transfer element is read only, i.e. it is readable but not writeable.")
-        .def("isReadable", &PyOneDRegisterAccessor::isReadable, "Check if transfer element is readable.")
-        .def("isWriteable", &PyOneDRegisterAccessor::isWriteable, "Check if transfer element is writeable.")
-        .def("getId", &PyOneDRegisterAccessor::getId,
-            "Obtain unique ID for the actual implementation of this TransferElement.\n\nThis means that e.g. two "
-            "instances of ScalarRegisterAccessor created by the same call to Device::getScalarRegisterAccessor() (e.g. "
-            "by copying the accessor to another using NDRegisterAccessorBridge::replace()) will have the same ID, "
-            "while two instances obtained by to difference calls to Device::getScalarRegisterAccessor() will have a "
-            "different ID even when accessing the very same register.")
-        .def("dataValidity", &PyOneDRegisterAccessor::dataValidity,
-            "Return current validity of the data.\n\nWill always return DataValidity.ok if the backend does not "
-            "support it")
-        .def(
-            "getNElements", &PyOneDRegisterAccessor::getNElements, "Return number of elements/samples in the register.")
-        .def("get", &PyOneDRegisterAccessor::get, "Return an array of UserType (without a previous read).")
-        // .def("set", &PyOneDRegisterAccessor::set, "Set the values of the array of UserType.", py::arg("newValue"))
+
+        // .def("read", &PyOneDRegisterAccessor::read,
+        //     "Read the data from the device.\n\nIf AccessMode::wait_for_new_data was set, this function will block "
+        //     "until new data has arrived. Otherwise it still might block for a short time until the data transfer was "
+        //     "complete.")
+        // .def("readNonBlocking", &PyOneDRegisterAccessor::readNonBlocking,
+        //     "Read the next value, if available in the input buffer.\n\nIf AccessMode::wait_for_new_data was set, this "
+        //     "function returns immediately and the return value indicated if a new value was available (true) or not "
+        //     "(false).\n\nIf AccessMode::wait_for_new_data was not set, this function is identical to read(), which "
+        //     "will still return quickly. Depending on the actual transfer implementation, the backend might need to "
+        //     "transfer data to obtain the current value before returning. Also this function is not guaranteed to be "
+        //     "lock free. The return value will be always true in this mode.")
+        // .def("readLatest", &PyOneDRegisterAccessor::readLatest,
+        //     "Read the latest value, discarding any other update since the last read if present.\n\nOtherwise this "
+        //     "function is identical to readNonBlocking(), i.e. it will never wait for new values and it will return "
+        //     "whether a new value was available if AccessMode::wait_for_new_data is set.")
+        // .def("write", &PyOneDRegisterAccessor::write,
+        //     "Write the data to device.\n\nThe return value is true, old data was lost on the write transfer (e.g. due "
+        //     "to an buffer overflow). In case of an unbuffered write transfer, the return value will always be false.")
+        // .def("writeDestructively", &PyOneDRegisterAccessor::writeDestructively,
+        //     "Just like write(), but allows the implementation to destroy the content of the user buffer in the "
+        //     "process.\n\nThis is an optional optimisation, hence there is a default implementation which just calls "
+        //     "the normal doWriteTransfer(). In any case, the application must expect the user buffer of the "
+        //     "TransferElement to contain undefined data after calling this function.")
+        // .def("getName", &PyOneDRegisterAccessor::getName, "Returns the name that identifies the process variable.")
+        // .def("getUnit", &PyOneDRegisterAccessor::getUnit,
+        //     "Returns the engineering unit.\n\nIf none was specified, it will default to ' n./ a.'")
+        // .def("getDescription", &PyOneDRegisterAccessor::getDescription,
+        //     "Returns the description of this variable/register.")
+        // .def("getValueType", &PyOneDRegisterAccessor::getValueType,
+        //     "Returns the std::type_info for the value type of this transfer element.\n\nThis can be used to determine "
+        //     "the type at runtime.")
+        // .def("getVersionNumber", &PyOneDRegisterAccessor::getVersionNumber,
+        //     "Returns the version number that is associated with the last transfer (i.e. last read or write)")
+        // .def("isReadOnly", &PyOneDRegisterAccessor::isReadOnly,
+        //     "Check if transfer element is read only, i.e. it is readable but not writeable.")
+        // .def("isReadable", &PyOneDRegisterAccessor::isReadable, "Check if transfer element is readable.")
+        // .def("isWriteable", &PyOneDRegisterAccessor::isWriteable, "Check if transfer element is writeable.")
+        // .def("getId", &PyOneDRegisterAccessor::getId,
+        //     "Obtain unique ID for the actual implementation of this TransferElement.\n\nThis means that e.g. two "
+        //     "instances of ScalarRegisterAccessor created by the same call to Device::getScalarRegisterAccessor() (e.g. "
+        //     "by copying the accessor to another using NDRegisterAccessorBridge::replace()) will have the same ID, "
+        //     "while two instances obtained by to difference calls to Device::getScalarRegisterAccessor() will have a "
+        //     "different ID even when accessing the very same register.")
+        // .def("dataValidity", &PyOneDRegisterAccessor::dataValidity,
+        //     "Return current validity of the data.\n\nWill always return DataValidity.ok if the backend does not "
+        //     "support it")
+        // .def(
+        //     "getNElements", &PyOneDRegisterAccessor::getNElements, "Return number of elements/samples in the register.")
+
+        //.def("get", &PyOneDRegisterAccessor::get, "Return an array of UserType (without a previous read).")
+        .def("set", &PyOneDRegisterAccessor::set, "Set the values of the array of UserType.", py::arg("newValue"))
         // .def("setAndWrite", &PyOneDRegisterAccessor::setAndWrite,
         //     "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a
         //     " "new version number is generated.", py::arg("newValue"))
-        .def("getAccessModeFlags", &PyOneDRegisterAccessor::getAccessModeFlags,
-            "Return the access mode flags that were used to create this TransferElement.\n\nThis can be used to "
-            "determine the setting of the `raw` and the `wait_for_new_data` flags")
-        .def("readAndGet", &PyOneDRegisterAccessor::readAndGet,
-            "Convenience function to read and return an array of UserType.")
+
+        // .def("getAccessModeFlags", &PyOneDRegisterAccessor::getAccessModeFlags,
+        //     "Return the access mode flags that were used to create this TransferElement.\n\nThis can be used to "
+        //     "determine the setting of the `raw` and the `wait_for_new_data` flags")
+        // .def("readAndGet", &PyOneDRegisterAccessor::readAndGet,
+        //     "Convenience function to read and return an array of UserType.")
         .def("__getattr__", &PyOneDRegisterAccessor::getattr);
 
-    for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {
-      arrayacc.def(fn.c_str(), [fn](PyOneDRegisterAccessor& acc, PyOneDRegisterAccessor& other) {
-        return acc.get().attr(fn.c_str())(other.get());
-      });
-      arrayacc.def(fn.c_str(),
-          [fn](PyOneDRegisterAccessor& acc, py::object& other) { return acc.get().attr(fn.c_str())(other); });
-    }
-    for(const auto& fn : PyTransferElementBase::specialUnaryFunctionsToEmulateNumeric) {
-      arrayacc.def(fn.c_str(), [fn](PyOneDRegisterAccessor& acc) { return acc.get().attr(fn.c_str())(); });
-    }
+    // for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {
+    //   arrayacc.def(fn.c_str(), [fn](PyOneDRegisterAccessor& acc, PyOneDRegisterAccessor& other) {
+    //     return acc.get().attr(fn.c_str())(other.get());
+    //   });
+    //   arrayacc.def(fn.c_str(),
+    //       [fn](PyOneDRegisterAccessor& acc, py::object& other) { return acc.get().attr(fn.c_str())(other); });
+    // }
+    // for(const auto& fn : PyTransferElementBase::specialUnaryFunctionsToEmulateNumeric) {
+    //   arrayacc.def(fn.c_str(), [fn](PyOneDRegisterAccessor& acc) { return acc.get().attr(fn.c_str())(); });
+    // }
   }
 
   /********************************************************************************************************************/

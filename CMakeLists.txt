@@ -11,8 +11,8 @@ include( cmake/set_version_numbers.cmake )
 # set default compiler flags (C++)
 include( cmake/set_default_build_to_release.cmake )
 include( cmake/set_default_flags.cmake )
-
-include( cmake/enable_code_style_check.cmake )
+include( cmake/enable_code_coverage_report.cmake )
+include( cmake/add_linter_target.cmake )
 
 # ==============================================================================#
 
@@ -22,7 +22,7 @@ find_package( ChimeraTK-DeviceAccess 03.14 REQUIRED )
 option( BUILD_TESTS "Build tests." ON )
 
 set( PYBIND11_FINDPYTHON ON )
-find_package( pybind11 2.10 REQUIRED )
+find_package( pybind11 2.10 CONFIG REQUIRED )
 
 find_program( STUBGEN stubgen )
 
@@ -35,14 +35,34 @@ endif()
 # Define library for the C++ part
 include_directories( ${CMAKE_SOURCE_DIR}/include )
 
-file( GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*" )
-file( GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*" )
+# file( GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*" )
+# file( GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*" )
+# aux_source_directory( "${CMAKE_CURRENT_SOURCE_DIR}/src/" sources )
+set( headers "" )
 
-add_library( ${PROJECT_NAME} SHARED ${headers} ${sources} )
+# qmessage( "sources = ${sources}" )
+set( sources
+
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/PyScalarRegisterAccessor.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/PyOneDRegisterAccessor.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/deviceaccessPython.cc"
+
+  # "${CMAKE_CURRENT_SOURCE_DIR}/src/PyTransferElement.cc"
+
+  # "${CMAKE_CURRENT_SOURCE_DIR}/src/HelperFunctions.cc"
+  # "${CMAKE_CURRENT_SOURCE_DIR}/src/PyDevice.cc"
+  # "${CMAKE_CURRENT_SOURCE_DIR}/src/PythonDevice.cc"
+  # "${CMAKE_CURRENT_SOURCE_DIR}/src/PythonModuleMethods.cc"
+  # "${CMAKE_CURRENT_SOURCE_DIR}/src/PyTwoDRegisterAccessor.cc"
+  # "${CMAKE_CURRENT_SOURCE_DIR}/src/PyVoidRegisterAccessor.cc"
+  # "${CMAKE_CURRENT_SOURCE_DIR}/src/RegisterCatalogue.cc"
+  # "${CMAKE_CURRENT_SOURCE_DIR}/src/VersionNumber.cc"
+)
+pybind11_add_module( ${PROJECT_NAME} ${headers} ${sources} )
 
 target_link_libraries( ${PROJECT_NAME}
   PRIVATE ChimeraTK::ChimeraTK-DeviceAccess
-  PUBLIC pybind11::module )
+)
 
 set_property( TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE )
 
