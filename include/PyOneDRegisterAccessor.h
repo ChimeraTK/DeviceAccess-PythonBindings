@@ -23,40 +23,12 @@ namespace ChimeraTK {
 
   class PyOneDRegisterAccessor { // : public PyTransferElement<PyOneDRegisterAccessor> {
    public:
-    PyOneDRegisterAccessor() : _accessor(OneDRegisterAccessor<int>()) {}
-    PyOneDRegisterAccessor(PyOneDRegisterAccessor&&) = default;
-    ~PyOneDRegisterAccessor();
-
-    template<typename UserType>
-    explicit PyOneDRegisterAccessor(ChimeraTK::OneDRegisterAccessor<UserType> acc) : _accessor(acc) {}
-
-    // UserTypeTemplateVariantNoVoid expects a single template argument, std::vector has multiple (with defaults)...
     template<typename T>
     using Vector = std::vector<T>;
 
-    py::object readAndGet();
-
-    void setAndWrite(const UserTypeTemplateVariantNoVoid<Vector>& vec);
-
-    size_t getNElements();
-
     void set(const UserTypeTemplateVariantNoVoid<Vector>& vec);
 
-    py::object get() const;
-
-    py::object getitem(size_t index) const;
-
-    void setitem(size_t index, const UserTypeVariantNoVoid& val);
-
-    std::string repr(py::object& acc) const;
-
-    py::buffer_info getBufferInfo();
-
-    py::object getattr(const std::string& name) const { return get().attr(name.c_str()); }
-
     static void bind(py::module& mod);
-
-    mutable UserTypeTemplateVariantNoVoid<OneDRegisterAccessor> _accessor;
   };
 
   /********************************************************************************************************************/
