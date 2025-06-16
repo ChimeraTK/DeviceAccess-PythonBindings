@@ -11,18 +11,17 @@ include( cmake/set_version_numbers.cmake )
 # set default compiler flags (C++)
 include( cmake/set_default_build_to_release.cmake )
 include( cmake/set_default_flags.cmake )
-
 include( cmake/enable_code_style_check.cmake )
+include( cmake/enable_code_coverage_report.cmake )
+include( cmake/add_linter_target.cmake )
 
 # ==============================================================================#
 
 # Find dependencies
 find_package( ChimeraTK-DeviceAccess 03.14 REQUIRED )
 
-option( BUILD_TESTS "Build tests." ON )
-
 set( PYBIND11_FINDPYTHON ON )
-find_package( pybind11 2.10 REQUIRED )
+find_package( pybind11 2.10 CONFIG REQUIRED )
 
 find_program( STUBGEN stubgen )
 
@@ -30,19 +29,15 @@ if( ${STUBGEN} STREQUAL "STUBGEN-NOTFOUND" )
   message( FATAL_ERROR "Could not find program 'stubgen'. Try installing package 'mypy' or similar." )
 endif()
 
-# find_package(Python 3 REQUIRED COMPONENTS Interpreter Development NumPy)
-
-# Define library for the C++ part
+# Define the Python module (written in C++)
 include_directories( ${CMAKE_SOURCE_DIR}/include )
 
 file( GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*" )
-file( GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*" )
+aux_source_directory( "${CMAKE_CURRENT_SOURCE_DIR}/src/" sources )
 
-add_library( ${PROJECT_NAME} SHARED ${headers} ${sources} )
+pybind11_add_module( ${PROJECT_NAME} ${headers} ${sources} )
 
-target_link_libraries( ${PROJECT_NAME}
-  PRIVATE ChimeraTK::ChimeraTK-DeviceAccess
-  PUBLIC pybind11::module )
+target_link_libraries( ${PROJECT_NAME} PRIVATE ChimeraTK::ChimeraTK-DeviceAccess )
 
 set_property( TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE )
 
