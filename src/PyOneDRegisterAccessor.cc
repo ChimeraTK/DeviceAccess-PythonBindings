@@ -3,6 +3,8 @@
 
 #include "PyOneDRegisterAccessor.h"
 
+#include "HelperFunctions.h"
+
 namespace py = pybind11;
 
 namespace ChimeraTK {
