@@ -43,8 +43,8 @@ set( headers "" )
 # qmessage( "sources = ${sources}" )
 set( sources
 
-  "${CMAKE_CURRENT_SOURCE_DIR}/src/PyScalarRegisterAccessor.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/PyOneDRegisterAccessor.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/PyScalarRegisterAccessor.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/deviceaccessPython.cc"
 
   # "${CMAKE_CURRENT_SOURCE_DIR}/src/PyTransferElement.cc"
