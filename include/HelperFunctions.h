@@ -8,8 +8,6 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
-#include <boost/python/numpy.hpp>
-
 #include <codecvt>
 #include <locale>
 namespace py = pybind11;

@@ -5,6 +5,11 @@
 #include <pybind11/pybind11.h>
 // pybind11.h must come first
 
+// This needs to be included in every compilation unit which might define/use type conversions between Python and C++
+// types, because it will define such converters. If the include is missing in some compilation unit, runtime crashes
+// (stack smashing) might occur depending on the order of linkage.
+#include "HelperFunctions.h" // IWYU pragma: keep
+
 #include <ChimeraTK/AccessMode.h>
 #include <ChimeraTK/TransferElementAbstractor.h>
 

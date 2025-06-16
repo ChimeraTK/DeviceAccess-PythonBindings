@@ -6,7 +6,6 @@
 
 #include <pybind11/pybind11.h>
 
-#include <boost/python/list.hpp>
 namespace py = pybind11;
 
 namespace DeviceAccessPython {

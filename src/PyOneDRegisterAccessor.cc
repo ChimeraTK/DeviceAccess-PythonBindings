@@ -3,8 +3,6 @@
 
 #include "PyOneDRegisterAccessor.h"
 
-#include "HelperFunctions.h"
-
 #include <pybind11/stl.h>
 
 #include <algorithm>

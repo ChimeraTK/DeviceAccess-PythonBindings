@@ -3,8 +3,6 @@
 
 #include "PyScalarRegisterAccessor.h"
 
-#include "HelperFunctions.h"
-
 #include <ChimeraTK/TransferElement.h>
 #include <ChimeraTK/VariantUserTypes.h>
 

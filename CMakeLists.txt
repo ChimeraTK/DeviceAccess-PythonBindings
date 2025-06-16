@@ -66,8 +66,6 @@ foreach( script_path ${test_scripts} )
   endif()
 endforeach( script_path )
 
-include( cmake/enable_code_coverage_report.cmake )
-
 # ==============================================================================#
 
 # add target for documentation if sphinx is available
