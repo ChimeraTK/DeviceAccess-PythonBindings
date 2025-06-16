@@ -3,6 +3,8 @@
 
 #include "PyOneDRegisterAccessor.h"
 
+#include "HelperFunctions.h"
+
 #include <pybind11/stl.h>
 
 #include <algorithm>
@@ -199,10 +201,11 @@ namespace ChimeraTK {
         .def(
             "getNElements", &PyOneDRegisterAccessor::getNElements, "Return number of elements/samples in the register.")
         .def("get", &PyOneDRegisterAccessor::get, "Return an array of UserType (without a previous read).")
-        // .def("set", &PyOneDRegisterAccessor::set, "Set the values of the array of UserType.", py::arg("newValue"))
-        // .def("setAndWrite", &PyOneDRegisterAccessor::setAndWrite,
-        //     "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a
-        //     " "new version number is generated.", py::arg("newValue"))
+        .def("set", &PyOneDRegisterAccessor::set, "Set the values of the array of UserType.", py::arg("newValue"))
+        .def("setAndWrite", &PyOneDRegisterAccessor::setAndWrite,
+            "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a"
+            "new version number is generated.",
+            py::arg("newValue"))
         .def("getAccessModeFlags", &PyOneDRegisterAccessor::getAccessModeFlags,
             "Return the access mode flags that were used to create this TransferElement.\n\nThis can be used to "
             "determine the setting of the `raw` and the `wait_for_new_data` flags")

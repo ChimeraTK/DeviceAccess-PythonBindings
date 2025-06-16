@@ -34,7 +34,7 @@ PYBIND11_MODULE(_da_python_bindings, m) {
   m.def(
       "testUserTypeVariantNoVoid",
       []([[maybe_unused]] ChimeraTK::UserTypeVariantNoVoid value) {
-        std::cout << "Test function for UserTypeVariantNoVoid called" << std::endl;
+        std::cout << "######################## Test function for UserTypeVariantNoVoid called" << std::endl;
       },
       "Test function for UserTypeVariantNoVoid. Returns a UserTypeVariantNoVoid containing a string.",
       py::arg("value") = "Hello, World!");
