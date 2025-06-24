@@ -8,11 +8,13 @@
 #include "PyOneDRegisterAccessor.h"
 #include "PythonModuleMethods.h"
 #include "PyTwoDRegisterAccessor.h"
+#include "PyVersionNumber.h"
 #include "RegisterCatalogue.h"
-#include "VersionNumber.h"
 
 #include <ChimeraTK/SupportedUserTypes.h>
+#include <ChimeraTK/VariantUserTypes.h>
 
+#include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 namespace py = pybind11;
 
@@ -24,20 +26,12 @@ PYBIND11_DECLARE_HOLDER_TYPE(T, boost::shared_ptr<T>)
 
 PYBIND11_MODULE(_da_python_bindings, m) {
   ChimeraTK::PyDevice::bind(m);
+  ChimeraTK::PyVersionNumber::bind(m);
   ChimeraTK::PyTransferElementBase::bind(m);
   ChimeraTK::PyScalarRegisterAccessor::bind(m);
   ChimeraTK::PyTwoDRegisterAccessor::bind(m);
   ChimeraTK::PyOneDRegisterAccessor::bind(m);
   ChimeraTK::PyVoidRegisterAccessor::bind(m);
-
-  // make a test function for UserTypeVariantNoVoid
-  m.def(
-      "testUserTypeVariantNoVoid",
-      []([[maybe_unused]] ChimeraTK::UserTypeVariantNoVoid value) {
-        std::cout << "######################## Test function for UserTypeVariantNoVoid called" << std::endl;
-      },
-      "Test function for UserTypeVariantNoVoid. Returns a UserTypeVariantNoVoid containing a string.",
-      py::arg("value") = "Hello, World!");
 
   /**
    *  DataType (with internal enum)
@@ -129,24 +123,4 @@ PYBIND11_MODULE(_da_python_bindings, m) {
       .def("isValid", &ChimeraTK::TransferElementID::isValid)
       .def("__ne__", &ChimeraTK::TransferElementID::operator!=)
       .def("__eq__", &ChimeraTK::TransferElementID::operator==);
-
-  py::class_<ChimeraTK::VersionNumber>(m, "VersionNumber",
-      "Class for generating and holding version numbers without exposing a numeric representation.\n"
-      "\n"
-      "Version numbers are used to resolve competing updates that are applied to the same process variable. For "
-      "example, it they can help in breaking an infinite update loop that might occur when two process variables are "
-      "related and update each other.\n"
-      "\n"
-      "They are also used to determine the order of updates made to different process variables.\n"
-      "\n")
-      .def(py::init<>())
-      .def("getTime", &DeviceAccessPython::VersionNumber::getTime)
-      .def("__str__", &ChimeraTK::VersionNumber::operator std::string)
-      .def("getNullVersion", DeviceAccessPython::VersionNumber::getNullVersion)
-      .def("__lt__", &ChimeraTK::VersionNumber::operator<)
-      .def("__le__", &ChimeraTK::VersionNumber::operator<=)
-      .def("__gt__", &ChimeraTK::VersionNumber::operator>)
-      .def("__ge__", &ChimeraTK::VersionNumber::operator>=)
-      .def("__ne__", &ChimeraTK::VersionNumber::operator!=)
-      .def("__eq__", &ChimeraTK::VersionNumber::operator==);
 }

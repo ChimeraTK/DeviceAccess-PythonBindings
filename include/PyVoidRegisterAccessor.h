@@ -6,6 +6,7 @@
 // pybind11.h must come first
 
 #include "PyTransferElement.h"
+#include "PyVersionNumber.h"
 
 #include <ChimeraTK/AccessMode.h>
 #include <ChimeraTK/SupportedUserTypes.h>
@@ -27,6 +28,8 @@ namespace ChimeraTK {
     std::string repr(py::object& acc) const;
 
     static void bind(py::module& mod);
+
+    bool write(const PyVersionNumber& versionNumber = PyVersionNumber{});
   };
 
   /********************************************************************************************************************/
