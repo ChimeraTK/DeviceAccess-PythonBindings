@@ -3,11 +3,15 @@
 
 #include "PyScalarRegisterAccessor.h"
 
+#include "PyVersionNumber.h"
+
 #include <ChimeraTK/TransferElement.h>
 #include <ChimeraTK/VariantUserTypes.h>
+#include <ChimeraTK/VersionNumber.h>
 
 #include <pybind11/cast.h>
 #include <pybind11/numpy.h>
+#include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
 
 #include <iostream>
@@ -29,11 +33,31 @@ namespace ChimeraTK {
   }
   /********************************************************************************************************************/
   void PyScalarRegisterAccessor::set(const py::array& val) {
+    // Note: we assume that the array has exactly one element, i.e. it is a scalar
+    if(val.ndim() != 1) {
+      throw std::runtime_error("PyScalarRegisterAccessor::setAndWrite: Expected a 1D array");
+    }
     std::visit(
         [&](auto& acc) {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using expectedUserType = typename ACC::value_type;
-          acc = val[0].cast<expectedUserType>();
+
+          if constexpr(std::is_same_v<expectedUserType, ChimeraTK::Boolean>) {
+            // Handle Boolean type specially - convert through bool
+            py::array_t<bool> arr = val;
+            auto directAccessArr = arr.template unchecked<1>();
+            acc = static_cast<ChimeraTK::Boolean>(directAccessArr(0));
+          }
+          else if constexpr(std::is_same_v<expectedUserType, std::string>) {
+            // Handle string type specially
+            acc = val[0].cast<std::string>();
+          }
+          else {
+            // Handle numeric types
+            py::array_t<expectedUserType> arr = val;
+            auto directAccessArr = arr.template unchecked<1>();
+            acc = directAccessArr(0);
+          }
         },
         _accessor);
   }
@@ -58,11 +82,31 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void PyScalarRegisterAccessor::setAndWrite(const py::array& val) {
+    // Note: we assume that the array has exactly one element, i.e. it is a scalar
+    if(val.ndim() != 1) {
+      throw std::runtime_error("PyScalarRegisterAccessor::setAndWrite: Expected a 1D array");
+    }
     std::visit(
         [&](auto& acc) {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using expectedUserType = typename ACC::value_type;
-          acc.setAndWrite(val[0].cast<expectedUserType>());
+
+          if constexpr(std::is_same_v<expectedUserType, ChimeraTK::Boolean>) {
+            // Handle Boolean type specially - convert through bool
+            py::array_t<bool> arr = val;
+            auto directAccessArr = arr.template unchecked<1>();
+            acc.setAndWrite(static_cast<ChimeraTK::Boolean>(directAccessArr(0)));
+          }
+          else if constexpr(std::is_same_v<expectedUserType, std::string>) {
+            // Handle string type specially
+            acc.setAndWrite(val[0].cast<std::string>());
+          }
+          else {
+            // Handle numeric types
+            py::array_t<expectedUserType> arr = val;
+            auto directAccessArr = arr.template unchecked<1>();
+            acc.setAndWrite(directAccessArr(0));
+          }
         },
         _accessor);
   }
@@ -110,7 +154,23 @@ namespace ChimeraTK {
         [&](auto& acc) {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using expectedUserType = typename ACC::value_type;
-          acc.writeIfDifferent(val[0].cast<expectedUserType>());
+
+          if constexpr(std::is_same_v<expectedUserType, ChimeraTK::Boolean>) {
+            // Handle Boolean type specially - convert through bool
+            py::array_t<bool> arr = val;
+            auto directAccessArr = arr.template unchecked<1>();
+            acc.writeIfDifferent(static_cast<ChimeraTK::Boolean>(directAccessArr(0)));
+          }
+          else if constexpr(std::is_same_v<expectedUserType, std::string>) {
+            // Handle string type specially
+            acc.writeIfDifferent(val[0].cast<std::string>());
+          }
+          else {
+            // Handle numeric types
+            py::array_t<expectedUserType> arr = val;
+            auto directAccessArr = arr.template unchecked<1>();
+            acc.writeIfDifferent(directAccessArr(0));
+          }
         },
         _accessor);
   }
@@ -159,12 +219,14 @@ namespace ChimeraTK {
             "whether a new value was available if AccessMode::wait_for_new_data is set.")
         .def("write", &PyScalarRegisterAccessor::write,
             "Write the data to device.\n\nThe return value is true, old data was lost on the write transfer (e.g. due "
-            "to an buffer overflow). In case of an unbuffered write transfer, the return value will always be false.")
+            "to an buffer overflow). In case of an unbuffered write transfer, the return value will always be false.",
+            py::arg("versionNumber") = PyVersionNumber::getNullVersion())
         .def("writeDestructively", &PyScalarRegisterAccessor::writeDestructively,
             "Just like write(), but allows the implementation to destroy the content of the user buffer in the "
             "process.\n\nThis is an optional optimisation, hence there is a default implementation which just calls "
             "the normal doWriteTransfer(). In any case, the application must expect the user buffer of the "
-            "TransferElement to contain undefined data after calling this function.")
+            "TransferElement to contain undefined data after calling this function.",
+            py::arg("versionNumber") = PyVersionNumber::getNullVersion())
         .def("getName", &PyScalarRegisterAccessor::getName, "Returns the name that identifies the process variable.")
         .def("getUnit", &PyScalarRegisterAccessor::getUnit,
             "Returns the engineering unit.\n\nIf none was specified, it will default to ' n./ a.'")
@@ -192,18 +254,10 @@ namespace ChimeraTK {
         .def("readAndGet", &PyScalarRegisterAccessor::readAndGet,
             "Convenience function to read and return a value of UserType.")
         .def(
-            "set",
-            []([[maybe_unused]] PyScalarRegisterAccessor& self, [[maybe_unused]] const UserTypeVariantNoVoid& val) {
-              std::cout << "Setting usertypenovoid value in PyScalarRegisterAccessor" << std::endl;
-              // self.set(val);
-            },
+            "set", [](PyScalarRegisterAccessor& self, const UserTypeVariantNoVoid& val) { self.set(val); },
             "Set the value of UserType.", py::arg("val"))
         .def(
-            "set2",
-            []([[maybe_unused]] PyScalarRegisterAccessor& self, [[maybe_unused]] const py::array& val) {
-              std::cout << "Setting pyarray value in PyScalarRegisterAccessor" << std::endl;
-              // self.set(val);
-            },
+            "set", [](PyScalarRegisterAccessor& self, const py::array& val) { self.set(val); },
             "Set the value of UserType.", py::arg("val"))
         .def("write", &PyScalarRegisterAccessor::write,
             "Write the data to device.\n\nThe return value is true, old data was lost on the write transfer (e.g. due "
@@ -235,6 +289,12 @@ namespace ChimeraTK {
             "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a "
             "new version number is generated.",
             py::arg("newValue"))
+        .def("isInitialised", &PyScalarRegisterAccessor::isInitialised, "Check if the transfer element is initialised.")
+        .def("setDataValidity", &PyScalarRegisterAccessor::setDataValidity,
+            "Set the data validity of the transfer element.")
+        .def("dtype", &PyScalarRegisterAccessor::getValueType,
+            "Return the dtype of the value type of this TransferElement.\n\nThis can be used to determine the type at "
+            "runtime.")
         .def("__repr__", &PyScalarRegisterAccessor::repr);
     for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {
       arrayacc.def(fn.c_str(), [fn](PyScalarRegisterAccessor& acc, PyScalarRegisterAccessor& other) {

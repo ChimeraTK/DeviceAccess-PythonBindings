@@ -132,6 +132,14 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
+  py::object PyTwoDRegisterAccessor::getitem(size_t index) const {
+    py::object rv;
+    std::visit([&](auto& acc) { rv = py::cast(acc[index]); }, _accessor);
+    return rv;
+  }
+
+  /********************************************************************************************************************/
+
   PyTwoDRegisterAccessor::~PyTwoDRegisterAccessor() = default;
 
   /********************************************************************************************************************/
@@ -187,14 +195,18 @@ namespace ChimeraTK {
         .def("dataValidity", &PyTwoDRegisterAccessor::dataValidity,
             "Return current validity of the data.\n\nWill always return DataValidity.ok if the backend does not "
             "support it")
-        .def("getNElements", &PyTwoDRegisterAccessor::getNElementsPerChannel,
+        .def("isInitialised", &PyTwoDRegisterAccessor::isInitialised, "Check if the transfer element is initialised.")
+        .def("getNElementsPerChannel", &PyTwoDRegisterAccessor::getNElementsPerChannel,
             "Return number of elements/samples per Channel in the register.")
-        .def("getNElements", &PyTwoDRegisterAccessor::getNChannels, "Return number of Channels in the register.")
+        .def("getNChannels", &PyTwoDRegisterAccessor::getNChannels, "Return number of Channels in the register.")
         .def("get", &PyTwoDRegisterAccessor::get, "Return an array of UserType (without a previous read).")
         .def("set", &PyTwoDRegisterAccessor::set, "Set the values of the array of UserType.", py::arg("newValue"))
+        .def("setDataValidity", &PyTwoDRegisterAccessor::setDataValidity,
+            "Set the data validity of the transfer element.")
         .def("getAccessModeFlags", &PyTwoDRegisterAccessor::getAccessModeFlags,
             "Return the access mode flags that were used to create this TransferElement.\n\nThis can be used to "
             "determine the setting of the `raw` and the `wait_for_new_data` flags")
+        .def("__getitem__", &PyTwoDRegisterAccessor::getitem, "Get an element from the array by index.")
         .def("__getattr__", &PyTwoDRegisterAccessor::getattr);
     for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {
       arrayacc.def(fn.c_str(), [fn](PyTwoDRegisterAccessor& acc, PyTwoDRegisterAccessor& other) {

@@ -204,11 +204,15 @@ namespace ChimeraTK {
             "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a"
             "new version number is generated.",
             py::arg("newValue"))
+        .def("isInitialised", &PyOneDRegisterAccessor::isInitialised, "Check if the transfer element is initialised.")
+        .def("setDataValidity", &PyOneDRegisterAccessor::setDataValidity,
+            "Set the data validity of the transfer element.")
         .def("getAccessModeFlags", &PyOneDRegisterAccessor::getAccessModeFlags,
             "Return the access mode flags that were used to create this TransferElement.\n\nThis can be used to "
             "determine the setting of the `raw` and the `wait_for_new_data` flags")
         .def("readAndGet", &PyOneDRegisterAccessor::readAndGet,
             "Convenience function to read and return an array of UserType.")
+        .def("__getitem__", &PyOneDRegisterAccessor::getitem, "Get an element from the array by index.")
         .def("__getattr__", &PyOneDRegisterAccessor::getattr);
 
     for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {

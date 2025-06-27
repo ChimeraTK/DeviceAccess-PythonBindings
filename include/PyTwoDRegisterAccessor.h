@@ -47,6 +47,7 @@ namespace ChimeraTK {
     py::buffer_info getBufferInfo();
 
     py::object getattr(const std::string& name) const { return get().attr(name.c_str()); }
+    py::object getitem(size_t index) const;
 
     static void bind(py::module& mod);
 

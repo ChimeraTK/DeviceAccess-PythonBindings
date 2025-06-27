@@ -34,15 +34,20 @@ namespace ChimeraTK {
 
   bool PyVoidRegisterAccessor::write(const PyVersionNumber& versionNumber) {
     if(versionNumber == PyVersionNumber::getNullVersion()) {
-      // If the version number is null, we just call the default implementation
-      // This is needed to avoid a warning about unused parameter in the base class
-      // implementation.
-      auto vn = ChimeraTK::VersionNumber{};
-      std::cout << "PyVoidRegisterAccessor::write called with null versionNumber, using " << vn << std::endl;
-      return ChimeraTK::VoidRegisterAccessor::write(vn);
+      // The pybind11 default argument is set during compile time, so we use the null version to mark the default and
+      // act like nothing was set.
+      return ChimeraTK::VoidRegisterAccessor::write();
     }
-    std::cout << "PyVoidRegisterAccessor::write called with versionNumber: " << versionNumber << std::endl;
     return ChimeraTK::VoidRegisterAccessor::write(versionNumber);
+  }
+
+  bool PyVoidRegisterAccessor::writeDestructively(const PyVersionNumber& versionNumber) {
+    if(versionNumber == PyVersionNumber::getNullVersion()) {
+      // The pybind11 default argument is set during compile time, so we use the null version to mark the default and
+      // act like nothing was set.
+      return ChimeraTK::VoidRegisterAccessor::writeDestructively();
+    }
+    return ChimeraTK::VoidRegisterAccessor::writeDestructively(versionNumber);
   }
 
   /********************************************************************************************************************/
@@ -70,7 +75,7 @@ namespace ChimeraTK {
             "Write the data to device.\n\nThe return value is true, old data was lost on the write transfer (e.g. due "
             "to an buffer overflow). In case of an unbuffered write transfer, the return value will always be false.",
             py::arg("versionNumber") = PyVersionNumber::getNullVersion())
-        .def("writeDestructively", &ChimeraTK::VoidRegisterAccessor::writeDestructively,
+        .def("writeDestructively", &PyVoidRegisterAccessor::writeDestructively,
             "Just like write(), but allows the implementation to destroy the content of the user buffer in the "
             "process.\n\nThis is an optional optimisation, hence there is a default implementation which just calls "
             "the normal doWriteTransfer(). In any case, the application must expect the user buffer of the "
@@ -85,8 +90,11 @@ namespace ChimeraTK {
         .def("getValueType", &ChimeraTK::VoidRegisterAccessor::getValueType,
             "Returns the std::type_info for the value type of this transfer element.\n\nThis can be used to determine "
             "the type at runtime.")
+        .def("setDataValidity", &PyVoidRegisterAccessor::setDataValidity,
+            "Set the data validity of the transfer element.")
+        .def("isInitialised", &ChimeraTK::VoidRegisterAccessor::isInitialised,
+            "Check if the transfer element is initialised.")
         .def("getVersionNumber", &ChimeraTK::VoidRegisterAccessor::getVersionNumber,
-
             "Returns the version number that is associated with the last transfer (i.e. last read or write)")
         .def("isReadOnly", &ChimeraTK::VoidRegisterAccessor::isReadOnly,
             "Check if transfer element is read only, i.e. it is readable but not writeable.")

@@ -4,6 +4,7 @@
 #include <pybind11/pybind11.h>
 // pybind11.h must come first
 
+#include "PyDataType.h"
 #include "PyDevice.h"
 #include "PyOneDRegisterAccessor.h"
 #include "PythonModuleMethods.h"
@@ -32,39 +33,7 @@ PYBIND11_MODULE(_da_python_bindings, m) {
   ChimeraTK::PyTwoDRegisterAccessor::bind(m);
   ChimeraTK::PyOneDRegisterAccessor::bind(m);
   ChimeraTK::PyVoidRegisterAccessor::bind(m);
-
-  /**
-   *  DataType (with internal enum)
-   */
-  py::class_<ChimeraTK::DataType> mDataType(m, "DataType");
-  mDataType.def(py::init<ChimeraTK::DataType::TheType>())
-      .def("__str__", &ChimeraTK::DataType::getAsString)
-      // TODO: add __eq__ and __ne__ to DataType
-      //.def(py::self == py::self)
-      .def("__repr__", [](const ChimeraTK::DataType& type) { return "DataType." + type.getAsString(); })
-      .def("isNumeric", &ChimeraTK::DataType::isNumeric)
-      .def("getAsString", &ChimeraTK::DataType::getAsString)
-      .def("isIntegral", &ChimeraTK::DataType::isIntegral)
-      .def("isSigned", &ChimeraTK::DataType::isSigned);
-
-  py::enum_<ChimeraTK::DataType::TheType>(mDataType, "TheType")
-      .value("none", ChimeraTK::DataType::none)
-      .value("int8", ChimeraTK::DataType::int8)
-      .value("uint8", ChimeraTK::DataType::uint8)
-      .value("int16", ChimeraTK::DataType::int16)
-      .value("uint16", ChimeraTK::DataType::uint16)
-      .value("int32", ChimeraTK::DataType::int32)
-      .value("uint32", ChimeraTK::DataType::uint32)
-      .value("int64", ChimeraTK::DataType::int64)
-      .value("uint64", ChimeraTK::DataType::uint64)
-      .value("float32", ChimeraTK::DataType::float32)
-      .value("float64", ChimeraTK::DataType::float64)
-      .value("string", ChimeraTK::DataType::string)
-      .value("Boolean", ChimeraTK::DataType::Boolean)
-      .value("Void", ChimeraTK::DataType::Void)
-      .export_values();
-  py::implicitly_convertible<ChimeraTK::DataType::TheType, ChimeraTK::DataType>();
-  py::implicitly_convertible<ChimeraTK::DataType, ChimeraTK::DataType::TheType>();
+  ChimeraTK::PyDataType::bind(m);
 
   m.def("createDevice", DeviceAccessPython::createDevice);
   m.def("getDevice_no_alias", DeviceAccessPython::getDevice_no_alias);
