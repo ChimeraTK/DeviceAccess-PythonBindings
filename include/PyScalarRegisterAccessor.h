@@ -6,6 +6,7 @@
 // pybind11.h must come first
 
 #include "PyTransferElement.h"
+#include "PyVersionNumber.h"
 
 #include <ChimeraTK/AccessMode.h>
 #include <ChimeraTK/ScalarRegisterAccessor.h>
@@ -30,14 +31,15 @@ namespace ChimeraTK {
 
     py::object readAndGet();
 
-    void setAndWrite(const UserTypeVariantNoVoid& val);
-    void setAndWrite(const py::array& val);
+    void setAndWrite(const UserTypeVariantNoVoid& val, const PyVersionNumber& versionNumber);
+    void setAndWriteArray(const py::array& val, const PyVersionNumber& versionNumber);
 
-    void writeIfDifferent(const UserTypeVariantNoVoid& val);
-    void writeIfDifferent(const py::array& val);
+    void writeIfDifferent(const UserTypeVariantNoVoid& val, const PyVersionNumber& versionNumber);
+    void writeIfDifferentArray(const py::array& val, const PyVersionNumber& versionNumber);
 
     void set(const UserTypeVariantNoVoid& val);
-    void set(const py::array& val);
+    void setArray(const py::array& val);
+    void setList(const py::list& val);
 
     py::object get() const;
 

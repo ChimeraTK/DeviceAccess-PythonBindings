@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
+#include "PyVersionNumber.h"
+
 #include <ChimeraTK/NDRegisterAccessorAbstractor.h>
 #include <ChimeraTK/SupportedUserTypes.h>
 
@@ -16,9 +18,13 @@ namespace ChimeraTK {
 
   /*****************************************************************************************************************/
 
-  ChimeraTK::DataType convertDTypeToUsertype(py::dtype dtype);
+  ChimeraTK::DataType convertDTypeToUsertype(const py::dtype& dtype);
 
-  py::dtype convertUsertypeToDtype(ChimeraTK::DataType usertype);
+  py::dtype convertUsertypeToDtype(const ChimeraTK::DataType& usertype);
+
+  PyVersionNumber getNewVersionNumberIfNull(const PyVersionNumber& versionNumber);
+
+  py::array convertPyListToNumpyArray(const py::list& list, const py::dtype& dtype);
 
   template<typename T>
   pybind11::array copyUserBufferToNpArray(

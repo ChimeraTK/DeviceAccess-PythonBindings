@@ -3,15 +3,23 @@
 
 #include "HelperFunctions.h"
 
+#include "PyVersionNumber.h"
+
 #include <ChimeraTK/SupportedUserTypes.h>
 
+#include <pybind11/embed.h>
+
+#include <iostream>
+#include <string>
+
 namespace py = pybind11;
+using namespace py::literals;
 
 namespace ChimeraTK {
 
   /*****************************************************************************************************************/
 
-  ChimeraTK::DataType convertDTypeToUsertype(py::dtype dtype) {
+  ChimeraTK::DataType convertDTypeToUsertype(const py::dtype& dtype) {
     if(dtype.is(py::dtype::of<int8_t>())) {
       return ChimeraTK::DataType::int8;
     }
@@ -45,12 +53,18 @@ namespace ChimeraTK {
     if(dtype.is(py::dtype::of<bool>())) {
       return ChimeraTK::DataType::Boolean;
     }
+    if(dtype.kind() == 'U') { // Unicode string
+      return ChimeraTK::DataType::string;
+    }
+    if(dtype.kind() == 'S') { // ASCII bytes string
+      return ChimeraTK::DataType::string;
+    }
     throw std::invalid_argument("Unsupported numpy dtype");
   }
 
   /*****************************************************************************************************************/
 
-  py::dtype convertUsertypeToDtype(ChimeraTK::DataType usertype) {
+  py::dtype convertUsertypeToDtype(const ChimeraTK::DataType& usertype) {
     std::unique_ptr<py::dtype> rv;
     ChimeraTK::callForTypeNoVoid(usertype, [&](auto arg) {
       using UserType = decltype(arg);
@@ -65,6 +79,30 @@ namespace ChimeraTK {
       }
     });
     return *rv;
+  }
+
+  /*****************************************************************************************************************/
+
+  PyVersionNumber getNewVersionNumberIfNull(const PyVersionNumber& versionNumber) {
+    // If the version number is null, we return a new version number.
+    // Otherwise, we return the given version number.
+    if(versionNumber == PyVersionNumber::getNullVersion()) {
+      return PyVersionNumber();
+    }
+    return versionNumber;
+  }
+
+  /*****************************************************************************************************************/
+
+  py::array convertPyListToNumpyArray(const py::list& list, const py::dtype& dtype) {
+    py::gil_scoped_acquire gil;
+    auto locals = py::dict("incommingdtype"_a = dtype, "incommingList"_a = list);
+    py::exec(R"(
+        import numpy as np
+        out = np.array(incommingList, dtype=incommingdtype)
+    )",
+        py::globals(), locals);
+    return locals["out"].cast<py::array>();
   }
 
   /*****************************************************************************************************************/
