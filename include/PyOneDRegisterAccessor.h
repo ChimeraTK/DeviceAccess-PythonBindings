@@ -34,7 +34,7 @@ namespace ChimeraTK {
 
     py::object readAndGet();
 
-    void setAndWrite(const UserTypeTemplateVariantNoVoid<Vector>& vec);
+    void setAndWrite(const UserTypeTemplateVariantNoVoid<Vector>& vec, const PyVersionNumber& versionNumber);
 
     size_t getNElements();
 

@@ -7,11 +7,52 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <iostream>
+#include <ostream>
 #include <vector>
 
 namespace py = pybind11;
 
 namespace ChimeraTK {
+
+  /********************************************************************************************************************/
+  void PyTwoDRegisterAccessor::copyToBuffer() {
+    std::visit(
+        [&](auto& acc) {
+          using ACC = typename std::remove_reference<decltype(acc)>::type;
+          using UserType = typename ACC::value_type;
+          auto& buffer = std::get<std::vector<UserType>>(_continuousBuffer);
+          buffer.clear();
+          buffer.reserve(acc.getNChannels() * acc.getNElementsPerChannel());
+          for(size_t i = 0; i < acc.getNChannels(); ++i) {
+            buffer.insert(buffer.end(), acc[i].begin(), acc[i].end());
+          }
+        },
+        _accessor);
+  }
+  /********************************************************************************************************************/
+
+  void PyTwoDRegisterAccessor::read() {
+    py::gil_scoped_release release;
+    visit([&](auto& acc) { acc.read(); });
+    copyToBuffer();
+  }
+
+  /********************************************************************************************************************/
+
+  void PyTwoDRegisterAccessor::readLatest() {
+    py::gil_scoped_release release;
+    visit([&](auto& acc) { acc.readLatest(); });
+    copyToBuffer();
+  }
+
+  /********************************************************************************************************************/
+
+  void PyTwoDRegisterAccessor::readNonBlocking() {
+    py::gil_scoped_release release;
+    visit([&](auto& acc) { acc.readNonBlocking(); });
+    copyToBuffer();
+  }
 
   /********************************************************************************************************************/
 
@@ -38,16 +79,12 @@ namespace ChimeraTK {
           using expectedUserType = typename ACC::value_type;
           std::visit(
               [&](const auto& outerVector) {
-                VVector<expectedUserType> converted(outerVector.size());
-
-                std::transform(outerVector.begin(), outerVector.end(), converted.begin(), [](auto innerVector) {
-                  std::vector<expectedUserType> resizedInnerVector(innerVector.size());
-                  std::transform(innerVector.begin(), innerVector.end(), resizedInnerVector.begin(),
-                      [](auto v) { return userTypeToUserType<expectedUserType>(v); });
-                  return resizedInnerVector;
-                });
-
-                acc = converted;
+                // Resize acc to match the input shape
+                for(size_t i = 0; i < outerVector.size(); ++i) {
+                  for(size_t j = 0; j < outerVector[i].size(); ++j) {
+                    acc[i][j] = userTypeToUserType<expectedUserType>(outerVector[i][j]);
+                  }
+                }
               },
               vec);
         },
@@ -56,31 +93,7 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   py::object PyTwoDRegisterAccessor::get() const {
-    py::object rv;
-    std::visit(
-        [&](auto& acc) {
-          using ACC = typename std::remove_reference<decltype(acc)>::type;
-          using userType = typename ACC::value_type;
-          auto ndacc = boost::dynamic_pointer_cast<NDRegisterAccessor<userType>>(acc.getHighLevelImplElement());
-          if constexpr(std::is_same<userType, std::string>::value) {
-            // String arrays are not really supported by numpy, so we return a list of lists instead
-            std::vector<std::vector<std::string>> result;
-            for(size_t channel = 0; channel < acc.getNChannels(); ++channel) {
-              result.emplace_back(ndacc->accessChannel(channel));
-            }
-            rv = py::cast(result);
-          }
-          else {
-            auto shape = std::vector<size_t>{acc.getNChannels(), acc.getNElementsPerChannel()};
-            auto strides = std::vector<size_t>{acc.getNElementsPerChannel() * sizeof(userType), sizeof(userType)};
-            auto ary =
-                py::array(py::dtype::of<userType>(), shape, strides, ndacc->accessChannel(0).data(), py::cast(this));
-            assert(!ary.owndata()); // numpy must not own our buffers
-            rv = ary;
-          }
-        },
-        _accessor);
-    return rv;
+    return py::array(getBufferInfo());
   }
   /********************************************************************************************************************/
 
@@ -100,7 +113,7 @@ namespace ChimeraTK {
   }
   /********************************************************************************************************************/
 
-  py::buffer_info PyTwoDRegisterAccessor::getBufferInfo() {
+  py::buffer_info PyTwoDRegisterAccessor::getBufferInfo() const {
     py::buffer_info info;
     std::visit(
         [&](auto& acc) {
@@ -117,14 +130,12 @@ namespace ChimeraTK {
           else {
             info.format = py::format_descriptor<userType>::format();
           }
-          info.ptr = ndacc->accessChannel(0).data();
+          auto& buffer = std::get<std::vector<userType>>(_continuousBuffer);
+          info.ptr = buffer.data();
           info.itemsize = sizeof(userType);
-          info.ndim = acc.getNChannels();
-          std::vector<int64_t> shape;
-          shape.emplace_back(acc.getNChannels());
-          shape.emplace_back(acc.getNElementsPerChannel());
-          info.shape = shape;
-          info.strides = {sizeof(userType)};
+          info.ndim = 2;
+          info.shape = {int64_t(acc.getNChannels()), int64_t(acc.getNElementsPerChannel())};
+          info.strides = {int64_t((sizeof(userType) * acc.getNElementsPerChannel())), sizeof(userType)};
         },
         _accessor);
     return info;
@@ -154,7 +165,8 @@ namespace ChimeraTK {
             "until new data has arrived. Otherwise it still might block for a short time until the data transfer was "
             "complete.")
         .def("readNonBlocking", &PyTwoDRegisterAccessor::readNonBlocking,
-            "Read the next value, if available in the input buffer.\n\nIf AccessMode::wait_for_new_data was set, this "
+            "Read the next value, if available in the input buffer.\n\nIf AccessMode::wait_for_new_data was set, "
+            "this "
             "function returns immediately and the return value indicated if a new value was available (true) or not "
             "(false).\n\nIf AccessMode::wait_for_new_data was not set, this function is identical to read(), which "
             "will still return quickly. Depending on the actual transfer implementation, the backend might need to "
@@ -165,20 +177,24 @@ namespace ChimeraTK {
             "function is identical to readNonBlocking(), i.e. it will never wait for new values and it will return "
             "whether a new value was available if AccessMode::wait_for_new_data is set.")
         .def("write", &PyTwoDRegisterAccessor::write,
-            "Write the data to device.\n\nThe return value is true, old data was lost on the write transfer (e.g. due "
-            "to an buffer overflow). In case of an unbuffered write transfer, the return value will always be false.")
+            "Write the data to device.\n\nThe return value is true, old data was lost on the write transfer (e.g. "
+            "due "
+            "to an buffer overflow). In case of an unbuffered write transfer, the return value will always be false.",
+            py::arg("versionNumber") = PyVersionNumber::getNullVersion())
         .def("writeDestructively", &PyTwoDRegisterAccessor::writeDestructively,
             "Just like write(), but allows the implementation to destroy the content of the user buffer in the "
             "process.\n\nThis is an optional optimisation, hence there is a default implementation which just calls "
             "the normal doWriteTransfer(). In any case, the application must expect the user buffer of the "
-            "TransferElement to contain undefined data after calling this function.")
+            "TransferElement to contain undefined data after calling this function.",
+            py::arg("versionNumber") = PyVersionNumber::getNullVersion())
         .def("getName", &PyTwoDRegisterAccessor::getName, "Returns the name that identifies the process variable.")
         .def("getUnit", &PyTwoDRegisterAccessor::getUnit,
             "Returns the engineering unit.\n\nIf none was specified, it will default to ' n./ a.'")
         .def("getDescription", &PyTwoDRegisterAccessor::getDescription,
             "Returns the description of this variable/register.")
         .def("getValueType", &PyTwoDRegisterAccessor::getValueType,
-            "Returns the std::type_info for the value type of this transfer element.\n\nThis can be used to determine "
+            "Returns the std::type_info for the value type of this transfer element.\n\nThis can be used to "
+            "determine "
             "the type at runtime.")
         .def("getVersionNumber", &PyTwoDRegisterAccessor::getVersionNumber,
             "Returns the version number that is associated with the last transfer (i.e. last read or write)")
@@ -188,7 +204,8 @@ namespace ChimeraTK {
         .def("isWriteable", &PyTwoDRegisterAccessor::isWriteable, "Check if transfer element is writeable.")
         .def("getId", &PyTwoDRegisterAccessor::getId,
             "Obtain unique ID for the actual implementation of this TransferElement.\n\nThis means that e.g. two "
-            "instances of ScalarRegisterAccessor created by the same call to Device::getScalarRegisterAccessor() (e.g. "
+            "instances of ScalarRegisterAccessor created by the same call to Device::getScalarRegisterAccessor() "
+            "(e.g. "
             "by copying the accessor to another using NDRegisterAccessorBridge::replace()) will have the same ID, "
             "while two instances obtained by to difference calls to Device::getScalarRegisterAccessor() will have a "
             "different ID even when accessing the very same register.")

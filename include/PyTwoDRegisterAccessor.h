@@ -13,6 +13,8 @@
 
 #include <pybind11/numpy.h>
 
+#include <iostream>
+
 namespace py = pybind11;
 
 namespace ChimeraTK {
@@ -21,12 +23,13 @@ namespace ChimeraTK {
 
   class PyTwoDRegisterAccessor : public PyTransferElement<PyTwoDRegisterAccessor> {
    public:
-    PyTwoDRegisterAccessor() : _accessor(TwoDRegisterAccessor<int>()) {}
+    PyTwoDRegisterAccessor() : _accessor(TwoDRegisterAccessor<int>()), _continuousBuffer(std::vector<int>()) {}
     PyTwoDRegisterAccessor(PyTwoDRegisterAccessor&&) = default;
     ~PyTwoDRegisterAccessor();
 
     template<typename UserType>
-    explicit PyTwoDRegisterAccessor(ChimeraTK::TwoDRegisterAccessor<UserType> acc) : _accessor(acc) {}
+    explicit PyTwoDRegisterAccessor(ChimeraTK::TwoDRegisterAccessor<UserType> acc)
+    : _accessor(acc), _continuousBuffer(std::vector<UserType>()) {}
 
     // UserTypeTemplateVariantNoVoid expects a single template argument, std::vector has multiple (with defaults)...
     template<typename T>
@@ -34,6 +37,10 @@ namespace ChimeraTK {
 
     template<typename T>
     using VVector = std::vector<std::vector<T>>;
+
+    void read();
+    void readLatest();
+    void readNonBlocking();
 
     size_t getNChannels();
     size_t getNElementsPerChannel();
@@ -44,14 +51,21 @@ namespace ChimeraTK {
 
     std::string repr(py::object& acc) const;
 
-    py::buffer_info getBufferInfo();
+    py::buffer_info getBufferInfo() const;
 
-    py::object getattr(const std::string& name) const { return get().attr(name.c_str()); }
+    py::object getattr(const std::string& name) const {
+      std::cout << "getattr with " << name << " called for TwoDRegisterAccessor" << std::endl;
+      return get().attr(name.c_str());
+    }
     py::object getitem(size_t index) const;
 
     static void bind(py::module& mod);
 
     mutable UserTypeTemplateVariantNoVoid<TwoDRegisterAccessor> _accessor;
+
+   private:
+    mutable UserTypeTemplateVariantNoVoid<Vector> _continuousBuffer;
+    void copyToBuffer();
   };
 
   /********************************************************************************************************************/

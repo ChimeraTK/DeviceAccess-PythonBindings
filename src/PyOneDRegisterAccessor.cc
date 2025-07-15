@@ -46,9 +46,11 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void PyOneDRegisterAccessor::setAndWrite(const UserTypeTemplateVariantNoVoid<Vector>& vec) {
+  void PyOneDRegisterAccessor::setAndWrite(
+      const UserTypeTemplateVariantNoVoid<Vector>& vec, const PyVersionNumber& versionNumber) {
     set(vec);
-    write();
+    auto vn = getNewVersionNumberIfNull(versionNumber);
+    write(vn);
   }
   /********************************************************************************************************************/
 
@@ -167,12 +169,14 @@ namespace ChimeraTK {
             "whether a new value was available if AccessMode::wait_for_new_data is set.")
         .def("write", &PyOneDRegisterAccessor::write,
             "Write the data to device.\n\nThe return value is true, old data was lost on the write transfer (e.g. due "
-            "to an buffer overflow). In case of an unbuffered write transfer, the return value will always be false.")
+            "to an buffer overflow). In case of an unbuffered write transfer, the return value will always be false.",
+            py::arg("versionNumber") = PyVersionNumber::getNullVersion())
         .def("writeDestructively", &PyOneDRegisterAccessor::writeDestructively,
             "Just like write(), but allows the implementation to destroy the content of the user buffer in the "
             "process.\n\nThis is an optional optimisation, hence there is a default implementation which just calls "
             "the normal doWriteTransfer(). In any case, the application must expect the user buffer of the "
-            "TransferElement to contain undefined data after calling this function.")
+            "TransferElement to contain undefined data after calling this function.",
+            py::arg("versionNumber") = PyVersionNumber::getNullVersion())
         .def("getName", &PyOneDRegisterAccessor::getName, "Returns the name that identifies the process variable.")
         .def("getUnit", &PyOneDRegisterAccessor::getUnit,
             "Returns the engineering unit.\n\nIf none was specified, it will default to ' n./ a.'")
@@ -203,7 +207,7 @@ namespace ChimeraTK {
         .def("setAndWrite", &PyOneDRegisterAccessor::setAndWrite,
             "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a"
             "new version number is generated.",
-            py::arg("newValue"))
+            py::arg("newValue"), py::arg("versionNumber") = PyVersionNumber::getNullVersion())
         .def("isInitialised", &PyOneDRegisterAccessor::isInitialised, "Check if the transfer element is initialised.")
         .def("setDataValidity", &PyOneDRegisterAccessor::setDataValidity,
             "Set the data validity of the transfer element.")
