@@ -27,10 +27,6 @@ namespace ChimeraTK {
     PyTwoDRegisterAccessor(PyTwoDRegisterAccessor&&) = default;
     ~PyTwoDRegisterAccessor();
 
-    template<typename UserType>
-    explicit PyTwoDRegisterAccessor(ChimeraTK::TwoDRegisterAccessor<UserType> acc)
-    : _accessor(acc), _continuousBuffer(std::vector<UserType>()) {}
-
     // UserTypeTemplateVariantNoVoid expects a single template argument, std::vector has multiple (with defaults)...
     template<typename T>
     using Vector = std::vector<T>;
@@ -47,16 +43,19 @@ namespace ChimeraTK {
 
     void set(const UserTypeTemplateVariantNoVoid<VVector>& vec);
 
+    template<typename AccessorType>
+    void setTE(AccessorType incomingAcc) {
+      PyTransferElement::setTE(incomingAcc);
+      _continuousBuffer = std::vector<typename AccessorType::value_type>{};
+    }
+
     py::object get() const;
 
     std::string repr(py::object& acc) const;
 
     py::buffer_info getBufferInfo() const;
 
-    py::object getattr(const std::string& name) const {
-      std::cout << "getattr with " << name << " called for TwoDRegisterAccessor" << std::endl;
-      return get().attr(name.c_str());
-    }
+    py::object getattr(const std::string& name) const { return get().attr(name.c_str()); }
     py::object getitem(size_t index) const;
 
     static void bind(py::module& mod);

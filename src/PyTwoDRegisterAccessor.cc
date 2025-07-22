@@ -3,6 +3,8 @@
 
 #include "PyTwoDRegisterAccessor.h"
 
+#include <ChimeraTK/SupportedUserTypes.h>
+
 #include <pybind11/stl.h>
 
 #include <algorithm>
@@ -21,6 +23,8 @@ namespace ChimeraTK {
         [&](auto& acc) {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using UserType = typename ACC::value_type;
+
+          _continuousBuffer = std::vector<UserType>{};
           auto& buffer = std::get<std::vector<UserType>>(_continuousBuffer);
           buffer.clear();
           buffer.reserve(acc.getNChannels() * acc.getNElementsPerChannel());
@@ -120,11 +124,15 @@ namespace ChimeraTK {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using userType = typename ACC::value_type;
           auto ndacc = boost::dynamic_pointer_cast<NDRegisterAccessor<userType>>(acc.getHighLevelImplElement());
+          auto nChannels = acc.getNChannels();
+          auto nElements = acc.getNElementsPerChannel();
+
           if constexpr(std::is_same<userType, ChimeraTK::Boolean>::value) {
             info.format = py::format_descriptor<bool>::format();
           }
           else if constexpr(std::is_same<userType, std::string>::value) {
-            // cannot implement
+            // TODO: something is breaking here
+            // info.format = py::format_descriptor<std::string>::format();
             return;
           }
           else {
@@ -134,8 +142,8 @@ namespace ChimeraTK {
           info.ptr = buffer.data();
           info.itemsize = sizeof(userType);
           info.ndim = 2;
-          info.shape = {int64_t(acc.getNChannels()), int64_t(acc.getNElementsPerChannel())};
-          info.strides = {int64_t((sizeof(userType) * acc.getNElementsPerChannel())), sizeof(userType)};
+          info.shape = {int64_t(nChannels), int64_t(nElements)};
+          info.strides = {int64_t((sizeof(userType) * nElements)), sizeof(userType)};
         },
         _accessor);
     return info;
