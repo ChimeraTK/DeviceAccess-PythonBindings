@@ -89,7 +89,7 @@ namespace ChimeraTK {
     }
     auto getDescription() const { return getTE().getDescription(); }
     py::dtype getValueType() const { return convertUsertypeToDtype(getTE().getValueType()); }
-    auto getVersionNumber() const { return getTE().getVersionNumber(); }
+    PyVersionNumber getVersionNumber() const { return getTE().getVersionNumber(); }
     auto isReadOnly() const { return getTE().isReadOnly(); }
     auto isReadable() const { return getTE().isReadable(); }
     auto isWriteable() const { return getTE().isWriteable(); }

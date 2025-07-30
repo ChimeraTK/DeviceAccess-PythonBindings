@@ -127,32 +127,20 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   py::object PyScalarRegisterAccessor::get() const {
-    py::object rv;
+    std::optional<UserTypeVariantNoVoid> rv;
     std::visit(
         [&](auto& acc) {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
-          using userType = typename ACC::value_type;
-          auto ndacc = boost::dynamic_pointer_cast<NDRegisterAccessor<userType>>(acc.getHighLevelImplElement());
-          if constexpr(std::is_same<userType, std::string>::value) {
-            // String arrays are not really supported by numpy, so we return a list instead
-            rv = py::cast(ndacc->accessChannel(0));
-          }
-          else if constexpr(std::is_same<userType, ChimeraTK::Boolean>::value) {
-            // Boolean type is special, we return a numpy array of bool
-            auto ary =
-                py::array(py::dtype::of<bool>(), {1}, {sizeof(bool)}, ndacc->accessChannel(0).data(), py::cast(this));
-            assert(!ary.owndata()); // numpy must not own our buffers
-            rv = ary;
-          }
-          else {
-            auto ary = py::array(
-                py::dtype::of<userType>(), {1}, {sizeof(userType)}, ndacc->accessChannel(0).data(), py::cast(this));
-            assert(!ary.owndata()); // numpy must not own our buffers
-            rv = ary;
-          }
+          using expectedUserType = typename ACC::value_type;
+          rv = expectedUserType(
+              boost::dynamic_pointer_cast<NDRegisterAccessor<expectedUserType>>(acc.getHighLevelImplElement())
+                  ->accessData(0));
         },
         _accessor);
-    return rv;
+    if(std::holds_alternative<ChimeraTK::Boolean>(*rv)) {
+      return py::cast(bool(std::get<ChimeraTK::Boolean>(*rv)));
+    }
+    return py::cast(*rv);
   }
 
   /********************************************************************************************************************/
