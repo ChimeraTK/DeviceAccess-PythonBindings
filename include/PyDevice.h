@@ -8,6 +8,7 @@
 #include "PyVoidRegisterAccessor.h"
 
 #include <ChimeraTK/Device.h>
+#include <ChimeraTK/SupportedUserTypes.h>
 #include <ChimeraTK/VariantUserTypes.h>
 
 #include <pybind11/numpy.h>
@@ -44,11 +45,15 @@ namespace ChimeraTK {
     ChimeraTK::RegisterCatalogue getRegisterCatalogue();
     std::string getCatalogueMetadata(const std::string& parameterName);
 
-    void write(const std::string& registerPath, py::array& arr, size_t elementsOffset = 0,
-        const py::list& flaglist = py::list());
+    void writeArray(const std::string& registerPath, py::array& data, const py::object& dtype, size_t numberOfWords = 0,
+        size_t wordOffsetInRegister = 0, const py::list& flaglist = py::list());
+    void writeList(const std::string& registerPath, py::list& data, const py::object& dtype, size_t numberOfWords = 0,
+        size_t wordOffsetInRegister = 0, const py::list& flaglist = py::list());
+    void writeScalar(const std::string& registerPath, UserTypeVariantNoVoid& data, const py::object& dtype,
+        size_t numberOfWords = 0, size_t wordOffsetInRegister = 0, const py::list& flaglist = py::list());
 
-    pybind11::array read(const std::string& registerPath, size_t numberOfElements = 0, size_t elementsOffset = 0,
-        const py::list& flaglist = py::list());
+    pybind11::array read(const std::string& registerPath, const py::object& dtype, size_t numberOfElements = 0,
+        size_t elementsOffset = 0, const py::list& flaglist = py::list());
 
     static void bind(py::module& mod);
 

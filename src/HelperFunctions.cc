@@ -5,11 +5,8 @@
 
 #include "PyVersionNumber.h"
 
-#include <ChimeraTK/SupportedUserTypes.h>
-
 #include <pybind11/embed.h>
 
-#include <iostream>
 #include <string>
 
 namespace py = pybind11;
@@ -107,7 +104,7 @@ namespace ChimeraTK {
 
   /*****************************************************************************************************************/
 
-  std::string convertStringFromPython(size_t linearIndex, pybind11::array& np_buffer) {
+  std::string convertStringFromPython(size_t linearIndex, const py::array& np_buffer) {
     // Note: it is unclear why the conversion in this direction has to be so complicated, while in the other
     // direction an assignment to an std::string is sufficient.
 

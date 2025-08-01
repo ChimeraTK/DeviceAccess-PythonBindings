@@ -6,6 +6,7 @@
 
 #include <ChimeraTK/NDRegisterAccessorAbstractor.h>
 #include <ChimeraTK/SupportedUserTypes.h>
+#include <ChimeraTK/VariantUserTypes.h>
 
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
@@ -36,7 +37,7 @@ namespace ChimeraTK {
     return copyUserBufferToNpArray<T>(self, np_buffer.dtype(), np_buffer.ndim());
   }
 
-  std::string convertStringFromPython(size_t linearIndex, pybind11::array& np_buffer);
+  std::string convertStringFromPython(size_t linearIndex, const pybind11::array& np_buffer);
 
   template<typename T>
   void copyNpArrayToUserBuffer(ChimeraTK::NDRegisterAccessorAbstractor<T>& self, pybind11::array& np_buffer);
