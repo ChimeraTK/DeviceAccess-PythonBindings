@@ -162,6 +162,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
       .def("getId", &ChimeraTK::VoidRegisterAccessor::getId)
       .def("getAccessModeFlagsString",
           DeviceAccessPython::GeneralRegisterAccessor<ChimeraTK::VoidRegisterAccessor>::getAccessModeFlagsString)
+      .def("interrupt", &ChimeraTK::VoidRegisterAccessor::interrupt)
       .def("read", DeviceAccessPython::VoidRegisterAccessor::read)
       .def("readLatest", DeviceAccessPython::VoidRegisterAccessor::readLatest)
       .def("readNonBlocking", DeviceAccessPython::VoidRegisterAccessor::readNonBlocking)
