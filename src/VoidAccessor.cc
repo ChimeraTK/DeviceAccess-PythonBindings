@@ -3,6 +3,13 @@
 
 #include "VoidAccessor.h"
 
+#include <ChimeraTK/cppext/finally.hpp>
+
+#include <boost/python/numpy.hpp>
+
+#include <ceval.h>
+#include <pytypedefs.h>
+
 namespace DeviceAccessPython {
 
   /********************************************************************************************************************/
@@ -20,7 +27,9 @@ namespace DeviceAccessPython {
   /********************************************************************************************************************/
 
   void VoidRegisterAccessor::read(ChimeraTK::VoidRegisterAccessor& self) {
-    return self.read();
+    PyThreadState* m_thread_state = PyEval_SaveThread();
+    auto _release = cppext::finally([&] { PyEval_RestoreThread(m_thread_state); });
+    self.read();
   }
 
   /********************************************************************************************************************/
