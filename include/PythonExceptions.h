@@ -25,4 +25,7 @@ namespace DeviceAccessPython {
   MTCA4U_PYTHON_EXCEPTION(ArrayOutOfBoundException)
   MTCA4U_PYTHON_EXCEPTION(ArrayElementTypeNotSupported)
 
+  //
+  class PyThreadInterruptedException : public std::exception {};
+
 } // namespace DeviceAccessPython

@@ -9,6 +9,7 @@
 #include "VoidAccessor.h"
 
 #include <boost/python/args.hpp>
+#include <boost/python/errors.hpp>
 #include <boost/python/numpy.hpp>
 
 // no ; at line endings to be able to reuse in .def format
@@ -117,6 +118,17 @@ namespace np = boost::python::numpy;
 
 // Auto-Overloading
 BOOST_PYTHON_FUNCTION_OVERLOADS(open_overloads, DeviceAccessPython::Device::open, 1, 2)
+
+/**********************************************************************************************************************/
+
+// Declare a Python exception object (will be initialized in module init)
+PyObject* py_thread_interrupted = nullptr;
+
+// Translator for boost::thread_interrupted exception
+void translateThreadInterrupted(boost::thread_interrupted const&) {
+  // Use the Python 'C' API to set up an exception object
+  PyErr_SetString(py_thread_interrupted, "Thread Interrupted");
+}
 
 /**********************************************************************************************************************/
 
@@ -258,4 +270,9 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::RegisterInfo>>();
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::DataDescriptor>>();
   bp::register_ptr_to_python<boost::shared_ptr<ChimeraTK::DataType>>();
+
+  py_thread_interrupted = PyErr_NewException("my_module.ThreadInterrupted", PyExc_Exception, nullptr);
+  bp::scope().attr("ThreadInterrupted") = bp::handle<>(bp::borrowed(py_thread_interrupted));
+
+  bp::register_exception_translator<boost::thread_interrupted>(&translateThreadInterrupted);
 }

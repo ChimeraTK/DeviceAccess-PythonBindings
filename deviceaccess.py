@@ -18,7 +18,7 @@ from __future__ import annotations
 from typing import Sequence, Union
 import _da_python_bindings as pb
 import numpy as np
-from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType
+from _da_python_bindings import AccessMode, DataValidity, TransferElementID, VersionNumber, FundamentalType, ThreadInterrupted
 import abc
 import functools
 
