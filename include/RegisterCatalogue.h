@@ -19,6 +19,8 @@ namespace DeviceAccessPython {
     static ChimeraTK::RegisterInfo getRegister(ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName);
 
     static boost::python::list items(ChimeraTK::RegisterCatalogue& self);
+
+    static boost::python::list hiddenRegisters(ChimeraTK::RegisterCatalogue& self);
   };
 
   /********************************************************************************************************************/
