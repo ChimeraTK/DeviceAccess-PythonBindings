@@ -189,6 +189,7 @@ BOOST_PYTHON_MODULE(_da_python_bindings) {
 
   bp::class_<ChimeraTK::RegisterCatalogue>("RegisterCatalogue", bp::init<ChimeraTK::RegisterCatalogue>())
       .def("_items", DeviceAccessPython::RegisterCatalogue::items)
+      .def("hiddenRegisters", DeviceAccessPython::RegisterCatalogue::hiddenRegisters)
       .def("hasRegister", DeviceAccessPython::RegisterCatalogue::hasRegister)
       .def("getRegister", DeviceAccessPython::RegisterCatalogue::getRegister);
 

@@ -29,9 +29,19 @@ namespace DeviceAccessPython {
   }
 
   /********************************************************************************************************************/
+
+  boost::python::list RegisterCatalogue::hiddenRegisters(ChimeraTK::RegisterCatalogue& self) {
+    boost::python::list registerInfos{};
+    for(const auto& regInfo : self.hiddenRegisters()) registerInfos.append(ChimeraTK::RegisterInfo(regInfo.clone()));
+    return registerInfos;
+  }
+
+  /********************************************************************************************************************/
+
   ChimeraTK::DataDescriptor RegisterInfo::getDataDescriptor(ChimeraTK::RegisterInfo& self) {
     return self.getDataDescriptor();
   }
+
   /********************************************************************************************************************/
 
   std::string RegisterInfo::getRegisterName(ChimeraTK::RegisterInfo& self) {
