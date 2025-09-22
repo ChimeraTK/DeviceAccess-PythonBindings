@@ -17,7 +17,7 @@ include(cmake/enable_code_style_check.cmake)
 # ==============================================================================#
 
 # Find dependencies
-find_package(ChimeraTK-DeviceAccess 03.14 REQUIRED)
+find_package(ChimeraTK-DeviceAccess 03.23 REQUIRED)
 
 find_package(Python 3 REQUIRED COMPONENTS Interpreter Development NumPy)
 
