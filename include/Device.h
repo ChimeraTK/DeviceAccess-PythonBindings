@@ -4,7 +4,10 @@
 
 #include <ChimeraTK/Device.h>
 
-#include <boost/python/numpy.hpp>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
 
 namespace DeviceAccessPython {
 
@@ -14,30 +17,30 @@ namespace DeviceAccessPython {
     static ChimeraTK::TwoDRegisterAccessor<double> getTwoDAccessor(
         const ChimeraTK::Device& self, const std::string& registerPath);
 
-    static ChimeraTK::AccessModeFlags convertFlagsFromPython(boost::python::list flaglist);
+    static ChimeraTK::AccessModeFlags convertFlagsFromPython(const py::list& flaglist);
 
     template<typename T>
     static ChimeraTK::TwoDRegisterAccessor<T> getGeneralTwoDAccessor(const ChimeraTK::Device& self,
-        const std::string& registerPath, size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist) {
+        const std::string& registerPath, size_t numberOfElements, size_t elementsOffset, const py::list& flaglist) {
       return self.getTwoDRegisterAccessor<T>(
           registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
     }
 
     template<typename T>
     static ChimeraTK::OneDRegisterAccessor<T> getGeneralOneDAccessor(const ChimeraTK::Device& self,
-        const std::string& registerPath, size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist) {
+        const std::string& registerPath, size_t numberOfElements, size_t elementsOffset, const py::list& flaglist) {
       return self.getOneDRegisterAccessor<T>(
           registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
     }
 
     template<typename T>
     static ChimeraTK::ScalarRegisterAccessor<T> getGeneralScalarAccessor(const ChimeraTK::Device& self,
-        const std::string& registerPath, size_t elementsOffset, boost::python::list flaglist) {
+        const std::string& registerPath, size_t elementsOffset, const py::list& flaglist) {
       return self.getScalarRegisterAccessor<T>(registerPath, elementsOffset, convertFlagsFromPython(flaglist));
     }
 
     static ChimeraTK::VoidRegisterAccessor getVoidRegisterAccessor(
-        const ChimeraTK::Device& self, const std::string& registerPath, boost::python::list flaglist);
+        const ChimeraTK::Device& self, const std::string& registerPath, const py::list& flaglist);
 
     template<typename T>
     static ChimeraTK::OneDRegisterAccessor<T> getOneDAccessor(const ChimeraTK::Device& self,
@@ -57,11 +60,11 @@ namespace DeviceAccessPython {
     static void activateAsyncRead(ChimeraTK::Device& self);
     static ChimeraTK::RegisterCatalogue getRegisterCatalogue(ChimeraTK::Device& self);
 
-    static void write(const ChimeraTK::Device& self, boost::python::numpy::ndarray& arr,
-        const std::string& registerPath, size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist);
+    static void write(const ChimeraTK::Device& self, py::array& arr, const std::string& registerPath,
+        size_t numberOfElements, size_t elementsOffset, const py::list& flaglist);
 
-    static boost::python::numpy::ndarray read(const ChimeraTK::Device& self, const std::string& registerPath,
-        size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist);
+    static pybind11::array read(const ChimeraTK::Device& self, const std::string& registerPath, size_t numberOfElements,
+        size_t elementsOffset, const py::list& flaglist);
   };
 
 } // namespace DeviceAccessPython

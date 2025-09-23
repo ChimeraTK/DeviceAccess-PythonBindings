@@ -4,26 +4,25 @@
 
 #include <ChimeraTK/RegisterCatalogue.h>
 
-#include <boost/python/list.hpp>
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
 
 namespace DeviceAccessPython {
 
-  /********************************************************************************************************************/
+  /*****************************************************************************************************************/
 
   /**
    * Map RegisterCatalogue class to avoid dealing with RegisterPath objects in Python
    */
   class RegisterCatalogue {
    public:
-    static bool hasRegister(ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName);
-    static ChimeraTK::RegisterInfo getRegister(ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName);
+    static py::list items(ChimeraTK::RegisterCatalogue& self);
 
-    static boost::python::list items(ChimeraTK::RegisterCatalogue& self);
-
-    static boost::python::list hiddenRegisters(ChimeraTK::RegisterCatalogue& self);
+    static py::list hiddenRegisters(ChimeraTK::RegisterCatalogue& self);
   };
 
-  /********************************************************************************************************************/
+  /*****************************************************************************************************************/
 
   class RegisterInfo {
    public:
@@ -33,10 +32,10 @@ namespace DeviceAccessPython {
     static ChimeraTK::DataDescriptor getDataDescriptor(ChimeraTK::RegisterInfo& self);
 
     // convert return type form ChimeraTK::AccessModeFlags to Python list
-    static boost::python::list getSupportedAccessModes(ChimeraTK::RegisterInfo& self);
+    static py::list getSupportedAccessModes(ChimeraTK::RegisterInfo& self);
   };
 
-  /********************************************************************************************************************/
+  /*****************************************************************************************************************/
 
   class DataDescriptor {
    public:
@@ -44,6 +43,6 @@ namespace DeviceAccessPython {
     static ChimeraTK::DataDescriptor::FundamentalType fundamentalType(ChimeraTK::DataDescriptor& self);
   };
 
-  /********************************************************************************************************************/
+  /*****************************************************************************************************************/
 
 } // namespace DeviceAccessPython
