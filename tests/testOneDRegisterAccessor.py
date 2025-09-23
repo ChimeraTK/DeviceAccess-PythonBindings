@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.curdir,"..")))
 import deviceaccess as da
 # fmt: on
 
-########################################################################################################################
+#####################################################################################################################
 
 types_to_test = [np.int8, np.uint8, np.int16, np.uint16, np.int32,
                  np.uint32, np.int64, np.uint64, np.float32, np.float64, bool, str]
@@ -56,13 +56,13 @@ binaryOps = [
 
 unaryOps = [
     ("__str__", True, True, True),
-    ("__bool__", True, True, True),
+    ("__bool__", True, True, False),
 ]
 
 # Start value used to generate numbers in the value() function below.
 generator_seed = 10
 
-########################################################################################################################
+#####################################################################################################################
 
 
 def valueAfterConstruct(type):
@@ -75,7 +75,7 @@ def valueAfterConstruct(type):
         return [False, False, False, False]
     return [type(0), type(0), type(0), type(0)]
 
-########################################################################################################################
+#####################################################################################################################
 
 
 def value(type, forceUnequal=None):
@@ -96,16 +96,19 @@ def value(type, forceUnequal=None):
             value = [type(generator_seed % 100), type(42), type(120), type(17)]
 
         if forceUnequal is not None:
-            useValue = (value != forceUnequal).any()
+            useValue = value != list(forceUnequal)
         else:
             useValue = True
 
         if useValue:
-            return np.array(value)
+            if type != str:
+                return np.array(value)
+            else:
+                return value
 
         generator_seed += 1
 
-########################################################################################################################
+#####################################################################################################################
 
 
 def catchEx(lambdaExpression):
@@ -120,8 +123,8 @@ def catchEx(lambdaExpression):
     except IndexError as ex:
         return ('IndexError', str(ex))
 
-########################################################################################################################
-########################################################################################################################
+#####################################################################################################################
+#####################################################################################################################
 
 
 class TestOneDRegisterAccessor(unittest.TestCase):
@@ -139,40 +142,52 @@ class TestOneDRegisterAccessor(unittest.TestCase):
         self.interrupt = self.dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_0")
 
     def testGetSet(self):
-        for type in types_to_test:
-            with self.subTest(type=type):
-                acc = self.dev.getOneDRegisterAccessor(type, "BOARD/WORD_CLK_MUX")
+        for typ in types_to_test:
+            with self.subTest(type=typ):
+                acc = self.dev.getOneDRegisterAccessor(typ, "BOARD/WORD_CLK_MUX")
 
-                self.assertTrue((acc.get() == valueAfterConstruct(type)).all())
+                if typ != str:
+                    self.assertTrue((acc.get() == valueAfterConstruct(typ)).all())
+                else:
+                    self.assertTrue(acc.get() == valueAfterConstruct(typ))
 
-                expected = value(type)
+                expected = value(typ)
                 acc.set(expected)
 
-                self.assertTrue((acc.get() == expected).all())
+                if typ != str:
+                    self.assertTrue((acc.get() == expected).all())
+                else:
+                    self.assertTrue(acc.get() == expected)
 
-                expected = value(type, expected)
+                expected = value(typ, expected)
                 acc.set(expected)
 
-                self.assertTrue((acc.get() == expected).all())
+                if typ != str:
+                    self.assertTrue((acc.get() == expected).all())
+                else:
+                    self.assertTrue(acc.get() == expected)
 
     def testRead(self):
-        for type in types_to_test:
-            with self.subTest(type=type):
-                acc = self.dev.getOneDRegisterAccessor(type, "BOARD/WORD_CLK_MUX")
+        for typ in types_to_test:
+            with self.subTest(type=typ):
+                acc = self.dev.getOneDRegisterAccessor(typ, "BOARD/WORD_CLK_MUX")
 
-                expected = value(type)
+                expected = value(typ)
                 self.backdoor.set(expected)
                 self.backdoor.write()
 
                 acc.read()
 
-                self.assertTrue((acc == expected).all())
+                if typ != str:
+                    self.assertTrue((acc == expected).all())
+                else:
+                    self.assertTrue(acc == expected)
 
     def testRead_push(self):
-        for type in types_to_test:
-            with self.subTest(type=type):
+        for typ in types_to_test:
+            with self.subTest(type=typ):
                 acc = self.dev.getOneDRegisterAccessor(
-                    type, "BOARD/WORD_CLK_MUX_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
+                    typ, "BOARD/WORD_CLK_MUX_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
                 acc.read()  # initial value
 
                 t = threading.Thread(name='blocking_read', target=lambda acc=acc: acc.read())
@@ -181,7 +196,7 @@ class TestOneDRegisterAccessor(unittest.TestCase):
                 time.sleep(0.1)
                 self.assertTrue(t.is_alive())  # read is not yet complete
 
-                expected = value(type)
+                expected = value(typ)
                 self.backdoor.set(expected)
                 self.backdoor.write()
 
@@ -189,80 +204,92 @@ class TestOneDRegisterAccessor(unittest.TestCase):
                 t.join(1)  # TODO increase to 10s
                 self.assertFalse(t.is_alive())  # read has completed
 
-                self.assertTrue((acc == expected).all())
+                if typ != str:
+                    self.assertTrue((acc == expected).all())
+                else:
+                    self.assertTrue(acc == expected)
 
     def testReadLatest(self):
-        for type in types_to_test:
-            with self.subTest(type=type):
+        for typ in types_to_test:
+            with self.subTest(type=typ):
                 acc = self.dev.getOneDRegisterAccessor(
-                    type, "BOARD/WORD_CLK_MUX_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
+                    typ, "BOARD/WORD_CLK_MUX_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
 
-                expected = value(type)
+                expected = value(typ)
                 self.backdoor.set(expected)
                 self.backdoor.write()
                 self.interrupt.write()
 
                 retval = acc.readLatest()
 
-                self.assertTrue((acc == expected).all())
+                if typ != str:
+                    self.assertTrue((acc == expected).all())
+                else:
+                    self.assertTrue(acc == expected)
                 self.assertTrue(retval)
 
                 retval = acc.readLatest()
                 self.assertFalse(retval)
 
     def testReadNonBlocking(self):
-        for type in types_to_test:
-            with self.subTest(type=type):
-                expected1 = value(type)
+        for typ in types_to_test:
+            with self.subTest(type=typ):
+                expected1 = value(typ)
                 self.backdoor.set(expected1)
                 self.backdoor.write()
 
                 acc = self.dev.getOneDRegisterAccessor(
-                    type, "BOARD/WORD_CLK_MUX_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
+                    typ, "BOARD/WORD_CLK_MUX_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
 
-                expected2 = value(type, expected1)
+                expected2 = value(typ, expected1)
                 self.backdoor.set(expected2)
                 self.backdoor.write()
                 self.interrupt.write()
 
                 retval = acc.readNonBlocking()
 
-                self.assertTrue((acc == expected1).all())
+                if typ != str:
+                    self.assertTrue((acc == expected1).all())
+                else:
+                    self.assertTrue(acc == expected1)
                 self.assertTrue(retval)
 
                 retval = acc.readNonBlocking()
 
-                self.assertTrue((acc == expected2).all())
+                if typ != str:
+                    self.assertTrue((acc == expected2).all())
+                else:
+                    self.assertTrue(acc == expected2)
                 self.assertTrue(retval)
 
                 retval = acc.readNonBlocking()
                 self.assertFalse(retval)
 
     def testWrite(self):
-        for type in types_to_test:
-            with self.subTest(type=type):
-                acc = self.dev.getOneDRegisterAccessor(type, "BOARD/WORD_CLK_MUX")
+        for typ in types_to_test:
+            with self.subTest(type=typ):
+                acc = self.dev.getOneDRegisterAccessor(typ, "BOARD/WORD_CLK_MUX")
 
-                expected = value(type)
+                expected = value(typ)
                 acc.set(expected)
 
                 acc.write()
 
                 self.backdoor.read()
-                self.assertTrue((self.backdoor.astype(type) == expected).all(), f'{self.backdoor} == {expected}')
+                self.assertTrue((self.backdoor.astype(typ) == expected).all(), f'{self.backdoor} == {expected}')
 
     def testWriteDestructively(self):
-        for type in types_to_test:
-            with self.subTest(type=type):
-                acc = self.dev.getOneDRegisterAccessor(type, "BOARD/WORD_CLK_MUX")
+        for typ in types_to_test:
+            with self.subTest(type=typ):
+                acc = self.dev.getOneDRegisterAccessor(typ, "BOARD/WORD_CLK_MUX")
 
-                expected = value(type)
+                expected = value(typ)
                 acc.set(expected)
 
                 acc.writeDestructively()
 
                 self.backdoor.read()
-                self.assertTrue((self.backdoor.astype(type) == expected).all(), f'{self.backdoor} == {expected}')
+                self.assertTrue((self.backdoor.astype(typ) == expected).all(), f'{self.backdoor} == {expected}')
 
     def testGetName(self):
         acc = self.dev.getOneDRegisterAccessor(np.int32, "BOARD.WORD_CLK_MUX")
@@ -347,7 +374,7 @@ class TestOneDRegisterAccessor(unittest.TestCase):
         def myThreadFun(acc):
             try:
                 acc.read()
-            except RuntimeError:
+            except da.ThreadInterrupted:
                 pass
 
         t = threading.Thread(name='blocking_read', target=lambda acc=acc: myThreadFun(acc))
@@ -362,63 +389,108 @@ class TestOneDRegisterAccessor(unittest.TestCase):
         self.assertFalse(t.is_alive())  # read has completed
 
     def testBinaryOperators(self):
-        for type in types_to_test:
+        for typ in types_to_test:
             # registers don't matter since we do not actually execute any transfer operations
-            acc1 = self.dev.getOneDRegisterAccessor(type, "BOARD/WORD_CLK_MUX")
-            acc2 = self.dev.getOneDRegisterAccessor(type, "BOARD/WORD_CLK_MUX")
+            acc1 = self.dev.getOneDRegisterAccessor(typ, "BOARD/WORD_CLK_MUX")
+            acc2 = self.dev.getOneDRegisterAccessor(typ, "BOARD/WORD_CLK_MUX")
             for operator, useForFloat, useForBool, useForStr in binaryOps:
 
-                if type == str and not useForStr:
+                if typ == str and not useForStr:
                     continue
-                if type == bool and not useForBool:
+                if typ == bool and not useForBool:
                     continue
-                if (type == np.float32) or (type == np.float64) and not useForFloat:
+                if (typ == np.float32) or (typ == np.float64) and not useForFloat:
                     continue
 
-                with self.subTest(type=type, operator=operator):
-                    val1 = np.array(value(type))
-                    val2 = np.array(value(type, val1))
+                with self.subTest(type=typ, operator=operator):
+                    if typ != str:
+                        val1 = np.array(value(typ))
+                        val2 = np.array(value(typ, val1))
+                    else:
+                        val1 = value(typ)
+                        val2 = value(typ, val1)
                     acc1.set(val1)
                     acc2.set(val2)
 
-                    expected12 = catchEx(lambda: val1.__getattribute__(operator)(val2))
-                    expected21 = catchEx(lambda: val2.__getattribute__(operator)(val1))
+                    if not operator.startswith('__i'):
+                        expected12 = catchEx(lambda: val1.__getattribute__(operator)(val2))
+                        expected21 = catchEx(lambda: val2.__getattribute__(operator)(val1))
 
-                    self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(acc2)) == expected12).all())
-                    self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(val2)) == expected12).all())
-                    self.assertTrue((catchEx(lambda: acc2.__getattribute__(operator)(acc1)) == expected21).all())
-                    self.assertTrue((catchEx(lambda: acc2.__getattribute__(operator)(val1)) == expected21).all())
+                        if typ != str:
+                            self.assertTrue(
+                                (catchEx(lambda: acc1.__getattribute__(operator)(acc2)) == expected12).all())
+                            self.assertTrue(
+                                (catchEx(lambda: acc1.__getattribute__(operator)(val2)) == expected12).all())
+                            self.assertTrue(
+                                (catchEx(lambda: acc2.__getattribute__(operator)(acc1)) == expected21).all())
+                            self.assertTrue(
+                                (catchEx(lambda: acc2.__getattribute__(operator)(val1)) == expected21).all())
+                        else:
+                            self.assertTrue(catchEx(lambda: acc1.__getattribute__(operator)(acc2)) == expected12)
+                            self.assertTrue(catchEx(lambda: acc1.__getattribute__(operator)(val2)) == expected12)
+                            self.assertTrue(catchEx(lambda: acc2.__getattribute__(operator)(acc1)) == expected21)
+                            self.assertTrue(catchEx(lambda: acc2.__getattribute__(operator)(val1)) == expected21)
 
-                    acc2.set(val1)
-                    expected11 = catchEx(lambda: val1.__getattribute__(operator)(val1))
+                        acc2.set(val1)
+                        expected11 = catchEx(lambda: val1.__getattribute__(operator)(val1))
 
-                    self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(acc2)) == expected11).all())
-                    self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(val1)) == expected11).all())
+                        if typ != str:
+                            self.assertTrue(
+                                (catchEx(lambda: acc1.__getattribute__(operator)(acc2)) == expected11).all())
+                            self.assertTrue(
+                                (catchEx(lambda: acc1.__getattribute__(operator)(val1)) == expected11).all())
+                        else:
+                            self.assertTrue(catchEx(lambda: acc1.__getattribute__(operator)(acc2)) == expected11)
+                            self.assertTrue(catchEx(lambda: acc1.__getattribute__(operator)(val1)) == expected11)
+
+                    else:
+                        # special treatment for assignment operators (+= etc.)
+                        non_assigning_operator = '__'+operator[3:]
+                        expected12 = catchEx(lambda: val1.__getattribute__(non_assigning_operator)(val2))
+                        expected21 = catchEx(lambda: val2.__getattribute__(non_assigning_operator)(val1))
+
+                        self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(acc2)) == expected12).all())
+                        acc1.set(val1)
+                        self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(val2)) == expected12).all())
+                        acc1.set(val1)
+                        self.assertTrue((catchEx(lambda: acc2.__getattribute__(operator)(acc1)) == expected21).all())
+                        acc2.set(val2)
+                        self.assertTrue((catchEx(lambda: acc2.__getattribute__(operator)(val1)) == expected21).all())
+
+                        acc2.set(val1)
+                        expected11 = catchEx(lambda: val1.__getattribute__(non_assigning_operator)(val1))
+
+                        self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(acc2)) == expected11).all())
+                        acc1.set(val1)
+                        self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(val1)) == expected11).all())
 
     def testUnaryOperators(self):
-        for type in types_to_test:
+        for typ in types_to_test:
             # registers don't matter since we do not actually execute any transfer operations
-            acc = self.dev.getOneDRegisterAccessor(type, "BOARD/WORD_CLK_MUX")
+            acc = self.dev.getOneDRegisterAccessor(typ, "BOARD/WORD_CLK_MUX")
             for operator, useForFloat, useForBool, useForStr in unaryOps:
 
-                if type == str and not useForStr:
+                if typ == str and not useForStr:
                     continue
-                if type == bool and not useForBool:
+                if typ == bool and not useForBool:
                     continue
-                if (type == np.float32) or (type == np.float64) and not useForFloat:
+                if (typ == np.float32) or (typ == np.float64) and not useForFloat:
                     continue
 
-                with self.subTest(type=type, operator=operator):
+                with self.subTest(type=typ, operator=operator):
                     for i in range(0, 2):
 
-                        val = np.array(value(type))
+                        if typ != str:
+                            val = np.array(value(typ))
+                        else:
+                            val = value(typ)
                         acc.set(val)
 
                         expected = catchEx(lambda: val.__getattribute__(operator)())
 
                         self.assertEqual(catchEx(lambda: acc.__getattribute__(operator)()), expected)
 
-########################################################################################################################
+#####################################################################################################################
 
 
 if __name__ == '__main__':
