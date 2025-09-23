@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
-import _da_python_bindings as mtca4udeviceaccess  # alias quick fix
+import deviceaccess
 import numpy
 import sys
 
@@ -62,7 +62,7 @@ def set_dmap_location(dmapFileLocation):
 
     """
     # os.environ["DMAP_FILE"] = dmapFileLocation
-    mtca4udeviceaccess.setDmapFile(dmapFileLocation)
+    deviceaccess.setDMapFilePath(dmapFileLocation)
 
 
 def get_dmap_location():
@@ -92,7 +92,7 @@ def get_dmap_location():
     Device : Open device using specified alias names or using device id and mapfile
 
     """
-    return mtca4udeviceaccess.getDmapFile()
+    return deviceaccess.getDMapFilePath()
 
 
 class Device:
@@ -113,25 +113,9 @@ class Device:
       >>> device = mtca4u.Device("my_card") # my_card is a alias in my_example_dmap_file.dmap
     """
 
-    def __init__(self, *args):
-        # define a dictiWe do not wantonary to hold multiplexed data accessors
-        # TODO: Limit the number of entries this dictionary can hold,
-        # We do not want to hold on to too much ram
-        self.__accsessor_dictionary = {}
-
-        if len(args) == 2:
-            deviceFile = args[0]
-            mapFile = args[1]
-            self.__printDeprecationWarning(deviceFile, mapFile)
-            raise SyntaxError("Syntax error.")
-
-        elif len(args) == 1:
-            cardAlias = args[0]
-            self.__openedDevice = mtca4udeviceaccess.createDevice(cardAlias)
-
-        else:
-            raise SyntaxError(
-                "Syntax Error: please see help(mtca4u.Device) for usage instructions.")
+    def __init__(self, cddOrAlias):
+        self.__openedDevice = deviceaccess.Device(cddOrAlias)
+        self.__openedDevice.open()
 
     def read(self, moduleName="", registerName=None, numberOfElementsToRead=0,
              elementIndexInRegister=0, registerPath=None):
@@ -225,13 +209,11 @@ class Device:
         """
         if registerPath is None:
             registerPath = '/' + moduleName + '/' + registerName
-        registerAccessor = self.__openedDevice.getOneDAccessor_double(registerPath,
-                                                                      numberOfElementsToRead,
-                                                                      elementIndexInRegister, [])
-
-        registerSize = registerAccessor.getNElements()
-        array = numpy.empty(registerSize, numpy.double)
-        return registerAccessor.read(array)
+        val = self.__openedDevice.read(registerPath, numberOfWords=numberOfElementsToRead,
+                                       wordOffsetInRegister=elementIndexInRegister)
+        if isinstance(val, numpy.ndarray):
+            return val.astype(numpy.float64)
+        return numpy.asarray([val]).astype(numpy.float64)
 
     def write(self, moduleName="", registerName=None, dataToWrite=None,
               elementIndexInRegister=0, registerPath=None):
@@ -309,31 +291,10 @@ class Device:
         Device.write_raw : Write 'raw' bit values to a device register
 
         """
-        # get register accessor
-        data = numpy.array(dataToWrite)
-        numberOfElementsToWrite = data.size
-        if numberOfElementsToWrite == 0:
-            return
         if registerPath is None:
             registerPath = '/' + moduleName + '/' + registerName
-        arguments = (registerPath,
-                     numberOfElementsToWrite,
-                     elementIndexInRegister, [])
-
-        device = self.__openedDevice
-        dtype = data.dtype
-        if (dtype == numpy.int32):
-            accessor = device.getOneDAccessor_int32(*arguments)
-        elif (dtype == numpy.int64):
-            accessor = device.getOneDAccessor_int64(*arguments)
-        elif (dtype == numpy.float32):
-            accessor = device.getOneDAccessor_float(*arguments)
-        elif (dtype == numpy.float64):
-            accessor = device.getOneDAccessor_double(*arguments)
-        else:
-            raise RuntimeError("Data format used is unsupported")
-
-        accessor.write(data)
+        self.__openedDevice.write(
+            registerPath, dataToWrite=dataToWrite, wordOffsetInRegister=elementIndexInRegister)
 
     def read_raw(self, moduleName='', registerName=None, numberOfElementsToRead=0,
                  elementIndexInRegister=0, registerPath=None):
@@ -418,13 +379,11 @@ class Device:
         """
         if registerPath is None:
             registerPath = '/' + moduleName + '/' + registerName
-        # legacy implemention is done with int32
-        registerAccessor = self.__openedDevice.getOneDAccessor_int32(
-            registerPath, numberOfElementsToRead, elementIndexInRegister, [
-                mtca4udeviceaccess.AccessMode.raw])
-        registerSize = registerAccessor.getNElements()
-        array = numpy.empty(registerSize, numpy.int32)
-        return registerAccessor.read(array)
+        val = self.__openedDevice.read(registerPath, numberOfWords=numberOfElementsToRead, dtype=numpy.int32,
+                                       wordOffsetInRegister=elementIndexInRegister, accessModeFlags=[deviceaccess.AccessMode.raw])
+        if isinstance(val, numpy.ndarray):
+            return val
+        return numpy.asarray([val])
 
     def write_raw(self, moduleName='', registerName=None, dataToWrite=None,
                   elementIndexInRegister=0, registerPath=None):
@@ -487,21 +446,10 @@ class Device:
         Device.write : Write values that get fixed point converted to the device
 
         """
-
-        self.__checkAndExitIfArrayNotInt32(dataToWrite)
-
-        numberOfElementsToWrite = dataToWrite.size
-        if numberOfElementsToWrite == 0:
-            return
-
         if registerPath is None:
             registerPath = '/' + moduleName + '/' + registerName
-
-        # old binding:
-        # accessor = self.__openedDevice.getRaw1DAccessor(registerPath, numberOfElementsToWrite, elementIndexInRegister)
-        accessor = self.__openedDevice.getOneDAccessor_int32(
-            registerPath, numberOfElementsToWrite, elementIndexInRegister, [mtca4udeviceaccess.AccessMode.raw])
-        accessor.write(dataToWrite)
+        self.__openedDevice.write(registerPath, dataToWrite=dataToWrite,
+                                  wordOffsetInRegister=elementIndexInRegister, accessModeFlags=[deviceaccess.AccessMode.raw], dtype=numpy.int32)
 
     def read_dma_raw(self, moduleName='', DMARegisterName=None,
                      numberOfElementsToRead=0, elementIndexInRegister=0,
@@ -627,17 +575,10 @@ class Device:
 
         if registerPath is None:
             registerPath = '/' + moduleName + '/' + regionName
-        # accessor = self.__openedDevice.get2DAccessor(registerPath) # old
-        accessor = self.__openedDevice.getTwoDAccessor_double(
-            registerPath, 0, 0, [])
-
-        # readFromDevice fetches data from the card to its intenal buffer of the
-        # c++ accessor
-        numberOfSequences = accessor.getNChannels()
-        numberOfBlocks = accessor.getNElementsPerChannel()
-        array2D = self.__create2DArray(numpy.double, numberOfSequences, numberOfBlocks)
-
-        return numpy.transpose(accessor.read(array2D))
+        accessor = self.__openedDevice.getTwoDRegisterAccessor(
+            numpy.float64, registerPath)
+        accessor.read()
+        return accessor.get().transpose()
 
     def getCatalogueMetadata(self, parameterName):
         """ Reads out metadata form the device catalogue
@@ -657,98 +598,3 @@ class Device:
 
         """
         return self.__openedDevice.getCatalogueMetadata(parameterName)
-
-# Helper methods below
-
-    def __exitIfSuppliedIndexIncorrect(self, registerAccessor, elementIndexInRegister):
-        registerSize = registerAccessor.getNumElements()
-        if elementIndexInRegister >= registerSize:
-            if registerSize == 1:
-                # did this for displaying specific error string without the range when
-                # there is only one element in the register
-                errorString = "Element index: {0} incorrect. Valid index is {1}"\
-                    .format(elementIndexInRegister, registerSize - 1)
-            else:
-                errorString = "Element index: {0} incorrect. Valid index range is [0-{1}]"\
-                    .format(elementIndexInRegister, registerSize - 1)
-
-            raise ValueError(errorString)
-
-    def __checkAndExitIfArrayNotFloat32(self, dataToWrite):
-        self.__raiseExceptionIfNumpyArraydTypeIncorrect(
-            dataToWrite, numpy.float32)
-
-    def __checkAndExitIfArrayNotInt32(self, dataToWrite):
-        self.__raiseExceptionIfNumpyArraydTypeIncorrect(
-            dataToWrite, numpy.int32)
-
-    def __raiseExceptionIfNumpyArraydTypeIncorrect(self, numpyArray, dType):
-        if ((not isinstance(numpyArray, numpy.ndarray)) or
-           (numpyArray.dtype != dType)):
-            raise TypeError("Method expects values in a {0} "
-                            " numpy.array".format(dType))
-
-    def __getCorrectedElementCount(self, elementCountInRegister, numberOfelements,
-                                   elementOffset):
-        elementCountInRegister  # =  registerAccessor.getNumElements()
-        maxFetchableElements = elementCountInRegister - elementOffset
-        correctedElementCount = numberOfelements if (
-            numberOfelements != 0 and numberOfelements <= maxFetchableElements) else maxFetchableElements
-        return correctedElementCount
-
-    def __createArray(self, dType, numberOfElementsInRegister, numberOfElementsToRead,
-                      elementIndexInRegister):
-        size = self.__getCorrectedElementCount(numberOfElementsInRegister,
-                                               numberOfElementsToRead,
-                                               elementIndexInRegister)
-        array = numpy.empty(size, dtype=dType)
-        return array
-
-    def __create2DArray(self, dType, numberOfRows, numberOfColumns):
-        array2D = numpy.empty((numberOfRows, numberOfColumns), dtype=dType)
-        return array2D
-
-    def __printDeprecationWarning(self, deviceFile, mapFile):
-        deviceFileName = self.__extractNameFromDeviceFile(deviceFile)
-
-        print("*************************************************************************************************")
-        print(" >>> mtca4u.Device('" + deviceFile + "', '" + mapFile + "')")
-        print(" ERROR: The above usage for device creation has been phased out!")
-        print(
-            "                                                                            ")
-        print(
-            " Please consider using a dmap file for device creation.                     ")
-        print(
-            " Instructions:                                                              ")
-        print(
-            " - Create dmap file: <your_dmapfile_name_goes_here>.dmap                    ")
-        print(
-            "                                                                            ")
-        print(
-            " - Add this line to your dmap file:                                         ")
-        print("     <your_card_alias_goes_here> sdm://./pci:" +
-              deviceFileName + "; " + mapFile)
-        print(
-            "                                                                            ")
-        print(
-            " - Tell the library about the dmap file                                     ")
-        print(
-            "     >>> mtca4u.set_dmap_location('your_dmapfile_name.dmap')                ")
-        print(
-            "                                                                            ")
-        print(
-            " - Create your device                                                       ")
-        print(
-            "     >>> device = mtca4u.Device('your_card_alias')                          ")
-        print(
-            "                                                                            ")
-        print(
-            " Alternatively, you can pass the sdm string directly in place of the alias  ")
-        print(
-            " name, if it includes the map file name, e.g.:                              ")
-        print("   sdm://./pci:" + deviceFileName + "=" + mapFile)
-        print("*************************************************************************************************")
-
-    def __extractNameFromDeviceFile(self, deviceFile):
-        index = (deviceFile.rfind('/')) + 1
-        return deviceFile[index:]

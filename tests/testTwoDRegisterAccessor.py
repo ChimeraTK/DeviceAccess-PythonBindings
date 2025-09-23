@@ -17,10 +17,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.curdir,"..")))
 import deviceaccess as da
 # fmt: on
 
-########################################################################################################################
+#####################################################################################################################
 
 types_to_test = [np.int8, np.uint8, np.int16, np.uint16, np.int32,
-                 np.uint32, np.int64, np.uint64, np.float32, np.float64, bool, str]
+                 np.uint32, np.int64, np.uint64, np.float32, np.float64, bool]
 
 
 # Triplet of operator, useForFloat, useForBool, useForStr
@@ -56,13 +56,13 @@ binaryOps = [
 
 unaryOps = [
     ("__str__", True, True, True),
-    ("__bool__", True, True, True),
+    ("__bool__", True, True, False),
 ]
 
 # Start value used to generate numbers in the value() function below.
 generator_seed = 10
 
-########################################################################################################################
+#####################################################################################################################
 
 
 def valueAfterConstruct(type):
@@ -75,7 +75,7 @@ def valueAfterConstruct(type):
         return [[False, False, False, False, False, False], [False, False, False, False, False, False], [False, False, False, False, False, False], [False, False, False, False, False, False]]
     return [[type(0), type(0), type(0), type(0), type(0), type(0)], [type(0), type(0), type(0), type(0), type(0), type(0)], [type(0), type(0), type(0), type(0), type(0), type(0)], [type(0), type(0), type(0), type(0), type(0), type(0)]]
 
-########################################################################################################################
+#####################################################################################################################
 
 
 def value(type, forceUnequal=None):
@@ -108,7 +108,7 @@ def value(type, forceUnequal=None):
 
         generator_seed += 1
 
-########################################################################################################################
+#####################################################################################################################
 
 
 def catchEx(lambdaExpression):
@@ -123,8 +123,8 @@ def catchEx(lambdaExpression):
     except IndexError as ex:
         return ('IndexError', str(ex))
 
-########################################################################################################################
-########################################################################################################################
+#####################################################################################################################
+#####################################################################################################################
 
 
 class TestTwoDRegisterAccessor(unittest.TestCase):
@@ -161,10 +161,6 @@ class TestTwoDRegisterAccessor(unittest.TestCase):
     def testRead(self):
         for type in types_to_test:
             with self.subTest(type=type):
-                if type == str:
-                    print('========= SKIPPING TEST as it would fail!', flush=True)
-                    continue
-
                 acc = self.dev.getTwoDRegisterAccessor(type, "BOARD.DMA")
 
                 expected = value(type)
@@ -178,10 +174,6 @@ class TestTwoDRegisterAccessor(unittest.TestCase):
     def testRead_push(self):
         for type in types_to_test:
             with self.subTest(type=type):
-                if type == str:
-                    print('========= SKIPPING TEST as it would fail!', flush=True)
-                    continue
-
                 acc = self.dev.getTwoDRegisterAccessor(
                     type, "BOARD.DMA_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
                 acc.read()  # initial value
@@ -205,10 +197,6 @@ class TestTwoDRegisterAccessor(unittest.TestCase):
     def testReadLatest(self):
         for type in types_to_test:
             with self.subTest(type=type):
-                if type == str:
-                    print('========= SKIPPING TEST as it would fail!', flush=True)
-                    continue
-
                 acc = self.dev.getTwoDRegisterAccessor(
                     type, "BOARD.DMA_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
 
@@ -228,10 +216,6 @@ class TestTwoDRegisterAccessor(unittest.TestCase):
     def testReadNonBlocking(self):
         for type in types_to_test:
             with self.subTest(type=type):
-                if type == str:
-                    print('========= SKIPPING TEST as it would fail!', flush=True)
-                    continue
-
                 expected1 = value(type)
                 self.backdoor.set(expected1)
                 self.backdoor.write()
@@ -260,10 +244,6 @@ class TestTwoDRegisterAccessor(unittest.TestCase):
     def testWrite(self):
         for type in types_to_test:
             with self.subTest(type=type):
-                if type == str:
-                    print('========= SKIPPING TEST as it would fail!', flush=True)
-                    continue
-
                 acc = self.dev.getTwoDRegisterAccessor(type, "BOARD.DMA")
 
                 expected = value(type)
@@ -277,10 +257,6 @@ class TestTwoDRegisterAccessor(unittest.TestCase):
     def testWriteDestructively(self):
         for type in types_to_test:
             with self.subTest(type=type):
-                if type == str:
-                    print('========= SKIPPING TEST as it would fail!', flush=True)
-                    continue
-
                 acc = self.dev.getTwoDRegisterAccessor(type, "BOARD.DMA")
 
                 expected = value(type)
@@ -375,7 +351,7 @@ class TestTwoDRegisterAccessor(unittest.TestCase):
         def myThreadFun(acc):
             try:
                 acc.read()
-            except RuntimeError:
+            except da.ThreadInterrupted:
                 pass
 
         t = threading.Thread(name='blocking_read', target=lambda acc=acc: myThreadFun(acc))
@@ -409,19 +385,41 @@ class TestTwoDRegisterAccessor(unittest.TestCase):
                     acc1.set(val1)
                     acc2.set(val2)
 
-                    expected12 = catchEx(lambda: val1.__getattribute__(operator)(val2))
-                    expected21 = catchEx(lambda: val2.__getattribute__(operator)(val1))
+                    if not operator.startswith('__i'):
+                        expected12 = catchEx(lambda: val1.__getattribute__(operator)(val2))
+                        expected21 = catchEx(lambda: val2.__getattribute__(operator)(val1))
 
-                    self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(acc2)) == expected12).all())
-                    self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(val2)) == expected12).all())
-                    self.assertTrue((catchEx(lambda: acc2.__getattribute__(operator)(acc1)) == expected21).all())
-                    self.assertTrue((catchEx(lambda: acc2.__getattribute__(operator)(val1)) == expected21).all())
+                        self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(acc2)) == expected12).all())
+                        self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(val2)) == expected12).all())
+                        self.assertTrue((catchEx(lambda: acc2.__getattribute__(operator)(acc1)) == expected21).all())
+                        self.assertTrue((catchEx(lambda: acc2.__getattribute__(operator)(val1)) == expected21).all())
 
-                    acc2.set(val1)
-                    expected11 = catchEx(lambda: val1.__getattribute__(operator)(val1))
+                        acc2.set(val1)
+                        expected11 = catchEx(lambda: val1.__getattribute__(operator)(val1))
 
-                    self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(acc2)) == expected11).all())
-                    self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(val1)) == expected11).all())
+                        self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(acc2)) == expected11).all())
+                        self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(val1)) == expected11).all())
+
+                    else:
+                        # special treatment for assignment operators (+= etc.)
+                        non_assigning_operator = '__'+operator[3:]
+                        expected12 = catchEx(lambda: val1.__getattribute__(non_assigning_operator)(val2))
+                        expected21 = catchEx(lambda: val2.__getattribute__(non_assigning_operator)(val1))
+
+                        self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(acc2)) == expected12).all())
+                        acc1.set(val1)
+                        self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(val2)) == expected12).all())
+                        acc1.set(val1)
+                        self.assertTrue((catchEx(lambda: acc2.__getattribute__(operator)(acc1)) == expected21).all())
+                        acc2.set(val2)
+                        self.assertTrue((catchEx(lambda: acc2.__getattribute__(operator)(val1)) == expected21).all())
+
+                        acc2.set(val1)
+                        expected11 = catchEx(lambda: val1.__getattribute__(non_assigning_operator)(val1))
+
+                        self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(acc2)) == expected11).all())
+                        acc1.set(val1)
+                        self.assertTrue((catchEx(lambda: acc1.__getattribute__(operator)(val1)) == expected11).all())
 
     def testUnaryOperators(self):
         for type in types_to_test:
@@ -446,7 +444,7 @@ class TestTwoDRegisterAccessor(unittest.TestCase):
 
                         self.assertEqual(catchEx(lambda: acc.__getattribute__(operator)()), expected)
 
-########################################################################################################################
+#####################################################################################################################
 
 
 if __name__ == '__main__':
