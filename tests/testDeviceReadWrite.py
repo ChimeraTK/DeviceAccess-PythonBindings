@@ -82,6 +82,14 @@ class TestDeviceReadWrite(unittest.TestCase):
         for pair in zip(self.oneD_int32_acc, oneDTestArray):
             self.assertEqual(pair[0], pair[1])
 
+        # check using offset in register
+        oneDTestArray = [10, 25, 42, -8]
+        self.dev.write("INT32_TEST/1DARRAY", 42, 2)
+        self.oneD_int32_acc.read()
+
+        for pair in zip(self.oneD_int32_acc, oneDTestArray):
+            self.assertEqual(pair[0], pair[1])
+
 
 if __name__ == '__main__':
     unittest.main()

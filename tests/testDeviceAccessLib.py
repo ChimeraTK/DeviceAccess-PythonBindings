@@ -17,7 +17,6 @@ from time import sleep
 # so the import is not sorted into the others.
 sys.path.insert(0, os.path.abspath(os.path.join(os.curdir,"..")))
 import deviceaccess as da
-import _da_python_bindings as pb
 # fmt: on
 
 

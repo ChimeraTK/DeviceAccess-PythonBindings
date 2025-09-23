@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# A helper script to have fallback in case stubgen is too old to know the docstrings option.
+# The output is not particularly useful, but it allows the build process to run through.
+${STUBGEN} --include-docstrings -m deviceaccess -o .
+if [ $? -ne 0 ]; then
+    echo WARNING: Running stubgen without docstrings!
+    ${STUBGEN} -m deviceaccess -o .
+fi
