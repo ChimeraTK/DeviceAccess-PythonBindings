@@ -110,6 +110,7 @@ PYBIND11_MODULE(_da_python_bindings, m) {
 
   py::class_<ChimeraTK::RegisterPath>(m, "RegisterPath")
       .def(py::init<ChimeraTK::RegisterPath>())
+      .def(py::init<const std::string&>(), py::arg("s"))
       .def("__str__", &ChimeraTK::RegisterPath::operator std::string)
       .def("setAltSeparator", &ChimeraTK::RegisterPath::setAltSeparator)
       .def("getWithAltSeparator", &ChimeraTK::RegisterPath::getWithAltSeparator)
@@ -126,6 +127,8 @@ PYBIND11_MODULE(_da_python_bindings, m) {
       .def("__eq__",
           [](const ChimeraTK::RegisterPath& self, const ChimeraTK::RegisterPath& other) { return self == other; })
       .def("__eq__", [](const ChimeraTK::RegisterPath& self, const std::string& other) { return self == other; });
+
+  py::implicitly_convertible<std::string, ChimeraTK::RegisterPath>();
 
   // Map the boost::thread_interrupted exception. We cannot use py::register_exception because there is no what().
   static py::exception<boost::thread_interrupted> exc(m, "ThreadInterrupted");
