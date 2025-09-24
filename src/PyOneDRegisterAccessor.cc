@@ -14,7 +14,7 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  size_t PyOneDRegisterAccessor::getNElements() {
+  size_t PyOneDRegisterAccessor::getNElements() const {
     size_t rv;
     std::visit([&](auto& acc) { rv = acc.getNElements(); }, _accessor);
     return rv;
@@ -65,6 +65,12 @@ namespace ChimeraTK {
             // String arrays are not really supported by numpy, so we return a list instead
             rv = py::cast(ndacc->accessChannel(0));
           }
+          else if constexpr(std::is_same<userType, ChimeraTK::Boolean>::value) {
+            auto ary = py::array(py::dtype::of<bool>(), {acc.getNElements()}, {sizeof(userType)},
+                ndacc->accessChannel(0).data(), py::cast(this));
+            assert(!ary.owndata()); // numpy must not own our buffers
+            rv = ary;
+          }
           else {
             auto ary = py::array(py::dtype::of<userType>(), {acc.getNElements()}, {sizeof(userType)},
                 ndacc->accessChannel(0).data(), py::cast(this));
@@ -78,6 +84,11 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   py::object PyOneDRegisterAccessor::getitem(size_t index) const {
+    if(index >= getNElements()) {
+      // throwing this exception is actually required, because Python sometimes seems to iterate until the exception
+      // is thrown (e.g. when the accessor is used inside zip()).
+      throw std::out_of_range("Index out of range");
+    }
     py::object rv;
     std::visit([&](auto& acc) { rv = py::cast(acc[index]); }, _accessor);
     return rv;
