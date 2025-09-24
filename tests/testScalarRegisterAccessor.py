@@ -56,7 +56,7 @@ binaryOps = [
 
 unaryOps = [
     ("__str__", True, True, True),
-    ("__bool__", True, True, True),
+    ("__bool__", True, True, False),
 ]
 
 # Start value used to generate numbers in the value() function below.
@@ -144,18 +144,18 @@ class TestScalarRegisterAccessor(unittest.TestCase):
         self.interrupt = self.dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_0")
 
     def testGetSet(self):
-        for type in types_to_test:
-            with self.subTest(type=type):
-                acc = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
+        for typ in types_to_test:
+            with self.subTest(type=typ):
+                acc = self.dev.getScalarRegisterAccessor(typ, "ADC/WORD_CLK_CNT_1")
 
-                self.assertTrue(acc.get() == valueAfterConstruct(type))
+                self.assertTrue(acc.get() == valueAfterConstruct(typ))
 
-                expected = value(type)
+                expected = value(typ)
                 acc.set(expected)
 
                 self.assertTrue(acc.get() == expected)
 
-                expected = value(type, expected)
+                expected = value(typ, expected)
                 acc.set(expected)
 
                 self.assertTrue(acc.get() == expected)
@@ -352,7 +352,7 @@ class TestScalarRegisterAccessor(unittest.TestCase):
         def myThreadFun(acc):
             try:
                 acc.read()
-            except RuntimeError:
+            except da.ThreadInterrupted:
                 pass
 
         t = threading.Thread(name='blocking_read', target=lambda acc=acc: myThreadFun(acc))
@@ -385,10 +385,7 @@ class TestScalarRegisterAccessor(unittest.TestCase):
             acc2 = self.dev.getScalarRegisterAccessor(typ, "ADC/WORD_CLK_CNT_1")
             for operator, useForFloat, useForBool, useForStr in binaryOps:
 
-                if typ != np.int32 or operator != "__eq__":
-                    continue
-
-                if typ == str:  # and not useForStr:
+                if typ == str and not useForStr:
                     continue
                 if typ == bool and not useForBool:
                     continue
@@ -401,19 +398,41 @@ class TestScalarRegisterAccessor(unittest.TestCase):
                     acc1.set(val1)
                     acc2.set(val2)
 
-                    expected12 = catchEx(lambda: val1.__getattribute__(operator)(val2))
-                    expected21 = catchEx(lambda: val2.__getattribute__(operator)(val1))
+                    if not operator.startswith('__i'):
+                        expected12 = catchEx(lambda: val1.__getattribute__(operator)(val2))
+                        expected21 = catchEx(lambda: val2.__getattribute__(operator)(val1))
 
-                    self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(acc2)), expected12)
-                    self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(val2)), expected12)
-                    self.assertEqual(catchEx(lambda: acc2.__getattribute__(operator)(acc1)), expected21)
-                    self.assertEqual(catchEx(lambda: acc2.__getattribute__(operator)(val1)), expected21)
+                        self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(acc2)), expected12)
+                        self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(val2)), expected12)
+                        self.assertEqual(catchEx(lambda: acc2.__getattribute__(operator)(acc1)), expected21)
+                        self.assertEqual(catchEx(lambda: acc2.__getattribute__(operator)(val1)), expected21)
 
-                    acc2.set(val1)
-                    expected11 = catchEx(lambda: val1.__getattribute__(operator)(val1))
+                        acc2.set(val1)
+                        expected11 = catchEx(lambda: val1.__getattribute__(operator)(val1))
 
-                    self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(acc2)), expected11)
-                    self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(val1)), expected11)
+                        self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(acc2)), expected11)
+                        self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(val1)), expected11)
+
+                    else:
+                        # special treatment for assignment operators (+= etc.)
+                        non_assigning_operator = '__'+operator[3:]
+                        expected12 = catchEx(lambda: val1.__getattribute__(non_assigning_operator)(val2))
+                        expected21 = catchEx(lambda: val2.__getattribute__(non_assigning_operator)(val1))
+
+                        self.assertEqual(catchEx(lambda: typ(acc1.__getattribute__(operator)(acc2))), expected12)
+                        acc1.set(val1)
+                        self.assertEqual(catchEx(lambda: typ(acc1.__getattribute__(operator)(val2))), expected12)
+                        acc1.set(val1)
+                        self.assertEqual(catchEx(lambda: typ(acc2.__getattribute__(operator)(acc1))), expected21)
+                        acc2.set(val2)
+                        self.assertEqual(catchEx(lambda: typ(acc2.__getattribute__(operator)(val1))), expected21)
+
+                        acc2.set(val1)
+                        expected11 = catchEx(lambda: val1.__getattribute__(non_assigning_operator)(val1))
+
+                        self.assertEqual(catchEx(lambda: typ(acc1.__getattribute__(operator)(acc2))), expected11)
+                        acc1.set(val1)
+                        self.assertEqual(catchEx(lambda: typ(acc1.__getattribute__(operator)(val1))), expected11)
 
     def testUnaryOperators(self):
         for type in types_to_test:
@@ -421,7 +440,7 @@ class TestScalarRegisterAccessor(unittest.TestCase):
             acc = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
             for operator, useForFloat, useForBool, useForStr in unaryOps:
 
-                if type == str:  # and not useForStr:
+                if type == str and not useForStr:
                     continue
                 if type == bool and not useForBool:
                     continue

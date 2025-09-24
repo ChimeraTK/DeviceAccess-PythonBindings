@@ -347,7 +347,7 @@ class TestOneDRegisterAccessor(unittest.TestCase):
         def myThreadFun(acc):
             try:
                 acc.read()
-            except RuntimeError:
+            except da.ThreadInterrupted:
                 pass
 
         t = threading.Thread(name='blocking_read', target=lambda acc=acc: myThreadFun(acc))

@@ -129,6 +129,7 @@ PYBIND11_MODULE(_da_python_bindings, m) {
 
   // Map the boost::thread_interrupted exception. We cannot use py::register_exception because there is no what().
   static py::exception<boost::thread_interrupted> exc(m, "ThreadInterrupted");
+  // NOLINTNEXTLINE(performance-unnecessary-value-param) - signature with reference not accepted here...
   py::register_exception_translator([](std::exception_ptr p) {
     try {
       if(p) {

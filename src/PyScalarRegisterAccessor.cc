@@ -307,6 +307,7 @@ namespace ChimeraTK {
             "Return the dtype of the value type of this TransferElement.\n\nThis can be used to determine the type at "
             "runtime.")
         .def("__repr__", &PyScalarRegisterAccessor::repr);
+
     for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {
       scalaracc.def(fn.c_str(), [fn](PyScalarRegisterAccessor& acc, PyScalarRegisterAccessor& other) {
         return acc.get().attr(fn.c_str())(other.get());
@@ -314,6 +315,22 @@ namespace ChimeraTK {
       scalaracc.def(fn.c_str(),
           [fn](PyScalarRegisterAccessor& acc, py::object& other) { return acc.get().attr(fn.c_str())(other); });
     }
+
+    for(const auto& fn : PyTransferElementBase::specialAssignmentFunctionsToEmulateNumeric) {
+      std::string fn_no_assign = "__" + fn.substr(3);
+      scalaracc.def(fn.c_str(),
+          [fn_no_assign](PyScalarRegisterAccessor& acc, PyScalarRegisterAccessor& other) -> PyScalarRegisterAccessor& {
+            acc.set(acc.get().attr(fn_no_assign.c_str())(other.get()).cast<UserTypeVariantNoVoid>());
+            return acc;
+          });
+
+      scalaracc.def(
+          fn.c_str(), [fn_no_assign](PyScalarRegisterAccessor& acc, py::object& other) -> PyScalarRegisterAccessor& {
+            acc.set(acc.get().attr(fn_no_assign.c_str())(other).cast<UserTypeVariantNoVoid>());
+            return acc;
+          });
+    }
+
     for(const auto& fn : PyTransferElementBase::specialUnaryFunctionsToEmulateNumeric) {
       scalaracc.def(fn.c_str(), [fn](PyScalarRegisterAccessor& acc) { return acc.get().attr(fn.c_str())(); });
     }
