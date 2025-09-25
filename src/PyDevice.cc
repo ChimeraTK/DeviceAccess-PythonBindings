@@ -97,23 +97,29 @@ namespace ChimeraTK {
 
   /*****************************************************************************************************************/
 
-  pybind11::array PyDevice::read(const std::string& registerPath, const py::object& dtype, size_t numberOfElements,
+  pybind11::object PyDevice::read(const std::string& registerPath, const py::object& dtype, size_t numberOfElements,
       size_t elementsOffset, const py::list& flaglist) {
     auto reg = _device.getRegisterCatalogue().getRegister(registerPath);
+    std::cout << "HIER read " << registerPath << "  " << reg.getNumberOfDimensions() << std::endl;
 
-    ChimeraTK::DataType usertype = convertDTypeToUsertype(py::dtype::from_args(dtype));
-    std::unique_ptr<pybind11::array> arr;
+    if(reg.getNumberOfDimensions() == 0) {
+      if(numberOfElements > 1) {
+        throw ChimeraTK::logic_error("Attempting to read more than one element from scalar register");
+      }
+      auto acc = getScalarRegisterAccessor(dtype, registerPath, elementsOffset, flaglist);
+      auto rv = acc.readAndGet();
+      std::cout << rv << std::endl;
+      return rv;
+    }
 
-    ChimeraTK::callForTypeNoVoid(usertype, [&](auto arg) {
-      using UserType = decltype(arg);
-      auto acc = _device.getTwoDRegisterAccessor<UserType>(
-          registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
-      acc.read();
-      arr = std::make_unique<pybind11::array>(
-          ChimeraTK::copyUserBufferToNpArray(acc, convertUsertypeToDtype(usertype), reg.getNumberOfDimensions()));
-    });
+    if(reg.getNumberOfDimensions() == 1) {
+      auto acc = getOneDRegisterAccessor(dtype, registerPath, numberOfElements, elementsOffset, flaglist);
+      return acc.readAndGet();
+    }
 
-    return *arr;
+    auto acc = getTwoDRegisterAccessor(dtype, registerPath, numberOfElements, elementsOffset, flaglist);
+    acc.read();
+    return acc.get();
   }
 
   /*****************************************************************************************************************/
@@ -123,6 +129,7 @@ namespace ChimeraTK {
     if(data.ndim() > 2) {
       throw ChimeraTK::logic_error("Attempting to write array with more than 2 dimensions.");
     }
+    std::cout << "============== writeList" << std::endl;
     size_t numberOfWords = data.shape(data.ndim() - 1);
     auto acc = getTwoDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
     acc.get() = data;
@@ -133,6 +140,7 @@ namespace ChimeraTK {
 
   void PyDevice::writeList(const std::string& registerPath, const py::list& data, const py::object& dtype,
       size_t wordOffsetInRegister, const py::list& flaglist) {
+    std::cout << "============== writeList" << std::endl;
     writeArray(registerPath, data.cast<py::array>(), dtype, wordOffsetInRegister, flaglist);
   }
 
@@ -140,6 +148,8 @@ namespace ChimeraTK {
 
   void PyDevice::writeScalar(const std::string& registerPath, const UserTypeVariantNoVoid& data,
       const py::object& dtype, size_t wordOffsetInRegister, const py::list& flaglist) {
+    std::cout << "============== writeScalar" << std::endl;
+    std::visit([](auto v) { std::cout << v << std::endl; }, data);
     auto acc = getScalarRegisterAccessor(dtype, registerPath, wordOffsetInRegister, flaglist);
     acc.set(data);
     acc.write();

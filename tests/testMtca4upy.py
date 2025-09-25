@@ -212,6 +212,10 @@ class TestPCIEDevice(unittest.TestCase):
 
         readInValues = readCommand(str(module), "WORD_STATUS")
         self.assertTrue(readInValues.dtype == dtype)
+        print(f'=============================== {readCommand} ===============================================')
+        print(readInValues, flush=True)
+        print(word_status_content, flush=True)
+        print(f'=============================== == ===============================================')
         self.assertTrue(numpy.array_equiv(readInValues, word_status_content))
 
         readInValues = readCommand(

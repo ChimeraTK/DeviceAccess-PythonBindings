@@ -52,7 +52,7 @@ namespace ChimeraTK {
     void writeScalar(const std::string& registerPath, const UserTypeVariantNoVoid& data, const py::object& dtype,
         size_t wordOffsetInRegister = 0, const py::list& flaglist = py::list());
 
-    pybind11::array read(const std::string& registerPath, const py::object& dtype, size_t numberOfElements = 0,
+    pybind11::object read(const std::string& registerPath, const py::object& dtype, size_t numberOfElements = 0,
         size_t elementsOffset = 0, const py::list& flaglist = py::list());
 
     static void bind(py::module& mod);
