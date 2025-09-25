@@ -55,8 +55,8 @@ namespace ChimeraTK {
     return PyVoidRegisterAccessor{acc.getImpl()};
   }
 
-  PyScalarRegisterAccessor PyDevice::getScalarRegisterAccessor(
-      py::object& dType, const std::string& registerPathName, int elementsOffset, const py::list& accessModeFlags) {
+  PyScalarRegisterAccessor PyDevice::getScalarRegisterAccessor(const py::object& dType,
+      const std::string& registerPathName, int elementsOffset, const py::list& accessModeFlags) {
     auto userType = convertDTypeToUsertype(py::dtype::from_args(dType));
     PyScalarRegisterAccessor pyAcc;
     callForTypeNoVoid(userType, [&](auto&& type) {
@@ -67,7 +67,7 @@ namespace ChimeraTK {
     return pyAcc;
   }
 
-  PyOneDRegisterAccessor PyDevice::getOneDRegisterAccessor(py::object& dType, const std::string& registerPathName,
+  PyOneDRegisterAccessor PyDevice::getOneDRegisterAccessor(const py::object& dType, const std::string& registerPathName,
       int numberOfElements, int elementsOffset, const py::list& accessModeFlags) {
     auto userType = convertDTypeToUsertype(py::dtype::from_args(dType));
     PyOneDRegisterAccessor pyAcc;
@@ -79,7 +79,7 @@ namespace ChimeraTK {
     return pyAcc;
   }
 
-  PyTwoDRegisterAccessor PyDevice::getTwoDRegisterAccessor(py::object& dType, const std::string& registerPathName,
+  PyTwoDRegisterAccessor PyDevice::getTwoDRegisterAccessor(const py::object& dType, const std::string& registerPathName,
       int numberOfElements, int elementsOffset, const py::list& accessModeFlags) {
     auto userType = convertDTypeToUsertype(py::dtype::from_args(dType));
     PyTwoDRegisterAccessor pyAcc;
@@ -120,43 +120,31 @@ namespace ChimeraTK {
 
   void PyDevice::writeArray(const std::string& registerPath, py::array& data, const py::object& dtype,
       size_t numberOfWords, size_t wordOffsetInRegister, const py::list& flaglist) {
-    auto usertype = convertDTypeToUsertype(py::dtype::from_args(dtype));
-
-    auto bufferTransfer = [&](auto arg) {
-      auto acc = _device.getTwoDRegisterAccessor<decltype(arg)>(
-          registerPath, numberOfWords, wordOffsetInRegister, convertFlagsFromPython(flaglist));
-      copyNpArrayToUserBuffer(acc, data);
-      acc.write();
-    };
-
-    ChimeraTK::callForTypeNoVoid(usertype, bufferTransfer);
+    auto acc = getTwoDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
+    acc.get() = data;
+    acc.write();
   }
+
+  /*****************************************************************************************************************/
 
   void PyDevice::writeList(const std::string& registerPath, py::list& data, const py::object& dtype,
       size_t numberOfWords, size_t wordOffsetInRegister, const py::list& flaglist) {
-    auto np_array = convertPyListToNumpyArray(data, dtype);
-    writeArray(registerPath, np_array, dtype, numberOfWords, wordOffsetInRegister, flaglist);
+    auto acc = getTwoDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
+    acc.get() = data;
+    acc.write();
   }
+
+  /*****************************************************************************************************************/
 
   void PyDevice::writeScalar(const std::string& registerPath, UserTypeVariantNoVoid& data, const py::object& dtype,
       size_t numberOfWords, size_t wordOffsetInRegister, const py::list& flaglist) {
     if(numberOfWords != 0) {
       throw std::runtime_error("PyDevice::writeScalar: numberOfWords must be 0 for scalar registers");
     }
-    auto usertype = convertDTypeToUsertype(py::dtype::from_args(dtype));
 
-    auto bufferTransfer = [&](auto arg) {
-      auto acc = _device.getScalarRegisterAccessor<decltype(arg)>(
-          registerPath, wordOffsetInRegister, convertFlagsFromPython(flaglist));
-      std::visit(
-          [&](auto& v) {
-            acc = userTypeToUserType<typename std::remove_reference<decltype(acc)>::type::value_type>(v);
-          },
-          data);
-      acc.write();
-    };
-
-    ChimeraTK::callForTypeNoVoid(usertype, bufferTransfer);
+    auto acc = getScalarRegisterAccessor(dtype, registerPath, wordOffsetInRegister, flaglist);
+    acc.set(data);
+    acc.write();
   }
 
   /*****************************************************************************************************************/

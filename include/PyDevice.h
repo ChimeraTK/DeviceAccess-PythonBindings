@@ -33,17 +33,20 @@ namespace ChimeraTK {
 
     PyVoidRegisterAccessor getVoidRegisterAccessor(
         const std::string& registerPathName, const py::list& accessModeFlags = py::list());
-    PyScalarRegisterAccessor getScalarRegisterAccessor(py::object& dType, const std::string& registerPathName,
+    PyScalarRegisterAccessor getScalarRegisterAccessor(const py::object& dType, const std::string& registerPathName,
         int elementsOffset = 0, const py::list& accessModeFlags = py::list());
-    PyOneDRegisterAccessor getOneDRegisterAccessor(py::object& dType, const std::string& registerPathName,
+    PyOneDRegisterAccessor getOneDRegisterAccessor(const py::object& dType, const std::string& registerPathName,
         int numberOfElements = 0, int elementsOffset = 0, const py::list& accessModeFlags = py::list());
-    PyTwoDRegisterAccessor getTwoDRegisterAccessor(py::object& dType, const std::string& registerPathName,
+    PyTwoDRegisterAccessor getTwoDRegisterAccessor(const py::object& dType, const std::string& registerPathName,
         int numberOfElements = 0, int elementsOffset = 0, const py::list& accessModeFlags = py::list());
 
     void activateAsyncRead();
 
     ChimeraTK::RegisterCatalogue getRegisterCatalogue();
     std::string getCatalogueMetadata(const std::string& parameterName);
+
+    void writeArray(const std::string& registerPath, py::object& data, const py::object& dtype,
+        size_t numberOfWords = 0, size_t wordOffsetInRegister = 0, const py::list& flaglist = py::list());
 
     void writeArray(const std::string& registerPath, py::array& data, const py::object& dtype, size_t numberOfWords = 0,
         size_t wordOffsetInRegister = 0, const py::list& flaglist = py::list());
