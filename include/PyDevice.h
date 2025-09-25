@@ -45,15 +45,12 @@ namespace ChimeraTK {
     ChimeraTK::RegisterCatalogue getRegisterCatalogue();
     std::string getCatalogueMetadata(const std::string& parameterName);
 
-    void writeArray(const std::string& registerPath, py::object& data, const py::object& dtype,
-        size_t numberOfWords = 0, size_t wordOffsetInRegister = 0, const py::list& flaglist = py::list());
-
-    void writeArray(const std::string& registerPath, py::array& data, const py::object& dtype, size_t numberOfWords = 0,
+    void writeArray(const std::string& registerPath, const py::array& data, const py::object& dtype,
         size_t wordOffsetInRegister = 0, const py::list& flaglist = py::list());
-    void writeList(const std::string& registerPath, py::list& data, const py::object& dtype, size_t numberOfWords = 0,
+    void writeList(const std::string& registerPath, const py::list& data, const py::object& dtype,
         size_t wordOffsetInRegister = 0, const py::list& flaglist = py::list());
-    void writeScalar(const std::string& registerPath, UserTypeVariantNoVoid& data, const py::object& dtype,
-        size_t numberOfWords = 0, size_t wordOffsetInRegister = 0, const py::list& flaglist = py::list());
+    void writeScalar(const std::string& registerPath, const UserTypeVariantNoVoid& data, const py::object& dtype,
+        size_t wordOffsetInRegister = 0, const py::list& flaglist = py::list());
 
     pybind11::array read(const std::string& registerPath, const py::object& dtype, size_t numberOfElements = 0,
         size_t elementsOffset = 0, const py::list& flaglist = py::list());

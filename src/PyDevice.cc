@@ -118,30 +118,28 @@ namespace ChimeraTK {
 
   /*****************************************************************************************************************/
 
-  void PyDevice::writeArray(const std::string& registerPath, py::array& data, const py::object& dtype,
-      size_t numberOfWords, size_t wordOffsetInRegister, const py::list& flaglist) {
-    auto acc = getTwoDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
-    acc.get() = data;
-    acc.write();
-  }
-
-  /*****************************************************************************************************************/
-
-  void PyDevice::writeList(const std::string& registerPath, py::list& data, const py::object& dtype,
-      size_t numberOfWords, size_t wordOffsetInRegister, const py::list& flaglist) {
-    auto acc = getTwoDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
-    acc.get() = data;
-    acc.write();
-  }
-
-  /*****************************************************************************************************************/
-
-  void PyDevice::writeScalar(const std::string& registerPath, UserTypeVariantNoVoid& data, const py::object& dtype,
-      size_t numberOfWords, size_t wordOffsetInRegister, const py::list& flaglist) {
-    if(numberOfWords != 0) {
-      throw std::runtime_error("PyDevice::writeScalar: numberOfWords must be 0 for scalar registers");
+  void PyDevice::writeArray(const std::string& registerPath, const py::array& data, const py::object& dtype,
+      size_t wordOffsetInRegister, const py::list& flaglist) {
+    if(data.ndim() > 2) {
+      throw ChimeraTK::logic_error("Attempting to write array with more than 2 dimensions.");
     }
+    size_t numberOfWords = data.shape(data.ndim() - 1);
+    auto acc = getTwoDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
+    acc.get() = data;
+    acc.write();
+  }
 
+  /*****************************************************************************************************************/
+
+  void PyDevice::writeList(const std::string& registerPath, const py::list& data, const py::object& dtype,
+      size_t wordOffsetInRegister, const py::list& flaglist) {
+    writeArray(registerPath, data.cast<py::array>(), dtype, wordOffsetInRegister, flaglist);
+  }
+
+  /*****************************************************************************************************************/
+
+  void PyDevice::writeScalar(const std::string& registerPath, const UserTypeVariantNoVoid& data,
+      const py::object& dtype, size_t wordOffsetInRegister, const py::list& flaglist) {
     auto acc = getScalarRegisterAccessor(dtype, registerPath, wordOffsetInRegister, flaglist);
     acc.set(data);
     acc.write();
@@ -185,28 +183,28 @@ namespace ChimeraTK {
         .def(
             "write",
             [](PyDevice& self, const std::string& registerPath, py::array& dataToWrite, const py::object& dtype,
-                size_t numberOfWords, size_t wordOffsetInRegister, const py::list& flaglist) {
-              self.writeArray(registerPath, dataToWrite, dtype, numberOfWords, wordOffsetInRegister, flaglist);
+                size_t wordOffsetInRegister, const py::list& flaglist) {
+              self.writeArray(registerPath, dataToWrite, dtype, wordOffsetInRegister, flaglist);
             },
             py::arg("registerPath"), py::arg("dataToWrite"), py::arg("dtype") = py::dtype::of<double>(),
-            py::arg("numberOfWords") = 0, py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
+            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
 
         .def(
             "write",
             [](PyDevice& self, const std::string& registerPath, py::list& dataToWrite, const py::object& dtype,
-                size_t numberOfWords, size_t wordOffsetInRegister, const py::list& flaglist) {
-              self.writeList(registerPath, dataToWrite, dtype, numberOfWords, wordOffsetInRegister, flaglist);
+                size_t wordOffsetInRegister, const py::list& flaglist) {
+              self.writeList(registerPath, dataToWrite, dtype, wordOffsetInRegister, flaglist);
             },
             py::arg("registerPath"), py::arg("dataToWrite"), py::arg("dtype") = py::dtype::of<double>(),
-            py::arg("numberOfWords") = 0, py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
+            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
         .def(
             "write",
             [](PyDevice& self, const std::string& registerPath, UserTypeVariantNoVoid& dataToWrite,
-                const py::object& dtype, size_t numberOfWords, size_t wordOffsetInRegister, const py::list& flaglist) {
-              self.writeScalar(registerPath, dataToWrite, dtype, numberOfWords, wordOffsetInRegister, flaglist);
+                const py::object& dtype, size_t wordOffsetInRegister, const py::list& flaglist) {
+              self.writeScalar(registerPath, dataToWrite, dtype, wordOffsetInRegister, flaglist);
             },
             py::arg("registerPath"), py::arg("dataToWrite"), py::arg("dtype") = py::dtype::of<double>(),
-            py::arg("numberOfWords") = 0, py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
+            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
 
         .def("getCatalogueMetadata", &PyDevice::getCatalogueMetadata, py::arg("metaTag"));
   }
