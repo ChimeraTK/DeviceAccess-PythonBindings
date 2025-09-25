@@ -239,12 +239,29 @@ namespace ChimeraTK {
 
   py::object PyTwoDRegisterAccessor::getitem(size_t index) const {
     return std::visit(
-        [&](auto& acc) {
+        [&](auto& acc) -> py::object {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using userType = typename ACC::value_type;
+          auto ndacc = boost::dynamic_pointer_cast<NDRegisterAccessor<userType>>(acc.getHighLevelImplElement());
+          auto nElements = acc.getNElementsPerChannel();
           auto& buffer = std::get<std::vector<userType>>(_continuousBuffer);
-          return py::cast(
-              std::span<userType>(buffer.data() + index * acc.getNElementsPerChannel(), acc.getNElementsPerChannel()));
+
+          if constexpr(std::is_same<userType, std::string>::value) {
+            // String arrays are not really supported by numpy, so we return a list instead
+            return py::cast(ndacc->accessChannels());
+          }
+          else if constexpr(std::is_same<userType, ChimeraTK::Boolean>::value) {
+            auto ary = py::array(py::dtype::of<bool>(), {int64_t(nElements)}, {int64_t(sizeof(userType))},
+                &buffer[index * nElements], py::cast(this));
+            assert(!ary.owndata()); // numpy must not own our buffers
+            return ary;
+          }
+          else {
+            auto ary = py::array(py::dtype::of<userType>(), {int64_t(nElements)}, {int64_t(sizeof(userType))},
+                &buffer[index * nElements], py::cast(this));
+            assert(!ary.owndata()); // numpy must not own our buffers
+            return ary;
+          }
         },
         _accessor);
   }
