@@ -18,22 +18,43 @@ namespace py = pybind11;
 namespace ChimeraTK {
 
   /********************************************************************************************************************/
+
   void PyTwoDRegisterAccessor::copyToBuffer() {
     std::visit(
         [&](auto& acc) {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using UserType = typename ACC::value_type;
 
-          _continuousBuffer = std::vector<UserType>{};
           auto& buffer = std::get<std::vector<UserType>>(_continuousBuffer);
-          buffer.clear();
-          buffer.reserve(acc.getNChannels() * acc.getNElementsPerChannel());
+          buffer.resize(acc.getNChannels() * acc.getNElementsPerChannel());
+
+          auto* out = buffer.data();
           for(size_t i = 0; i < acc.getNChannels(); ++i) {
-            buffer.insert(buffer.end(), acc[i].begin(), acc[i].end());
+            out = std::ranges::copy(acc[i], out).out;
           }
         },
         _accessor);
   }
+
+  /********************************************************************************************************************/
+
+  void PyTwoDRegisterAccessor::copyFromBuffer() {
+    std::visit(
+        [&](auto& acc) {
+          using ACC = typename std::remove_reference<decltype(acc)>::type;
+          using UserType = typename ACC::value_type;
+
+          auto& buffer = std::get<std::vector<UserType>>(_continuousBuffer);
+          assert(buffer.size() == acc.getNChannels() * acc.getNElementsPerChannel());
+          for(size_t i = 0; i < acc.getNChannels(); ++i) {
+            auto in =
+                std::span<UserType>(buffer.data() + i * acc.getNElementsPerChannel(), acc.getNElementsPerChannel());
+            std::ranges::copy(in, acc[i].data());
+          }
+        },
+        _accessor);
+  }
+
   /********************************************************************************************************************/
 
   void PyTwoDRegisterAccessor::read() {
@@ -44,18 +65,36 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void PyTwoDRegisterAccessor::readLatest() {
+  bool PyTwoDRegisterAccessor::readLatest() {
     py::gil_scoped_release release;
-    visit([&](auto& acc) { acc.readLatest(); });
+    bool rv = visit([&](auto& acc) -> bool { return acc.readLatest(); });
     copyToBuffer();
+    return rv;
   }
 
   /********************************************************************************************************************/
 
-  void PyTwoDRegisterAccessor::readNonBlocking() {
+  bool PyTwoDRegisterAccessor::readNonBlocking() {
     py::gil_scoped_release release;
-    visit([&](auto& acc) { acc.readNonBlocking(); });
+    bool rv = visit([&](auto& acc) -> bool { return acc.readNonBlocking(); });
     copyToBuffer();
+    return rv;
+  }
+
+  /********************************************************************************************************************/
+
+  void PyTwoDRegisterAccessor::write(const ChimeraTK::VersionNumber& versionNumber) {
+    py::gil_scoped_release release;
+    copyFromBuffer();
+    visit([&](auto& acc) { acc.write(versionNumber); });
+  }
+
+  /********************************************************************************************************************/
+
+  void PyTwoDRegisterAccessor::writeDestructively(const ChimeraTK::VersionNumber& versionNumber) {
+    py::gil_scoped_release release;
+    copyFromBuffer();
+    visit([&](auto& acc) { acc.writeDestructively(versionNumber); });
   }
 
   /********************************************************************************************************************/
@@ -79,14 +118,30 @@ namespace ChimeraTK {
   void PyTwoDRegisterAccessor::set(const UserTypeTemplateVariantNoVoid<VVector>& vec) {
     std::visit(
         [&](auto& acc) {
-          using ACC = typename std::remove_reference<decltype(acc)>::type;
-          using expectedUserType = typename ACC::value_type;
           std::visit(
-              [&](const auto& outerVector) {
-                // Resize acc to match the input shape
-                for(size_t i = 0; i < outerVector.size(); ++i) {
-                  for(size_t j = 0; j < outerVector[i].size(); ++j) {
-                    acc[i][j] = userTypeToUserType<expectedUserType>(outerVector[i][j]);
+              [&](auto& incoming) {
+                using ACC = typename std::remove_reference<decltype(acc)>::type;
+                using UserType = typename ACC::value_type;
+
+                using VecType = typename std::remove_reference<decltype(incoming)>::type;
+                using VecValueType = typename VecType::value_type::value_type;
+
+                auto& buffer = std::get<std::vector<UserType>>(_continuousBuffer);
+
+                buffer.resize(acc.getNChannels() * acc.getNElementsPerChannel());
+                if constexpr(std::is_same_v<UserType, VecValueType>) {
+                  auto* out = buffer.data();
+                  for(size_t i = 0; i < acc.getNChannels(); ++i) {
+                    out = std::ranges::copy(incoming[i], out).out;
+                  }
+                }
+                else {
+                  for(size_t i = 0; i < acc.getNChannels(); ++i) {
+                    auto out = std::span<UserType>(
+                        buffer.data() + i * acc.getNElementsPerChannel(), acc.getNElementsPerChannel());
+
+                    std::transform(incoming[i].cbegin(), incoming[i].cend(), out.begin(),
+                        ChimeraTK::userTypeToUserType<UserType, VecValueType>);
                   }
                 }
               },
@@ -94,11 +149,41 @@ namespace ChimeraTK {
         },
         _accessor);
   }
+
   /********************************************************************************************************************/
 
   py::object PyTwoDRegisterAccessor::get() const {
-    return py::array(getBufferInfo());
+    return std::visit(
+        [&](auto& acc) -> py::object {
+          using ACC = typename std::remove_reference<decltype(acc)>::type;
+          using userType = typename ACC::value_type;
+          auto ndacc = boost::dynamic_pointer_cast<NDRegisterAccessor<userType>>(acc.getHighLevelImplElement());
+          auto nChannels = acc.getNChannels();
+          auto nElements = acc.getNElementsPerChannel();
+          auto& buffer = std::get<std::vector<userType>>(_continuousBuffer);
+
+          if constexpr(std::is_same<userType, std::string>::value) {
+            // String arrays are not really supported by numpy, so we return a list instead
+            return py::cast(ndacc->accessChannels());
+          }
+          else if constexpr(std::is_same<userType, ChimeraTK::Boolean>::value) {
+            auto ary = py::array(py::dtype::of<bool>(), {int64_t(nChannels), int64_t(nElements)},
+                {int64_t((sizeof(userType) * nElements)), int64_t(sizeof(userType))}, buffer.data(), py::cast(this));
+            assert(!ary.owndata()); // numpy must not own our buffers
+            return ary;
+          }
+          else {
+            auto ary = py::array(py::dtype::of<userType>(), {int64_t(nChannels), int64_t(nElements)},
+                {int64_t((sizeof(userType) * nElements)), int64_t(sizeof(userType))}, buffer.data(), py::cast(this));
+            assert(!ary.owndata()); // numpy must not own our buffers
+            return ary;
+          }
+        },
+        _accessor);
+
+    // return py::array(getBufferInfo());
   }
+
   /********************************************************************************************************************/
 
   std::string PyTwoDRegisterAccessor::repr(py::object& acc) const {
@@ -115,6 +200,7 @@ namespace ChimeraTK {
     rep.append(")>");
     return rep;
   }
+
   /********************************************************************************************************************/
 
   py::buffer_info PyTwoDRegisterAccessor::getBufferInfo() const {
@@ -152,9 +238,15 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   py::object PyTwoDRegisterAccessor::getitem(size_t index) const {
-    py::object rv;
-    std::visit([&](auto& acc) { rv = py::cast(acc[index]); }, _accessor);
-    return rv;
+    return std::visit(
+        [&](auto& acc) {
+          using ACC = typename std::remove_reference<decltype(acc)>::type;
+          using userType = typename ACC::value_type;
+          auto& buffer = std::get<std::vector<userType>>(_continuousBuffer);
+          return py::cast(
+              std::span<userType>(buffer.data() + index * acc.getNElementsPerChannel(), acc.getNElementsPerChannel()));
+        },
+        _accessor);
   }
 
   /********************************************************************************************************************/
@@ -235,6 +327,7 @@ namespace ChimeraTK {
             "determine the setting of the `raw` and the `wait_for_new_data` flags")
         .def("__getitem__", &PyTwoDRegisterAccessor::getitem, "Get an element from the array by index.")
         .def("__getattr__", &PyTwoDRegisterAccessor::getattr);
+
     for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {
       arrayacc.def(fn.c_str(), [fn](PyTwoDRegisterAccessor& acc, PyTwoDRegisterAccessor& other) {
         return acc.get().attr(fn.c_str())(other.get());
@@ -242,6 +335,20 @@ namespace ChimeraTK {
       arrayacc.def(fn.c_str(),
           [fn](PyTwoDRegisterAccessor& acc, py::object& other) { return acc.get().attr(fn.c_str())(other); });
     }
+
+    for(const auto& fn : PyTransferElementBase::specialAssignmentFunctionsToEmulateNumeric) {
+      arrayacc.def(
+          fn.c_str(), [fn](PyTwoDRegisterAccessor& acc, PyTwoDRegisterAccessor& other) -> PyTwoDRegisterAccessor& {
+            acc.get().attr(fn.c_str())(other.get());
+            return acc;
+          });
+
+      arrayacc.def(fn.c_str(), [fn](PyTwoDRegisterAccessor& acc, py::object& other) -> PyTwoDRegisterAccessor& {
+        acc.get().attr(fn.c_str())(other);
+        return acc;
+      });
+    }
+
     for(const auto& fn : PyTransferElementBase::specialUnaryFunctionsToEmulateNumeric) {
       arrayacc.def(fn.c_str(), [fn](PyTwoDRegisterAccessor& acc) { return acc.get().attr(fn.c_str())(); });
     }

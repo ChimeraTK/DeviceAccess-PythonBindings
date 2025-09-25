@@ -126,9 +126,9 @@ namespace ChimeraTK {
 
     // Pass the actual accessor type (e.g. ScalarAccessor<int>) as argument to the given callable
     template<typename CALLABLE>
-    void visit(CALLABLE fn) const {
+    auto visit(CALLABLE fn) const {
       const auto* self = static_cast<const DerivedAccessor*>(this);
-      std::visit(fn, self->_accessor);
+      return std::visit(fn, self->_accessor);
     }
   };
 

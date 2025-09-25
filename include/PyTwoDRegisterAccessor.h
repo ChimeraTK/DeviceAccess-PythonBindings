@@ -35,8 +35,10 @@ namespace ChimeraTK {
     using VVector = std::vector<std::vector<T>>;
 
     void read();
-    void readLatest();
-    void readNonBlocking();
+    bool readLatest();
+    bool readNonBlocking();
+    void write(const ChimeraTK::VersionNumber& versionNumber = ChimeraTK::VersionNumber{});
+    void writeDestructively(const ChimeraTK::VersionNumber& versionNumber = ChimeraTK::VersionNumber{});
 
     size_t getNChannels();
     size_t getNElementsPerChannel();
@@ -46,7 +48,10 @@ namespace ChimeraTK {
     template<typename AccessorType>
     void setTE(AccessorType incomingAcc) {
       PyTransferElement::setTE(incomingAcc);
-      _continuousBuffer = std::vector<typename AccessorType::value_type>{};
+
+      std::vector<typename AccessorType::value_type> buffer;
+      buffer.resize(incomingAcc.getNChannels() * incomingAcc.getNElementsPerChannel());
+      _continuousBuffer = buffer;
     }
 
     py::object get() const;
@@ -65,6 +70,7 @@ namespace ChimeraTK {
    private:
     mutable UserTypeTemplateVariantNoVoid<Vector> _continuousBuffer;
     void copyToBuffer();
+    void copyFromBuffer();
   };
 
   /********************************************************************************************************************/
