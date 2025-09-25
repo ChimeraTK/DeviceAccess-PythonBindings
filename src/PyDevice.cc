@@ -129,10 +129,10 @@ namespace ChimeraTK {
     if(data.ndim() > 2) {
       throw ChimeraTK::logic_error("Attempting to write array with more than 2 dimensions.");
     }
-    std::cout << "============== writeList" << std::endl;
+    std::cout << "============== writeArray " << data << std::endl;
     size_t numberOfWords = data.shape(data.ndim() - 1);
     auto acc = getTwoDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
-    acc.get() = data;
+    acc.set(data.cast<UserTypeTemplateVariantNoVoid<PyTwoDRegisterAccessor::VVector>>());
     acc.write();
   }
 
@@ -140,7 +140,7 @@ namespace ChimeraTK {
 
   void PyDevice::writeList(const std::string& registerPath, const py::list& data, const py::object& dtype,
       size_t wordOffsetInRegister, const py::list& flaglist) {
-    std::cout << "============== writeList" << std::endl;
+    std::cout << "============== writeList " << data << std::endl;
     writeArray(registerPath, data.cast<py::array>(), dtype, wordOffsetInRegister, flaglist);
   }
 
