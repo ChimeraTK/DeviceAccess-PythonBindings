@@ -379,7 +379,7 @@ class Device:
         """
         if registerPath is None:
             registerPath = '/' + moduleName + '/' + registerName
-        val = self.__openedDevice.read(registerPath, numberOfWords=numberOfElementsToRead,
+        val = self.__openedDevice.read(registerPath, numberOfWords=numberOfElementsToRead, dtype=numpy.int32,
                                        wordOffsetInRegister=elementIndexInRegister, accessModeFlags=[deviceaccess.AccessMode.raw])
         if isinstance(val, numpy.ndarray):
             return val
@@ -449,7 +449,7 @@ class Device:
         if registerPath is None:
             registerPath = '/' + moduleName + '/' + registerName
         self.__openedDevice.write(registerPath, dataToWrite=dataToWrite,
-                                  wordOffsetInRegister=elementIndexInRegister, accessModeFlags=[deviceaccess.AccessMode.raw])
+                                  wordOffsetInRegister=elementIndexInRegister, accessModeFlags=[deviceaccess.AccessMode.raw], dtype=numpy.int32)
 
     def read_dma_raw(self, moduleName='', DMARegisterName=None,
                      numberOfElementsToRead=0, elementIndexInRegister=0,
