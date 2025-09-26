@@ -100,7 +100,7 @@ namespace ChimeraTK {
   pybind11::object PyDevice::read(const std::string& registerPath, const py::object& dtype, size_t numberOfElements,
       size_t elementsOffset, const py::list& flaglist) {
     auto reg = _device.getRegisterCatalogue().getRegister(registerPath);
-    std::cout << "HIER read " << registerPath << "  " << reg.getNumberOfDimensions() << std::endl;
+    std::cout << "HIER read " << registerPath << "  ndim = " << reg.getNumberOfDimensions() << std::endl;
 
     if(reg.getNumberOfDimensions() == 0) {
       if(numberOfElements > 1) {
@@ -114,12 +114,23 @@ namespace ChimeraTK {
 
     if(reg.getNumberOfDimensions() == 1) {
       auto acc = getOneDRegisterAccessor(dtype, registerPath, numberOfElements, elementsOffset, flaglist);
-      return acc.readAndGet();
+      acc.read();
+      auto data = acc.get();
+      if(py::isinstance<py::array>(data)) {
+        // need to create a copy, because the nparray does not own its data but the accessor which does will go away
+        return data.attr("copy")();
+      }
+      return data;
     }
 
     auto acc = getTwoDRegisterAccessor(dtype, registerPath, numberOfElements, elementsOffset, flaglist);
     acc.read();
-    return acc.get();
+    auto data = acc.get();
+    if(py::isinstance<py::array>(data)) {
+      // need to create a copy, because the nparray does not own its data but the accessor which does will go away
+      return data.attr("copy")();
+    }
+    return data;
   }
 
   /*****************************************************************************************************************/
@@ -128,15 +139,10 @@ namespace ChimeraTK {
       const UserTypeTemplateVariantNoVoid<PyTwoDRegisterAccessor::VVector>& data, const py::object& dtype,
       size_t wordOffsetInRegister, const py::list& flaglist) {
     std::cout << "============== write2D " << std::endl;
-    size_t numberOfWords;
-    std::visit(
-        [&](const auto& v) {
-          if(v.size() == 0) {
-            throw ChimeraTK::logic_error("Outer vector of 2D data cannot have size 0.");
-          }
-          numberOfWords = v[0].size();
-        },
-        data);
+    size_t numberOfWords = std::visit([&](const auto& v) { return v.size() > 0 ? v[0].size() : 0; }, data);
+    if(numberOfWords == 0) {
+      return;
+    }
     auto acc = getTwoDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
     acc.set(data);
     acc.write();
@@ -147,11 +153,23 @@ namespace ChimeraTK {
   void PyDevice::write1D(const std::string& registerPath,
       const UserTypeTemplateVariantNoVoid<PyOneDRegisterAccessor::Vector>& data, const py::object& dtype,
       size_t wordOffsetInRegister, const py::list& flaglist) {
-    std::cout << "============== write1D " << std::endl;
     size_t numberOfWords;
     std::visit([&](const auto& v) { numberOfWords = v.size(); }, data);
+    std::cout << "============== write1D " << registerPath << "  n = " << numberOfWords << std::endl;
+    std::visit(
+        [&](const auto& v) {
+          for(auto x : v) std::cout << x << " ";
+        },
+        data);
+    std::cout << std::endl;
     auto acc = getOneDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
     acc.set(data);
+    std::visit(
+        [&](const auto& v) {
+          for(auto x : v) std::cout << x << " ";
+        },
+        acc._accessor);
+    std::cout << std::endl;
     acc.write();
   }
 

@@ -74,7 +74,9 @@ namespace ChimeraTK {
 
   py::object PyScalarRegisterAccessor::readAndGet() {
     read();
-    return get();
+    auto v = get();
+    std::cout << v.get_type() << std::endl;
+    return v;
   }
 
   /********************************************************************************************************************/
