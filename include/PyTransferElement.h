@@ -3,8 +3,6 @@
 #pragma once
 
 #include <pybind11/pybind11.h>
-
-#include <cstddef>
 // pybind11.h must come first
 
 // This needs to be included in every compilation unit which might define/use type conversions between Python and C++
@@ -86,14 +84,17 @@ namespace ChimeraTK {
     py::list getAccessModeFlags() const {
       ChimeraTK::AccessModeFlags flags = getTE().getAccessModeFlags();
       py::list python_flags{};
-      if(flags.has(ChimeraTK::AccessMode::raw)) python_flags.append(ChimeraTK::AccessMode::raw);
-      if(flags.has(ChimeraTK::AccessMode::wait_for_new_data))
+      if(flags.has(ChimeraTK::AccessMode::raw)) {
+        python_flags.append(ChimeraTK::AccessMode::raw);
+      }
+      if(flags.has(ChimeraTK::AccessMode::wait_for_new_data)) {
         python_flags.append(ChimeraTK::AccessMode::wait_for_new_data);
+      }
       return python_flags;
     }
     auto getDescription() const { return getTE().getDescription(); }
     py::dtype getValueType() const { return convertUsertypeToDtype(getTE().getValueType()); }
-    PyVersionNumber getVersionNumber() const { return getTE().getVersionNumber(); }
+    [[nodiscard]] PyVersionNumber getVersionNumber() const { return getTE().getVersionNumber(); }
     auto isReadOnly() const { return getTE().isReadOnly(); }
     auto isReadable() const { return getTE().isReadable(); }
     auto isWriteable() const { return getTE().isWriteable(); }

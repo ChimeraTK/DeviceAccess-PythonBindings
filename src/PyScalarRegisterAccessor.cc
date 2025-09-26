@@ -26,7 +26,7 @@ namespace ChimeraTK {
         [&](auto& acc) {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using expectedUserType = typename ACC::value_type;
-          std::visit([&](auto value) { acc = ChimeraTK::userTypeToUserType<expectedUserType>(value); }, val);
+          std::visit([&](auto value) { acc = ChimeraTK::userTypeToUserType<expectedUserType>(std::move(value)); }, val);
         },
         _accessor);
   }
@@ -88,7 +88,10 @@ namespace ChimeraTK {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using expectedUserType = typename ACC::value_type;
           std::visit(
-              [&](auto value) { acc.setAndWrite(ChimeraTK::userTypeToUserType<expectedUserType>(value), vn); }, val);
+              [&](auto value) {
+                acc.setAndWrite(ChimeraTK::userTypeToUserType<expectedUserType>(std::move(value)), vn);
+              },
+              val);
         },
         _accessor);
   }
@@ -158,7 +161,9 @@ namespace ChimeraTK {
           using ACC = typename std::remove_reference<decltype(acc)>::type;
           using expectedUserType = typename ACC::value_type;
           std::visit(
-              [&](auto value) { acc.writeIfDifferent(ChimeraTK::userTypeToUserType<expectedUserType>(value), vn); },
+              [&](auto value) {
+                acc.writeIfDifferent(ChimeraTK::userTypeToUserType<expectedUserType>(std::move(value)), vn);
+              },
               val);
         },
         _accessor);

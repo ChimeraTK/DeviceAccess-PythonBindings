@@ -11,8 +11,6 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
-#include <codecvt>
-#include <locale>
 namespace py = pybind11;
 
 namespace ChimeraTK {

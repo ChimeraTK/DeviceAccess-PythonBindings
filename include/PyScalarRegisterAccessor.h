@@ -54,7 +54,9 @@ namespace ChimeraTK {
     template<typename T>
     using ScalarRegisterAccessorT = ScalarRegisterAccessor<T>;
 
+   private:
     mutable UserTypeTemplateVariantNoVoid<ScalarRegisterAccessorT> _accessor;
+    friend PyTransferElement;
   };
 
   /********************************************************************************************************************/

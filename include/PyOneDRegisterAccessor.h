@@ -54,7 +54,9 @@ namespace ChimeraTK {
 
     static void bind(py::module& mod);
 
+   private:
     mutable UserTypeTemplateVariantNoVoid<OneDRegisterAccessor> _accessor;
+    friend PyTransferElement;
   };
 
   /********************************************************************************************************************/

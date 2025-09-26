@@ -7,7 +7,6 @@
 #include "PyDataType.h"
 #include "PyDevice.h"
 #include "PyOneDRegisterAccessor.h"
-#include "PythonModuleMethods.h"
 #include "PyTwoDRegisterAccessor.h"
 #include "PyVersionNumber.h"
 #include "RegisterCatalogue.h"
@@ -36,11 +35,8 @@ PYBIND11_MODULE(_da_python_bindings, m) {
   ChimeraTK::PyVoidRegisterAccessor::bind(m);
   ChimeraTK::PyDataType::bind(m);
 
-  m.def("createDevice", DeviceAccessPython::createDevice);
-  m.def("getDevice_no_alias", DeviceAccessPython::getDevice_no_alias);
-  m.def("getDevice", DeviceAccessPython::getDevice);
-  m.def("setDMapFilePath", DeviceAccessPython::setDmapFile);
-  m.def("getDMapFilePath", DeviceAccessPython::getDmapFile);
+  m.def("setDMapFilePath", ChimeraTK::setDMapFilePath);
+  m.def("getDMapFilePath", ChimeraTK::getDMapFilePath);
 
   py::class_<ChimeraTK::RegisterCatalogue>(m, "RegisterCatalogue")
       .def(py::init<ChimeraTK::RegisterCatalogue>())

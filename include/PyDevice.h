@@ -34,11 +34,11 @@ namespace ChimeraTK {
     PyVoidRegisterAccessor getVoidRegisterAccessor(
         const std::string& registerPathName, const py::list& accessModeFlags = py::list());
     PyScalarRegisterAccessor getScalarRegisterAccessor(const py::object& dType, const std::string& registerPathName,
-        int elementsOffset = 0, const py::list& accessModeFlags = py::list());
+        size_t elementsOffset = 0, const py::list& accessModeFlags = py::list());
     PyOneDRegisterAccessor getOneDRegisterAccessor(const py::object& dType, const std::string& registerPathName,
-        int numberOfElements = 0, int elementsOffset = 0, const py::list& accessModeFlags = py::list());
+        size_t numberOfElements = 0, size_t elementsOffset = 0, const py::list& accessModeFlags = py::list());
     PyTwoDRegisterAccessor getTwoDRegisterAccessor(const py::object& dType, const std::string& registerPathName,
-        int numberOfElements = 0, int elementsOffset = 0, const py::list& accessModeFlags = py::list());
+        size_t numberOfElements = 0, size_t elementsOffset = 0, const py::list& accessModeFlags = py::list());
 
     void activateAsyncRead();
 

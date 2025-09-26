@@ -13,8 +13,6 @@
 
 #include <pybind11/numpy.h>
 
-#include <iostream>
-
 namespace py = pybind11;
 
 namespace ChimeraTK {
@@ -65,9 +63,10 @@ namespace ChimeraTK {
 
     static void bind(py::module& mod);
 
-    mutable UserTypeTemplateVariantNoVoid<TwoDRegisterAccessor> _accessor;
-
    private:
+    mutable UserTypeTemplateVariantNoVoid<TwoDRegisterAccessor> _accessor;
+    friend PyTransferElement;
+
     mutable UserTypeTemplateVariantNoVoid<Vector> _continuousBuffer;
     void copyToBuffer();
     void copyFromBuffer();

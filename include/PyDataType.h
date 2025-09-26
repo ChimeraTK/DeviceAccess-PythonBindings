@@ -6,8 +6,6 @@
 #include <pybind11/pybind11.h>
 // pybind11.h must come first
 
-#include "PyDataType.h"
-
 #include <ChimeraTK/SupportedUserTypes.h>
 #include <ChimeraTK/VariantUserTypes.h>
 

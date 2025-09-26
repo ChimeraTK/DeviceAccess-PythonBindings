@@ -56,7 +56,7 @@ namespace ChimeraTK {
   }
 
   PyScalarRegisterAccessor PyDevice::getScalarRegisterAccessor(const py::object& dType,
-      const std::string& registerPathName, int elementsOffset, const py::list& accessModeFlags) {
+      const std::string& registerPathName, size_t elementsOffset, const py::list& accessModeFlags) {
     auto userType = convertDTypeToUsertype(py::dtype::from_args(dType));
     PyScalarRegisterAccessor pyAcc;
     callForTypeNoVoid(userType, [&](auto&& type) {
@@ -68,7 +68,7 @@ namespace ChimeraTK {
   }
 
   PyOneDRegisterAccessor PyDevice::getOneDRegisterAccessor(const py::object& dType, const std::string& registerPathName,
-      int numberOfElements, int elementsOffset, const py::list& accessModeFlags) {
+      size_t numberOfElements, size_t elementsOffset, const py::list& accessModeFlags) {
     auto userType = convertDTypeToUsertype(py::dtype::from_args(dType));
     PyOneDRegisterAccessor pyAcc;
     callForTypeNoVoid(userType, [&](auto&& type) {
@@ -80,7 +80,7 @@ namespace ChimeraTK {
   }
 
   PyTwoDRegisterAccessor PyDevice::getTwoDRegisterAccessor(const py::object& dType, const std::string& registerPathName,
-      int numberOfElements, int elementsOffset, const py::list& accessModeFlags) {
+      size_t numberOfElements, size_t elementsOffset, const py::list& accessModeFlags) {
     auto userType = convertDTypeToUsertype(py::dtype::from_args(dType));
     PyTwoDRegisterAccessor pyAcc;
     callForTypeNoVoid(userType, [&](auto&& type) {
@@ -201,36 +201,15 @@ namespace ChimeraTK {
         .def("getRegisterCatalogue", &PyDevice::getRegisterCatalogue)
         .def("read", &PyDevice::read, py::arg("registerPath"), py::arg("dtype") = py::dtype::of<double>(),
             py::arg("numberOfWords") = 0, py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
-        .def(
-            "write",
-            [](PyDevice& self, const std::string& registerPath,
-                const UserTypeTemplateVariantNoVoid<PyTwoDRegisterAccessor::VVector>& dataToWrite,
-                const py::object& dtype, size_t wordOffsetInRegister, const py::list& flaglist) {
-              self.write2D(registerPath, dataToWrite, dtype, wordOffsetInRegister, flaglist);
-            },
-            py::arg("registerPath"), py::arg("dataToWrite"), py::arg("dtype") = py::dtype::of<double>(),
-            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
-        .def(
-            "write",
-            [](PyDevice& self, const std::string& registerPath,
-                const UserTypeTemplateVariantNoVoid<PyOneDRegisterAccessor::Vector>& dataToWrite,
-                const py::object& dtype, size_t wordOffsetInRegister, const py::list& flaglist) {
-              self.write1D(registerPath, dataToWrite, dtype, wordOffsetInRegister, flaglist);
-            },
-            py::arg("registerPath"), py::arg("dataToWrite"), py::arg("dtype") = py::dtype::of<double>(),
-            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
-
-        // ADD 1D variant!!!!!!!!!!!!!
-
-        .def(
-            "write",
-            [](PyDevice& self, const std::string& registerPath, UserTypeVariantNoVoid& dataToWrite,
-                const py::object& dtype, size_t wordOffsetInRegister, const py::list& flaglist) {
-              self.writeScalar(registerPath, dataToWrite, dtype, wordOffsetInRegister, flaglist);
-            },
-            py::arg("registerPath"), py::arg("dataToWrite"), py::arg("dtype") = py::dtype::of<double>(),
-            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
-
+        .def("write", &PyDevice::write2D, py::arg("registerPath"), py::arg("dataToWrite"),
+            py::arg("dtype") = py::dtype::of<double>(), py::arg("wordOffsetInRegister") = 0,
+            py::arg("accessModeFlags") = py::list())
+        .def("write", &PyDevice::write1D, py::arg("registerPath"), py::arg("dataToWrite"),
+            py::arg("dtype") = py::dtype::of<double>(), py::arg("wordOffsetInRegister") = 0,
+            py::arg("accessModeFlags") = py::list())
+        .def("write", &PyDevice::writeScalar, py::arg("registerPath"), py::arg("dataToWrite"),
+            py::arg("dtype") = py::dtype::of<double>(), py::arg("wordOffsetInRegister") = 0,
+            py::arg("accessModeFlags") = py::list())
         .def("getCatalogueMetadata", &PyDevice::getCatalogueMetadata, py::arg("metaTag"));
   }
 
