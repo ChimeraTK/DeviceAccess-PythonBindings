@@ -212,10 +212,6 @@ class TestPCIEDevice(unittest.TestCase):
 
         readInValues = readCommand(str(module), "WORD_STATUS")
         self.assertTrue(readInValues.dtype == dtype)
-        print(f'=============================== {readCommand} ===============================================')
-        print(readInValues, flush=True)
-        print(word_status_content, flush=True)
-        print(f'=============================== == ===============================================')
         self.assertTrue(numpy.array_equiv(readInValues, word_status_content))
 
         readInValues = readCommand(
@@ -234,7 +230,6 @@ class TestPCIEDevice(unittest.TestCase):
 
         readInValues = readCommand(str(module), "WORD_CLK_MUX")
         self.assertTrue(readInValues.dtype == dtype)
-        print(f'dtype = {dtype}   readInValues = {readInValues} , word_clk_mux_content = {word_clk_mux_content}', flush=True)
         self.assertTrue(numpy.array_equiv(readInValues, word_clk_mux_content))
 
         readInValues = readCommand(str(module), "WORD_CLK_MUX", 1)
@@ -285,10 +280,6 @@ class TestPCIEDevice(unittest.TestCase):
         writeCommand(module, "WORD_STATUS", word_status_content)
         readInValues = readCommand(module, "WORD_STATUS")
         self.assertTrue(readInValues.dtype == dtype)
-        print(f'======================================================================', flush=True)
-        print(f'readInValues = {readInValues}    type = {type(readInValues)} ', flush=True)
-        print(f'word_status_content = {word_status_content}    type = {type(word_status_content)} ', flush=True)
-        print(f'======================================================================', flush=True)
         self.assertTrue(numpy.isclose(readInValues, word_status_content))
 
         # test register path

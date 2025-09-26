@@ -100,16 +100,13 @@ namespace ChimeraTK {
   pybind11::object PyDevice::read(const std::string& registerPath, const py::object& dtype, size_t numberOfElements,
       size_t elementsOffset, const py::list& flaglist) {
     auto reg = _device.getRegisterCatalogue().getRegister(registerPath);
-    std::cout << "HIER read " << registerPath << "  ndim = " << reg.getNumberOfDimensions() << std::endl;
 
     if(reg.getNumberOfDimensions() == 0) {
       if(numberOfElements > 1) {
         throw ChimeraTK::logic_error("Attempting to read more than one element from scalar register");
       }
       auto acc = getScalarRegisterAccessor(dtype, registerPath, elementsOffset, flaglist);
-      auto rv = acc.readAndGet();
-      std::cout << rv << std::endl;
-      return rv;
+      return acc.readAndGet();
     }
 
     if(reg.getNumberOfDimensions() == 1) {
@@ -138,9 +135,9 @@ namespace ChimeraTK {
   void PyDevice::write2D(const std::string& registerPath,
       const UserTypeTemplateVariantNoVoid<PyTwoDRegisterAccessor::VVector>& data, const py::object& dtype,
       size_t wordOffsetInRegister, const py::list& flaglist) {
-    std::cout << "============== write2D " << std::endl;
     size_t numberOfWords = std::visit([&](const auto& v) { return v.size() > 0 ? v[0].size() : 0; }, data);
     if(numberOfWords == 0) {
+      // there is a test checking that writing nothing is ok...
       return;
     }
     auto acc = getTwoDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
@@ -155,21 +152,8 @@ namespace ChimeraTK {
       size_t wordOffsetInRegister, const py::list& flaglist) {
     size_t numberOfWords;
     std::visit([&](const auto& v) { numberOfWords = v.size(); }, data);
-    std::cout << "============== write1D " << registerPath << "  n = " << numberOfWords << std::endl;
-    std::visit(
-        [&](const auto& v) {
-          for(auto x : v) std::cout << x << " ";
-        },
-        data);
-    std::cout << std::endl;
     auto acc = getOneDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
     acc.set(data);
-    std::visit(
-        [&](const auto& v) {
-          for(auto x : v) std::cout << x << " ";
-        },
-        acc._accessor);
-    std::cout << std::endl;
     acc.write();
   }
 
@@ -177,8 +161,6 @@ namespace ChimeraTK {
 
   void PyDevice::writeScalar(const std::string& registerPath, const UserTypeVariantNoVoid& data,
       const py::object& dtype, size_t wordOffsetInRegister, const py::list& flaglist) {
-    std::cout << "============== writeScalar" << std::endl;
-    std::visit([](auto v) { std::cout << v << std::endl; }, data);
     auto acc = getScalarRegisterAccessor(dtype, registerPath, wordOffsetInRegister, flaglist);
     acc.set(data);
     acc.write();
