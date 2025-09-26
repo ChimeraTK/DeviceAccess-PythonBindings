@@ -360,6 +360,7 @@ class TestPCIEDevice(unittest.TestCase):
             readInValues = readCommand(module, "WORD_CLK_MUX", 1, 0)
             self.assertTrue(readInValues.tolist() == [5])
 
+            # writing an empty string should work now, will be interpreted 0
             # self.assertRaises(ValueError, writeCommand, module, word_incomplete_register, "")
 
             # Test for Unsupported dtype eg. dtype = numpy.int8
