@@ -104,24 +104,4 @@ namespace ChimeraTK {
 
   /*****************************************************************************************************************/
 
-  std::string convertStringFromPython(size_t linearIndex, const py::array& np_buffer) {
-    // Note: it is unclear why the conversion in this direction has to be so complicated, while in the other
-    // direction an assignment to an std::string is sufficient.
-
-    // create C++ 4-byte string of matching length
-    size_t itemsize = np_buffer.dtype().itemsize();
-    assert(itemsize % sizeof(char32_t) == 0);
-    std::u32string widestring;
-    widestring.resize(itemsize / 4);
-
-    // copy string to C++ buffer
-    memcpy(widestring.data(), np_buffer.data(linearIndex), itemsize);
-
-    // convert to UTF-8 string and store to accessor
-    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
-    return conv.to_bytes(widestring);
-  }
-
-  /*****************************************************************************************************************/
-
 } // namespace ChimeraTK

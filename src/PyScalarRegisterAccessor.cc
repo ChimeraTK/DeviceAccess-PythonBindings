@@ -19,7 +19,6 @@ namespace py = pybind11;
 namespace ChimeraTK {
 
   /********************************************************************************************************************/
-
   /********************************************************************************************************************/
 
   void PyScalarRegisterAccessor::set(const UserTypeVariantNoVoid& val) {
@@ -31,7 +30,9 @@ namespace ChimeraTK {
         },
         _accessor);
   }
+
   /********************************************************************************************************************/
+
   void PyScalarRegisterAccessor::setArray(const py::array& val) {
     // Note: we assume that the array has exactly one element, i.e. it is a scalar
     if(val.ndim() != 1) {
@@ -61,6 +62,7 @@ namespace ChimeraTK {
         },
         _accessor);
   }
+
   /********************************************************************************************************************/
 
   void PyScalarRegisterAccessor::setList(const py::list& val) {
@@ -90,6 +92,7 @@ namespace ChimeraTK {
         },
         _accessor);
   }
+
   /********************************************************************************************************************/
 
   void PyScalarRegisterAccessor::setAndWriteArray(const py::array& val, const PyVersionNumber& versionNumber) {
@@ -122,6 +125,7 @@ namespace ChimeraTK {
         },
         _accessor);
   }
+
   /********************************************************************************************************************/
 
   py::object PyScalarRegisterAccessor::get() const {
