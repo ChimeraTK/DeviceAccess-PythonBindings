@@ -124,24 +124,35 @@ namespace ChimeraTK {
 
   /*****************************************************************************************************************/
 
-  void PyDevice::writeArray(const std::string& registerPath, const py::array& data, const py::object& dtype,
+  void PyDevice::write2D(const std::string& registerPath,
+      const UserTypeTemplateVariantNoVoid<PyTwoDRegisterAccessor::VVector>& data, const py::object& dtype,
       size_t wordOffsetInRegister, const py::list& flaglist) {
-    if(data.ndim() > 2) {
-      throw ChimeraTK::logic_error("Attempting to write array with more than 2 dimensions.");
-    }
-    std::cout << "============== writeArray " << data << std::endl;
-    size_t numberOfWords = data.shape(data.ndim() - 1);
+    std::cout << "============== write2D " << std::endl;
+    size_t numberOfWords;
+    std::visit(
+        [&](const auto& v) {
+          if(v.size() == 0) {
+            throw ChimeraTK::logic_error("Outer vector of 2D data cannot have size 0.");
+          }
+          numberOfWords = v[0].size();
+        },
+        data);
     auto acc = getTwoDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
-    acc.set(data.cast<UserTypeTemplateVariantNoVoid<PyTwoDRegisterAccessor::VVector>>());
+    acc.set(data);
     acc.write();
   }
 
   /*****************************************************************************************************************/
 
-  void PyDevice::writeList(const std::string& registerPath, const py::list& data, const py::object& dtype,
+  void PyDevice::write1D(const std::string& registerPath,
+      const UserTypeTemplateVariantNoVoid<PyOneDRegisterAccessor::Vector>& data, const py::object& dtype,
       size_t wordOffsetInRegister, const py::list& flaglist) {
-    std::cout << "============== writeList " << data << std::endl;
-    writeArray(registerPath, data.cast<py::array>(), dtype, wordOffsetInRegister, flaglist);
+    std::cout << "============== write1D " << std::endl;
+    size_t numberOfWords;
+    std::visit([&](const auto& v) { numberOfWords = v.size(); }, data);
+    auto acc = getOneDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
+    acc.set(data);
+    acc.write();
   }
 
   /*****************************************************************************************************************/
@@ -192,21 +203,25 @@ namespace ChimeraTK {
             py::arg("numberOfWords") = 0, py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
         .def(
             "write",
-            [](PyDevice& self, const std::string& registerPath, py::array& dataToWrite, const py::object& dtype,
-                size_t wordOffsetInRegister, const py::list& flaglist) {
-              self.writeArray(registerPath, dataToWrite, dtype, wordOffsetInRegister, flaglist);
+            [](PyDevice& self, const std::string& registerPath,
+                const UserTypeTemplateVariantNoVoid<PyTwoDRegisterAccessor::VVector>& dataToWrite,
+                const py::object& dtype, size_t wordOffsetInRegister, const py::list& flaglist) {
+              self.write2D(registerPath, dataToWrite, dtype, wordOffsetInRegister, flaglist);
+            },
+            py::arg("registerPath"), py::arg("dataToWrite"), py::arg("dtype") = py::dtype::of<double>(),
+            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
+        .def(
+            "write",
+            [](PyDevice& self, const std::string& registerPath,
+                const UserTypeTemplateVariantNoVoid<PyOneDRegisterAccessor::Vector>& dataToWrite,
+                const py::object& dtype, size_t wordOffsetInRegister, const py::list& flaglist) {
+              self.write1D(registerPath, dataToWrite, dtype, wordOffsetInRegister, flaglist);
             },
             py::arg("registerPath"), py::arg("dataToWrite"), py::arg("dtype") = py::dtype::of<double>(),
             py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
 
-        .def(
-            "write",
-            [](PyDevice& self, const std::string& registerPath, py::list& dataToWrite, const py::object& dtype,
-                size_t wordOffsetInRegister, const py::list& flaglist) {
-              self.writeList(registerPath, dataToWrite, dtype, wordOffsetInRegister, flaglist);
-            },
-            py::arg("registerPath"), py::arg("dataToWrite"), py::arg("dtype") = py::dtype::of<double>(),
-            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list())
+        // ADD 1D variant!!!!!!!!!!!!!
+
         .def(
             "write",
             [](PyDevice& self, const std::string& registerPath, UserTypeVariantNoVoid& dataToWrite,
