@@ -52,6 +52,9 @@ namespace ChimeraTK {
       _continuousBuffer = buffer;
     }
 
+    UserTypeVariantNoVoid getAsCooked(uint channel, uint element);
+    void setAsCooked(uint channel, uint element, UserTypeVariantNoVoid value);
+
     py::object get() const;
 
     std::string repr(py::object& acc) const;

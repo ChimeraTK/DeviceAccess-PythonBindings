@@ -117,6 +117,27 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
+  UserTypeVariantNoVoid PyTwoDRegisterAccessor::getAsCooked(uint channel, uint element) {
+    {
+      py::gil_scoped_release release;
+      copyFromBuffer();
+    }
+    return std::visit([&](auto& acc) { return acc.template getAsCooked<double>(channel, element); }, _accessor);
+  }
+
+  /********************************************************************************************************************/
+
+  void PyTwoDRegisterAccessor::setAsCooked(uint channel, uint element, UserTypeVariantNoVoid value) {
+    std::visit(
+        [&](auto& acc) { std::visit([&](auto& val) { acc.setAsCooked(channel, element, val); }, value); }, _accessor);
+    {
+      py::gil_scoped_release release;
+      copyToBuffer();
+    }
+  }
+
+  /********************************************************************************************************************/
+
   void PyTwoDRegisterAccessor::set(const UserTypeTemplateVariantNoVoid<VVector>& vec) {
     std::visit(
         [&](auto& acc) {
@@ -339,6 +360,14 @@ namespace ChimeraTK {
         .def("getNChannels", &PyTwoDRegisterAccessor::getNChannels, "Return number of Channels in the register.")
         .def("get", &PyTwoDRegisterAccessor::get, "Return an array of UserType (without a previous read).")
         .def("set", &PyTwoDRegisterAccessor::set, "Set the values of the array of UserType.", py::arg("newValue"))
+        .def("getAsCooked", &PyTwoDRegisterAccessor::getAsCooked,
+            "Get the cooked values in case the accessor is a raw accessor (which does not do data conversion). This "
+            "returns the converted data from the use buffer. It does not do any read or write transfer.",
+            py::arg("channel"), py::arg("element"))
+        .def("setAsCooked", &PyTwoDRegisterAccessor::setAsCooked,
+            "Set the cooked values in case the accessor is a raw accessor (which does not do data conversion). This "
+            "converts to raw and writes the data to the user buffer. It does not do any read or write transfer.",
+            py::arg("channel"), py::arg("element"), py::arg("value"))
         .def("setDataValidity", &PyTwoDRegisterAccessor::setDataValidity,
             "Set the data validity of the transfer element.")
         .def("getAccessModeFlags", &PyTwoDRegisterAccessor::getAccessModeFlags,
