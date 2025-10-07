@@ -46,6 +46,9 @@ namespace ChimeraTK {
 
     void setitem(size_t index, const UserTypeVariantNoVoid& val);
 
+    UserTypeVariantNoVoid getAsCooked(uint element);
+    void setAsCooked(uint element, UserTypeVariantNoVoid value);
+
     std::string repr(py::object& acc) const;
 
     py::buffer_info getBufferInfo();

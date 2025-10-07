@@ -444,6 +444,25 @@ class TestTwoDRegisterAccessor(unittest.TestCase):
 
                         self.assertEqual(catchEx(lambda: acc.__getattribute__(operator)()), expected)
 
+    def testCookedSetGet(self):
+        # 2D multiplexed registers don't have a well defined raw represebntation, thus we use a 1d register which translates to a [1,4] sized 2d register
+        acc: da.TwoDRegisterAccessor = self.dev.getTwoDRegisterAccessor(
+            np.int32, "FLOAT_TEST.1DARRAY", accessModeFlags=[da.AccessMode.raw])
+        someValue = 1097859072
+        cooksTo = 15
+        acc.set([[someValue] * 4] * 1)
+        for j in range(4):
+            self.assertTrue(acc[0][j] == someValue, f'{acc[0][j]} == {someValue}')
+            self.assertTrue(acc.getAsCooked(0, j) == cooksTo, f'{acc.getAsCooked(0, j)} == {cooksTo}')
+
+        someOtherValue = 1082130432
+        cooksTo = 4
+        for i in range(4):
+            acc.setAsCooked(0, i, cooksTo)
+            self.assertTrue(acc[0][i] == someOtherValue, f'{acc[0][i]} == {someOtherValue}')
+            self.assertTrue(acc.getAsCooked(0, i) == cooksTo, f'{acc.getAsCooked(0, i)} == {cooksTo}')
+
+
 #####################################################################################################################
 
 

@@ -43,6 +43,9 @@ namespace ChimeraTK {
 
     py::object get() const;
 
+    UserTypeVariantNoVoid getAsCooked();
+    void setAsCooked(UserTypeVariantNoVoid value);
+
     std::string repr(py::object& acc) const;
 
     py::object getattr(const std::string& name) const { return get().attr(name.c_str()); }

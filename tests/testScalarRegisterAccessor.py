@@ -457,6 +457,21 @@ class TestScalarRegisterAccessor(unittest.TestCase):
 
                         self.assertEqual(catchEx(lambda: acc.__getattribute__(operator)()), expected)
 
+    def testCookedSetGet(self):
+        acc: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(
+            np.int32, "FLOAT_TEST.SCALAR", accessModeFlags=[da.AccessMode.raw])
+        someValue = 1097859072
+        cooksTo = 15
+        acc.set(someValue)
+
+        self.assertTrue(acc.get() == someValue, f'{acc.get()} == {someValue}')
+        self.assertTrue(acc.getAsCooked() == cooksTo, f'{acc.getAsCooked()} == {cooksTo}')
+        someOtherValue = 1082130432
+        cooksTo = 4
+        acc.setAsCooked(cooksTo)
+        self.assertTrue(acc.get() == someOtherValue, f'{acc.get()} == {someOtherValue}')
+        self.assertTrue(acc.getAsCooked() == cooksTo, f'{acc.getAsCooked()} == {cooksTo}')
+
 #####################################################################################################################
 
 

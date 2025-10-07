@@ -490,6 +490,24 @@ class TestOneDRegisterAccessor(unittest.TestCase):
 
                         self.assertEqual(catchEx(lambda: acc.__getattribute__(operator)()), expected)
 
+    def testCookedSetGet(self):
+        acc: da.OneDRegisterAccessor = self.dev.getOneDRegisterAccessor(
+            np.int32, "FLOAT_TEST.1DARRAY", accessModeFlags=[da.AccessMode.raw])
+        someValue = 1097859072
+        cooksTo = 15
+        acc.set([someValue] * 4)
+        for i in range(4):
+            self.assertTrue(acc[i] == someValue, f'{acc[i]} == {someValue}')
+            self.assertTrue(acc.getAsCooked(i) == cooksTo, f'{acc.getAsCooked(i)} == {cooksTo}')
+
+        someOtherValue = 1082130432
+        cooksTo = 4
+        for i in range(4):
+            acc.setAsCooked(i, cooksTo)
+            self.assertTrue(acc[i] == someOtherValue, f'{acc[i]} == {someOtherValue}')
+            self.assertTrue(acc.getAsCooked(i) == cooksTo, f'{acc.getAsCooked(i)} == {cooksTo}')
+
+
 #####################################################################################################################
 
 

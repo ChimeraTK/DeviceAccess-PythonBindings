@@ -197,6 +197,17 @@ namespace ChimeraTK {
         },
         _accessor);
   }
+  /********************************************************************************************************************/
+
+  UserTypeVariantNoVoid PyScalarRegisterAccessor::getAsCooked() {
+    return std::visit([&](auto& acc) { return acc.template getAsCooked<double>(); }, _accessor);
+  }
+
+  /********************************************************************************************************************/
+
+  void PyScalarRegisterAccessor::setAsCooked(UserTypeVariantNoVoid value) {
+    std::visit([&](auto& acc) { std::visit([&](auto& val) { acc.setAsCooked(val); }, value); }, _accessor);
+  }
 
   /********************************************************************************************************************/
 
@@ -304,6 +315,13 @@ namespace ChimeraTK {
             "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a "
             "new version number is generated.",
             py::arg("newValue"), py::arg("versionNumber") = PyVersionNumber::getNullVersion())
+        .def("getAsCooked", &PyScalarRegisterAccessor::getAsCooked,
+            "Get the cooked values in case the accessor is a raw accessor (which does not do data conversion). This "
+            "returns the converted data from the use buffer. It does not do any read or write transfer.")
+        .def("setAsCooked", &PyScalarRegisterAccessor::setAsCooked,
+            "Set the cooked values in case the accessor is a raw accessor (which does not do data conversion). This "
+            "converts to raw and writes the data to the user buffer. It does not do any read or write transfer.",
+            py::arg("value"))
         .def("interrupt", &PyScalarRegisterAccessor::interrupt,
             "Return from a blocking read immediately and throw the ThreadInterrupted exception.")
         .def("getAccessModeFlags", &PyScalarRegisterAccessor::getAccessModeFlags,

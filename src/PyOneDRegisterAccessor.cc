@@ -106,6 +106,17 @@ namespace ChimeraTK {
         },
         _accessor);
   }
+  /********************************************************************************************************************/
+
+  UserTypeVariantNoVoid PyOneDRegisterAccessor::getAsCooked(uint element) {
+    return std::visit([&](auto& acc) { return acc.template getAsCooked<double>(element); }, _accessor);
+  }
+
+  /********************************************************************************************************************/
+
+  void PyOneDRegisterAccessor::setAsCooked(uint element, UserTypeVariantNoVoid value) {
+    std::visit([&](auto& acc) { std::visit([&](auto& val) { acc.setAsCooked(element, val); }, value); }, _accessor);
+  }
 
   /********************************************************************************************************************/
 
@@ -221,6 +232,14 @@ namespace ChimeraTK {
             "Convenience function to set and write new value.\n\nThe given version number. If versionNumber == {}, a"
             "new version number is generated.",
             py::arg("newValue"), py::arg("versionNumber") = PyVersionNumber::getNullVersion())
+        .def("getAsCooked", &PyOneDRegisterAccessor::getAsCooked,
+            "Get the cooked values in case the accessor is a raw accessor (which does not do data conversion). This "
+            "returns the converted data from the use buffer. It does not do any read or write transfer.",
+            py::arg("element"))
+        .def("setAsCooked", &PyOneDRegisterAccessor::setAsCooked,
+            "Set the cooked values in case the accessor is a raw accessor (which does not do data conversion). This "
+            "converts to raw and writes the data to the user buffer. It does not do any read or write transfer.",
+            py::arg("element"), py::arg("value"))
         .def("isInitialised", &PyOneDRegisterAccessor::isInitialised, "Check if the transfer element is initialised.")
         .def("setDataValidity", &PyOneDRegisterAccessor::setDataValidity,
             "Set the data validity of the transfer element.")
