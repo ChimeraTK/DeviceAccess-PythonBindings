@@ -72,12 +72,6 @@ test-skip = "*"
 # Enable additional backends compilation
 DEVICEACCESS_BACKEND_ENABLE="1"
 
-# Dependencies versions
-CPPEXT_VERSION="01.05.02"
-EXPRTK_VERSION="01.04.01"
-NLOHMANN_JSON_VERSION="v3.7.3"
-DEVICEACCESS_VERSION="03.15.02"
-
 # Add the build directory to the environment variables
 BUILD_DIR="${HOME}/build"
 PKG_CONFIG_PATH="${BUILD_DIR}/local/lib/pkgconfig/:/usr/lib/pkgconfig:${PKG_CONFIG_PATH}"

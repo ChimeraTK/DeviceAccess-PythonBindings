@@ -2,6 +2,12 @@
 
 # For manylinux_2_28
 
+# Dependencies versions
+export CPPEXT_VERSION="01.05.02"
+export EXPRTK_VERSION="01.04.01"
+export NLOHMANN_JSON_VERSION="v3.7.3"
+export DEVICEACCESS_VERSION="03.15.02"
+
 export PROJECT_PWD=`pwd`
 export PROCS=`nproc`
 
