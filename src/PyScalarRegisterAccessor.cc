@@ -333,6 +333,24 @@ namespace ChimeraTK {
         .def_property_readonly("dtype", &PyScalarRegisterAccessor::getValueType,
             "Return the dtype of the value type of this TransferElement.\n\nThis can be used to determine the type at "
             "runtime.")
+        .def(
+            "__getitem__",
+            [](PyScalarRegisterAccessor& self, const size_t& index) {
+              if(index != 0) {
+                throw ChimeraTK::logic_error("PyScalarRegisterAccessor::__getitem__: Index out of range");
+              }
+              return self.get();
+            },
+            "Get the value of the scalar register accessor (same as get()).", py::arg("index"))
+        .def(
+            "__setitem__",
+            [](PyScalarRegisterAccessor& self, const size_t& index, const UserTypeVariantNoVoid& value) {
+              if(index != 0) {
+                throw ChimeraTK::logic_error("PyScalarRegisterAccessor::__getitem__: Index out of range");
+              }
+              return self.set(value);
+            },
+            "Set the value of the scalar register accessor (same as set()).", py::arg("index"), py::arg("value"))
         .def("__repr__", &PyScalarRegisterAccessor::repr);
 
     for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {
