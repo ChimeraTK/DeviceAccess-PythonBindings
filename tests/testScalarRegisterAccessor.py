@@ -472,6 +472,23 @@ class TestScalarRegisterAccessor(unittest.TestCase):
         self.assertTrue(acc.get() == someOtherValue, f'{acc.get()} == {someOtherValue}')
         self.assertTrue(acc.getAsCooked() == cooksTo, f'{acc.getAsCooked()} == {cooksTo}')
 
+    def testSubscriptOperator(self):
+        acc: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(
+            np.int32, "FLOAT_TEST.SCALAR")
+        # test getting first
+        acc.set(32)
+        acc.write()
+        self.assertTrue(acc[0] == 32, f'{acc[0]} == 32')
+        # setting
+        acc[0] = 12
+        acc.write()
+        self.assertTrue(acc[0] == 12, f'{acc[0]} == 12')
+        # out-of-bounds access
+        with self.assertRaises(RuntimeError):
+            _ = acc[1]
+        with self.assertRaises(RuntimeError):
+            acc[1] = 5
+
 #####################################################################################################################
 
 
