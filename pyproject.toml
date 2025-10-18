@@ -58,7 +58,7 @@ wheel.py-api = "cp312"
 before-all = "bash pre_build_manylinux.sh"
 skip = "cp36-* cp37-* cp38-* cp314t-* *-musllinux* *-win32 *_i686"
 manylinux-x86_64-image = "manylinux_2_28"
-manylinux-aarch64-image = "manylinux2_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
 
 # Necessary to see build output from the actual compilation
 build-verbosity = 1
