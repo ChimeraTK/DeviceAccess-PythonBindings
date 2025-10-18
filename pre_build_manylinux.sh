@@ -6,7 +6,7 @@
 export CPPEXT_VERSION="01.05.02"
 export EXPRTK_VERSION="01.04.01"
 export NLOHMANN_JSON_VERSION="v3.12.0"
-export DEVICEACCESS_VERSION="03.20.02"
+export DEVICEACCESS_VERSION="03.19.00"
 
 export PROJECT_PWD=`pwd`
 export PROCS=`nproc`
@@ -28,7 +28,7 @@ build_cmake () {
 
 # Install required system packages
 dnf install -y epel-release
-dnf -y install gcc-c++ gcc-toolset-14-libatomic-devel libxml++-devel boost1.78 boost1.78-devel boost1.78-python3-devel
+dnf -y install gcc-c++ gcc-toolset-14-libatomic-devel libxml++-devel boost1.78 boost1.78-system boost1.78-thread boost1.78-chrono boost1.78-filesystem boost1.78-python3-devel
 
 g++ --version
 
