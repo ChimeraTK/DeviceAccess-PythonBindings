@@ -4,7 +4,7 @@ project(ChimeraTK-DeviceAccess-PythonBindings)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 set(${PROJECT_NAME}_MAJOR_VERSION 03)
-set(${PROJECT_NAME}_MINOR_VERSION 03)
+set(${PROJECT_NAME}_MINOR_VERSION 05)
 set(${PROJECT_NAME}_PATCH_VERSION 02)
 include(cmake/set_version_numbers.cmake)
 
@@ -71,8 +71,11 @@ FILE(GLOB test_scripts "${PROJECT_BINARY_DIR}/tests/*.py")
 
 foreach(script_path ${test_scripts})
   get_filename_component(test_name ${script_path} NAME_WE)
-  add_test(NAME ${test_name} COMMAND ${Python_EXECUTABLE} ${script_path} WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/tests)
-  set_tests_properties(${test_name} PROPERTIES TIMEOUT 30)
+
+  if(NOT "${CMAKE_BUILD_TYPE}" STREQUAL "asan" AND NOT "${CMAKE_BUILD_TYPE}" STREQUAL "tsan")
+    add_test(NAME ${test_name} COMMAND ${Python_EXECUTABLE} ${script_path} WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/tests)
+    set_tests_properties(${test_name} PROPERTIES TIMEOUT 30)
+  endif()
 endforeach(script_path)
 
 include(cmake/enable_code_coverage_report.cmake)

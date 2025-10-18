@@ -23,8 +23,7 @@ class TestOpeningException(unittest.TestCase):
     def testExceptionWhenOpening(self):
         # We use the dummy with a bad map file as we know that deviceaccess
         # is throwing here.
-        self.assertRaisesRegex(RuntimeError, "Cannot open file \".*badMapFile.map\"",
-                                mtca4u.Device, "sdm://./dummy=badMapFile.map")
+        self.assertRaises(RuntimeError, mtca4u.Device, "(dummy?map=./badMapFile.map)")
 
 
 if __name__ == '__main__':

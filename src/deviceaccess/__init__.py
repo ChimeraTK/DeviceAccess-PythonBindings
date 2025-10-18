@@ -28,7 +28,7 @@ except ModuleNotFoundError:
 import abc
 import functools
 
-#######################################################################################################################
+########################################################################################################################
 
 
 def setDMapFilePath(dmapFilePath: str) -> None:
@@ -49,7 +49,7 @@ def setDMapFilePath(dmapFilePath: str) -> None:
     """
     pb.setDmapFile(dmapFilePath)
 
-#######################################################################################################################
+########################################################################################################################
 
 
 def getDMapFilePath() -> str:
@@ -58,8 +58,8 @@ def getDMapFilePath() -> str:
     """
     return pb.getDmapFile()
 
-#######################################################################################################################
-#######################################################################################################################
+########################################################################################################################
+########################################################################################################################
 
 
 class GeneralRegisterAccessor(abc.ABC):
@@ -473,8 +473,16 @@ class GeneralRegisterAccessor(abc.ABC):
         """
         return self._accessor.getId()
 
-#######################################################################################################################
-#######################################################################################################################
+    def interrupt(self) -> None:
+        """
+        Place a thread interrupted exception on the read queue of this accessor,
+        so the thread currently waiting in a blocking read() will terminate. May
+        only be called for accessors with AccessMode.wait_for_new_data.
+        """
+        self._accessor.interrupt()
+
+########################################################################################################################
+########################################################################################################################
 
 
 class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
@@ -573,6 +581,11 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
 
     # pass through all (non-operator) functions to the np array (unless defined here)
     def __getattr__(self, name):
+        if name == "__array_struct__":
+            # This fixes issues with string type accessors. Casting a string accessor into an np.array via either
+            # "np.array(myAccessor)" or "np.asarray(myAccessor)" delivers incorrect results if __array_struct__
+            # is passed through, while it works when not redirecting it here.
+            return super().__getattr__(name)
         return self.__array.__getattribute__(name)
 
     # comparison operators
@@ -723,6 +736,16 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
     def writeDestructively(self) -> None:
         return self._accessor.writeDestructively(self.__array)
 
+    def getAsCooked(self, userType, channel: int, element: int):
+        userTypeFunctionExtension = Device._userTypeExtensions.get(userType, None)
+        if not userTypeFunctionExtension:
+            raise SyntaxError("userType not supported" + str(Device._userTypeExtensions))
+        getAsCooked = getattr(self._accessor, "getAsCooked_" + userTypeFunctionExtension)
+        return getAsCooked(self.__array, channel, element)
+
+    def setAsCooked(self, channel: int, element: int, value):
+        self.__array = self._accessor.setAsCooked(self.__array, channel, element, value)
+
     # transfer doc strings from base class for accessor functions
     read.__doc__ = GeneralRegisterAccessor.read.__doc__
     readNonBlocking.__doc__ = GeneralRegisterAccessor.readNonBlocking.__doc__
@@ -730,8 +753,8 @@ class NumpyGeneralRegisterAccessor(GeneralRegisterAccessor):
     write.__doc__ = GeneralRegisterAccessor.write.__doc__
     writeDestructively.__doc__ = GeneralRegisterAccessor.writeDestructively.__doc__
 
-#######################################################################################################################
-#######################################################################################################################
+########################################################################################################################
+########################################################################################################################
 
 
 class TwoDRegisterAccessor(NumpyGeneralRegisterAccessor):
@@ -768,8 +791,8 @@ class TwoDRegisterAccessor(NumpyGeneralRegisterAccessor):
         """
         return self._accessor.getNElementsPerChannel()
 
-#######################################################################################################################
-#######################################################################################################################
+########################################################################################################################
+########################################################################################################################
 
 
 class OneDRegisterAccessor(NumpyGeneralRegisterAccessor):
@@ -799,8 +822,8 @@ class OneDRegisterAccessor(NumpyGeneralRegisterAccessor):
         """
         return self._accessor.getNElements()
 
-#######################################################################################################################
-#######################################################################################################################
+########################################################################################################################
+########################################################################################################################
 
 
 class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
@@ -902,8 +925,8 @@ class ScalarRegisterAccessor(NumpyGeneralRegisterAccessor):
             versionNumber = VersionNumber.getNullVersion()
         self._accessor.writeIfDifferent(newValue, versionNumber, validity)
 
-#######################################################################################################################
-#######################################################################################################################
+########################################################################################################################
+########################################################################################################################
 
 
 class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
@@ -943,8 +966,8 @@ class VoidRegisterAccessor(GeneralRegisterAccessor, np.ndarray):
     def writeDestructively(self) -> bool:
         return self._accessor.writeDestructively()
 
-#######################################################################################################################
-#######################################################################################################################
+########################################################################################################################
+########################################################################################################################
 
 
 class Device:
@@ -1439,7 +1462,7 @@ class Device:
                            wordOffsetInRegister, accessModeFlags)
 
 
-#######################################################################################################################
+########################################################################################################################
 # Middle Layer Class extensions, might be unnecessary in the future with a switch from boost to pybind11
 
 class RegisterClassIterator:
@@ -1461,7 +1484,7 @@ class RegisterClassIterator:
 pb.RegisterCatalogue.__iter__ = lambda rc: RegisterClassIterator(rc)
 
 
-#######################################################################################################################
+########################################################################################################################
 # Type Definitions
 
 

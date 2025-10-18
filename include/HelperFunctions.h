@@ -41,7 +41,7 @@ struct CtkBoolean_to_python {
 
 namespace DeviceAccessPython {
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   ChimeraTK::DataType convert_dytpe_to_usertype(boost::python::numpy::dtype dtype);
 
@@ -63,11 +63,11 @@ namespace DeviceAccessPython {
   void copyNpArrayToUserBuffer(
       ChimeraTK::NDRegisterAccessorAbstractor<T>& self, boost::python::numpy::ndarray& np_buffer);
 
-  /*****************************************************************************************************************/
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
+  /********************************************************************************************************************/
   /* Implementations following */
-  /*****************************************************************************************************************/
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
+  /********************************************************************************************************************/
 
   template<typename T>
   boost::python::numpy::ndarray copyUserBufferToNpArray(
@@ -99,31 +99,25 @@ namespace DeviceAccessPython {
 
     // copy data into the mumpy ndarray
     if(ndim <= 1) {
-      for(size_t k = 0; k < elements; ++k) {
-        if constexpr(std::is_same<T, ChimeraTK::Boolean>::value) {
-          new_buffer[k] = bool(acc->accessChannel(0)[k]);
-        }
-        else {
+      if constexpr(std::is_same<T, std::string>::value) {
+        // strings need to be copied per element, since numpy expect them to be organised in consecutive memory
+        for(size_t k = 0; k < elements; ++k) {
           new_buffer[k] = T(acc->accessChannel(0)[k]);
         }
+      }
+      else {
+        memcpy(new_buffer.get_data(), acc->accessChannel(0).data(), elements * sizeof(T));
       }
     }
     else {
       for(size_t i = 0; i < channels; ++i) {
-        for(size_t k = 0; k < elements; ++k) {
-          if constexpr(std::is_same<T, ChimeraTK::Boolean>::value) {
-            new_buffer[i][k] = bool(acc->accessChannel(i)[k]);
-          }
-          else {
-            new_buffer[i][k] = T(acc->accessChannel(i)[k]);
-          }
-        }
+        memcpy(&(new_buffer.get_data()[i * elements * sizeof(T)]), acc->accessChannel(i).data(), elements * sizeof(T));
       }
     }
     return new_buffer;
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   template<typename T>
   void copyNpArrayToUserBuffer(
@@ -153,6 +147,6 @@ namespace DeviceAccessPython {
     }
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
 } // namespace DeviceAccessPython

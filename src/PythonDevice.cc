@@ -9,14 +9,14 @@
 
 namespace DeviceAccessPython {
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   ChimeraTK::TwoDRegisterAccessor<double> Device::getTwoDAccessor(
       const ChimeraTK::Device& self, const std::string& registerPath) {
     return (self.getTwoDRegisterAccessor<double>(registerPath));
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   ChimeraTK::OneDRegisterAccessor<int32_t> Device::getRawOneDAccessor(const ChimeraTK::Device& self,
       const std::string& registerPath, size_t numberOfelementsToRead, size_t elementOffset) {
@@ -24,38 +24,38 @@ namespace DeviceAccessPython {
         registerPath, numberOfelementsToRead, elementOffset, {ChimeraTK::AccessMode::raw});
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   ChimeraTK::VoidRegisterAccessor Device::getVoidRegisterAccessor(
       const ChimeraTK::Device& self, const std::string& registerPath, boost::python::list flaglist) {
     return self.getVoidRegisterAccessor(registerPath, convertFlagsFromPython(flaglist));
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   std::string Device::getCatalogueMetadata(const ChimeraTK::Device& self, const std::string& parameterName) {
     return self.getMetadataCatalogue().getMetadata(parameterName);
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   void Device::open(ChimeraTK::Device& self) {
     self.open();
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   void Device::open(ChimeraTK::Device& self, std::string const& aliasName) {
     self.open(aliasName);
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   void Device::close(ChimeraTK::Device& self) {
     self.close();
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   ChimeraTK::AccessModeFlags Device::convertFlagsFromPython(boost::python::list flaglist) {
     ChimeraTK::AccessModeFlags flags{};
@@ -66,19 +66,19 @@ namespace DeviceAccessPython {
     return flags;
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   void Device::activateAsyncRead(ChimeraTK::Device& self) {
     self.activateAsyncRead();
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   ChimeraTK::RegisterCatalogue Device::getRegisterCatalogue(ChimeraTK::Device& self) {
     return self.getRegisterCatalogue();
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   boost::python::numpy::ndarray Device::read(const ChimeraTK::Device& self, const std::string& registerPath,
       size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist) {
@@ -99,7 +99,7 @@ namespace DeviceAccessPython {
     return *arr;
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
   void Device::write(const ChimeraTK::Device& self, boost::python::numpy::ndarray& arr, const std::string& registerPath,
       size_t numberOfElements, size_t elementsOffset, boost::python::list flaglist) {
@@ -115,6 +115,6 @@ namespace DeviceAccessPython {
     ChimeraTK::callForTypeNoVoid(usertype, bufferTransfer);
   }
 
-  /*****************************************************************************************************************/
+  /********************************************************************************************************************/
 
 } // namespace DeviceAccessPython

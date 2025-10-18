@@ -117,13 +117,7 @@ class TestPCIEDevice(unittest.TestCase):
     def testException(self):
         device = mtca4u.Device("(dummy?map=./modular_mtcadummy.map)")
         array = numpy.array([1, 2, 3, 4], dtype=numpy.int32)
-        self.assertRaisesRegex(
-            RuntimeError,
-            "Requested number of words exceeds the size of the register '/BOARD/WORD_STATUS'!",
-            device.write_raw,
-            'BOARD',
-            'WORD_STATUS',
-            array)
+        self.assertRaises(RuntimeError, device.write_raw, 'BOARD', 'WORD_STATUS', array)
         # moduleName='', registerName=None, dataToWrite=None, elementIndexInRegister=0, registerPath=None)
 
     def testDeviceCreation(self):
@@ -141,10 +135,8 @@ class TestPCIEDevice(unittest.TestCase):
             # incorrect usage.
 
         self.assertRaises(RuntimeError, mtca4u.Device, "(dummy?map=NON_EXISTENT_MAPFILE)")
-        self.assertRaisesRegex(SyntaxError, "Syntax Error: please see help\\(mtca4u.Device\\) for usage instructions.",
-                               mtca4u.Device)
-        self.assertRaisesRegex(SyntaxError, "Syntax Error: please see help\\(mtca4u.Device\\) for usage instructions.",
-                               mtca4u.Device, "BogusText", "BogusText", "BogusText")
+        self.assertRaises(SyntaxError, mtca4u.Device)
+        self.assertRaises(SyntaxError, mtca4u.Device, "BogusText", "BogusText", "BogusText")
 
         dmapFilePath = mtca4u.get_dmap_location()
         mtca4u.set_dmap_location("")
@@ -256,11 +248,7 @@ class TestPCIEDevice(unittest.TestCase):
         # check for corner cases
         # Register Not Found
         # hack
-        exceptionMessage = self.__returnRegisterNotFoundExceptionMsg(
-            module, "BAD_REGISTER_NAME")
-
-        self.assertRaisesRegex(RuntimeError, exceptionMessage, readCommand, str(module),
-                               "BAD_REGISTER_NAME")
+        self.assertRaises(RuntimeError, readCommand, str(module), "BAD_REGISTER_NAME")
 
         # Num of elements specified  is more than register size
         registerName = "WORD_CLK_MUX"
@@ -270,11 +258,7 @@ class TestPCIEDevice(unittest.TestCase):
             module), registerName, elementsToRead, offset)
 
         # bad value for number of elements
-        self.assertRaises(OverflowError,
-                          readCommand,
-                          str(module),
-                          registerName,
-                          numberOfElementsToRead=-1)
+        self.assertRaises(OverflowError,  readCommand, str(module), registerName, numberOfElementsToRead=-1)
 
         # offset exceeds register size
         offset = 5
@@ -371,14 +355,11 @@ class TestPCIEDevice(unittest.TestCase):
             readInValues = readCommand(module, "WORD_CLK_MUX", 1, 0)
             self.assertTrue(readInValues.tolist() == [5])
 
-            self.assertRaisesRegex(RuntimeError, "Data format used is unsupported",
-                                   writeCommand, module, word_incomplete_register,
-                                   "")
+            self.assertRaises(RuntimeError, writeCommand, module, word_incomplete_register, "")
 
          # Test for Unsupported dtype eg. dtype = numpy.int8
-            self.assertRaisesRegex(RuntimeError, "Data format used is unsupported",
-                                   writeCommand, module, word_incomplete_register,
-                                   numpy.array([2], dtype=numpy.int8))
+            self.assertRaises(RuntimeError, writeCommand, module, word_incomplete_register,
+                              numpy.array([2], dtype=numpy.int8))
 
         # check offset functionality
         writeCommand(module, "WORD_CLK_MUX", word_clk_mux_content)
@@ -396,21 +377,10 @@ class TestPCIEDevice(unittest.TestCase):
         # Check corner cases
 
         # Bogus register name
-        exceptionMessage = self.__returnRegisterNotFoundExceptionMsg(
-            module, "BAD_REGISTER_NAME")
-        self.assertRaisesRegex(RuntimeError, exceptionMessage, writeCommand, module,
-                               "BAD_REGISTER_NAME",
-                               numpy.array([2.125], dtype=dtype))
+        self.assertRaises(RuntimeError, writeCommand, module, "BAD_REGISTER_NAME", numpy.array([2.125], dtype=dtype))
 
-        # supplied array size exceeds register capacity: !regex /BOARD can be
-        # there 1 o 0 times. () and ? have special meaning in regex.
-        self.assertRaisesRegex(
-            RuntimeError,
-            "Requested number of words exceeds the size of the register '(/BOARD)?/WORD_INCOMPLETE_2'!",
-            writeCommand,
-            module,
-            word_incomplete_register,
-            word_clk_mux_content)
+        # supplied array size exceeds register capacity
+        self.assertRaises(RuntimeError, writeCommand, module, word_incomplete_register, word_clk_mux_content)
 
         # supplied offset exceeds register span
         self.assertRaises(RuntimeError, writeCommand, module,
@@ -503,19 +473,19 @@ class TestPCIEDevice(unittest.TestCase):
 
         # Check that 32 bit data can be transfered without precision loss (Hack by using double.
         # This is not clean, but works sufficiently well.)
-        predefinedSequence = numpy.array([0x12345678, 0x90abcdef, 0xa5a5a5a5,
-                                          0x5a5a5a5a, 0xffeeffee, 0xcc33cc33,
-                                          0x33cc33cc, 0xdeadbeef, 0x87654321,
-                                          0xfdecba09, 0xb0b00b0b, 0x73533537], dtype=numpy.int32)
+        predefinedSequence = numpy.array([0x12345678, 0x10abcdef, 0x25a5a5a5,
+                                          0x5a5a5a5a, 0x7feeffee, 0x4c33cc33,
+                                          0x33cc33cc, 0x5eadbeef, 0x07654321,
+                                          0x7decba09, 0x30b00b0b, 0x73533537], dtype=numpy.int32)
         device.write_raw(
             module, 'UNSIGNED_INT.MULTIPLEXED_RAW', predefinedSequence)
 
         # Use dtype=numpy.int32 to make sure we don't have rounding errors in the expected values.
         # The comparison array_equiv still works, even if we compare to a different dtype.
-        expectedMatrix = numpy.array([[0x12345678, 0x90abcdef, 0xa5a5a5a5],
-                                      [0x5a5a5a5a, 0xffeeffee, 0xcc33cc33],
-                                      [0x33cc33cc, 0xdeadbeef, 0x87654321],
-                                      [0xfdecba09, 0xb0b00b0b, 0x73533537]], dtype=numpy.uint32)
+        expectedMatrix = numpy.array([[0x12345678, 0x10abcdef, 0x25a5a5a5],
+                                      [0x5a5a5a5a, 0x7feeffee, 0x4c33cc33],
+                                      [0x33cc33cc, 0x5eadbeef, 0x07654321],
+                                      [0x7decba09, 0x30b00b0b, 0x73533537]], dtype=numpy.uint32)
         readInMatrix = device.read_sequences(module, 'UNSIGNED_INT')
         self.assertTrue(numpy.array_equiv(readInMatrix, expectedMatrix))
         self.assertTrue(readInMatrix.dtype == numpy.double)

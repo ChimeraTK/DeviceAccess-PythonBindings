@@ -5,8 +5,8 @@
 # Dependencies versions
 export CPPEXT_VERSION="01.05.02"
 export EXPRTK_VERSION="01.04.01"
-export NLOHMANN_JSON_VERSION="v3.7.3"
-export DEVICEACCESS_VERSION="03.15.02"
+export NLOHMANN_JSON_VERSION="v3.12.0"
+export DEVICEACCESS_VERSION="03.20.02"
 
 export PROJECT_PWD=`pwd`
 export PROCS=`nproc`
@@ -31,8 +31,6 @@ dnf install -y epel-release
 dnf -y install gcc-c++ gcc-toolset-14-libatomic-devel libxml++-devel boost1.78 boost1.78-devel boost1.78-python3-devel
 
 g++ --version
-
-pipx install --force cmake==3.18
 
 # Install cppext
 git clone --recursive --depth 1 --branch ${CPPEXT_VERSION} https://github.com/ChimeraTK/cppext.git

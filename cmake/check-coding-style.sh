@@ -11,15 +11,15 @@ exclude_path=${1:-justignoreme}
 exclude_pattern="$exclude_path/*"
 
 # check clang-format formatting
-if which clang-format-14 > /dev/null; then
-  find $mypath \( -name *.cc -o -name *.cpp -o -name *.h \) -not -path "$exclude_pattern" -exec clang-format-14 --output-replacements-xml \{\} \; | grep "^<replacement " > /dev/null
+if which clang-format-19 > /dev/null; then
+  find $mypath \( -name \*.cc -o -name \*.cpp -o -name \*.h \) -not -path "$exclude_pattern" -exec clang-format-19 --output-replacements-xml \{\} \; | grep "^<replacement " > /dev/null
   if [ $? -ne 1 ]; then
     echo 1 > "${ERRFILE}"
     echo "Code formatting incorrect!"
   fi
 else
   echo 77 > "${ERRFILE}"
-  echo "WARNING: clang-format-14 not found, code formatting not checked!"
+  echo "WARNING: clang-format-19 not found, code formatting not checked!"
 fi
 
 # check copyright/licence file header comment
@@ -37,7 +37,7 @@ checkCopyrightComment() {
   fi
 }
 export -f checkCopyrightComment
-find $mypath \( -name *.cc -o -name *.cpp -o -name *.h \) -not -path "$exclude_pattern" -exec bash -c 'checkCopyrightComment {}' \;
+find $mypath \( -name \*.cc -o -name \*.cpp -o -name \*.h \) -not -path "$exclude_pattern" -exec bash -c 'checkCopyrightComment {}' \;
 
 # check all header files for "#pragma once" in 3rd line
 checkPramgaOnce() {
@@ -47,10 +47,9 @@ checkPramgaOnce() {
   fi
 }
 export -f checkPramgaOnce
-find $mypath -name *.h -not -path "$exclude_pattern" -exec bash -c 'checkPramgaOnce {}' \;
+find $mypath -name \*.h -not -path "$exclude_pattern" -exec bash -c 'checkPramgaOnce {}' \;
 
 ERROR=`cat "${ERRFILE}"`
 rm -f "${ERRFILE}"
 
 exit ${ERROR}
-
