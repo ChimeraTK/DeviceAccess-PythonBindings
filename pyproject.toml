@@ -2,14 +2,15 @@
 requires = [
   "scikit-build-core",
   "oldest-supported-numpy",
-  "cibuildwheel>=2.19"
+  "cibuildwheel>=2.19",
+  "pybind11>=3.0"
 ]
 
 build-backend = "scikit_build_core.build"
 
 [project]
 name = "deviceaccess"
-version = "3.5.2"
+version = "4.0.1"
 dependencies = [
   "numpy<2",
 ]

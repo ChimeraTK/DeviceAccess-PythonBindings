@@ -3,58 +3,62 @@
 
 #include "RegisterCatalogue.h"
 
+#include <pybind11/pybind11.h>
 namespace ctk = ChimeraTK;
+
+namespace py = pybind11;
 
 namespace DeviceAccessPython {
 
-  /********************************************************************************************************************/
+  /*******************************************************************************************************************/
 
-  ChimeraTK::RegisterInfo RegisterCatalogue::getRegister(
-      ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName) {
-    return self.getRegister(registerPathName);
-  }
-
-  /********************************************************************************************************************/
-
-  bool RegisterCatalogue::hasRegister(ChimeraTK::RegisterCatalogue& self, const std::string& registerPathName) {
-    return self.hasRegister(registerPathName);
-  }
-
-  /********************************************************************************************************************/
-
-  boost::python::list RegisterCatalogue::items(ChimeraTK::RegisterCatalogue& self) {
-    boost::python::list registerInfos{};
-    for(const auto& regInfo : self) registerInfos.append(ChimeraTK::RegisterInfo(regInfo.clone()));
+  py::list RegisterCatalogue::items(ChimeraTK::RegisterCatalogue& self) {
+    py::list registerInfos{};
+    for(const auto& regInfo : self) {
+      registerInfos.append(ChimeraTK::RegisterInfo(regInfo.clone()));
+    }
     return registerInfos;
   }
 
-  /********************************************************************************************************************/
+  /*******************************************************************************************************************/
+
+  py::list RegisterCatalogue::hiddenRegisters(ChimeraTK::RegisterCatalogue& self) {
+    py::list registerInfos{};
+    for(const auto& regInfo : self.hiddenRegisters()) {
+      registerInfos.append(ChimeraTK::RegisterInfo(regInfo.clone()));
+    }
+    return registerInfos;
+  }
+
+  /*******************************************************************************************************************/
+
   ChimeraTK::DataDescriptor RegisterInfo::getDataDescriptor(ChimeraTK::RegisterInfo& self) {
     return self.getDataDescriptor();
   }
-  /********************************************************************************************************************/
+
+  /*******************************************************************************************************************/
 
   std::string RegisterInfo::getRegisterName(ChimeraTK::RegisterInfo& self) {
     return self.getRegisterName();
   }
 
-  /********************************************************************************************************************/
+  /*******************************************************************************************************************/
 
-  boost::python::list RegisterInfo::getSupportedAccessModes(ChimeraTK::RegisterInfo& self) {
+  py::list RegisterInfo::getSupportedAccessModes(ChimeraTK::RegisterInfo& self) {
     ChimeraTK::AccessModeFlags flags = self.getSupportedAccessModes();
-    boost::python::list python_flags{};
+    py::list python_flags{};
     if(flags.has(ChimeraTK::AccessMode::raw)) python_flags.append(ChimeraTK::AccessMode::raw);
     if(flags.has(ChimeraTK::AccessMode::wait_for_new_data))
       python_flags.append(ChimeraTK::AccessMode::wait_for_new_data);
     return python_flags;
   }
 
-  /********************************************************************************************************************/
+  /*******************************************************************************************************************/
 
   ChimeraTK::DataDescriptor::FundamentalType DataDescriptor::fundamentalType(ChimeraTK::DataDescriptor& self) {
     return self.fundamentalType();
   }
 
-  /********************************************************************************************************************/
+  /*******************************************************************************************************************/
 
 } /* namespace DeviceAccessPython*/

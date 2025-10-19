@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.curdir,"..")))
 import deviceaccess as da
 # fmt: on
 
-########################################################################################################################
+#####################################################################################################################
 
 types_to_test = [np.int8, np.uint8, np.int16, np.uint16, np.int32,
                  np.uint32, np.int64, np.uint64, np.float32, np.float64, bool, str]
@@ -56,13 +56,13 @@ binaryOps = [
 
 unaryOps = [
     ("__str__", True, True, True),
-    ("__bool__", True, True, True),
+    ("__bool__", True, True, False),
 ]
 
 # Start value used to generate numbers in the value() function below.
 generator_seed = 10
 
-########################################################################################################################
+#####################################################################################################################
 
 
 def valueAfterConstruct(type):
@@ -75,7 +75,7 @@ def valueAfterConstruct(type):
         return False
     return type(0)
 
-########################################################################################################################
+#####################################################################################################################
 
 
 def value(type, forceUnequal=None):
@@ -110,7 +110,7 @@ def value(type, forceUnequal=None):
 
         generator_seed += 1
 
-########################################################################################################################
+#####################################################################################################################
 
 
 def catchEx(lambdaExpression):
@@ -125,8 +125,8 @@ def catchEx(lambdaExpression):
     except IndexError as ex:
         return ('IndexError', str(ex))
 
-########################################################################################################################
-########################################################################################################################
+#####################################################################################################################
+#####################################################################################################################
 
 
 class TestScalarRegisterAccessor(unittest.TestCase):
@@ -144,29 +144,29 @@ class TestScalarRegisterAccessor(unittest.TestCase):
         self.interrupt = self.dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_0")
 
     def testGetSet(self):
-        for type in types_to_test:
-            with self.subTest(type=type):
-                acc = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
+        for typ in types_to_test:
+            with self.subTest(type=typ):
+                acc = self.dev.getScalarRegisterAccessor(typ, "ADC/WORD_CLK_CNT_1")
 
-                self.assertTrue(acc.get() == [valueAfterConstruct(type)])
+                self.assertTrue(acc.get() == valueAfterConstruct(typ))
 
-                expected = value(type)
-                acc.set([expected])
-
-                self.assertTrue(acc.get() == [expected])
-
-                expected = value(type, expected)
+                expected = value(typ)
                 acc.set(expected)
 
-                self.assertTrue(acc.get() == [expected])
+                self.assertTrue(acc.get() == expected)
+
+                expected = value(typ, expected)
+                acc.set(expected)
+
+                self.assertTrue(acc.get() == expected)
 
     def testRead(self):
         for type in types_to_test:
             with self.subTest(type=type):
                 acc = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
 
-                expected = [value(type)]
-                self.backdoor.set(expected)
+                expected = value(type)
+                self.backdoor.set([expected])
                 self.backdoor.write()
 
                 acc.read()
@@ -186,7 +186,7 @@ class TestScalarRegisterAccessor(unittest.TestCase):
                 time.sleep(0.1)
                 self.assertTrue(t.is_alive())  # read is not yet complete
 
-                expected = [value(type)]
+                expected = value(type)
                 self.backdoor.set(expected)
                 self.backdoor.write()
 
@@ -202,7 +202,7 @@ class TestScalarRegisterAccessor(unittest.TestCase):
                 acc = self.dev.getScalarRegisterAccessor(
                     type, "ADC/WORD_CLK_CNT_1_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
 
-                expected = [value(type)]
+                expected = value(type)
                 self.backdoor.set(expected)
                 self.backdoor.write()
                 self.interrupt.write()
@@ -218,14 +218,14 @@ class TestScalarRegisterAccessor(unittest.TestCase):
     def testReadNonBlocking(self):
         for type in types_to_test:
             with self.subTest(type=type):
-                expected1 = [value(type)]
+                expected1 = value(type)
                 self.backdoor.set(expected1)
                 self.backdoor.write()
 
                 acc = self.dev.getScalarRegisterAccessor(
                     type, "ADC/WORD_CLK_CNT_1_INT", accessModeFlags=[da.AccessMode.wait_for_new_data])
 
-                expected2 = [value(type, expected1)]
+                expected2 = value(type, expected1)
                 self.backdoor.set(expected2)
                 self.backdoor.write()
                 self.interrupt.write()
@@ -248,26 +248,26 @@ class TestScalarRegisterAccessor(unittest.TestCase):
             with self.subTest(type=type):
                 acc = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
 
-                expected = [value(type)]
+                expected = value(type)
                 acc.set(expected)
 
                 acc.write()
 
                 self.backdoor.read()
-                self.assertTrue(self.backdoor[0] == int(expected[0]), f'{self.backdoor[0]} == {int(expected[0])}')
+                self.assertTrue(self.backdoor == int(expected), f'{self.backdoor} == {int(expected)}')
 
     def testWriteDestructively(self):
         for type in types_to_test:
             with self.subTest(type=type):
                 acc = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
 
-                expected = [value(type)]
+                expected = value(type)
                 acc.set(expected)
 
                 acc.writeDestructively()
 
                 self.backdoor.read()
-                self.assertTrue(self.backdoor[0] == int(expected[0]), f'{self.backdoor[0]} == {int(expected[0])}')
+                self.assertTrue(self.backdoor == int(expected), f'{self.backdoor} == {int(expected)}')
 
     def testGetName(self):
         acc = self.dev.getScalarRegisterAccessor(np.int32, "ADC/WORD_CLK_CNT_1")
@@ -352,7 +352,7 @@ class TestScalarRegisterAccessor(unittest.TestCase):
         def myThreadFun(acc):
             try:
                 acc.read()
-            except RuntimeError:
+            except da.ThreadInterrupted:
                 pass
 
         t = threading.Thread(name='blocking_read', target=lambda acc=acc: myThreadFun(acc))
@@ -379,38 +379,60 @@ class TestScalarRegisterAccessor(unittest.TestCase):
         self.assertTrue(stringTooShortAcc == '123456789')
 
     def testBinaryOperators(self):
-        for type in types_to_test:
+        for typ in types_to_test:
             # registers don't matter since we do not actually execute any transfer operations
-            acc1 = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
-            acc2 = self.dev.getScalarRegisterAccessor(type, "ADC/WORD_CLK_CNT_1")
+            acc1 = self.dev.getScalarRegisterAccessor(typ, "ADC/WORD_CLK_CNT_1")
+            acc2 = self.dev.getScalarRegisterAccessor(typ, "ADC/WORD_CLK_CNT_1")
             for operator, useForFloat, useForBool, useForStr in binaryOps:
 
-                if type == str and not useForStr:
+                if typ == str and not useForStr:
                     continue
-                if type == bool and not useForBool:
+                if typ == bool and not useForBool:
                     continue
-                if (type == np.float32) or (type == np.float64) and not useForFloat:
+                if (typ == np.float32) or (typ == np.float64) and not useForFloat:
                     continue
 
-                with self.subTest(type=type, operator=operator):
-                    val1 = np.array([value(type)])
-                    val2 = np.array([value(type, val1)])
+                with self.subTest(type=typ, operator=operator):
+                    val1 = value(typ)
+                    val2 = value(typ, val1)
                     acc1.set(val1)
                     acc2.set(val2)
 
-                    expected12 = catchEx(lambda: val1.__getattribute__(operator)(val2))
-                    expected21 = catchEx(lambda: val2.__getattribute__(operator)(val1))
+                    if not operator.startswith('__i'):
+                        expected12 = catchEx(lambda: val1.__getattribute__(operator)(val2))
+                        expected21 = catchEx(lambda: val2.__getattribute__(operator)(val1))
 
-                    self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(acc2)), expected12)
-                    self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(val2)), expected12)
-                    self.assertEqual(catchEx(lambda: acc2.__getattribute__(operator)(acc1)), expected21)
-                    self.assertEqual(catchEx(lambda: acc2.__getattribute__(operator)(val1)), expected21)
+                        self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(acc2)), expected12)
+                        self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(val2)), expected12)
+                        self.assertEqual(catchEx(lambda: acc2.__getattribute__(operator)(acc1)), expected21)
+                        self.assertEqual(catchEx(lambda: acc2.__getattribute__(operator)(val1)), expected21)
 
-                    acc2.set(val1)
-                    expected11 = catchEx(lambda: val1.__getattribute__(operator)(val1))
+                        acc2.set(val1)
+                        expected11 = catchEx(lambda: val1.__getattribute__(operator)(val1))
 
-                    self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(acc2)), expected11)
-                    self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(val1)), expected11)
+                        self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(acc2)), expected11)
+                        self.assertEqual(catchEx(lambda: acc1.__getattribute__(operator)(val1)), expected11)
+
+                    else:
+                        # special treatment for assignment operators (+= etc.)
+                        non_assigning_operator = '__'+operator[3:]
+                        expected12 = catchEx(lambda: val1.__getattribute__(non_assigning_operator)(val2))
+                        expected21 = catchEx(lambda: val2.__getattribute__(non_assigning_operator)(val1))
+
+                        self.assertEqual(catchEx(lambda: typ(acc1.__getattribute__(operator)(acc2))), expected12)
+                        acc1.set(val1)
+                        self.assertEqual(catchEx(lambda: typ(acc1.__getattribute__(operator)(val2))), expected12)
+                        acc1.set(val1)
+                        self.assertEqual(catchEx(lambda: typ(acc2.__getattribute__(operator)(acc1))), expected21)
+                        acc2.set(val2)
+                        self.assertEqual(catchEx(lambda: typ(acc2.__getattribute__(operator)(val1))), expected21)
+
+                        acc2.set(val1)
+                        expected11 = catchEx(lambda: val1.__getattribute__(non_assigning_operator)(val1))
+
+                        self.assertEqual(catchEx(lambda: typ(acc1.__getattribute__(operator)(acc2))), expected11)
+                        acc1.set(val1)
+                        self.assertEqual(catchEx(lambda: typ(acc1.__getattribute__(operator)(val1))), expected11)
 
     def testUnaryOperators(self):
         for type in types_to_test:
@@ -428,14 +450,46 @@ class TestScalarRegisterAccessor(unittest.TestCase):
                 with self.subTest(type=type, operator=operator):
                     for i in range(0, 2):
 
-                        val = np.array([value(type)])
+                        val = value(type)
                         acc.set(val)
 
                         expected = catchEx(lambda: val.__getattribute__(operator)())
 
                         self.assertEqual(catchEx(lambda: acc.__getattribute__(operator)()), expected)
 
-########################################################################################################################
+    def testCookedSetGet(self):
+        acc: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(
+            np.int32, "FLOAT_TEST.SCALAR", accessModeFlags=[da.AccessMode.raw])
+        someValue = 1097859072
+        cooksTo = 15
+        acc.set(someValue)
+
+        self.assertTrue(acc.get() == someValue, f'{acc.get()} == {someValue}')
+        self.assertTrue(acc.getAsCooked() == cooksTo, f'{acc.getAsCooked()} == {cooksTo}')
+        someOtherValue = 1082130432
+        cooksTo = 4
+        acc.setAsCooked(cooksTo)
+        self.assertTrue(acc.get() == someOtherValue, f'{acc.get()} == {someOtherValue}')
+        self.assertTrue(acc.getAsCooked() == cooksTo, f'{acc.getAsCooked()} == {cooksTo}')
+
+    def testSubscriptOperator(self):
+        acc: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(
+            np.int32, "FLOAT_TEST.SCALAR")
+        # test getting first
+        acc.set(32)
+        acc.write()
+        self.assertTrue(acc[0] == 32, f'{acc[0]} == 32')
+        # setting
+        acc[0] = 12
+        acc.write()
+        self.assertTrue(acc[0] == 12, f'{acc[0]} == 12')
+        # out-of-bounds access
+        with self.assertRaises(RuntimeError):
+            _ = acc[1]
+        with self.assertRaises(RuntimeError):
+            acc[1] = 5
+
+#####################################################################################################################
 
 
 if __name__ == '__main__':

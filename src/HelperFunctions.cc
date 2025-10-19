@@ -3,90 +3,118 @@
 
 #include "HelperFunctions.h"
 
-#include <ChimeraTK/SupportedUserTypes.h>
+#include "PyVersionNumber.h"
 
-#include <boost/python/numpy.hpp>
+#include <pybind11/embed.h>
 
-namespace DeviceAccessPython {
+#include <string>
 
-  /********************************************************************************************************************/
+namespace py = pybind11;
+using namespace py::literals;
 
-  ChimeraTK::DataType convert_dytpe_to_usertype(boost::python::numpy::dtype dtype) {
-    if(dtype == boost::python::numpy::dtype::get_builtin<int8_t>()) {
+namespace ChimeraTK {
+
+  /*****************************************************************************************************************/
+
+  ChimeraTK::DataType convertDTypeToUsertype(const py::dtype& dtype) {
+    if(dtype.is(py::dtype::of<int8_t>())) {
       return ChimeraTK::DataType::int8;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<int16_t>()) {
+    if(dtype.is(py::dtype::of<int16_t>())) {
       return ChimeraTK::DataType::int16;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<int32_t>()) {
+    if(dtype.is(py::dtype::of<int32_t>())) {
       return ChimeraTK::DataType::int32;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<int64_t>()) {
+    if(dtype.is(py::dtype::of<int64_t>())) {
       return ChimeraTK::DataType::int64;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<uint8_t>()) {
+    if(dtype.is(py::dtype::of<uint8_t>())) {
       return ChimeraTK::DataType::uint8;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<uint16_t>()) {
+    if(dtype.is(py::dtype::of<uint16_t>())) {
       return ChimeraTK::DataType::uint16;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<uint32_t>()) {
+    if(dtype.is(py::dtype::of<uint32_t>())) {
       return ChimeraTK::DataType::uint32;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<uint64_t>()) {
+    if(dtype.is(py::dtype::of<uint64_t>())) {
       return ChimeraTK::DataType::uint64;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<float>()) {
+    if(dtype.is(py::dtype::of<float>())) {
       return ChimeraTK::DataType::float32;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<double>()) {
+    if(dtype.is(py::dtype::of<double>())) {
       return ChimeraTK::DataType::float64;
     }
-    if(dtype == boost::python::numpy::dtype::get_builtin<bool>()) {
+    if(dtype.is(py::dtype::of<bool>())) {
       return ChimeraTK::DataType::Boolean;
+    }
+    if(dtype.kind() == 'U') { // Unicode string
+      return ChimeraTK::DataType::string;
+    }
+    if(dtype.kind() == 'S') { // ASCII bytes string
+      return ChimeraTK::DataType::string;
     }
     throw std::invalid_argument("Unsupported numpy dtype");
   }
 
-  /********************************************************************************************************************/
+  /*****************************************************************************************************************/
 
-  boost::python::numpy::dtype convert_usertype_to_dtype(ChimeraTK::DataType usertype) {
-    std::unique_ptr<boost::python::numpy::dtype> rv;
+  py::dtype convertUsertypeToDtype(const ChimeraTK::DataType& usertype) {
+    std::unique_ptr<py::dtype> rv;
     ChimeraTK::callForTypeNoVoid(usertype, [&](auto arg) {
       using UserType = decltype(arg);
       if constexpr(std::is_same<UserType, ChimeraTK::Boolean>::value) {
-        rv = std::make_unique<boost::python::numpy::dtype>(boost::python::numpy::dtype::get_builtin<bool>());
+        rv = std::make_unique<py::dtype>(py::dtype::of<bool>());
       }
-      if constexpr(std::is_same<UserType, std::string>::value) {
-        rv = std::make_unique<boost::python::numpy::dtype>(boost::python::make_tuple('U', 1));
+      else if constexpr(std::is_same<UserType, std::string>::value) {
+        rv = std::make_unique<py::dtype>(py::dtype::of<char*>());
       }
       else {
-        rv = std::make_unique<boost::python::numpy::dtype>(boost::python::numpy::dtype::get_builtin<UserType>());
+        rv = std::make_unique<py::dtype>(py::dtype::of<UserType>());
       }
     });
     return *rv;
   }
 
-  /********************************************************************************************************************/
+  /*****************************************************************************************************************/
 
-  std::string convertStringFromPython(size_t linearIndex, boost::python::numpy::ndarray& np_buffer) {
-    // Note: it is unclear why the conversion in this direction has to be so complicated, while in the other
-    // direction an assignment to an std::string is sufficient.
-
-    // create C++ 4-byte string of matching length
-    size_t itemsize = np_buffer.get_dtype().get_itemsize();
-    assert(itemsize % sizeof(char32_t) == 0);
-    std::u32string widestring;
-    widestring.resize(itemsize / 4);
-
-    // copy string to C++ buffer
-    memcpy(widestring.data(), np_buffer.get_data() + itemsize * linearIndex, itemsize);
-
-    // convert to UTF-8 string and store to accessor
-    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
-    return conv.to_bytes(widestring);
+  PyVersionNumber getNewVersionNumberIfNull(const PyVersionNumber& versionNumber) {
+    // If the version number is null, we return a new version number.
+    // Otherwise, we return the given version number.
+    if(versionNumber == PyVersionNumber::getNullVersion()) {
+      return PyVersionNumber();
+    }
+    return versionNumber;
   }
 
-  /********************************************************************************************************************/
+  /*****************************************************************************************************************/
 
-} // namespace DeviceAccessPython
+  py::array convertPyListToNumpyArray(const py::list& list, const py::dtype& dtype) {
+    py::gil_scoped_acquire gil;
+    auto locals = py::dict("incommingdtype"_a = dtype, "incommingList"_a = list);
+    py::exec(R"(
+        import numpy as np
+        out = np.array(incommingList, dtype=incommingdtype)
+    )",
+        py::globals(), locals);
+    return locals["out"].cast<py::array>();
+  }
+
+  /*****************************************************************************************************************/
+
+  [[nodiscard]] py::list accessModeFlagsToList(const ChimeraTK::AccessModeFlags& flags) {
+    py::list python_flags{};
+    if(flags.has(ChimeraTK::AccessMode::raw)) {
+      python_flags.append(ChimeraTK::AccessMode::raw);
+    }
+    if(flags.has(ChimeraTK::AccessMode::wait_for_new_data)) {
+      python_flags.append(ChimeraTK::AccessMode::wait_for_new_data);
+    }
+    return python_flags;
+  }
+
+  /*****************************************************************************************************************/
+
+} // namespace ChimeraTK
