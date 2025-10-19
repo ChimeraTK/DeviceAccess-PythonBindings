@@ -1,9 +1,9 @@
 [build-system]
 requires = [
   "scikit-build-core",
-  "oldest-supported-numpy",
-  "cibuildwheel>=2.19",
-  "pybind11>=3.0"
+  "numpy",
+  "pybind11>=3.0",
+  "mypy>=1.0"
 ]
 
 build-backend = "scikit_build_core.build"
@@ -12,7 +12,8 @@ build-backend = "scikit_build_core.build"
 name = "deviceaccess"
 version = "4.0.1"
 dependencies = [
-  "numpy<2",
+  "numpy",
+  "mypy>=1.0"
 ]
 description = "Python bindings for the ChimeraTK's deviceaccess library"
 long_description = "The package provides binding for the ChimeraTK's deviceaccess library"
@@ -26,6 +27,7 @@ classifiers = [
 "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
 "Intended Audience :: Developers",
 "Programming Language :: Python :: 3",
+"Programming Language :: Python :: 3.8",
 "Programming Language :: Python :: 3.9",
 "Programming Language :: Python :: 3.10",
 "Programming Language :: Python :: 3.11",
@@ -33,6 +35,8 @@ classifiers = [
 "Programming Language :: Python :: 3.13",
 "Programming Language :: Python :: 3.14",
 "Programming Language :: Python :: Implementation :: CPython",
+"Programming Language :: Python :: Implementation :: GraalPy",
+"Programming Language :: Python :: Implementation :: PyPy",
 "Topic :: Scientific/Engineering"
 ]
 
@@ -40,10 +44,6 @@ classifiers = [
 Homepage = "https://github.com/ChimeraTK/DeviceAccess-PythonBindings"
 Documentation = "https://chimeratk.github.io/ChimeraTK-DeviceAccess-PythonBindings/head/html/"
 Repository = "https://github.com/ChimeraTK/DeviceAccess-PythonBindings"
-
-[tool.scikit-build.wheel.packages]
-deviceaccess = "src/deviceaccess"
-mtca4u = "src/mtca4u"
 
 [tool.scikit-build]
 # Protect the configuration against future changes in scikit-build-core
@@ -57,7 +57,7 @@ wheel.py-api = "cp312"
 
 [tool.cibuildwheel]
 before-all = "bash pre_build_manylinux.sh"
-skip = "cp36-* cp37-* cp38-* cp314t-* *-musllinux* *-win32 *_i686"
+skip = "cp36-* cp37-* *-win32 *_i686"
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
 
@@ -70,8 +70,6 @@ build-verbosity = 1
 test-skip = "*"
 
 [tool.cibuildwheel.linux.environment]
-# Enable additional backends compilation
-DEVICEACCESS_BACKEND_ENABLE="1"
 
 # Add the build directory to the environment variables
 BUILD_DIR="${HOME}/build"
