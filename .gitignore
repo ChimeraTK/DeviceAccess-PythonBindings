@@ -30,3 +30,4 @@ CMakeLists.txt.user
 #used by PyCharm IDE
 .idea/
 wheelhouse/
+__pycache__/
