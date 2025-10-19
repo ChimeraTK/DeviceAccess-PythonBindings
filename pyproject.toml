@@ -77,3 +77,5 @@ PKG_CONFIG_PATH="${BUILD_DIR}/local/lib/pkgconfig/:/usr/lib/pkgconfig:${PKG_CONF
 LD_LIBRARY_PATH="${BUILD_DIR}/local/lib/:${LD_LIBRARY_PATH}"
 PATH="${BUILD_DIR}/local/bin/:${PATH}"
 
+[tool.autopep8]
+max_line_length = 120
