@@ -35,8 +35,6 @@ classifiers = [
 "Programming Language :: Python :: 3.13",
 "Programming Language :: Python :: 3.14",
 "Programming Language :: Python :: Implementation :: CPython",
-"Programming Language :: Python :: Implementation :: GraalPy",
-"Programming Language :: Python :: Implementation :: PyPy",
 "Topic :: Scientific/Engineering"
 ]
 
@@ -52,12 +50,9 @@ minimum-version = "0.4"
 # Setuptools-style build caching in a local directory
 build-dir = "build/{wheel_tag}"
 
-# Build stable ABI wheels for CPython 3.12+
-wheel.py-api = "cp312"
-
 [tool.cibuildwheel]
 before-all = "bash pre_build_manylinux.sh"
-skip = "cp36-* cp37-* *-win32 *_i686"
+skip = "cp36-* cp37-* cp14t-* *-win32 *_i686 *-musllinux_*"
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
 

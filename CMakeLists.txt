@@ -112,7 +112,9 @@ endif()
 # ==============================================================================#
 
 if(SKBUILD)
-  install(TARGETS ${PROJECT_NAME} DESTINATION ${SKBUILD_PROJECT_NAME})
+  install( FILES ${PROJECT_BINARY_DIR}/deviceaccess.pyi DESTINATION ${SKBUILD_PLATLIB_DIR})
+  install( FILES ${PROJECT_SOURCE_DIR}/mtca4u.py DESTINATION ${SKBUILD_PLATLIB_DIR})
+  install( TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${SKBUILD_PLATLIB_DIR})
 else()
   # install Python modules to correct platform-dependent directory (if installing to system prefix)
   if( "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr" OR "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local" )
