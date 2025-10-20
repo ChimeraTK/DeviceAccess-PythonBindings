@@ -52,7 +52,7 @@ build-dir = "build/{wheel_tag}"
 
 [tool.cibuildwheel]
 before-all = "bash pre_build_manylinux.sh"
-skip = "cp36-* cp37-* cp14t-* *-win32 *_i686 *-musllinux_*"
+skip = "cp36-* cp37-* cp314t-* *-win32 *_i686 *-musllinux_*"
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
 
@@ -76,3 +76,4 @@ PATH="${BUILD_DIR}/local/bin/:${PATH}"
 
 [tool.autopep8]
 max_line_length = 120
+
