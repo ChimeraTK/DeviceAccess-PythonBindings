@@ -61,6 +61,8 @@ build-verbosity = 1
 
 ## Run unittest to ensure that the package was correctly built
 ## tests disabled due to corruption on interpreter exit
+## Note: tests are disabled at the moment since to make it work, the 
+## resource path of them should be made cwd -independent
 # test-command = "python -m unittest discover -v {package}/tests"
 test-skip = "*"
 
