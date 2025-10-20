@@ -118,7 +118,8 @@ if(SKBUILD)
            DESTINATION "${PROJECT_SOURCE_DIR}/src/mtca4u"
            RENAME __init__.py)
   install( TARGETS ${PROJECT_NAME} 
-           LIBRARY DESTINATION "${PROJECT_SOURCE_DIR}/src/deviceaccess")
+           LIBRARY DESTINATION "${PROJECT_SOURCE_DIR}/src/deviceaccess"
+           RENAME deviceaccess.so)
 else()
   # install Python modules to correct platform-dependent directory (if installing to system prefix)
   if( "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr" OR "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local" )
