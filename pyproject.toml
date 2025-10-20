@@ -49,6 +49,7 @@ minimum-version = "0.4"
 
 # Setuptools-style build caching in a local directory
 build-dir = "build/{wheel_tag}"
+wheel.packages = ["src/mtca4u", "src/deviceaccess"]
 
 [tool.cibuildwheel]
 before-all = "bash pre_build_manylinux.sh"
