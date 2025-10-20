@@ -113,13 +113,15 @@ endif()
 
 if(SKBUILD)
   install( FILES ${PROJECT_BINARY_DIR}/deviceaccess.pyi 
-           DESTINATION "${PROJECT_SOURCE_DIR}/src/deviceaccess")
+           DESTINATION "${PROJECT_SOURCE_DIR}/src/deviceaccess"
+           RENAME __init__.pyi )
+  install( FILES ${PROJECT_BINARY_DIR}/deviceaccess.pyi 
+           DESTINATION "${PROJECT_SOURCE_DIR}/src/deviceaccess" )
   install( FILES ${PROJECT_SOURCE_DIR}/mtca4u.py 
            DESTINATION "${PROJECT_SOURCE_DIR}/src/mtca4u"
-           RENAME __init__.py)
+           RENAME __init__.py )
   install( TARGETS ${PROJECT_NAME} 
-           LIBRARY DESTINATION "${PROJECT_SOURCE_DIR}/src/deviceaccess"
-           RENAME deviceaccess.so)
+           LIBRARY DESTINATION "${PROJECT_SOURCE_DIR}/src/deviceaccess" )
 else()
   # install Python modules to correct platform-dependent directory (if installing to system prefix)
   if( "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr" OR "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local" )
