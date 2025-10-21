@@ -28,7 +28,7 @@ build_cmake () {
 
 # Install required system packages
 dnf install -y epel-release
-dnf -y install gcc-c++ gcc-toolset-14-libatomic-devel libxml++-devel boost1.78 boost1.78-system boost1.78-thread boost1.78-chrono boost1.78-filesystem boost1.78-python3-devel
+dnf -y install gcc-c++ gcc-toolset-14-libatomic-devel libxml++-devel boost1.78-devel
 
 g++ --version
 
