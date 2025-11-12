@@ -54,8 +54,8 @@ wheel.packages = ["src/mtca4u", "src/deviceaccess"]
 [tool.cibuildwheel]
 before-all = "bash pre_build_manylinux.sh"
 skip = "cp314t-* *-win32 *_i686 *-musllinux_*"
-manylinux-x86_64-image = "manylinux_2_28_x86_64"
-manylinux-aarch64-image = "manylinux_2_28_aarch64"
+manylinux-x86_64-image = "quay.io/pypa/manylinux_2_28_x86_64:2025.10.10-1"
+manylinux-aarch64-image = "quay.io/pypa/manylinux_2_28_aarch64:2025.10.10-1"
 
 # Necessary to see build output from the actual compilation
 build-verbosity = 1
