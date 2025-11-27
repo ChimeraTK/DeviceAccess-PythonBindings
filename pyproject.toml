@@ -1,2 +1,80 @@
+[build-system]
+requires = [
+  "scikit-build-core",
+  "numpy",
+  "pybind11>=3.0",
+  "mypy>=1.0"
+]
+
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "deviceaccess"
+version = "4.0.1"
+dependencies = [
+  "numpy",
+  "mypy>=1.0"
+]
+description = "Python bindings for the ChimeraTK's deviceaccess library"
+long_description = "The package provides binding for the ChimeraTK's deviceaccess library"
+requires-python = ">=3.8"
+readme = "README.md"
+license = {file = "LICENSE"}
+
+classifiers = [
+"Topic :: Software Development :: Libraries :: Python Modules",
+"Development Status :: 5 - Production/Stable",
+"License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+"Intended Audience :: Developers",
+"Programming Language :: Python :: 3",
+"Programming Language :: Python :: 3.8",
+"Programming Language :: Python :: 3.9",
+"Programming Language :: Python :: 3.10",
+"Programming Language :: Python :: 3.11",
+"Programming Language :: Python :: 3.12",
+"Programming Language :: Python :: 3.13",
+"Programming Language :: Python :: 3.14",
+"Programming Language :: Python :: Implementation :: CPython",
+"Topic :: Scientific/Engineering"
+]
+
+[project.urls]
+Homepage = "https://github.com/ChimeraTK/DeviceAccess-PythonBindings"
+Documentation = "https://chimeratk.github.io/ChimeraTK-DeviceAccess-PythonBindings/head/html/"
+Repository = "https://github.com/ChimeraTK/DeviceAccess-PythonBindings"
+
+[tool.scikit-build]
+# Protect the configuration against future changes in scikit-build-core
+minimum-version = "0.4"
+
+# Setuptools-style build caching in a local directory
+build-dir = "build/{wheel_tag}"
+wheel.packages = ["src/mtca4u", "src/deviceaccess"]
+
+[tool.cibuildwheel]
+before-all = "bash pre_build_manylinux.sh"
+skip = "cp314t-* *-win32 *_i686 *-musllinux_*"
+manylinux-x86_64-image = "quay.io/pypa/manylinux_2_28_x86_64:2025.10.10-1"
+manylinux-aarch64-image = "quay.io/pypa/manylinux_2_28_aarch64:2025.10.10-1"
+
+# Necessary to see build output from the actual compilation
+build-verbosity = 1
+
+## Run unittest to ensure that the package was correctly built
+## tests disabled due to corruption on interpreter exit
+## Note: tests are disabled at the moment since to make it work, the 
+## resource path of them should be made cwd -independent
+# test-command = "python -m unittest discover -v {package}/tests"
+test-skip = "*"
+
+[tool.cibuildwheel.linux.environment]
+
+# Add the build directory to the environment variables
+BUILD_DIR="${HOME}/build"
+PKG_CONFIG_PATH="${BUILD_DIR}/local/lib/pkgconfig/:/usr/lib/pkgconfig:${PKG_CONFIG_PATH}"
+LD_LIBRARY_PATH="${BUILD_DIR}/local/lib/:${LD_LIBRARY_PATH}"
+PATH="${BUILD_DIR}/local/bin/:${PATH}"
+
 [tool.autopep8]
 max_line_length = 120
+

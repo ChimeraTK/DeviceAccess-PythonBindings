@@ -111,13 +111,26 @@ endif()
 
 # ==============================================================================#
 
-# install Python modules to correct platform-dependent directory (if installing to system prefix)
-if( "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr" OR "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local" )
-  set( install_path ${Python_SITEARCH} )
+if(SKBUILD)
+  install( FILES ${PROJECT_BINARY_DIR}/deviceaccess.pyi 
+           DESTINATION "${PROJECT_SOURCE_DIR}/src/deviceaccess"
+           RENAME __init__.pyi )
+  install( FILES ${PROJECT_BINARY_DIR}/deviceaccess.pyi 
+           DESTINATION "${PROJECT_SOURCE_DIR}/src/deviceaccess" )
+  install( FILES ${PROJECT_SOURCE_DIR}/mtca4u.py 
+           DESTINATION "${PROJECT_SOURCE_DIR}/src/mtca4u"
+           RENAME __init__.py )
+  install( TARGETS ${PROJECT_NAME} 
+           LIBRARY DESTINATION "${PROJECT_SOURCE_DIR}/src/deviceaccess" )
 else()
-  set( install_path "lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages" )
+  # install Python modules to correct platform-dependent directory (if installing to system prefix)
+  if( "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr" OR "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local" )
+    set( install_path ${Python_SITEARCH} )
+  else()
+    set( install_path "lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages" )
+  endif()
+  
+  install( FILES ${PROJECT_BINARY_DIR}/deviceaccess.pyi DESTINATION ${install_path} )
+  install( FILES ${PROJECT_SOURCE_DIR}/mtca4u.py DESTINATION ${install_path} )
+  install( TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${install_path} )
 endif()
-
-install( FILES ${PROJECT_BINARY_DIR}/deviceaccess.pyi DESTINATION ${install_path} )
-install( FILES ${PROJECT_SOURCE_DIR}/mtca4u.py DESTINATION ${install_path} )
-install( TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${install_path} )
