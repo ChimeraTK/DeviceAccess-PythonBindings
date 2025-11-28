@@ -117,7 +117,9 @@ if( "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr" OR "${CMAKE_INSTALL_PREFIX}" STREQ
 else()
   set( install_path "lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages" )
 endif()
+set (matlab_helper_path "share/ChimeraTK-DeviceAccess-PythonBindings-${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}")
 
 install( FILES ${PROJECT_BINARY_DIR}/deviceaccess.pyi DESTINATION ${install_path} )
 install( FILES ${PROJECT_SOURCE_DIR}/mtca4u.py DESTINATION ${install_path} )
 install( TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${install_path} )
+install(FILES ${PROJECT_SOURCE_DIR}/pybind11_builtins.py DESTINATION ${matlab_helper_path})

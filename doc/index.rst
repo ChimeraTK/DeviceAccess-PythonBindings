@@ -13,6 +13,7 @@ Contents:
 
    mtca4u
    deviceaccess
+   matlab
    
 
 Indices and tables
