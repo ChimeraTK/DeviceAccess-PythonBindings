@@ -299,6 +299,10 @@ class TestDeviceAccessLib(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             read_void.writeDestructively()
 
+    def testMetadataCatalogueAccess(self):
+        metaData = self.dev.getCatalogueMetadata("META_DATA_TEST")
+        self.assertEqual(metaData, "0.1.0-1-test")
+
 
 if __name__ == '__main__':
     unittest.main()
