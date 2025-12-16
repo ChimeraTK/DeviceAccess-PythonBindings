@@ -20,6 +20,8 @@ namespace DeviceAccessPython {
     static py::list items(ChimeraTK::RegisterCatalogue& self);
 
     static py::list hiddenRegisters(ChimeraTK::RegisterCatalogue& self);
+
+    static void bind(py::module& m);
   };
 
   /*****************************************************************************************************************/
@@ -33,6 +35,9 @@ namespace DeviceAccessPython {
 
     // convert return type form ChimeraTK::AccessModeFlags to Python list
     static py::list getSupportedAccessModes(ChimeraTK::RegisterInfo& self);
+
+    static void bind(py::module& m);
+    static void bindBackendRegisterInfoBase(py::module& m);
   };
 
   /*****************************************************************************************************************/
@@ -41,6 +46,8 @@ namespace DeviceAccessPython {
    public:
     // Translate return type from RegisterPath to string
     static ChimeraTK::DataDescriptor::FundamentalType fundamentalType(ChimeraTK::DataDescriptor& self);
+
+    static void bind(py::module& m);
   };
 
   /*****************************************************************************************************************/
