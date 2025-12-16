@@ -233,6 +233,19 @@ namespace ChimeraTK {
             py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list(), py::arg("dtype") = py::none())
         .def("write", &PyDevice::writeScalar, py::arg("registerPath"), py::arg("dataToWrite"),
             py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list(), py::arg("dtype") = py::none())
+        .def("isOpened", [](PyDevice& self) { return self._device.isOpened(); })
+        .def("isFunctional", [](PyDevice& self) { return self._device.isFunctional(); })
+        .def("__enter__",
+            [](PyDevice& self) {
+              self.open();
+              return &self;
+            })
+        .def("__exit__",
+            [](PyDevice& self, [[maybe_unused]] py::object exc_type, [[maybe_unused]] py::object exc_val,
+                [[maybe_unused]] py::object exc_traceback) {
+              self.close();
+              return false;
+            })
         .def("getCatalogueMetadata", &PyDevice::getCatalogueMetadata, py::arg("metaTag"));
   }
 
