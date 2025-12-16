@@ -80,7 +80,7 @@ class TestDeviceAccessLib(unittest.TestCase):
         # test if open and closes properly in regular case
         with da.Device("TEST_CARD") as dev:
             # dev.open() no longer needed
-            self.assertTrue(dev2.isOpened())
+            self.assertTrue(dev.isOpened())
             scalar_acc = dev.getScalarRegisterAccessor(
                 np.int32, "/INT32_TEST/SCALAR")
             scalar_acc.set(427)
@@ -92,15 +92,33 @@ class TestDeviceAccessLib(unittest.TestCase):
         # test if closes properly in case of exception
         try:
             with da.Device("TEST_CARD") as dev2:
-                raise RuntimeError("Some very specific error inside with block")
+                dev2.setException("Some very specific error inside with block")
+                dev2.read("/INT32_TEST/SCALAR", np.int32)  # will raise
         except RuntimeError as e:
             self.assertEqual(str(e), "Some very specific error inside with block")
             self.assertFalse(dev2.isOpened())
-
         # test exception pass-through on failed open
         with self.assertRaises(Exception):
             with da.Device("Non_existing_device"):
                 pass
+
+    def testIsOpened(self):
+        dev = da.Device("(dummy:testIsOpened?map=./test_card.map)")  # get a uique device
+        self.assertFalse(dev.isOpened())
+        dev.open()
+        self.assertTrue(dev.isOpened())
+        dev.close()
+        self.assertFalse(dev.isOpened())
+
+    def testIsFunctional(self):
+        dev = da.Device("TEST_CARD")
+        self.assertTrue(dev.isFunctional())
+        dev.open()  # opening is not changing functionality
+        self.assertTrue(dev.isFunctional())
+        dev.setException("Simulated error")
+        self.assertFalse(dev.isFunctional())
+        dev.open()  # opening again should reset the error
+        self.assertTrue(dev.isFunctional())
 
     def testCheck_Access_Mode_Flags(self):
         # standard flags are empty:

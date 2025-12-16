@@ -234,6 +234,9 @@ namespace ChimeraTK {
         .def("write", &PyDevice::writeScalar, py::arg("registerPath"), py::arg("dataToWrite"),
             py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list(), py::arg("dtype") = py::none())
         .def("isOpened", [](PyDevice& self) { return self._device.isOpened(); })
+        .def(
+            "setException", [](PyDevice& self, const std::string& msg) { return self._device.setException(msg); },
+            py::arg("message"))
         .def("isFunctional", [](PyDevice& self) { return self._device.isFunctional(); })
         .def("__enter__",
             [](PyDevice& self) {
