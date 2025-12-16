@@ -107,6 +107,8 @@ class TestDeviceAccessLib(unittest.TestCase):
         self.assertFalse(dev.isOpened())
         dev.open()
         self.assertTrue(dev.isOpened())
+        dev.setException("Simulated error")
+        self.assertTrue(dev.isOpened())  # isOpened is not affected by functionality
         dev.close()
         self.assertFalse(dev.isOpened())
 
