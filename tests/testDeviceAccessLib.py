@@ -76,6 +76,32 @@ class TestDeviceAccessLib(unittest.TestCase):
         self.assertEqual(readout_unset, "n./a.")
         # Other values cannot be set. Has to be set via custom backend to be tested
 
+    def testWithStatement(self):
+        # test if open and closes properly in regular case
+        with da.Device("TEST_CARD") as dev:
+            # dev.open() no longer needed
+            self.assertTrue(dev2.isOpened())
+            scalar_acc = dev.getScalarRegisterAccessor(
+                np.int32, "/INT32_TEST/SCALAR")
+            scalar_acc.set(427)
+            scalar_acc.write()
+            scalar_acc.read()
+            self.assertEqual(scalar_acc, 427)
+        self.assertFalse(dev.isOpened())
+
+        # test if closes properly in case of exception
+        try:
+            with da.Device("TEST_CARD") as dev2:
+                raise RuntimeError("Some very specific error inside with block")
+        except RuntimeError as e:
+            self.assertEqual(str(e), "Some very specific error inside with block")
+            self.assertFalse(dev2.isOpened())
+
+        # test exception pass-through on failed open
+        with self.assertRaises(Exception):
+            with da.Device("Non_existing_device"):
+                pass
+
     def testCheck_Access_Mode_Flags(self):
         # standard flags are empty:
         empty_flags = self.twoD_in32_acc.getAccessModeFlags()
