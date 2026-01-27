@@ -187,7 +187,12 @@ namespace ChimeraTK {
             R"(Read the data from the device.
 
             If AccessMode.wait_for_new_data was set, this function will block until new data has arrived.
-            Otherwise it still might block for a short time until the data transfer was complete.)")
+            Otherwise it still might block for a short time until the data transfer was complete.
+
+          See Also:
+              :meth:`readNonBlocking`: Read without blocking if no data available.
+              :meth:`readLatest`: Read latest value, discarding intermediate updates.
+              :meth:`readAndGet`: Convenience method combining read() and get().)")
         .def("readNonBlocking", &PyOneDRegisterAccessor::readNonBlocking,
             R"(Read the next value, if available in the input buffer.
 
@@ -199,26 +204,32 @@ namespace ChimeraTK {
             transfer data to obtain the current value before returning. Also this function is not guaranteed
             to be lock free. The return value will be always true in this mode.
 
-            :return: True if new data was available, false otherwise.
-            :rtype: bool)")
+          Returns:
+            bool: True if new data was available, false otherwise.)")
         .def("readLatest", &PyOneDRegisterAccessor::readLatest,
             R"(Read the latest value, discarding any other update since the last read if present.
 
             Otherwise this function is identical to readNonBlocking(), i.e. it will never wait for new values
             and it will return whether a new value was available if AccessMode.wait_for_new_data is set.
 
-            :return: True if new data was available, false otherwise.
-            :rtype: bool)")
+          Returns:
+            bool: True if new data was available, false otherwise.)")
         .def("write", &PyOneDRegisterAccessor::write, py::arg("versionNumber") = PyVersionNumber::getNullVersion(),
             R"(Write the data to device.
 
             The return value is true if old data was lost on the write transfer (e.g. due to a buffer overflow).
             In case of an unbuffered write transfer, the return value will always be false.
 
-            :param versionNumber: Version number to use for this write operation. If not specified, a new version number is generated.
-            :type versionNumber: VersionNumber
-            :return: True if data was lost, false otherwise.
-            :rtype: bool)")
+          Args:
+            versionNumber (:class:`VersionNumber`): Version number to use for this write operation. If not specified,
+              a new version number is generated.
+
+          Returns:
+            bool: True if data was lost, false otherwise.
+
+          See Also:
+              :meth:`setAndWrite`: Convenience method combining set() and write().
+              :meth:`writeDestructively`: Optimized write that may destroy buffer.)")
         .def("writeDestructively", &PyOneDRegisterAccessor::writeDestructively,
             py::arg("versionNumber") = PyVersionNumber::getNullVersion(),
             R"(Just like write(), but allows the implementation to destroy the content of the user buffer in the process.
@@ -227,10 +238,12 @@ namespace ChimeraTK {
             write(). In any case, the application must expect the user buffer of the accessor to contain
             undefined data after calling this function.
 
-            :param versionNumber: Version number to use for this write operation. If not specified, a new version number is generated.
-            :type versionNumber: VersionNumber
-            :return: True if data was lost, false otherwise.
-            :rtype: bool)")
+          Args:
+            versionNumber (:class:`VersionNumber`): Version number to use for this write operation. If not specified,
+              a new version number is generated.
+
+          Returns:
+            bool: True if data was lost, false otherwise.)")
         .def("interrupt", &PyOneDRegisterAccessor::interrupt,
             R"(Interrupt a blocking read operation.
 
@@ -238,51 +251,51 @@ namespace ChimeraTK {
         .def("getName", &PyOneDRegisterAccessor::getName,
             R"(Returns the name that identifies the process variable.
 
-            :return: The register name.
-            :rtype: str)")
+          Returns:
+            str: The register name.)")
         .def("getUnit", &PyOneDRegisterAccessor::getUnit,
             R"(Returns the engineering unit.
 
             If none was specified, it will default to 'n./a.'.
 
-            :return: The engineering unit string.
-            :rtype: str)")
+          Returns:
+            str: The engineering unit string.)")
         .def("getDescription", &PyOneDRegisterAccessor::getDescription,
             R"(Returns the description of this variable/register.
 
-            :return: The description string.
-            :rtype: str)")
+          Returns:
+            str: The description string.)")
         .def("getValueType", &PyOneDRegisterAccessor::getValueType,
             R"(Returns the numpy dtype for the value type of this accessor.
 
             This can be used to determine the type at runtime.
 
-            :return: Type information object.
-            :rtype: numpy.dtype)")
+          Returns:
+            numpy.dtype: Type information object.)")
         .def("getVersionNumber", &PyOneDRegisterAccessor::getVersionNumber,
             R"(Returns the version number that is associated with the last transfer.
 
             This refers to the last read or write operation.
 
-            :return: The version number of the last transfer.
-            :rtype: VersionNumber)")
+          Returns:
+            :class:`VersionNumber`: The version number of the last transfer.)")
         .def("isReadOnly", &PyOneDRegisterAccessor::isReadOnly,
             R"(Check if accessor is read only.
 
             This means it is readable but not writeable.
 
-            :return: True if read only, false otherwise.
-            :rtype: bool)")
+          Returns:
+            bool: True if read only, false otherwise.)")
         .def("isReadable", &PyOneDRegisterAccessor::isReadable,
             R"(Check if accessor is readable.
 
-            :return: True if readable, false otherwise.
-            :rtype: bool)")
+          Returns:
+            bool: True if readable, false otherwise.)")
         .def("isWriteable", &PyOneDRegisterAccessor::isWriteable,
             R"(Check if accessor is writeable.
 
-            :return: True if writeable, false otherwise.
-            :rtype: bool)")
+          Returns:
+            bool: True if writeable, false otherwise.)")
         .def("getId", &PyOneDRegisterAccessor::getId,
             R"(Obtain unique ID for the actual implementation of this accessor.
 
@@ -291,75 +304,74 @@ namespace ChimeraTK {
             different calls to Device.getOneDRegisterAccessor() will have a different ID even when accessing
             the very same register.
 
-            :return: The unique accessor ID.
-            :rtype: TransferElementID)")
+          Returns:
+            :class:`TransferElementID`: The unique accessor ID.)")
         .def("dataValidity", &PyOneDRegisterAccessor::dataValidity,
             R"(Return current validity of the data.
 
             Will always return DataValidity.ok if the backend does not support it.
 
-            :return: The current data validity state.
-            :rtype: DataValidity)")
+          Returns:
+            :class:`DataValidity`: The current data validity state.)")
         .def("getNElements", &PyOneDRegisterAccessor::getNElements,
             R"(Return number of elements/samples in the register.
 
-            :return: Number of elements in the register.
-            :rtype: int)")
+          Returns:
+            int: Number of elements in the register.)")
         .def("get", &PyOneDRegisterAccessor::get,
             R"(Return the register data as an array (without a previous read).
 
-            :return: Array containing the register data.
-            :rtype: ndarray)")
+          Returns:
+            ndarray: Array containing the register data.)")
         .def("set", &PyOneDRegisterAccessor::set, py::arg("newValue"),
             R"(Set the values of the array.
 
-            :param newValue: New values to set in the buffer.
-            :type newValue: list or ndarray)")
+          Args:
+            newValue (list | ndarray): New values to set in the buffer.)")
         .def("setAndWrite", &PyOneDRegisterAccessor::setAndWrite, py::arg("newValue"),
             py::arg("versionNumber") = PyVersionNumber::getNullVersion(),
             R"(Convenience function to set and write new value.
 
             If versionNumber is not specified, a new version number is generated.
 
-            :param newValue: New values to set and write.
-            :type newValue: list or ndarray
-            :param versionNumber: Optional version number for the write operation.
-            :type versionNumber: VersionNumber)")
+          Args:
+            newValue (list | ndarray): New values to set and write.
+            versionNumber (:class:`VersionNumber`): Optional version number for the write operation.)")
         .def("getAsCooked", &PyOneDRegisterAccessor::getAsCooked, py::arg("element"),
             R"(Get the cooked values in case the accessor is a raw accessor (which does not do data conversion).
 
             This returns the converted data from the user buffer. It does not do any read or write transfer.
 
-            :param element: Element index to read.
-            :type element: int
-            :return: The cooked value at the specified element.
-            :rtype: int)")
+          Args:
+            element (int): Element index to read.
+
+          Returns:
+            int: The cooked value at the specified element.)")
         .def("setAsCooked", &PyOneDRegisterAccessor::setAsCooked, py::arg("element"), py::arg("value"),
             R"(Set the cooked values in case the accessor is a raw accessor (which does not do data conversion).
 
             This converts to raw and writes the data to the user buffer. It does not do any read or write transfer.
 
-            :param element: Element index to write.
-            :type element: int
-            :param value: The cooked value to set.
-            :type value: float)")
+          Args:
+            element (int): Element index to write.
+            value (float): The cooked value to set.)")
         .def("isInitialised", &PyOneDRegisterAccessor::isInitialised,
             R"(Check if the accessor is initialised.
 
-            :return: True if initialised, false otherwise.
-            :rtype: bool)")
+          Returns:
+            bool: True if initialised, false otherwise.)")
         .def("setDataValidity", &PyOneDRegisterAccessor::setDataValidity, py::arg("validity"),
             R"(Set the data validity of the accessor.
 
-            :param validity: The data validity state to set.
-            :type validity: DataValidity)")
+            Args:
+                validity (:class:`DataValidity`): The data validity state to set.)")
         .def("getAccessModeFlags", &PyOneDRegisterAccessor::getAccessModeFlags,
             R"(Return the access mode flags that were used to create this accessor.
 
             This can be used to determine the setting of the raw and the wait_for_new_data flags.
 
-            :return: List of access mode flags.
-            :rtype: list[AccessMode])")
+            Returns:
+                list[:class:`AccessMode`]: List of access mode flags.)")
         .def("readAndGet", &PyOneDRegisterAccessor::readAndGet,
             R"(Convenience function to read and return the register data.
 

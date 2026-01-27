@@ -249,7 +249,12 @@ namespace ChimeraTK {
             R"(Read the data from the device.
 
             If AccessMode.wait_for_new_data was set, this function will block until new data has arrived.
-            Otherwise it still might block for a short time until the data transfer was complete.)")
+            Otherwise it still might block for a short time until the data transfer was complete.
+
+          See Also:
+              :meth:`readNonBlocking`: Read without blocking if no data available.
+              :meth:`readLatest`: Read latest value, discarding intermediate updates.
+              :meth:`readAndGet`: Convenience method combining read() and get().)")
         .def("readNonBlocking", &PyScalarRegisterAccessor::readNonBlocking,
             R"(Read the next value, if available in the input buffer.
 
@@ -261,24 +266,30 @@ namespace ChimeraTK {
             transfer data to obtain the current value before returning. Also this function is not guaranteed
             to be lock free. The return value will be always true in this mode.
 
-            :return: True if new data was available, false otherwise.
-            :rtype: bool)")
+            Returns:
+              bool: True if new data was available, false otherwise.)")
         .def("readLatest", &PyScalarRegisterAccessor::readLatest,
             R"(Read the latest value, discarding any other update since the last read if present.
 
             Otherwise this function is identical to readNonBlocking(), i.e. it will never wait for new values
             and it will return whether a new value was available if AccessMode.wait_for_new_data is set.
 
-            :return: True if new data was available, false otherwise.
-            :rtype: bool)")
+            Returns:
+              bool: True if new data was available, false otherwise.)")
         .def("write", &PyScalarRegisterAccessor::write, py::arg("versionNumber") = PyVersionNumber::getNullVersion(),
             R"(Write the data to device.
 
             The return value is true if old data was lost on the write transfer (e.g. due to a buffer overflow).
             In case of an unbuffered write transfer, the return value will always be false.
 
-            :param versionNumber: Version number to use for this write operation. If not specified, a new version number is generated.
-            :type versionNumber: VersionNumber)")
+            Args:
+              versionNumber (:class:`VersionNumber`): Version number to use for this write operation. If not specified,
+                a new version number is generated.
+
+          See Also:
+              :meth:`setAndWrite`: Convenience method combining set() and write().
+              :meth:`writeIfDifferent`: Only write if value has changed.
+              :meth:`writeDestructively`: Optimized write that may destroy buffer.)")
         .def("writeDestructively", &PyScalarRegisterAccessor::writeDestructively,
             py::arg("versionNumber") = PyVersionNumber::getNullVersion(),
             R"(Just like write(), but allows the implementation to destroy the content of the user buffer in the process.
@@ -287,56 +298,57 @@ namespace ChimeraTK {
             write(). In any case, the application must expect the user buffer of the accessor to contain
             undefined data after calling this function.
 
-            :param versionNumber: Version number to use for this write operation. If not specified, a new version number is generated.
-            :type versionNumber: VersionNumberl)")
+            Args:
+              versionNumber (:class:`VersionNumber`): Version number to use for this write operation. If not specified,
+                a new version number is generated.)")
         .def("getName", &PyScalarRegisterAccessor::getName,
             R"(Returns the name that identifies the process variable.
 
-            :return: The register name.
-            :rtype: str)")
+            Returns:
+              str: The register name.)")
         .def("getUnit", &PyScalarRegisterAccessor::getUnit,
             R"(Returns the engineering unit.
 
             If none was specified, it will default to 'n./a.'.
 
-            :return: The engineering unit string.
-            :rtype: str)")
+            Returns:
+              str: The engineering unit string.)")
         .def("getDescription", &PyScalarRegisterAccessor::getDescription,
             R"(Returns the description of this variable/register.
 
-            :return: The description string.
-            :rtype: str)")
+            Returns:
+              str: The description string.)")
         .def("getValueType", &PyScalarRegisterAccessor::getValueType,
             R"(Returns the type_info for the value type of this accessor.
 
             This can be used to determine the type at runtime.
 
-            :return: Type information object.
-            :rtype: type)")
+            Returns:
+              type: Type information object.)")
         .def("getVersionNumber", &PyScalarRegisterAccessor::getVersionNumber,
             R"(Returns the version number that is associated with the last transfer.
 
             This refers to the last read or write operation.
 
-            :return: The version number of the last transfer.
-            :rtype: VersionNumber)")
+            Returns:
+              :class:`VersionNumber`: The version number of the last transfer.)")
         .def("isReadOnly", &PyScalarRegisterAccessor::isReadOnly,
             R"(Check if accessor is read only.
 
             This means it is readable but not writeable.
 
-            :return: True if read only, false otherwise.
-            :rtype: bool)")
+            Returns:
+              bool: True if read only, false otherwise.)")
         .def("isReadable", &PyScalarRegisterAccessor::isReadable,
             R"(Check if accessor is readable.
 
-            :return: True if readable, false otherwise.
-            :rtype: bool)")
+            Returns:
+              bool: True if readable, false otherwise.)")
         .def("isWriteable", &PyScalarRegisterAccessor::isWriteable,
             R"(Check if accessor is writeable.
 
-            :return: True if writeable, false otherwise.
-            :rtype: bool)")
+            Returns:
+              bool: True if writeable, false otherwise.)")
         .def("getId", &PyScalarRegisterAccessor::getId,
             R"(Obtain unique ID for the actual implementation of this accessor.
 
@@ -345,44 +357,44 @@ namespace ChimeraTK {
             different calls to Device.getScalarRegisterAccessor() will have a different ID even when accessing
             the very same register.
 
-            :return: The unique transfer element ID.
-            :rtype: TransferElementID)")
+            Returns:
+              :class:`TransferElementID`: The unique transfer element ID.)")
         .def("dataValidity", &PyScalarRegisterAccessor::dataValidity,
             R"(Return current validity of the data.
 
             Will always return DataValidity.ok if the backend does not support it.
 
-            :return: The current data validity state.
-            :rtype: DataValidity)")
+            Returns:
+              :class:`DataValidity`: The current data validity state.)")
         .def("get", &PyScalarRegisterAccessor::get,
             R"(Return the scalar value (without a previous read).
 
-            :return: The current value in the buffer.
-            :rtype: scalar)")
+            Returns:
+              scalar: The current value in the buffer.)")
         .def("readAndGet", &PyScalarRegisterAccessor::readAndGet,
             R"(Convenience function to read and return the scalar value.
 
-            :return: The value after reading from device.
-            :rtype: scalar)")
+            Returns:
+              scalar: The value after reading from device.)")
         .def(
             "set", [](PyScalarRegisterAccessor& self, const UserTypeVariantNoVoid& val) { self.set(val); },
             py::arg("val"),
             R"(Set the scalar value.
 
-            :param val: New value to set in the buffer.
-            :type val: int, float, bool, or str)")
+            Args:
+              val (int | float | bool | str): New value to set in the buffer.)")
         .def(
             "set", [](PyScalarRegisterAccessor& self, const py::list& val) { self.setList(val); }, py::arg("val"),
             R"(Set the scalar value from a list.
 
-            :param val: List containing a single value to set.
-            :type val: list)")
+            Args:
+              val (list): List containing a single value to set.)")
         .def(
             "set", [](PyScalarRegisterAccessor& self, const py::array& val) { self.setArray(val); }, py::arg("val"),
             R"(Set the scalar value from a numpy array.
 
-            :param val: Array containing a single value to set.
-            :type val: ndarray)")
+            Args:
+              val (ndarray): Array containing a single value to set.)")
         .def("writeIfDifferent", &PyScalarRegisterAccessor::writeIfDifferent, py::arg("newValue"),
             py::arg("versionNumber") = PyVersionNumber::getNullVersion(),
             R"(Convenience function to set and write new value if it differs from the current value.
@@ -390,34 +402,32 @@ namespace ChimeraTK {
             The given version number is only used in case the value differs. If versionNumber is not specified,
             a new version number is generated only if the write actually takes place.
 
-            :param newValue: New value to compare and potentially write.
-            :type newValue: int, float, bool, or str
-            :param versionNumber: Optional version number for the write operation.
-            :type versionNumber: VersionNumber)")
+            Args:
+              newValue (int | float | bool | str): New value to compare and potentially write.
+              versionNumber (:class:`VersionNumber`): Optional version number for the write operation.)")
         .def("setAndWrite", &PyScalarRegisterAccessor::setAndWrite, py::arg("newValue"),
             py::arg("versionNumber") = PyVersionNumber::getNullVersion(),
             R"(Convenience function to set and write new value.
 
             If versionNumber is not specified, a new version number is generated.
 
-            :param newValue: New value to set and write.
-            :type newValue: int, float, bool, or str
-            :param versionNumber: Optional version number for the write operation.
-            :type versionNumber: VersionNumber)")
+            Args:
+              newValue (int | float | bool | str): New value to set and write.
+              versionNumber (:class:`VersionNumber`): Optional version number for the write operation.)")
         .def("getAsCooked", &PyScalarRegisterAccessor::getAsCooked,
             R"(Get the cooked values in case the accessor is a raw accessor (which does not do data conversion).
 
             This returns the converted data from the user buffer. It does not do any read or write transfers.
 
-            :return: The cooked value.
-            :rtype: float)")
+            Returns:
+              float: The cooked value.)")
         .def("setAsCooked", &PyScalarRegisterAccessor::setAsCooked, py::arg("value"),
             R"(Set the cooked values in case the accessor is a raw accessor (which does not do data conversion).
 
             This converts to raw and writes the data to the user buffer. It does not do any read or write transfers.
 
-            :param value: The cooked value to set.
-            :type value: float)")
+            Args:
+              value (float): The cooked value to set.)")
         .def("interrupt", &PyScalarRegisterAccessor::interrupt,
             R"(Interrupt a blocking read operation.
 
@@ -427,25 +437,25 @@ namespace ChimeraTK {
 
             This can be used to determine the setting of the raw and the wait_for_new_data flags.
 
-            :return: List of access mode flags.
-            :rtype: list[AccessMode])")
+            Returns:
+              list[:class:`AccessMode`]: List of access mode flags.)")
         .def("isInitialised", &PyScalarRegisterAccessor::isInitialised,
             R"(Check if the accessor is initialised.
 
-            :return: True if initialised, false otherwise.
-            :rtype: bool)")
+            Returns:
+              bool: True if initialised, false otherwise.)")
         .def("setDataValidity", &PyScalarRegisterAccessor::setDataValidity, py::arg("validity"),
             R"(Set the data validity of the accessor.
 
-            :param validity: The data validity state to set.
-            :type validity: DataValidity)")
+            Args:
+              validity (:class:`DataValidity`): The data validity state to set.)")
         .def_property_readonly("dtype", &PyScalarRegisterAccessor::getValueType,
             R"(Return the dtype of the value type of this accessor.
 
             This can be used to determine the type at runtime.
 
-            :return: Type information object.
-            :rtype: dtype)")
+            Returns:
+              dtype: Type information object.)")
         .def(
             "__getitem__",
             [](PyScalarRegisterAccessor& self, const size_t& index) {
@@ -457,10 +467,11 @@ namespace ChimeraTK {
             py::arg("index"),
             R"(Get the value of the scalar register accessor (same as get()).
 
-            :param index: Must be 0 for scalar accessors.
-            :type index: int
-            :return: The current value.
-            :rtype: scalar)")
+            Args:
+              index (int): Must be 0 for scalar accessors.
+
+            Returns:
+              scalar: The current value.)")
         .def(
             "__setitem__",
             [](PyScalarRegisterAccessor& self, const size_t& index, const UserTypeVariantNoVoid& value) {
@@ -472,10 +483,9 @@ namespace ChimeraTK {
             py::arg("index"), py::arg("value"),
             R"(Set the value of the scalar register accessor (same as set()).
 
-            :param index: Must be 0 for scalar accessors.
-            :type index: int
-            :param value: New value to set.
-            :type value: int, float, bool, or str)")
+            Args:
+              index (int): Must be 0 for scalar accessors.
+              value (int | float | bool | str): New value to set.)")
         .def("__repr__", &PyScalarRegisterAccessor::repr);
     for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {
       scalaracc.def(fn.c_str(), [fn](PyScalarRegisterAccessor& acc, PyScalarRegisterAccessor& other) {

@@ -44,8 +44,8 @@ namespace ChimeraTK {
             },
             R"(Return the human readable string representation of the version number.
 
-            :return: Version number as string.
-            :rtype: str)");
+            Returns:
+                str: Version number as string.)");
 
     py::class_<PyVersionNumber, ChimeraTK::VersionNumber>(m, "VersionNumber",
         R"(Class for generating and holding version numbers without exposing a numeric representation.
@@ -62,16 +62,16 @@ namespace ChimeraTK {
         The null version is guaranteed to be smaller than all version numbers generated with the default
         constructor and can be used to initialise version numbers that are not yet used for data transfers.
 
-        :return: Null version number instance.
-        :rtype: VersionNumber)")
+        Returns:
+            VersionNumber: Null version number instance.)")
         .def("getTime", &PyVersionNumber::getTime,
             R"(Get the time stamp associated with this version number.
 
         Note:
           This Python binding currently returns a fixed placeholder time (1990-01-01 00:00:00).
 
-        :return: Time stamp of the version number.
-        :rtype: datetime)")
+        Returns:
+            datetime: Time stamp of the version number.)")
         .def(
             "__repr__", &PyVersionNumber::repr, R"(Return a debug representation including the version number string.)")
         .def("__lt__", &ChimeraTK::VersionNumber::operator<, R"(Compare two version numbers (self < other).)")

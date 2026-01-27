@@ -1,0 +1,5 @@
+# name                    nr of elements       address          size           bar    width   fracbits    signed
+SENSORS.TEMPERATURE       0x01                 0x00000000       0x00000004     0x0    32      4           1
+SENSORS.SET_POINT         0x01                 0x00000004       0x00000004     0x0    32      4           1
+
+SENSORS.WAVEFORM          0x08                 0x00000008       0x00000020     0x0    32      0           1

@@ -22,23 +22,23 @@ namespace ChimeraTK {
         .def("isNumeric", &ChimeraTK::DataType::isNumeric,
             R"(Returns whether the data type is numeric. Type 'none' returns false.
 
-              :return: True if the data type is numeric, false otherwise.
-              :rtype: bool)")
+              Returns:
+                  bool: True if the data type is numeric, false otherwise.)")
         .def("getAsString", &ChimeraTK::DataType::getAsString,
             R"(Get the data type as string.
 
-              :return: Data type as string.
-              :rtype: str)")
+              Returns:
+                  str: Data type as string.)")
         .def("isIntegral", &ChimeraTK::DataType::isIntegral,
             R"(Return whether the raw data type is an integer. False is also returned for non-numerical types and 'none'.
 
-              :return: True if the data type is an integer, false otherwise.
-              :rtype: bool)")
+              Returns:
+                  bool: True if the data type is an integer, false otherwise.)")
         .def("isSigned", &ChimeraTK::DataType::isSigned,
             R"(Return whether the raw data type is signed. True for signed integers and floating point types (currently only signed implementations). False otherwise (also for non-numerical types and 'none').
 
-              :return: True if the data type is signed, false otherwise.
-              :rtype: bool)");
+              Returns:
+                  bool: True if the data type is signed, false otherwise.)");
 
     py::enum_<ChimeraTK::DataType::TheType>(mDataType, "TheType")
         .value("none", ChimeraTK::DataType::none,

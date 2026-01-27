@@ -1,4 +1,4 @@
-mtca4u module
+mtca4u module (legacy)
 =============
 
 .. automodule:: mtca4u

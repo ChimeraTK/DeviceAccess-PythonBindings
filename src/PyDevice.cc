@@ -218,10 +218,10 @@ namespace ChimeraTK {
            R"(Initialize device and associate a backend.
 
           Note:
-            The device is not opened after initialization.
+              The device is not opened after initialization.
 
-          :param aliasName: The ChimeraTK device descriptor for the device.
-          :type aliasName: str)")
+          Args:
+              aliasName: The ChimeraTK device descriptor for the device.)")
         .def(py::init(),
             R"(Create device instance without associating a backend yet.
 
@@ -230,8 +230,8 @@ namespace ChimeraTK {
         .def("open", py::overload_cast<const std::string&>(&PyDevice::open), py::arg("aliasName"),
             R"(Open a device by the given alias name from the DMAP file.
 
-          :param aliasName: The device alias name from the DMAP file.
-          :type aliasName: str)")
+          Args:
+              aliasName (str): The device alias name from the DMAP file.)")
         .def("open", py::overload_cast<>(&PyDevice::open),
             R"((Re-)Open the device.
 
@@ -245,49 +245,64 @@ namespace ChimeraTK {
             py::arg("accessModeFlags") = py::list(),
             R"(Get a VoidRegisterAccessor object for the given register.
 
-          :param registerPathName: Full path name of the register.
-          :type registerPathName: str
-          :param accessModeFlags: Optional flags to control register access details.
-          :type accessModeFlags: list[AccessMode]
-          :return: VoidRegisterAccessor for the specified register.
-          :rtype: VoidRegisterAccessor)")
+          Args:
+              registerPathName (str): Full path name of the register.
+              accessModeFlags (list[:class:`AccessMode`]): Optional flags to control register access details.
+
+          Returns:
+            :class:`VoidRegisterAccessor`: VoidRegisterAccessor for the specified register.
+
+          See Also:
+            :meth:`getScalarRegisterAccessor`: For scalar value registers.
+            :meth:`getOneDRegisterAccessor`: For 1D array registers.
+            :meth:`getTwoDRegisterAccessor`: For 2D array registers.
+            :meth:`getRegisterCatalogue`: Browse all available registers.)")
         .def("getScalarRegisterAccessor", &PyDevice::getScalarRegisterAccessor, py::arg("userType"),
             py::arg("registerPathName"), py::arg("elementsOffset") = 0, py::arg("accessModeFlags") = py::list(),
             R"(Get a ScalarRegisterAccessor object for the given register.
 
           The ScalarRegisterAccessor allows to read and write registers transparently
-          by using the accessor object like a variable of the type UserType.
+          by using the accessor object like a variable of the specified data type.
 
-          :param userType: The data type for register access (numpy dtype).
-          :type userType: dtype
-          :param registerPathName: Full path name of the register.
-          :type registerPathName: str
-          :param elementsOffset: Word offset in register to access another but the first word.
-          :type elementsOffset: int, optional
-          :param accessModeFlags: Optional flags to control register access details.
-          :type accessModeFlags: list[AccessMode], optional
-          :return: ScalarRegisterAccessor for the specified register.
-          :rtype: ScalarRegisterAccessor)")
+          Args:
+              userType (numpy.dtype): The data type for register access (numpy dtype).
+              registerPathName (str): Full path name of the register.
+              elementsOffset (int): Word offset in register to access other than the first word.
+              accessModeFlags (list[:class:`AccessMode`]): Optional flags to control register access details.
+
+          Returns:
+            :class:`ScalarRegisterAccessor`: ScalarRegisterAccessor for the specified register.
+
+          See Also:
+            :meth:`getOneDRegisterAccessor`: For 1D array registers.
+            :meth:`getTwoDRegisterAccessor`: For 2D array registers.
+            :meth:`getVoidRegisterAccessor`: For trigger-only registers.
+            :meth:`read`: Convenience function for one-time reads.
+            :meth:`write`: Convenience function for one-time writes.)")
         .def("getOneDRegisterAccessor", &PyDevice::getOneDRegisterAccessor, py::arg("userType"),
             py::arg("registerPathName"), py::arg("numberOfElements") = 0, py::arg("elementsOffset") = 0,
             py::arg("accessModeFlags") = py::list(),
             R"(Get a OneDRegisterAccessor object for the given register.
 
           The OneDRegisterAccessor allows to read and write registers transparently
-          by using the accessor object like a vector of the type UserType.
+          by using the accessor object like a vector of the specified data type.
 
-          :param userType: The data type for register access (numpy dtype).
-          :type userType: dtype
-          :param registerPathName: Full path name of the register.
-          :type registerPathName: str
-          :param numberOfElements: Number of elements to access (0 for entire register).
-          :type numberOfElements: int, optional
-          :param elementsOffset: Word offset in register to skip initial elements.
-          :type elementsOffset: int, optional
-          :param accessModeFlags: Optional flags to control register access details.
-          :type accessModeFlags: list[AccessMode], optional
-          :return: OneDRegisterAccessor for the specified register.
-          :rtype: OneDRegisterAccessor)")
+          Args:
+              userType (numpy.dtype): The data type for register access (numpy dtype).
+              registerPathName (str): Full path name of the register.
+              numberOfElements (int): Number of elements to access (0 for entire register).
+              elementsOffset (int): Word offset in register to skip initial elements.
+              accessModeFlags (list[:class:`AccessMode`]): Optional flags to control register access details.
+
+          Returns:
+            :class:`OneDRegisterAccessor`: OneDRegisterAccessor for the specified register.
+
+          See Also:
+            :meth:`getScalarRegisterAccessor`: For single-value registers.
+            :meth:`getTwoDRegisterAccessor`: For 2D array registers.
+            :meth:`getVoidRegisterAccessor`: For trigger-only registers.
+            :meth:`read`: Convenience function for one-time reads.
+            :meth:`write`: Convenience function for one-time writes.)")
         .def("getTwoDRegisterAccessor", &PyDevice::getTwoDRegisterAccessor, py::arg("userType"),
             py::arg("registerPathName"), py::arg("numberOfElements") = 0, py::arg("elementsOffset") = 0,
             py::arg("accessModeFlags") = py::list(),
@@ -295,18 +310,22 @@ namespace ChimeraTK {
 
           This allows to read and write transparently 2-dimensional registers.
 
-          :param userType: The data type for register access (numpy dtype).
-          :type userType: dtype
-          :param registerPathName: Full path name of the register.
-          :type registerPathName: str
-          :param numberOfElements: Number of elements per channel (0 for all).
-          :type numberOfElements: int, optional
-          :param elementsOffset: First element index for each channel to read.
-          :type elementsOffset: int, optional
-          :param accessModeFlags: Optional flags to control register access details.
-          :type accessModeFlags: list[AccessMode], optional
-          :return: TwoDRegisterAccessor for the specified register.
-          :rtype: TwoDRegisterAccessor)")
+          Args:
+              userType (numpy.dtype): The data type for register access (numpy dtype).
+              registerPathName (str): Full path name of the register.
+              numberOfElements (int): Number of elements per channel (0 for all).
+              elementsOffset (int): First element index for each channel to read.
+              accessModeFlags (list[:class:`AccessMode`]): Optional flags to control register access details.
+
+          Returns:
+            :class:`TwoDRegisterAccessor`: TwoDRegisterAccessor for the specified register.
+
+          See Also:
+            :meth:`getOneDRegisterAccessor`: For 1D array registers.
+            :meth:`getScalarRegisterAccessor`: For single-value registers.
+            :meth:`getVoidRegisterAccessor`: For trigger-only registers.
+            :meth:`read`: Convenience function for one-time reads.
+            :meth:`write`: Convenience function for one-time writes.)")
         .def("activateAsyncRead", &PyDevice::activateAsyncRead,
             R"(Activate asynchronous read for all transfer elements with wait_for_new_data flag.
 
@@ -316,113 +335,108 @@ namespace ChimeraTK {
         .def("getRegisterCatalogue", &PyDevice::getRegisterCatalogue,
             R"(Return the register catalogue with detailed information on all registers.
 
-          :return: Register catalogue containing all register information.
-          :rtype: RegisterCatalogue)")
+          Returns:
+              :class:`RegisterCatalogue`: RegisterCatalogue containing all register information.)")
         .def("read", &PyDevice::read, py::arg("registerPath"), py::arg("dtype") = py::dtype::of<double>(),
             py::arg("numberOfWords") = 0, py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list(),
             R"(Convenience function to read a register without obtaining an accessor.
 
           Warning:
-              This function is inefficient as it creates and discards a register accessor
-              in each call. For better performance, use register accessors instead.
+              This function is inefficient as it creates and discards a register
+              accessor in each call. For better performance, use register accessors instead.
 
-          :param registerPath: Full path name of the register.
-          :type registerPath: str
-          :param dtype: Data type for the read operation (default: float64).
-          :type dtype: dtype, optional
-          :param numberOfWords: Number of elements to read (0 for scalar or entire register).
-          :type numberOfWords: int, optional
-          :param wordOffsetInRegister: Word offset in register to skip initial elements.
-          :type wordOffsetInRegister: int, optional
-          :param accessModeFlags: Optional flags to control register access details.
-          :type accessModeFlags: list[AccessMode], optional
-          :return: Register value (scalar, 1D array, or 2D array depending on register type).
-          :rtype: scalar, ndarray, or list[list])")
+          Args:
+              registerPath (str): Full path name of the register.
+              dtype (numpy.dtype): Data type for the read operation (default: float64).
+              numberOfWords (int): Number of elements to read (0 for scalar or entire register).
+              wordOffsetInRegister (int): Word offset in register to skip initial elements.
+              accessModeFlags (list[:class:`AccessMode`]): Optional flags to control register access details.
+
+          Returns:
+            scalar | ndarray: Register value (scalar, 1D array, or 2D array depending on register type).
+
+          See Also:
+            :meth:`getScalarRegisterAccessor`: For efficient repeated scalar access.
+            :meth:`getOneDRegisterAccessor`: For efficient repeated 1D array access.
+            :meth:`getTwoDRegisterAccessor`: For efficient repeated 2D array access.
+            :meth:`write`: Convenience function for one-time writes.)")
         .def("write", &PyDevice::write2D, py::arg("registerPath"), py::arg("dataToWrite"),
-            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list(), py::arg("dtype") = py::none(),
-            R"(Convenience function to write a 2D register without obtaining an accessor.
-
-          Warning:
-              This function is inefficient as it creates and discards a register accessor
-              in each call. For better performance, use register accessors instead.
-
-          :param registerPath: Full path name of the register.
-          :type registerPath: str
-          :param dataToWrite: 2D array data to write to the register.
-          :type dataToWrite: list[list]
-          :param wordOffsetInRegister: Word offset in register to skip initial elements.
-          :type wordOffsetInRegister: int, optional
-          :param accessModeFlags: Optional flags to control register access details.
-          :type accessModeFlags: list[AccessMode], optional
-          :param dtype: Optional data type override (default: inferred from data).
-          :type dtype: dtype or None)")
+            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list(), py::arg("dtype") = py::none())
         .def("write", &PyDevice::write1D, py::arg("registerPath"), py::arg("dataToWrite"),
-            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list(), py::arg("dtype") = py::none(),
-            R"(Convenience function to write a 1D register without obtaining an accessor.
-
-          Warning:
-              This function is inefficient as it creates and discards a register accessor
-              in each call. For better performance, use register accessors instead.
-
-          :param registerPath: Full path name of the register.
-          :type registerPath: str
-          :param dataToWrite: 1D array data to write to the register.
-          :type dataToWrite: list or ndarray
-          :param wordOffsetInRegister: Word offset in register to skip initial elements.
-          :type wordOffsetInRegister: int, optional
-          :param accessModeFlags: Optional flags to control register access details.
-          :type accessModeFlags: list[AccessMode], optional
-          :param dtype: Optional data type override (default: inferred from data).
-          :type dtype: dtype or None)")
+            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list(), py::arg("dtype") = py::none())
         .def("write", &PyDevice::writeScalar, py::arg("registerPath"), py::arg("dataToWrite"),
             py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list(), py::arg("dtype") = py::none(),
-            R"(Convenience function to write a scalar register without obtaining an accessor.
+            R"(Convenience function to write a register without obtaining an accessor.
+
+          This method is overloaded to handle different data types. The appropriate overload is selected based
+          on the type of dataToWrite.
 
           Warning:
-              This function is inefficient as it creates and discards a register accessor
-              in each call. For better performance, use register accessors instead.
+              This function is inefficient as it creates and discards a register accessor in each call.
+              For better performance, use register accessors instead:
+              :meth:`getScalarRegisterAccessor`, :meth:`getOneDRegisterAccessor`, :meth:`getTwoDRegisterAccessor`.
 
-          :param registerPath: Full path name of the register.
-          :type registerPath: str
-          :param dataToWrite: Scalar value to write to the register.
-          :type dataToWrite: int, float, or str
-          :param wordOffsetInRegister: Word offset in register (for multi-word registers).
-          :type wordOffsetInRegister: int, optional
-          :param accessModeFlags: Optional flags to control register access details.
-          :type accessModeFlags: list[AccessMode], optional
-          :param dtype: Optional data type override (default: inferred from data).
-          :type dtype: dtype or None)")
+          Args:
+              registerPath (str): Full path name of the register.
+              dataToWrite (int | float | bool | str | ndarray): Data to write. Type determines operation:
+
+                  - Scalar (int, float, bool, str): Write scalar value to single-element register.
+                  - 1D array (ndarray): Write 1D array data to 1D register.
+                  - 2D array (ndarray): Write 2D array data to 2D register.
+
+              wordOffsetInRegister (int): Word offset in register to skip initial elements (default: 0).
+              accessModeFlags (list[:class:`AccessMode`]): Optional flags to control register access (default: []).
+              dtype (numpy.dtype | None): Optional data type override. If None, type is inferred from data (default: None).
+
+          Examples:
+              >>> import ChimeraTK.DeviceAccess as da
+              >>> import numpy as np
+              >>> da.setDMapFilePath('testCrate.dmap')
+              >>> device = da.Device('TEST_CARD')
+              >>> device.open()
+              >>> # Write scalar value
+              >>> device.write('MYSCALAR', 42.5)
+              >>> # Write 1D array
+              >>> device.write('MYARRAY', np.array([1.0, 2.0, 3.0]))
+              >>> # Write 2D array
+              >>> device.write('MY2DARRAY', np.array([[1, 2], [3, 4]]))
+          See Also:
+              :meth:`getScalarRegisterAccessor`: For efficient repeated scalar access.
+              :meth:`getOneDRegisterAccessor`: For efficient repeated 1D array access.
+              :meth:`getTwoDRegisterAccessor`: For efficient repeated 2D array access.
+              :meth:`read`: Convenience function for one-time reads.)")
         .def(
             "isOpened", [](PyDevice& self) { return self._device.isOpened(); },
             R"(Check if the device is currently opened.
 
-          :return: True if device is opened, false otherwise.
-          :rtype: bool)")
+          Returns:
+              bool: True if device is opened, False otherwise.)")
         .def(
             "setException", [](PyDevice& self, const std::string& msg) { return self._device.setException(msg); },
             py::arg("message"),
             R"(Set the device into an exception state.
 
-          All asynchronous reads will be deactivated and all operations will see exceptions
-          until open() has successfully been called again.
+          All asynchronous reads will be deactivated and all operations will see
+          exceptions until open() has successfully been called again.
 
-          :param message: Exception message describing the error condition.
-          :type message: str)")
+          Args:
+              message (str): Exception message describing the error condition.)")
         .def(
             "isFunctional", [](PyDevice& self) { return self._device.isFunctional(); },
             R"(Check whether the device is working as intended.
 
           Usually this means it is opened and does not have any errors.
 
-          :return: True if device is functional, false otherwise.
-          :rtype: bool)")
+          Returns:
+              bool: True if device is functional, False otherwise.)")
         .def("getCatalogueMetadata", &PyDevice::getCatalogueMetadata, py::arg("metaTag"),
             R"(Get metadata from the device catalogue.
 
-          :param metaTag: The metadata parameter name to retrieve.
-          :type metaTag: str
-          :return: The metadata value.
-          :rtype: str)")
+          Args:
+              metaTag (str): The metadata parameter name to retrieve.
+
+          Returns:
+              str: The metadata value.)")
         .def("__enter__",
             [](PyDevice& self) {
               self.open();

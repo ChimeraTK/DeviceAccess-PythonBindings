@@ -22,8 +22,14 @@ import shlex
 sys.path.insert(0, os.path.abspath('${CMAKE_BINARY_DIR}'))
 
 #
-# Remove dependency of doc generation dependency from compilation.
-autodoc_mock_imports = ["_da_python_bindings"]
+# Mocking of the core C-extension breaks introspection (no members to document).
+# Only mock when the extension cannot be imported (e.g. on readthedocs),
+# otherwise use the built binary from CMAKE_BINARY_DIR so autodoc can see members.
+try:
+    import deviceaccess  # noqa: F401
+    autodoc_mock_imports = []
+except Exception:
+    autodoc_mock_imports = ["deviceaccess"]
 
 # -- General configuration ------------------------------------------------
 
@@ -35,10 +41,18 @@ autodoc_mock_imports = ["_da_python_bindings"]
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx_autodoc_typehints',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
+    'sphinx.ext.intersphinx',
 ]
+
+# Intersphinx mapping to link to external documentation
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
+}
 
 # Add any paths that contain templates here, relative to this directory.
 # templates_path = ['_templates']
@@ -112,12 +126,30 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
+# -- Napoleon extension configuration (parse docstrings) ------------------
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
+napoleon_include_init_doc = True
+napoleon_include_private_with_doc = False
+napoleon_attr_annotations = True
+
+# -- Autodoc configuration -------------------------------------------------
+autodoc_default_options = {
+    'members': True,
+    'member-order': 'bysource',
+    'special-members': '__init__',
+    'undoc-members': False,
+    'show-inheritance': True,
+}
+autodoc_typehints = 'short'
+autodoc_typehints_format = 'short'
+
 
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -150,7 +182,8 @@ html_sidebars = {
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = '${CMAKE_SOURCE_DIR}/doc/DESY_logo.png'
+html_logo = '${CMAKE_SOURCE_DIR}/doc/ChimeraTK_Logo_whitebg.png'
+html_favicon = '${CMAKE_SOURCE_DIR}/doc/ChimeraTK_Favicon.ico'
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32

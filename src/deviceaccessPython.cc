@@ -50,14 +50,14 @@ PYBIND11_MODULE(deviceaccess, m) {
   m.def("setDMapFilePath", ChimeraTK::setDMapFilePath, py::arg("dmapFilePath"),
       R"(Set the location of the dmap file.
 
-        :param dmapFilePath: Relative or absolute path of the dmap file (directory and file name).
-        :type dmapFilePath: str)");
+      Args:
+        dmapFilePath (str): Relative or absolute path of the dmap file (directory and file name).)");
 
   m.def("getDMapFilePath", ChimeraTK::getDMapFilePath,
       R"(Returns the dmap file name which the library currently uses for looking up device(alias) names.
 
-        :return: Path of the dmap file (directory and file name).
-        :rtype: str)");
+      Returns:
+        str: Path of the dmap file (directory and file name).)");
 
   py::enum_<ChimeraTK::AccessMode>(m, "AccessMode",
       R"(Access mode flags for register access.
@@ -107,42 +107,42 @@ PYBIND11_MODULE(deviceaccess, m) {
       .def("setAltSeparator", &ChimeraTK::RegisterPath::setAltSeparator, py::arg("altSeparator"),
           R"(Set alternative separator.
 
-        :param altSeparator: Alternative separator character to use instead of "/". Use an empty string to reset to default.
-        :type altSeparator: str)")
+        Args:
+            altSeparator (str): Alternative separator character to use instead of "/". Use an empty string to reset to default.)")
       .def("getWithAltSeparator", &ChimeraTK::RegisterPath::getWithAltSeparator,
           R"(Obtain path with alternative separator character instead of "/". The leading separator will be omitted.
 
-        :return: Register path with alternative separator.
-        :rtype: str)")
+        Returns:
+            str: Register path with alternative separator.)")
       .def("__itruediv__", &ChimeraTK::RegisterPath::operator/=, py::arg("rightHandSide"),
           R"(Modify this object by adding a new element to this path.
 
-        :param rightHandSide: New element to add to the path.
-        :type rightHandSide: str
+        Args:
+            rightHandSide (str): New element to add to the path.
 
-        :return: Modified RegisterPath object.
-        :rtype: RegisterPath)")
+        Returns:
+            RegisterPath: Modified RegisterPath object.)")
       .def("__iadd__", &ChimeraTK::RegisterPath::operator+=, py::arg("rightHandSide"),
           R"(Modify this object by concatenating the given string to the path.
 
-        :param rightHandSide: String to concatenate to the path.
-        :type rightHandSide: str
+        Args:
+            rightHandSide (str): String to concatenate to the path.
 
-        :return: Modified RegisterPath object.
-        :rtype: RegisterPath)")
+        Returns:
+            RegisterPath: Modified RegisterPath object.)")
       .def("__lt__", &ChimeraTK::RegisterPath::operator<)
       .def("length", &ChimeraTK::RegisterPath::length,
           R"(Get the length of the path (including leading slash).
 
-        :return: Length of the register path.
-        :rtype: int)")
+        Returns:
+            int: Length of the register path.)")
       .def("startsWith", &ChimeraTK::RegisterPath::startsWith)
       .def("endsWith", &ChimeraTK::RegisterPath::endsWith)
       .def("getComponents", &ChimeraTK::RegisterPath::getComponents,
           R"(Split path into components.
 
-        :return: list of path components.
-        :rtype: list[str])")
+        Returns:
+            list[str]: List of path components.)")
       .def("__ne__",
           [](const ChimeraTK::RegisterPath& self, const ChimeraTK::RegisterPath& other) { return self != other; })
       .def("__ne__", [](const ChimeraTK::RegisterPath& self, const std::string& other) { return self != other; })

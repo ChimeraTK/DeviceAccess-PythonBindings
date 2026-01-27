@@ -312,7 +312,11 @@ namespace ChimeraTK {
             R"(Read the data from the device.
 
         If AccessMode.wait_for_new_data was set, this function will block until new data has arrived. Otherwise it
-        still might block for a short time until the data transfer was complete.)")
+        still might block for a short time until the data transfer was complete.
+
+        See Also:
+          :meth:`readNonBlocking`: Read without blocking if no data available.
+          :meth:`readLatest`: Read latest value, discarding intermediate updates.)")
         .def("readNonBlocking", &PyTwoDRegisterAccessor::readNonBlocking,
             R"(Read the next value, if available in the input buffer.
 
@@ -324,25 +328,28 @@ namespace ChimeraTK {
         the current value before returning. Also this function is not guaranteed to be lock free. The return value
         will be always true in this mode.
 
-        :return: True if new data was available, false otherwise.
-        :rtype: bool)")
+        Returns:
+            bool: True if new data was available, false otherwise.)")
         .def("readLatest", &PyTwoDRegisterAccessor::readLatest,
             R"(Read the latest value, discarding any other update since the last read if present.
 
         Otherwise this function is identical to readNonBlocking(), i.e. it will never wait for new values and it
         will return whether a new value was available if AccessMode.wait_for_new_data is set.
 
-        :return: True if new data was available, false otherwise.
-        :rtype: bool)")
+        Returns:
+            bool: True if new data was available, false otherwise.)")
         .def("write", &PyTwoDRegisterAccessor::write,
             R"(Write the buffered data to the device.
 
         The return value is true if old data was lost on the write transfer (e.g. due to a buffer overflow).
         In case of an unbuffered write transfer, the return value will always be false.
 
-        :param versionNumber: Version number to use for this write operation. If not specified, a new version
-          number is generated.
-        :type versionNumber: VersionNumber)",
+        Args:
+            versionNumber (:class:`VersionNumber`): Version number to use for this write operation. If not specified, a new
+            version number is generated.
+
+        See Also:
+          :meth:`writeDestructively`: Optimized write that may destroy buffer.)",
             py::arg("versionNumber") = PyVersionNumber::getNullVersion())
         .def("writeDestructively", &PyTwoDRegisterAccessor::writeDestructively,
             R"(Just like write(), but allows the implementation to destroy the content of the user buffer in the
@@ -352,9 +359,9 @@ namespace ChimeraTK {
         case, the application must expect the user buffer of the accessor to contain undefined data after calling
         this function.
 
-        :param versionNumber: Version number to use for this write operation. If not specified, a new version
-          number is generated.
-        :type versionNumber: VersionNumber)",
+        Args:
+            versionNumber (:class:`VersionNumber`): Version number to use for this write operation. If not specified, a new
+                version number is generated.)",
             py::arg("versionNumber") = PyVersionNumber::getNullVersion())
         .def("interrupt", &PyTwoDRegisterAccessor::interrupt,
             R"(Interrupt a blocking read operation.
@@ -363,51 +370,51 @@ namespace ChimeraTK {
         .def("getName", &PyTwoDRegisterAccessor::getName,
             R"(Returns the name that identifies the process variable.
 
-        :return: The register name.
-        :rtype: str)")
+        Returns:
+            str: The register name.)")
         .def("getUnit", &PyTwoDRegisterAccessor::getUnit,
             R"(Returns the engineering unit.
 
         If none was specified, it will default to 'n./a.'.
 
-        :return: The engineering unit string.
-        :rtype: str)")
+        Returns:
+            str: The engineering unit string.)")
         .def("getDescription", &PyTwoDRegisterAccessor::getDescription,
             R"(Returns the description of this variable/register.
 
-        :return: The description string.
-        :rtype: str)")
+        Returns:
+            str: The description string.)")
         .def("getValueType", &PyTwoDRegisterAccessor::getValueType,
             R"(Returns the type_info for the value type of this accessor.
 
         This can be used to determine the type at runtime.
 
-        :return: Type information object.
-        :rtype: type)")
+        Returns:
+            type: Type information object.)")
         .def("getVersionNumber", &PyTwoDRegisterAccessor::getVersionNumber,
             R"(Returns the version number that is associated with the last transfer.
 
         This refers to the last read or write operation.
 
-        :return: The version number of the last transfer.
-        :rtype: VersionNumber)")
+        Returns:
+            :class:`VersionNumber`: The version number of the last transfer.)")
         .def("isReadOnly", &PyTwoDRegisterAccessor::isReadOnly,
             R"(Check if accessor is read only.
 
         This means it is readable but not writeable.
 
-        :return: True if read only, false otherwise.
-        :rtype: bool)")
+        Returns:
+            bool: True if read only, false otherwise.)")
         .def("isReadable", &PyTwoDRegisterAccessor::isReadable,
             R"(Check if accessor is readable.
 
-        :return: True if readable, false otherwise.
-        :rtype: bool)")
+        Returns:
+            bool: True if readable, false otherwise.)")
         .def("isWriteable", &PyTwoDRegisterAccessor::isWriteable,
             R"(Check if accessor is writeable.
 
-        :return: True if writeable, false otherwise.
-        :rtype: bool)")
+        Returns:
+            bool: True if writeable, false otherwise.)")
         .def("getId", &PyTwoDRegisterAccessor::getId,
             R"(Obtain unique ID for the actual implementation of this accessor.
 
@@ -416,72 +423,70 @@ namespace ChimeraTK {
         calls to Device.getTwoDRegisterAccessor() will have a different ID even when accessing the very same
         register.
 
-        :return: The unique transfer element ID.
-        :rtype: TransferElementID)")
+        Returns:
+            :class:`TransferElementID`: The unique transfer element ID.)")
         .def("dataValidity", &PyTwoDRegisterAccessor::dataValidity,
             R"(Return current validity of the data.
 
         Will always return DataValidity.ok if the backend does not support it.
 
-        :return: The current data validity state.
-        :rtype: DataValidity)")
+        Returns:
+            :class:`DataValidity`: The current data validity state.)")
         .def("isInitialised", &PyTwoDRegisterAccessor::isInitialised,
             R"(Check if the accessor is initialised.
 
-        :return: True if initialised, false otherwise.
-        :rtype: bool)")
+        Returns:
+            bool: True if initialised, false otherwise.)")
         .def("getNElementsPerChannel", &PyTwoDRegisterAccessor::getNElementsPerChannel,
             R"(Return number of elements/samples per channel in the register.
 
-        :return: Number of elements per channel.
-        :rtype: int)")
+        Returns:
+            int: Number of elements per channel.)")
         .def("getNChannels", &PyTwoDRegisterAccessor::getNChannels,
             R"(Return number of channels in the register.
 
-        :return: Number of channels.
-        :rtype: int)")
+        Returns:
+            int: Number of channels.)")
         .def("get", &PyTwoDRegisterAccessor::get,
             R"(Return a 2D array of UserType from the internal buffer (without a previous read).
 
         The returned object is typically a numpy ndarray with shape (channels, elements_per_channel). For string
         registers, a list of lists is returned instead.
 
-        :return: Current buffer content as a 2D array-like object.
-        :rtype: ndarray or list)")
+        Returns:
+            ndarray | list: Current buffer content as a 2D array-like object.)")
         .def("set", &PyTwoDRegisterAccessor::set, py::arg("newValue"),
             R"(Set the values of the 2D array buffer.
 
-        :param newValue: New values to set, shaped as [channels][elements] or a 2D numpy array.
-        :type newValue: list[list[UserType]] or ndarray)")
+        Args:
+            newValue (list[list[UserType]] | ndarray): New values to set, shaped as [channels][elements] or a 2D numpy array.)")
         .def("getAsCooked", &PyTwoDRegisterAccessor::getAsCooked,
             R"(Get a cooked value for a specific channel and element when the accessor is raw (no data conversion).
 
         This returns the converted data from the user buffer. It does not do any read or write transfer.
 
-        :param channel: Channel index.
-        :type channel: int
-        :param element: Element index within the channel.
-        :type element: int
-        :return: The cooked value.
-        :rtype: float)",
+        Args:
+            channel (int): Channel index.
+            element (int): Element index within the channel.
+
+        Returns:
+            float: The cooked value.)",
             py::arg("channel"), py::arg("element"))
         .def("setAsCooked", &PyTwoDRegisterAccessor::setAsCooked,
             R"(Set a cooked value for a specific channel and element when the accessor is raw (no data conversion).
 
         This converts to raw and writes the data to the user buffer. It does not do any read or write transfer.
 
-        :param channel: Channel index.
-        :type channel: int
-        :param element: Element index within the channel.
-        :type element: int
-        :param value: The cooked value to set.
-        :type value: float)",
+        Args:
+            channel (int): Channel index.
+            element (int): Element index within the channel.
+            value (float): The cooked value to set.)",
             py::arg("channel"), py::arg("element"), py::arg("value"))
         .def("setDataValidity", &PyTwoDRegisterAccessor::setDataValidity,
             R"(Set the data validity of the accessor.
 
-        :param validity: The data validity state to set.
-        :type validity: DataValidity)")
+        Args:
+            validity (:class:`DataValidity`): The data validity state to set.)")
         .def("getAccessModeFlags", &PyTwoDRegisterAccessor::getAccessModeFlags,
             R"(Return the access mode flags that were used to create this accessor.
 
@@ -547,10 +552,11 @@ namespace ChimeraTK {
         .def("__getitem__", &PyTwoDRegisterAccessor::getitem, py::arg("index"),
             R"(Get a single channel by index.
 
-        :param index: Channel index.
-        :type index: int
-        :return: View of the selected channel as a 1D array-like object.
-        :rtype: ndarray or list)")
+        Args:
+            index (int): Channel index.
+
+        Returns:
+            ndarray | list: View of the selected channel as a 1D array-like object.)")
         .def("__getattr__", &PyTwoDRegisterAccessor::getattr);
 
     for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {

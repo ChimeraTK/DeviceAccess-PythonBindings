@@ -42,30 +42,32 @@ namespace DeviceAccessPython {
         .def("hiddenRegisters", DeviceAccessPython::RegisterCatalogue::hiddenRegisters,
             R"(Returns list of all hidden registers in the catalogue
 
-            :return: a list of hidden :class:`deviceaccess.RegisterInfo` objects.
-            :rtype: list[deviceaccess.RegisterInfo])")
+            Returns:
+                list[deviceaccess.RegisterInfo]: A list of hidden RegisterInfo objects.)")
         .def("hasRegister", &ChimeraTK::RegisterCatalogue::hasRegister,
             R"(Check if register with the given path name exists.
 
-        :param registerPathName: Full path name of the register.
-        :type registerPathName: str
+        Args:
+            registerPathName (str): Full path name of the register.
 
-        :return: True if register exists in the catalogue, false otherwise.
-        :rtype: bool)")
+        Returns:
+            bool: True if register exists in the catalogue, false otherwise.)")
         .def("getNumberOfRegisters", &ChimeraTK::RegisterCatalogue::getNumberOfRegisters,
             R"(Get number of registers in the catalogue.
 
-        :return: Number of registers in the catalogue.
-        :rtype: int)")
+        Returns:
+            int: Number of registers in the catalogue.)")
         .def("getRegister", &ChimeraTK::RegisterCatalogue::getRegister, py::arg("registerPathName"),
             R"(Get register information for a given full path name.
 
-        :param registerPathName: Full path name of the register.
-        :type registerPathName: str
+        Args:
+            registerPathName (str): Full path name of the register.
 
-        :return: Register information.
-        :rtype: RegisterInfo
-        :raises ChimeraTK::logic_error: if register does not exist in the catalogue.)");
+        Returns:
+            RegisterInfo: Register information.
+
+        Raises:
+            ChimeraTK::logic_error: If register does not exist in the catalogue.)");
   }
 
   /*******************************************************************************************************************/
@@ -97,61 +99,61 @@ namespace DeviceAccessPython {
         .def("getDataDescriptor", DeviceAccessPython::RegisterInfo::getDataDescriptor,
             R"(Return description of the actual payload data for this register.
 
-        :return: :class:`deviceaccess.DataDescriptor` object containing information about the data format.
-        :rtype: DataDescriptor)")
+        Returns:
+            DataDescriptor: Object containing information about the data format.)")
         .def("isReadable", &ChimeraTK::RegisterInfo::isReadable,
             R"(Check whether the register is readable.
 
-        :return: True if the register is readable, false otherwise.
-        :rtype: bool)")
+        Returns:
+            bool: True if the register is readable, false otherwise.)")
         .def("isValid", &ChimeraTK::RegisterInfo::isValid,
             R"(Check whether the RegisterInfo object is valid.
 
-        :return: True if the object contains a valid implementation, false otherwise.
-        :rtype: bool)")
+        Returns:
+            bool: True if the object contains a valid implementation, false otherwise.)")
         .def("isWriteable", &ChimeraTK::RegisterInfo::isWriteable,
             R"(Check whether the register is writeable.
 
-        :return: True if the register is writeable, false otherwise.
-        :rtype: bool)")
+        Returns:
+            bool: True if the register is writeable, false otherwise.)")
         .def("getRegisterName", DeviceAccessPython::RegisterInfo::getRegisterName,
             R"(Return the full path name of the register.
 
-        :return: Full path name of the register (including modules).
-        :rtype: RegisterPath)")
+        Returns:
+            RegisterPath: Full path name of the register (including modules).)")
         .def("getSupportedAccessModes", DeviceAccessPython::RegisterInfo::getSupportedAccessModes,
             R"(Return all supported AccessModes for this register.
 
-        :return: Flags indicating supported access modes.
-        :rtype: list[AccessMode])")
+        Returns:
+            list[AccessMode]: Flags indicating supported access modes.)")
         .def("getNumberOfElements", &ChimeraTK::RegisterInfo::getNumberOfElements,
             R"(Return the number of elements per channel.
 
-        :return: Number of elements per channel.
-        :rtype: int)")
+        Returns:
+            int: Number of elements per channel.)")
         .def("getNumberOfDimensions", &ChimeraTK::RegisterInfo::getNumberOfDimensions,
             R"(Return the number of dimensions of this register.
 
-        :return: Number of dimensions (0=scalar, 1=1D array, 2=2D array).
-        :rtype: int)")
+        Returns:
+            int: Number of dimensions (0=scalar, 1=1D array, 2=2D array).)")
         .def("getNumberOfChannels", &ChimeraTK::RegisterInfo::getNumberOfChannels,
             R"(Return the number of channels in the register.
 
-        :return: Number of channels.
-        :rtype: int)")
+        Returns:
+            int: Number of channels.)")
         .def("getQualifiedAsyncId", &ChimeraTK::RegisterInfo::getQualifiedAsyncId,
             R"(Get the fully qualified async::SubDomain ID.
 
         If the register does not support wait_for_new_data it will be empty.
         Note: At the moment using async::Domain and async::SubDomain is not mandatory yet, so the ID might be empty even if the register supports wait_for_new_data.
 
-        :return: List of IDs forming the fully qualified async::SubDomain ID.
-        :rtype: list[int])")
+        Returns:
+            list[int]: List of IDs forming the fully qualified async::SubDomain ID.)")
         .def("getTags", &ChimeraTK::RegisterInfo::getTags,
             R"(Get the list of tags that are associated with this register.
 
-        :return: Set of tags associated with this register.
-        :rtype: set[str])");
+        Returns:
+            set[str]: Set of tags associated with this register.)");
   }
   /*******************************************************************************************************************/
 
@@ -160,64 +162,64 @@ namespace DeviceAccessPython {
         .def("getDataDescriptor", &ChimeraTK::BackendRegisterInfoBase::getDataDescriptor,
             R"(Return description of the actual payload data for this register.
 
-        :return: :class:`deviceaccess.DataDescriptor` object containing information about the data format.
-        :rtype: DataDescriptor)")
+        Returns:
+            DataDescriptor: Object containing information about the data format.)")
         .def("isReadable", &ChimeraTK::BackendRegisterInfoBase::isReadable,
             R"(Return whether the register is readable.
 
-        :return: True if the register is readable, false otherwise.
-        :rtype: bool)")
+        Returns:
+            bool: True if the register is readable, false otherwise.)")
         .def("isWriteable", &ChimeraTK::BackendRegisterInfoBase::isWriteable,
             R"(Return whether the register is writeable.
 
-        :return: True if the register is writeable, false otherwise.
-        :rtype: bool)")
+        Returns:
+            bool: True if the register is writeable, false otherwise.)")
         .def("getRegisterName", &ChimeraTK::BackendRegisterInfoBase::getRegisterName,
             R"(Return full path name of the register.
 
-        :return: Full path name of the register (including modules).
-        :rtype: RegisterPath)")
+        Returns:
+            RegisterPath: Full path name of the register (including modules).)")
         .def("getSupportedAccessModes", &ChimeraTK::BackendRegisterInfoBase::getSupportedAccessModes,
             R"(Return all supported AccessModes for this register.
 
-        :return: Flags indicating supported access modes.
-        :rtype: list[AccessMode])")
+        Returns:
+            list[AccessMode]: Flags indicating supported access modes.)")
         .def("getNumberOfElements", &ChimeraTK::BackendRegisterInfoBase::getNumberOfElements,
             R"(Return number of elements per channel.
 
-        :return: Number of elements per channel.
-        :rtype: int)")
+        Returns:
+            int: Number of elements per channel.)")
         .def("getNumberOfDimensions", &ChimeraTK::BackendRegisterInfoBase::getNumberOfDimensions,
             R"(Return number of dimensions of this register.
 
-        :return: Number of dimensions (0=scalar, 1=1D array, 2=2D array).
-        :rtype: int)")
+        Returns:
+            int: Number of dimensions (0=scalar, 1=1D array, 2=2D array).)")
         .def("getNumberOfChannels", &ChimeraTK::BackendRegisterInfoBase::getNumberOfChannels,
             R"(Return number of channels in register.
 
-        :return: Number of channels.
-        :rtype: int)")
+        Returns:
+            int: Number of channels.)")
         .def("getQualifiedAsyncId", &ChimeraTK::BackendRegisterInfoBase::getQualifiedAsyncId,
             R"(Return the fully qualified async::SubDomain ID.
 
         The default implementation returns an empty vector.
 
-        :return: List of IDs forming the fully qualified async::SubDomain ID.
-        :rtype: list[int])")
+        Returns:
+            list[int]: List of IDs forming the fully qualified async::SubDomain ID.)")
         .def("getTags", &ChimeraTK::BackendRegisterInfoBase::getTags,
             R"(Get the list of tags associated with this register.
 
         The default implementation returns an empty set.
 
-        :return: Set of tags associated with this register.
-        :rtype: set[str])")
+        Returns:
+            set[str]: Set of tags associated with this register.)")
         .def("isHidden", &ChimeraTK::BackendRegisterInfoBase::isHidden,
             R"(Return whether the register is "hidden".
 
         Hidden registers won't be listed when iterating the catalogue, but can be explicitly iterated.
 
-        :return: True if the register is hidden, false otherwise.
-        :rtype: bool)");
+        Returns:
+            bool: True if the register is hidden, false otherwise.)");
   }
 
   /*******************************************************************************************************************/
@@ -236,8 +238,8 @@ namespace DeviceAccessPython {
 
         The DataDescriptor will describe the passed DataType with no raw type.
 
-        :param type: The data type to describe.
-        :type type: DataType)")
+        Args:
+            type (DataType): The data type to describe.)")
         .def(py::init<>(),
             R"(Default constructor.
 
@@ -245,22 +247,22 @@ namespace DeviceAccessPython {
         .def("fundamentalType", DeviceAccessPython::DataDescriptor::fundamentalType,
             R"(Get the fundamental data type.
 
-        :return: The fundamental data type.
-        :rtype: FundamentalType)")
+        Returns:
+            FundamentalType: The fundamental data type.)")
         .def("isSigned", &ChimeraTK::DataDescriptor::isSigned,
             R"(Return whether the data is signed or not.
 
         Only valid for numeric data types.
 
-        :return: True if the data is signed, false otherwise.
-        :rtype: bool)")
+        Returns:
+            bool: True if the data is signed, false otherwise.)")
         .def("isIntegral", &ChimeraTK::DataDescriptor::isIntegral,
             R"(Return whether the data is integral or not.
 
-        May only be called for numeric data types. Examples: int or. float.
+        May only be called for numeric data types. Examples: int or float.
 
-        :return: True if the data is integral, false otherwise.
-        :rtype: bool)")
+        Returns:
+            bool: True if the data is integral, false otherwise.)")
         .def("nDigits", &ChimeraTK::DataDescriptor::nDigits,
             R"(Return the approximate maximum number of digits needed to represent the value.
 
@@ -271,8 +273,8 @@ namespace DeviceAccessPython {
         this might be a large number (e.g. 300), which indicates that a different representation
         than plain decimal numbers should be chosen.
 
-        :return: Approximate maximum number of digits (base 10).
-        :rtype: int)")
+        Returns:
+            int: Approximate maximum number of digits (base 10).)")
         .def("nFractionalDigits", &ChimeraTK::DataDescriptor::nFractionalDigits,
             R"(Return the approximate maximum number of digits after the decimal dot.
 
@@ -282,8 +284,8 @@ namespace DeviceAccessPython {
         Note: This number should only be used for displaying purposes. There is no guarantee
         that the full precision can be displayed with the given number of digits.
 
-        :return: Approximate maximum number of fractional digits (base 10).
-        :rtype: int)")
+        Returns:
+            int: Approximate maximum number of fractional digits (base 10).)")
         .def("rawDataType", &ChimeraTK::DataDescriptor::rawDataType,
             R"(Get the raw data type.
 
@@ -293,16 +295,16 @@ namespace DeviceAccessPython {
 
         Most backends will have type 'none' (no raw data conversion available).
 
-        :return: The raw data type.
-        :rtype: DataType)")
+        Returns:
+            DataType: The raw data type.)")
         .def("setRawDataType", &ChimeraTK::DataDescriptor::setRawDataType, py::arg("rawDataType"),
             R"(Set the raw data type.
 
         This is useful e.g. when a decorated register should no longer allow raw access,
         in which case you should set DataType.none.
 
-        :param rawDataType: The raw data type to set.
-        :type rawDataType: DataType)")
+        Args:
+            rawDataType (DataType): The raw data type to set.)")
         .def("transportLayerDataType", &ChimeraTK::DataDescriptor::transportLayerDataType,
             R"(Get the data type on the transport layer.
 
@@ -317,15 +319,15 @@ namespace DeviceAccessPython {
         Note: Currently all implementations return 'none'. There is no public API to access
         the transport layer data yet.
 
-        :return: The transport layer data type.
-        :rtype: DataType)")
+        Returns:
+            DataType: The transport layer data type.)")
         .def("minimumDataType", &ChimeraTK::DataDescriptor::minimumDataType,
             R"(Get the minimum data type required to represent the described data type.
 
         This is the minimum data type needed in the host CPU to represent the value.
 
-        :return: The minimum required data type.
-        :rtype: DataType)");
+        Returns:
+            DataType: The minimum required data type.)");
   }
 
   /*******************************************************************************************************************/
