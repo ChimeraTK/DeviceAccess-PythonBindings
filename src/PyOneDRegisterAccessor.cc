@@ -365,13 +365,61 @@ namespace ChimeraTK {
 
             :return: Array containing the register data after reading.
             :rtype: ndarray)")
-        .def("__getitem__", &PyOneDRegisterAccessor::getitem, py::arg("index"),
+        .def(
+            "__getitem__", [](PyOneDRegisterAccessor& acc, size_t index) { return acc.getitem(index); },
+            py::arg("index"),
             R"(Get an element from the array by index.
 
             :param index: The element index.
             :type index: int
             :return: The value at the specified index.
             :rtype: scalar)")
+        .def(
+            "__getitem__",
+            [](PyOneDRegisterAccessor& acc, const py::object& slice) { return acc.get().attr("__getitem__")(slice); },
+            py::arg("slice"),
+            R"(Get an element from the array by index.
+
+            :param slice: A slice object.
+            :type slice: slice
+            :return: The value(s) at the specified slice.
+            :rtype: np.ndarray)")
+        .def(
+            "__setitem__",
+            [](PyOneDRegisterAccessor& acc, size_t index, const UserTypeVariantNoVoid& value) {
+              acc.setitem(index, value);
+            },
+            py::arg("index"), py::arg("value"),
+            R"(Set an element in the array by index.
+
+            :param index: The element index.
+            :type index: int
+            :param value: The value to set at the specified index.
+            :type value: user type)")
+        .def(
+            "__setitem__",
+            [](PyOneDRegisterAccessor& acc, const py::object& slice, const UserTypeVariantNoVoid& value) {
+              acc.get().attr("__setitem__")(slice, py::cast(value));
+            },
+            py::arg("slice"), py::arg("value"),
+            R"(Set an element in the array by slice.
+
+            :param slice: The element slice.
+            :type slice: slice
+            :param value: The value to set at the specified slice.
+            :type value: user type)")
+        .def(
+            "__setitem__",
+            [](PyOneDRegisterAccessor& acc, const py::object& slice, const py::object& array) {
+              acc.get().attr("__setitem__")(slice, array);
+            },
+            py::arg("slice"), py::arg("array"),
+            R"(Set an element in the array by slice.
+
+            :param slice: The element slice.
+            :type slice: slice
+            :param array: The value to set at the specified slice.
+            :type array: list or ndarray)")
         .def("__getattr__", &PyOneDRegisterAccessor::getattr);
 
     for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {

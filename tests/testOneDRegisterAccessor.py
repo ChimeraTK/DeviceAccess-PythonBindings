@@ -507,9 +507,40 @@ class TestOneDRegisterAccessor(unittest.TestCase):
             self.assertTrue(acc[i] == someOtherValue, f'{acc[i]} == {someOtherValue}')
             self.assertTrue(acc.getAsCooked(i) == cooksTo, f'{acc.getAsCooked(i)} == {cooksTo}')
 
+    def testSubscriptOperator(self):
+        acc: da.OneDRegisterAccessor = self.dev.getOneDRegisterAccessor(
+            np.int32, "FLOAT_TEST.1DARRAY", accessModeFlags=[da.AccessMode.raw])
+        # test getting first
+        acc.set([2, 4, 8, 16])
+        acc.write()
+        self.assertTrue(acc[3] == 16, f'{acc[3]} == 16')
+        # setting
+        acc[0] = 12
+        acc.write()
+        self.assertTrue(acc[0] == 12, f'{acc[0]} == 12')
+        # slicing
+        acc.set([1, 2, 3, 4])
+        acc.write()
+        slice = acc[1:3]
+        self.assertTrue((slice == np.array([2, 3])).all(), f'{slice} == {[2, 3]}')
+        slice = acc[::2]
+        self.assertTrue((slice == np.array([1, 3])).all(), f'{slice} == {[1, 3]}')
+        slice = acc[::-1]
+        self.assertTrue((slice == np.array([4, 3, 2, 1])).all(), f'{slice} == {[4, 3, 2, 1]}')
+        # setting via slice
+        acc[1:3] = [20, 30]
+        acc.write()
+        self.assertTrue((acc.get() == np.array([1, 20, 30, 4])).all(), f'{acc.get()} == {[1, 20, 30, 4]}')
+        acc[::2] = [100, 300]
+        acc.write()
+        self.assertTrue((acc.get() == np.array([100, 20, 300, 4])).all(), f'{acc.get()} == {[100, 20, 300, 4]}')
+        # write a slice, but all the same value
+        acc[1::2] = 11
+        acc.write()
+        self.assertTrue((acc.get() == np.array([100, 11, 300, 11])).all(), f'{acc.get()} == {[100, 11, 300, 11]}')
+
 
 #####################################################################################################################
-
 
 if __name__ == '__main__':
     unittest.main()

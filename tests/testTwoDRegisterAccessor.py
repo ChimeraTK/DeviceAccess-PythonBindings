@@ -462,6 +462,76 @@ class TestTwoDRegisterAccessor(unittest.TestCase):
             self.assertTrue(acc[0][i] == someOtherValue, f'{acc[0][i]} == {someOtherValue}')
             self.assertTrue(acc.getAsCooked(0, i) == cooksTo, f'{acc.getAsCooked(0, i)} == {cooksTo}')
 
+    def testSubscriptOperator(self):
+        acc: da.TwoDRegisterAccessor = self.dev.getTwoDRegisterAccessor(
+            np.int32, "FLOAT_TEST.2DARRAY")  # size is [4, 3]
+        acc.set([[1,  2,  3,  4],
+                 [5,  6,  7,  8],
+                 [9, 10, 11, 12]])
+        acc.write()
+        # getting an array via subscript
+        self.assertTrue((acc[1] == [5,  6,  7,  8]).all(),
+                        f'{acc[1]} == [5,  6,  7,  8]')
+        # getting a scalar from the arrray
+        self.assertTrue(acc[2][3] == 12, f'{acc[2][3]} == 12')
+        # setting via subscript
+        acc[0] = [10, 20, 30, 40]
+        acc.write()
+        self.assertTrue((acc[0] == [10, 20, 30, 40]).all(), f'{acc[0]} == {[10, 20, 30, 40]}')
+        # subscripted subscript setting
+        acc[2][2] = 99
+        acc.write()
+        self.assertTrue(acc[2][2] == 99, f'{acc[2][2]} == 99')
+        # slicing the buffer
+        acc.set([[100,  200,  300,  400],
+                 [500,  600,  700,  800],
+                 [900, 1000, 1100, 1200]])
+        acc.write()
+        slice = acc[1:3]
+        self.assertTrue((
+            slice == np.array([[500,  600,  700,  800], [900, 1000, 1100, 1200]])).all(),
+            f'{slice} == {[500,  600,  700,  800], [900, 1000, 1100, 1200]}')
+        slice = acc[::2]
+        self.assertTrue((slice == np.array([[100,  200,  300,  400], [900, 1000, 1100, 1200]])).all(),
+                        f'{slice} == {[[100,  200,  300,  400], [900, 1000, 1100, 1200]]}')
+        # double slice the buffer
+        slice = acc[1:2][::-1]
+        self.assertTrue((slice == np.array([500,  600,  700,  800])).all(),
+                        f'{slice} == {[500,  600,  700,  800]}')
+        # setting via slice
+        acc[1:3] = [[55,  66,  77,  88], [99, 1010, 11111, 1212]]
+        acc.write()
+        self.assertTrue((acc.get() == np.array([[100,  200,  300,  400],
+                                               [55,  66,  77,  88],
+                                               [99, 1010, 11111, 1212]])).all(),
+                        f'{acc.get()} == {[[100,  200,  300,  400],
+                                           [55,  66,  77,  88],
+                                           [99, 1010, 11111, 1212]]}')
+        acc[::2] = [[1,  2,  3,  4], [9, 10, 11, 12]]
+        acc.write()
+        self.assertTrue((acc.get() == np.array([[1,  2,  3,  4],
+                                               [55,  66,  77,  88],
+                                               [9, 10, 11, 12]])).all(),
+                        f'{acc.get()} == {[[1,  2,  3,  4],
+                                           [55,  66,  77,  88],
+                                           [9, 10, 11, 12]]}')
+        # write a slice, but all the same value
+        acc[-1] = 0
+        acc.write()
+        self.assertTrue((acc.get() == np.array([[1,  2,  3,  4],
+                                               [55,  66,  77,  88],
+                                               [0, 0, 0, 0]])).all(),
+                        f'{acc.get()} == {[[1,  2,  3,  4],
+                                           [55,  66,  77,  88],
+                                           [0, 0, 0, 0]]}')
+        acc[::] = 23
+        acc.write()
+        self.assertTrue((acc.get() == np.array([[23, 23, 23, 23],
+                                                [23, 23, 23, 23],
+                                                [23, 23, 23, 23]])).all(),
+                        f'{acc.get()} == {[[23, 23, 23, 23],
+                                           [23, 23, 23, 23],
+                                           [23, 23, 23, 23]]}')
 
 #####################################################################################################################
 
