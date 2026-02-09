@@ -501,37 +501,33 @@ class TestTwoDRegisterAccessor(unittest.TestCase):
         # setting via slice
         acc[1:3] = [[55,  66,  77,  88], [99, 1010, 11111, 1212]]
         acc.write()
-        self.assertTrue((acc.get() == np.array([[100,  200,  300,  400],
-                                               [55,  66,  77,  88],
-                                               [99, 1010, 11111, 1212]])).all(),
-                        f'{acc.get()} == {[[100,  200,  300,  400],
-                                           [55,  66,  77,  88],
-                                           [99, 1010, 11111, 1212]]}')
+        expected = [[100,  200,  300,  400],
+                    [55,  66,  77,  88],
+                    [99, 1010, 11111, 1212]]
+        self.assertTrue((acc.get() == np.array(expected)).all(),
+                        f'{acc.get()} == {expected}')
         acc[::2] = [[1,  2,  3,  4], [9, 10, 11, 12]]
         acc.write()
-        self.assertTrue((acc.get() == np.array([[1,  2,  3,  4],
-                                               [55,  66,  77,  88],
-                                               [9, 10, 11, 12]])).all(),
-                        f'{acc.get()} == {[[1,  2,  3,  4],
-                                           [55,  66,  77,  88],
-                                           [9, 10, 11, 12]]}')
+        expected = [[1,  2,  3,  4],
+                    [55,  66,  77,  88],
+                    [9, 10, 11, 12]]
+        self.assertTrue((acc.get() == np.array(expected)).all(),
+                        f'{acc.get()} == {expected}')
         # write a slice, but all the same value
         acc[-1] = 0
         acc.write()
-        self.assertTrue((acc.get() == np.array([[1,  2,  3,  4],
-                                               [55,  66,  77,  88],
-                                               [0, 0, 0, 0]])).all(),
-                        f'{acc.get()} == {[[1,  2,  3,  4],
-                                           [55,  66,  77,  88],
-                                           [0, 0, 0, 0]]}')
+        expected = [[1,  2,  3,  4],
+                    [55,  66,  77,  88],
+                    [0, 0, 0, 0]]
+        self.assertTrue((acc.get() == np.array(expected)).all(),
+                        f'{acc.get()} == {expected}')
         acc[::] = 23
         acc.write()
-        self.assertTrue((acc.get() == np.array([[23, 23, 23, 23],
-                                                [23, 23, 23, 23],
-                                                [23, 23, 23, 23]])).all(),
-                        f'{acc.get()} == {[[23, 23, 23, 23],
-                                           [23, 23, 23, 23],
-                                           [23, 23, 23, 23]]}')
+        expected = [[23, 23, 23, 23],
+                    [23, 23, 23, 23],
+                    [23, 23, 23, 23]]
+        self.assertTrue((acc.get() == np.array(expected)).all(),
+                        f'{acc.get()} == {expected}')
 
 #####################################################################################################################
 
