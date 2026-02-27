@@ -1,1 +1,3 @@
+# DEVICE_LABEL   backend_specification
 someDummyDevice (dummy?map=./someDummyModule.map)
+someSharedDummyDevice (sharedMemoryDummy?map=someDummyModule.map)

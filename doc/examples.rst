@@ -40,10 +40,10 @@ The ChimeraTK library supports multiple backends. Configure them in your device 
 .. code-block:: text
 
    # Device map example
-   DUMMY_DEVICE        (dummy_name_prefix:?)
-   MODBUS_DEVICE       (modbus://192.168.1.100?address_list=device.xml)
-   SERIAL_DEVICE       (serial:///dev/ttyUSB0?speed=115200)
-
+    AMC_PCIe    (xdma:xdma/slot6?map=device.map)
+    SCPI_Dev    (CommandBasedTCP:lab_dev?map=hw_prep.json&port=50000)
+    OPCUADev    (opcua:192.168.1.101?port=16664)
+    DummyDev    (dummy?map=device.map)
 
 Then use them the same way in your Python code:
 
@@ -52,12 +52,13 @@ Then use them the same way in your Python code:
    import deviceaccess
 
    # Open different backend devices with same API
-   dummy = deviceaccess.Device("DUMMY_DEVICE")
-   modbus = deviceaccess.Device("MODBUS_DEVICE")
-   serial = deviceaccess.Device("SERIAL_DEVICE")
+   dummy = deviceaccess.Device("DummyDev")
+   pcie = deviceaccess.Device("AMC_PCIe")
+   scpi = deviceaccess.Device("SCPI_Dev")
+   opcua = deviceaccess.Device("OPCUADev")
 
    # All use the same accessor interface
-   for device in [dummy, modbus, serial]:
+   for device in [dummy, pcie, scpi, opcua]:
        value = device.getScalarRegisterAccessor("MEASUREMENT")
        value.read()
        print(f"Value: {float(value)}")

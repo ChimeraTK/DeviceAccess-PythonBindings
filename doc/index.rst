@@ -30,7 +30,7 @@ The bindings enable Python developers to:
 * Utilize transfer groups for synchronized access to multiple registers
 * Leverage data consistency groups for coherent data reading
 
-All read and write operations are synchronous and blocking until the data transfer is complete.
+All read and write operations are synchronous and blocking until the data transfer is complete, asynchronous operations are available for push-based data updates.
 
 
 Quick Start
@@ -76,8 +76,8 @@ The main module is :doc:`deviceaccess` which provides:
 
 * Device class for opening and managing connections
 * Various accessor types for different data structures
-* Error handling utilities
-* Device map configuration
+* Register information retrieval
+* Transfer group and data consistency group management
 
 
 Questions and Troubleshooting
