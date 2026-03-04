@@ -7,6 +7,7 @@
 #include "PyDataType.h"
 #include "PyDevice.h"
 #include "PyOneDRegisterAccessor.h"
+#include "PyReadAnyGroup.h"
 #include "PyTwoDRegisterAccessor.h"
 #include "PyVersionNumber.h"
 #include "RegisterCatalogue.h"
@@ -38,6 +39,8 @@ PYBIND11_MODULE(deviceaccess, m) {
   DeviceAccessPython::RegisterInfo::bind(m);
   DeviceAccessPython::RegisterInfo::bindBackendRegisterInfoBase(m);
   DeviceAccessPython::DataDescriptor::bind(m);
+  ChimeraTK::PyReadAnyGroup::bind(m);
+  ChimeraTK::PyReadAnyGroupNotification::bind(m);
 
   m.def("setDMapFilePath", ChimeraTK::setDMapFilePath, py::arg("dmapFilePath"),
       R"(Set the location of the dmap file.
@@ -87,6 +90,8 @@ PYBIND11_MODULE(deviceaccess, m) {
   py::class_<ChimeraTK::TransferElementID>(m, "TransferElementID")
       .def("isValid", &ChimeraTK::TransferElementID::isValid, "Check whether the ID is valid.")
       .def("__ne__", &ChimeraTK::TransferElementID::operator!=)
+      .def("__hash__",
+          [](const ChimeraTK::TransferElementID& self) { return std::hash<ChimeraTK::TransferElementID>{}(self); })
       .def("__eq__", &ChimeraTK::TransferElementID::operator==);
 
   py::class_<ChimeraTK::RegisterPath>(m, "RegisterPath",
