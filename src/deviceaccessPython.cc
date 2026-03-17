@@ -4,10 +4,12 @@
 #include <pybind11/pybind11.h>
 // pybind11.h must come first
 
+#include "PyDataConsistencyGroup.h"
 #include "PyDataType.h"
 #include "PyDevice.h"
 #include "PyOneDRegisterAccessor.h"
 #include "PyReadAnyGroup.h"
+#include "PyTransferGroup.h"
 #include "PyTwoDRegisterAccessor.h"
 #include "PyVersionNumber.h"
 #include "RegisterCatalogue.h"
@@ -41,6 +43,9 @@ PYBIND11_MODULE(deviceaccess, m) {
   DeviceAccessPython::DataDescriptor::bind(m);
   ChimeraTK::PyReadAnyGroup::bind(m);
   ChimeraTK::PyReadAnyGroupNotification::bind(m);
+  ChimeraTK::PyDataConsistencyGroup::bind(m);
+  ChimeraTK::PyMatchingMode::bind(m);
+  ChimeraTK::PyTransferGroup::bind(m);
 
   m.def("setDMapFilePath", ChimeraTK::setDMapFilePath, py::arg("dmapFilePath"),
       R"(Set the location of the dmap file.

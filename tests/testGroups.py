@@ -49,6 +49,10 @@ class TestGroups(unittest.TestCase):
             np.int32, "GROUP_TEST.SCALAR1", 0, [da.AccessMode.wait_for_new_data])
         self.scalar2: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(
             np.int32, "GROUP_TEST.SCALAR2", 0, [da.AccessMode.wait_for_new_data])
+        self.scalar3: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(
+            np.int32, "GROUP_TEST.SCALAR3", 0, [da.AccessMode.wait_for_new_data])
+        self.scalar4: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(
+            np.int32, "GROUP_TEST.SCALAR4", 0, [da.AccessMode.wait_for_new_data])
 
         self.scalar0_writeable: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(
             np.int32, "GROUP_TEST.SCALAR0/DUMMY_WRITEABLE")
@@ -56,10 +60,27 @@ class TestGroups(unittest.TestCase):
             np.int32, "GROUP_TEST.SCALAR1/DUMMY_WRITEABLE")
         self.scalar2_writeable: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(
             np.int32, "GROUP_TEST.SCALAR2/DUMMY_WRITEABLE")
+        self.scalar3_writeable: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(
+            np.int32, "GROUP_TEST.SCALAR3/DUMMY_WRITEABLE")
+        self.scalar4_writeable: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(
+            np.int32, "GROUP_TEST.SCALAR4/DUMMY_WRITEABLE")
 
         self.interrupt0: da.VoidRegisterAccessor = self.dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_0")
         self.interrupt1: da.VoidRegisterAccessor = self.dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_1")
         self.interrupt2: da.VoidRegisterAccessor = self.dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_2")
+        self.interrupt3: da.VoidRegisterAccessor = self.dev.getVoidRegisterAccessor("DUMMY_INTERRUPT_3")
+
+        self.push_rw: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(np.int32, "RW_TEST.SCALAR")
+        self.push_ro: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(np.int32, "RO_TEST.SCALAR")
+        self.push_ro2: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(np.int32, "RO_TEST.SCALAR")
+        self.push_wo: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(np.int32, "WO_TEST.SCALAR")
+
+        self.trans1: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(np.int32, "TRANSFER_TEST.SCALAR1")
+        self.trans1copy: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(
+            np.int32, "TRANSFER_TEST.SCALAR1_COPY")
+        self.trans2: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(np.int32, "TRANSFER_TEST.SCALAR2")
+        self.trans2copy: da.ScalarRegisterAccessor = self.dev.getScalarRegisterAccessor(
+            np.int32, "TRANSFER_TEST.SCALAR2_COPY")
 
     def tearDown(self) -> None:
         self.dev.close()
@@ -156,6 +177,8 @@ class TestGroups(unittest.TestCase):
         self.pushScalar0.readLatest()
         self.pushScalar1.readLatest()
         self.scalar0.readLatest()
+        self.scalar0_writeable.setAndWrite(0)
+        self.pushScalar0.write()
         self.pushScalar0_copy.readLatest()  # not in the group
         pollgroup.add(self.pushScalar0)
         pollgroup.add(self.pushScalar1)
@@ -178,6 +201,98 @@ class TestGroups(unittest.TestCase):
         pollgroup.processPolled()
         self.assertEqual(self.pushScalar0.get(), 412)
         self.assertEqual(self.scalar0.get(), 0)  # should not be updated, as it is not push type
+
+    def testDataConsistencyGroup(self):
+        registers = [self.scalar0, self.scalar1, self.scalar3, self.scalar4]
+        for acc in registers:
+            acc.readLatest()
+
+        # scalar0 and scalar1 have different interrupts, so they are never consistent
+        ragroup: da.ReadAnyGroup = da.ReadAnyGroup()
+        ragroup.add(self.scalar0)
+        ragroup.add(self.scalar1)
+        ragroup.finalise()
+
+        dcgroup: da.DataConsistencyGroup = da.DataConsistencyGroup(da.MatchingMode.exact)
+        dcgroup.add(self.scalar0)
+        dcgroup.add(self.scalar1)
+
+        self.scalar0_writeable.setAndWrite(123)
+        self.interrupt0.write()
+        self.scalar1_writeable.setAndWrite(456)
+        self.interrupt1.write()
+        id = ragroup.readAny()
+        self.assertEqual(id, self.scalar0.getId())
+        isConsistentFromUpdate = dcgroup.update(id)
+        self.assertFalse(isConsistentFromUpdate)
+        id = ragroup.readAny()
+        isConsistentFromUpdate = dcgroup.update(id)
+        self.assertFalse(isConsistentFromUpdate)
+        self.assertEqual(id, self.scalar1.getId())
+        self.assertFalse(dcgroup.isConsistent())
+
+        # scalar3 and scalar4 have the same interrupt, so they should be consistent
+        ragroup2: da.ReadAnyGroup = da.ReadAnyGroup()
+        ragroup2.add(self.scalar3)
+        ragroup2.add(self.scalar4)
+        ragroup2.finalise()
+
+        dcgroup2: da.DataConsistencyGroup = da.DataConsistencyGroup(da.MatchingMode.exact)
+        dcgroup2.add(self.scalar3)
+        dcgroup2.add(self.scalar4)
+
+        self.scalar3_writeable.setAndWrite(12233)
+        self.interrupt3.write()
+        self.scalar4_writeable.setAndWrite(45126)
+        self.interrupt3.write()
+        id = ragroup2.readAny()
+        self.assertEqual(id, self.scalar3.getId())
+        dcgroup2.update(id)
+        id = ragroup2.readAny()
+        dcgroup2.update(id)
+        self.assertEqual(id, self.scalar4.getId())
+        self.assertTrue(dcgroup2.isConsistent())
+
+    def testTransferGroup(self):
+        # test the properties of the group with different access modes
+        tg: da.TransferGroup = da.TransferGroup()
+        tg.addAccessor(self.push_rw)
+        self.assertTrue(tg.isReadable())
+        self.assertTrue(tg.isWriteable())
+        tg.addAccessor(self.push_wo)
+        self.assertFalse(tg.isReadable())
+        tg.addAccessor(self.push_ro)
+        self.assertFalse(tg.isWriteable())
+        self.assertFalse(tg.isReadOnly())
+        tg: da.TransferGroup = da.TransferGroup()
+        tg.addAccessor(self.push_ro2)
+        self.assertTrue(tg.isReadOnly())
+
+        # test read write behaviour
+        for acc in [self.trans1, self.trans2, self.trans1copy, self.trans2copy]:
+            acc.readLatest()
+        tg: da.TransferGroup = da.TransferGroup()
+        tg.addAccessor(self.trans1)
+        tg.addAccessor(self.trans2)
+
+        # no more indivdual reads or writes should be possible
+        self.assertRaises(RuntimeError, lambda: self.trans1.read())
+        self.assertRaises(RuntimeError, lambda: self.trans1.setAndWrite(42))
+
+        tg.read()
+        self.assertEqual(self.trans1.get(), 0)
+        self.assertEqual(self.trans2.get(), 0)
+        self.trans1copy.setAndWrite(123)
+        self.trans2copy.setAndWrite(456)
+        tg.read()
+        self.assertEqual(self.trans1.get(), 123)
+        self.assertEqual(self.trans2.get(), 456)
+
+        self.trans1.set(4242)
+        self.trans2.set(4546)
+        tg.write()
+        self.assertEqual(self.trans1copy.readAndGet(), 4242)
+        self.assertEqual(self.trans2copy.readAndGet(), 4546)
 
 
 if __name__ == '__main__':
