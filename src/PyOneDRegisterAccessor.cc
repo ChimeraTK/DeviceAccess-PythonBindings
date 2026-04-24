@@ -190,9 +190,12 @@ namespace ChimeraTK {
             Otherwise it still might block for a short time until the data transfer was complete.
 
           See Also:
-              :meth:`readNonBlocking`: Read without blocking if no data available.
-              :meth:`readLatest`: Read latest value, discarding intermediate updates.
-              :meth:`readAndGet`: Convenience method combining read() and get().)")
+              readNonBlocking: Read without blocking if no data is available.
+              readLatest: Read latest value while discarding intermediate updates.
+              readAndGet: Convenience method combining read() and get().
+
+          Returns:
+            None: This function does not return a value.)")
         .def("readNonBlocking", &PyOneDRegisterAccessor::readNonBlocking,
             R"(Read the next value, if available in the input buffer.
 
@@ -221,15 +224,15 @@ namespace ChimeraTK {
             In case of an unbuffered write transfer, the return value will always be false.
 
           Args:
-            versionNumber (:class:`VersionNumber`): Version number to use for this write operation. If not specified,
+            versionNumber (VersionNumber): Version number to use for this write operation. If not specified,
               a new version number is generated.
 
           Returns:
             bool: True if data was lost, false otherwise.
 
           See Also:
-              :meth:`setAndWrite`: Convenience method combining set() and write().
-              :meth:`writeDestructively`: Optimized write that may destroy buffer.)")
+              setAndWrite: Convenience method combining set() and write().
+              writeDestructively: Optimized write that may destroy buffer.)")
         .def("writeDestructively", &PyOneDRegisterAccessor::writeDestructively,
             py::arg("versionNumber") = PyVersionNumber::getNullVersion(),
             R"(Just like write(), but allows the implementation to destroy the content of the user buffer in the process.
@@ -239,7 +242,7 @@ namespace ChimeraTK {
             undefined data after calling this function.
 
           Args:
-            versionNumber (:class:`VersionNumber`): Version number to use for this write operation. If not specified,
+            versionNumber (VersionNumber): Version number to use for this write operation. If not specified,
               a new version number is generated.
 
           Returns:
@@ -247,38 +250,41 @@ namespace ChimeraTK {
         .def("interrupt", &PyOneDRegisterAccessor::interrupt,
             R"(Interrupt a blocking read operation.
 
-            This will cause a blocking read to return immediately and throw an InterruptedException.)")
+            This will cause a blocking read to return immediately and throw an InterruptedException.
+
+          Returns:
+            None: This function does not return a value.)")
         .def("getName", &PyOneDRegisterAccessor::getName,
-            R"(Returns the name that identifies the process variable.
+            R"(Return the name that identifies the process variable.
 
           Returns:
             str: The register name.)")
         .def("getUnit", &PyOneDRegisterAccessor::getUnit,
-            R"(Returns the engineering unit.
+            R"(Return the engineering unit.
 
             If none was specified, it will default to 'n./a.'.
 
           Returns:
             str: The engineering unit string.)")
         .def("getDescription", &PyOneDRegisterAccessor::getDescription,
-            R"(Returns the description of this variable/register.
+            R"(Return the description of this variable/register.
 
           Returns:
             str: The description string.)")
         .def("getValueType", &PyOneDRegisterAccessor::getValueType,
-            R"(Returns the numpy dtype for the value type of this accessor.
+            R"(Return the numpy dtype for the value type of this accessor.
 
             This can be used to determine the type at runtime.
 
           Returns:
             numpy.dtype: Type information object.)")
         .def("getVersionNumber", &PyOneDRegisterAccessor::getVersionNumber,
-            R"(Returns the version number that is associated with the last transfer.
+            R"(Return the version number that is associated with the last transfer.
 
             This refers to the last read or write operation.
 
           Returns:
-            :class:`VersionNumber`: The version number of the last transfer.)")
+            VersionNumber: The version number of the last transfer.)")
         .def("isReadOnly", &PyOneDRegisterAccessor::isReadOnly,
             R"(Check if accessor is read only.
 
@@ -305,14 +311,14 @@ namespace ChimeraTK {
             the very same register.
 
           Returns:
-            :class:`TransferElementID`: The unique accessor ID.)")
+            TransferElementID: The unique accessor ID.)")
         .def("dataValidity", &PyOneDRegisterAccessor::dataValidity,
             R"(Return current validity of the data.
 
             Will always return DataValidity.ok if the backend does not support it.
 
           Returns:
-            :class:`DataValidity`: The current data validity state.)")
+            DataValidity: The current data validity state.)")
         .def("getNElements", &PyOneDRegisterAccessor::getNElements,
             R"(Return number of elements/samples in the register.
 
@@ -327,7 +333,10 @@ namespace ChimeraTK {
             R"(Set the values of the array.
 
           Args:
-            newValue (list | ndarray): New values to set in the buffer.)")
+            newValue (list | ndarray): New values to set in the buffer.
+
+          Returns:
+            None: This function does not return a value.)")
         .def("setAndWrite", &PyOneDRegisterAccessor::setAndWrite, py::arg("newValue"),
             py::arg("versionNumber") = PyVersionNumber::getNullVersion(),
             R"(Convenience function to set and write new value.
@@ -336,7 +345,10 @@ namespace ChimeraTK {
 
           Args:
             newValue (list | ndarray): New values to set and write.
-            versionNumber (:class:`VersionNumber`): Optional version number for the write operation.)")
+            versionNumber (VersionNumber): Optional version number for the write operation.
+
+          Returns:
+            None: This function does not return a value.)")
         .def("getAsCooked", &PyOneDRegisterAccessor::getAsCooked, py::arg("element"),
             R"(Get the cooked values in case the accessor is a raw accessor (which does not do data conversion).
 
@@ -354,7 +366,10 @@ namespace ChimeraTK {
 
           Args:
             element (int): Element index to write.
-            value (float): The cooked value to set.)")
+            value (float): The cooked value to set.
+
+          Returns:
+            None: This function does not return a value.)")
         .def("isInitialised", &PyOneDRegisterAccessor::isInitialised,
             R"(Check if the accessor is initialised.
 
@@ -364,38 +379,43 @@ namespace ChimeraTK {
             R"(Set the data validity of the accessor.
 
             Args:
-                validity (:class:`DataValidity`): The data validity state to set.)")
+              validity (DataValidity): The data validity state to set.
+
+            Returns:
+              None: This function does not return a value.)")
         .def("getAccessModeFlags", &PyOneDRegisterAccessor::getAccessModeFlags,
             R"(Return the access mode flags that were used to create this accessor.
 
             This can be used to determine the setting of the raw and the wait_for_new_data flags.
 
             Returns:
-                list[:class:`AccessMode`]: List of access mode flags.)")
+              list[AccessMode]: List of access mode flags.)")
         .def("readAndGet", &PyOneDRegisterAccessor::readAndGet,
             R"(Convenience function to read and return the register data.
 
-            :return: Array containing the register data after reading.
-            :rtype: ndarray)")
+            Returns:
+              ndarray: Array containing the register data after reading.)")
         .def(
             "__getitem__", [](PyOneDRegisterAccessor& acc, size_t index) { return acc.getitem(index); },
             py::arg("index"),
             R"(Get an element from the array by index.
 
-            :param index: The element index.
-            :type index: int
-            :return: The value at the specified index.
-            :rtype: scalar)")
+            Args:
+              index (int): The element index.
+
+            Returns:
+              scalar: The value at the specified index.)")
         .def(
             "__getitem__",
             [](PyOneDRegisterAccessor& acc, const py::object& slice) { return acc.get().attr("__getitem__")(slice); },
             py::arg("slice"),
             R"(Get an element from the array by index.
 
-            :param slice: A slice object.
-            :type slice: slice
-            :return: The value(s) at the specified slice.
-            :rtype: np.ndarray)")
+            Args:
+              slice (slice): A slice object.
+
+            Returns:
+              np.ndarray: The value(s) at the specified slice.)")
         .def(
             "__setitem__",
             [](PyOneDRegisterAccessor& acc, size_t index, const UserTypeVariantNoVoid& value) {
@@ -404,10 +424,12 @@ namespace ChimeraTK {
             py::arg("index"), py::arg("value"),
             R"(Set an element in the array by index.
 
-            :param index: The element index.
-            :type index: int
-            :param value: The value to set at the specified index.
-            :type value: user type)")
+            Args:
+              index (int): The element index.
+              value (user type): The value to set at the specified index.
+
+            Returns:
+              None: This function does not return a value.)")
         .def(
             "__setitem__",
             [](PyOneDRegisterAccessor& acc, const py::object& slice, const UserTypeVariantNoVoid& value) {
@@ -416,10 +438,12 @@ namespace ChimeraTK {
             py::arg("slice"), py::arg("value"),
             R"(Set an element in the array by slice.
 
-            :param slice: The element slice.
-            :type slice: slice
-            :param value: The value to set at the specified slice.
-            :type value: user type)")
+            Args:
+              slice (slice): The element slice.
+              value (user type): The value to set at the specified slice.
+
+            Returns:
+              None: This function does not return a value.)")
         .def(
             "__setitem__",
             [](PyOneDRegisterAccessor& acc, const py::object& slice, const py::object& array) {
@@ -428,11 +452,20 @@ namespace ChimeraTK {
             py::arg("slice"), py::arg("array"),
             R"(Set an element in the array by slice.
 
-            :param slice: The element slice.
-            :type slice: slice
-            :param array: The value to set at the specified slice.
-            :type array: list or ndarray)")
-        .def("__getattr__", &PyOneDRegisterAccessor::getattr);
+            Args:
+              slice (slice): The element slice.
+              array (list or ndarray): The value to set at the specified slice.
+
+            Returns:
+              None: This function does not return a value.)")
+        .def("__getattr__", &PyOneDRegisterAccessor::getattr, py::arg("name"),
+            R"(Forward unknown attribute access to the underlying array-like object.
+
+            Args:
+              name (str): Name of the attribute.
+
+            Returns:
+              object: Attribute value or callable attribute proxy.)");
 
     for(const auto& fn : PyTransferElementBase::specialFunctionsToEmulateNumeric) {
       arrayacc.def(fn.c_str(), [fn](PyOneDRegisterAccessor& acc, PyOneDRegisterAccessor& other) {

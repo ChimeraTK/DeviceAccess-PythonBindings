@@ -4,5 +4,6 @@ max_line_length = 120
 [project.optional-dependencies]
 docs = [
     "sphinx >= 6.0",
+    "sphinx-autodoc-typehints",
     "sphinx-rtd-theme >= 3.0",
 ]

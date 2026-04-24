@@ -41,6 +41,7 @@ except Exception:
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx_autodoc_typehints',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
@@ -132,6 +133,7 @@ napoleon_numpy_docstring = False
 napoleon_include_init_doc = True
 napoleon_include_private_with_doc = False
 napoleon_attr_annotations = True
+napoleon_preprocess_types = True
 
 # -- Autodoc configuration -------------------------------------------------
 autodoc_default_options = {
@@ -143,6 +145,8 @@ autodoc_default_options = {
 }
 autodoc_typehints = 'short'
 autodoc_typehints_format = 'short'
+autosummary_generate = True
+autosummary_imported_members = False
 
 
 # -- Options for HTML output ----------------------------------------------
@@ -158,7 +162,11 @@ html_theme_options = {
     'logo_name': 'true',
     'code_font_size': '.688em',
     'show_powered_by': 'false',
-    'github_button': 'false'}
+    'github_button': 'false',
+    'collapse_navigation': False,
+    'navigation_depth': 4,
+    'sticky_navigation': True,
+    'titles_only': False}
 # 'code_font_family': 'Deja Vu Sans Mono',}
 
 # Add any paths that contain custom themes here, relative to this directory.

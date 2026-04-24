@@ -51,10 +51,13 @@ PYBIND11_MODULE(deviceaccess, m) {
       R"(Set the location of the dmap file.
 
       Args:
-        dmapFilePath (str): Relative or absolute path of the dmap file (directory and file name).)");
+        dmapFilePath (str): Relative or absolute path of the dmap file (directory and file name).
+
+      Returns:
+        None: This function does not return a value.)");
 
   m.def("getDMapFilePath", ChimeraTK::getDMapFilePath,
-      R"(Returns the dmap file name which the library currently uses for looking up device(alias) names.
+      R"(Return the dmap file name which the library currently uses for looking up device(alias) names.
 
       Returns:
         str: Path of the dmap file (directory and file name).)");
@@ -62,8 +65,8 @@ PYBIND11_MODULE(deviceaccess, m) {
   py::enum_<ChimeraTK::AccessMode>(m, "AccessMode",
       R"(Access mode flags for register access.
 
-        Note:
-            Using the raw flag will make your code intrinsically dependent on the backend type, since the actual raw data type must be known.)")
+      Note:
+        Using the raw flag makes code dependent on the backend type, since the actual raw data type must be known.)")
       .value("raw", ChimeraTK::AccessMode::raw,
           R"(This access mode disables any possible conversion from the original hardware data type into the given UserType. Obtaining the accessor with a UserType unequal to the actual raw data type will fail and throw an exception.)")
       .value("wait_for_new_data", ChimeraTK::AccessMode::wait_for_new_data,
@@ -88,27 +91,69 @@ PYBIND11_MODULE(deviceaccess, m) {
             communication errors with a device, rather to signalize the consumer after such an
             error that the data is currently not trustable, because we are performing calculations
             with the last known valid data, for example.)")
-      .value("ok", ChimeraTK::DataValidity::ok, "The data is considered valid")
-      .value("faulty", ChimeraTK::DataValidity::faulty, "The data is not considered valid")
+      .value("ok", ChimeraTK::DataValidity::ok, "The data is considered valid.")
+      .value("faulty", ChimeraTK::DataValidity::faulty, "The data is not considered valid.")
       .export_values();
 
   py::class_<ChimeraTK::TransferElementID>(m, "TransferElementID")
-      .def("isValid", &ChimeraTK::TransferElementID::isValid, "Check whether the ID is valid.")
-      .def("__ne__", &ChimeraTK::TransferElementID::operator!=)
-      .def("__hash__",
-          [](const ChimeraTK::TransferElementID& self) { return std::hash<ChimeraTK::TransferElementID>{}(self); })
-      .def("__eq__", &ChimeraTK::TransferElementID::operator==);
+      .def("isValid", &ChimeraTK::TransferElementID::isValid,
+          R"(Check whether the ID is valid.
+
+        Returns:
+          bool: `True if the ID is valid, `False` otherwise.)")
+      .def("__ne__", &ChimeraTK::TransferElementID::operator!=, py::arg("other"),
+          R"(Compare two TransferElement IDs for inequality.
+
+        Args:
+          other (TransferElementID): ID to compare with.
+
+        Returns:
+          bool: True if the IDs are different, false otherwise.)")
+      .def(
+          "__hash__",
+          [](const ChimeraTK::TransferElementID& self) { return std::hash<ChimeraTK::TransferElementID>{}(self); },
+          R"(Return the hash value of this TransferElement ID.
+
+        Returns:
+          int: Hash value.)")
+      .def("__eq__", &ChimeraTK::TransferElementID::operator==, py::arg("other"),
+          R"(Compare two TransferElement IDs for equality.
+
+        Args:
+          other (TransferElementID): ID to compare with.
+
+        Returns:
+          bool: True if the IDs are equal, false otherwise.)");
 
   py::class_<ChimeraTK::RegisterPath>(m, "RegisterPath",
-      R"a(Class to store a register path name. Elements of the path are separated by a "/" character, but an  separation character (e.g. ".") can optionally be specified as well. Different equivalent notations will be converted into a standardised notation automatically.)a")
-      .def(py::init<ChimeraTK::RegisterPath>())
-      .def(py::init<const std::string&>(), py::arg("path"))
-      .def("__str__", &ChimeraTK::RegisterPath::operator std::string)
+      R"(Class to store a register path name.
+
+      Elements of the path are separated by a "/" character, but an alternative separator character such as "."
+      can optionally be specified as well. Different equivalent notations are converted into a standardised notation
+      automatically.)")
+      .def(py::init<ChimeraTK::RegisterPath>(), py::arg("other"),
+          R"(Create a RegisterPath by copying another RegisterPath.
+
+        Args:
+          other (RegisterPath): Path to copy.)")
+      .def(py::init<const std::string&>(), py::arg("path"),
+          R"(Create a RegisterPath from a path string.
+
+        Args:
+          path (str): Register path string.)")
+      .def("__str__", &ChimeraTK::RegisterPath::operator std::string,
+          R"(Return the path as a string.
+
+        Returns:
+          str: Register path string.)")
       .def("setAltSeparator", &ChimeraTK::RegisterPath::setAltSeparator, py::arg("altSeparator"),
           R"(Set alternative separator.
 
         Args:
-            altSeparator (str): Alternative separator character to use instead of "/". Use an empty string to reset to default.)")
+          altSeparator (str): Alternative separator character to use instead of "/". Use an empty string to reset to default.
+
+        Returns:
+          None: This function does not return a value.)")
       .def("getWithAltSeparator", &ChimeraTK::RegisterPath::getWithAltSeparator,
           R"(Obtain path with alternative separator character instead of "/". The leading separator will be omitted.
 
@@ -130,25 +175,82 @@ PYBIND11_MODULE(deviceaccess, m) {
 
         Returns:
             RegisterPath: Modified RegisterPath object.)")
-      .def("__lt__", &ChimeraTK::RegisterPath::operator<)
+      .def("__lt__", &ChimeraTK::RegisterPath::operator<, py::arg("other"),
+          R"(Compare two paths lexicographically.
+
+        Args:
+          other (RegisterPath): Path to compare with.
+
+        Returns:
+          bool: True if this path is lexicographically smaller, false otherwise.)")
       .def("length", &ChimeraTK::RegisterPath::length,
           R"(Get the length of the path (including leading slash).
 
         Returns:
             int: Length of the register path.)")
-      .def("startsWith", &ChimeraTK::RegisterPath::startsWith)
-      .def("endsWith", &ChimeraTK::RegisterPath::endsWith)
+      .def("startsWith", &ChimeraTK::RegisterPath::startsWith, py::arg("prefix"),
+          R"(Check whether the path starts with the given prefix.
+
+        Args:
+          prefix (RegisterPath): Prefix to check.
+
+        Returns:
+          bool: True if this path starts with prefix, false otherwise.)")
+      .def("endsWith", &ChimeraTK::RegisterPath::endsWith, py::arg("suffix"),
+          R"(Check whether the path ends with the given suffix.
+
+        Args:
+          suffix (RegisterPath): Suffix to check.
+
+        Returns:
+          bool: True if this path ends with suffix, false otherwise.)")
       .def("getComponents", &ChimeraTK::RegisterPath::getComponents,
           R"(Split path into components.
 
         Returns:
             list[str]: List of path components.)")
-      .def("__ne__",
-          [](const ChimeraTK::RegisterPath& self, const ChimeraTK::RegisterPath& other) { return self != other; })
-      .def("__ne__", [](const ChimeraTK::RegisterPath& self, const std::string& other) { return self != other; })
-      .def("__eq__",
-          [](const ChimeraTK::RegisterPath& self, const ChimeraTK::RegisterPath& other) { return self == other; })
-      .def("__eq__", [](const ChimeraTK::RegisterPath& self, const std::string& other) { return self == other; });
+      .def(
+          "__ne__",
+          [](const ChimeraTK::RegisterPath& self, const ChimeraTK::RegisterPath& other) { return self != other; },
+          py::arg("other"),
+          R"(Compare two RegisterPath objects for inequality.
+
+        Args:
+          other (RegisterPath): Path to compare with.
+
+        Returns:
+          bool: True if the paths are different, false otherwise.)")
+      .def(
+          "__ne__", [](const ChimeraTK::RegisterPath& self, const std::string& other) { return self != other; },
+          py::arg("other"),
+          R"(Compare RegisterPath and string for inequality.
+
+        Args:
+          other (str): Path string to compare with.
+
+        Returns:
+          bool: True if the paths are different, false otherwise.)")
+      .def(
+          "__eq__",
+          [](const ChimeraTK::RegisterPath& self, const ChimeraTK::RegisterPath& other) { return self == other; },
+          py::arg("other"),
+          R"(Compare two RegisterPath objects for equality.
+
+        Args:
+          other (RegisterPath): Path to compare with.
+
+        Returns:
+          bool: True if the paths are equal, false otherwise.)")
+      .def(
+          "__eq__", [](const ChimeraTK::RegisterPath& self, const std::string& other) { return self == other; },
+          py::arg("other"),
+          R"(Compare RegisterPath and string for equality.
+
+        Args:
+          other (str): Path string to compare with.
+
+        Returns:
+          bool: True if the paths are equal, false otherwise.)");
 
   py::implicitly_convertible<std::string, ChimeraTK::RegisterPath>();
 

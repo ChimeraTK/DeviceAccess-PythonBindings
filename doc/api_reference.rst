@@ -4,6 +4,35 @@ API Reference
 Complete API documentation for the ChimeraTK DeviceAccess Python bindings.
 
 
+API Index
+~~~~~~~~~
+
+The entries below provide direct links to the most important module-level functions, classes, and enums.
+
+.. currentmodule:: deviceaccess
+
+.. autosummary::
+  :toctree: generated
+
+  setDMapFilePath
+  getDMapFilePath
+  Device
+  ScalarRegisterAccessor
+  OneDRegisterAccessor
+  TwoDRegisterAccessor
+  VoidRegisterAccessor
+  TransferGroup
+  ReadAnyGroup
+  DataConsistencyGroup
+  RegisterCatalogue
+  RegisterInfo
+  DataDescriptor
+  DataType
+  VersionNumber
+  AccessMode
+  DataValidity
+
+
 Core Classes
 ~~~~~~~~~~~~
 

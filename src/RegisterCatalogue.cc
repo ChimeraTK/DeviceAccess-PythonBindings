@@ -37,14 +37,22 @@ namespace DeviceAccessPython {
         .def(py::init<ChimeraTK::RegisterCatalogue>(), "Catalogue of register information.")
         .def(
             "__iter__", [](const ChimeraTK::RegisterCatalogue& s) { return py::make_iterator(s.begin(), s.end()); },
-            py::keep_alive<0, 1>())
-        .def("_items", DeviceAccessPython::RegisterCatalogue::items)
+            py::keep_alive<0, 1>(),
+            R"(Return an iterator over visible registers in the catalogue.
+
+            Returns:
+                iterator: Iterator yielding RegisterInfo objects.)")
+        .def("_items", DeviceAccessPython::RegisterCatalogue::items,
+            R"(Return all visible registers in the catalogue as a list.
+
+            Returns:
+                list[deviceaccess.RegisterInfo]: List of visible RegisterInfo objects.)")
         .def("hiddenRegisters", DeviceAccessPython::RegisterCatalogue::hiddenRegisters,
-            R"(Returns list of all hidden registers in the catalogue
+            R"(Return list of all hidden registers in the catalogue.
 
             Returns:
                 list[deviceaccess.RegisterInfo]: A list of hidden RegisterInfo objects.)")
-        .def("hasRegister", &ChimeraTK::RegisterCatalogue::hasRegister,
+        .def("hasRegister", &ChimeraTK::RegisterCatalogue::hasRegister, py::arg("registerPathName"),
             R"(Check if register with the given path name exists.
 
         Args:
@@ -233,7 +241,7 @@ namespace DeviceAccessPython {
   void DataDescriptor::bind(py::module& m) {
     py::class_<ChimeraTK::DataDescriptor>(m, "DataDescriptor")
         .def(py::init<ChimeraTK::DataDescriptor>())
-        .def(py::init<ChimeraTK::DataType>(),
+        .def(py::init<ChimeraTK::DataType>(), py::arg("type"),
             R"(Construct a DataDescriptor from a DataType object.
 
         The DataDescriptor will describe the passed DataType with no raw type.

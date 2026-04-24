@@ -72,14 +72,77 @@ namespace ChimeraTK {
 
         Returns:
             datetime: Time stamp of the version number.)")
+        .def("__repr__", &PyVersionNumber::repr,
+            R"(Return a debug representation including the version number string.
+
+    Returns:
+      str: Debug representation of the version number.)")
         .def(
-            "__repr__", &PyVersionNumber::repr, R"(Return a debug representation including the version number string.)")
-        .def("__lt__", &ChimeraTK::VersionNumber::operator<, R"(Compare two version numbers (self < other).)")
-        .def("__le__", &ChimeraTK::VersionNumber::operator<=, R"(Compare two version numbers (self <= other).)")
-        .def("__gt__", &ChimeraTK::VersionNumber::operator>, R"(Compare two version numbers (self > other).)")
-        .def("__ge__", &ChimeraTK::VersionNumber::operator>=, R"(Compare two version numbers (self >= other).)")
-        .def("__ne__", &ChimeraTK::VersionNumber::operator!=, R"(Compare two version numbers (self != other).)")
-        .def("__eq__", &ChimeraTK::VersionNumber::operator==, R"(Compare two version numbers (self == other).)");
+            "__lt__",
+            [](const ChimeraTK::VersionNumber& self, const ChimeraTK::VersionNumber& other) { return self < other; },
+            py::arg("other"),
+            R"(Compare whether this version number is smaller than another one.
+
+    Args:
+      other (VersionNumber): Version number to compare against.
+
+    Returns:
+      bool: True if self is smaller than other, otherwise False.)")
+        .def(
+            "__le__",
+            [](const ChimeraTK::VersionNumber& self, const ChimeraTK::VersionNumber& other) { return self <= other; },
+            py::arg("other"),
+            R"(Compare whether this version number is smaller than or equal to another one.
+
+    Args:
+      other (VersionNumber): Version number to compare against.
+
+    Returns:
+      bool: True if self is smaller than or equal to other, otherwise False.)")
+        .def(
+            "__gt__",
+            [](const ChimeraTK::VersionNumber& self, const ChimeraTK::VersionNumber& other) { return self > other; },
+            py::arg("other"),
+            R"(Compare whether this version number is greater than another one.
+
+    Args:
+      other (VersionNumber): Version number to compare against.
+
+    Returns:
+      bool: True if self is greater than other, otherwise False.)")
+        .def(
+            "__ge__",
+            [](const ChimeraTK::VersionNumber& self, const ChimeraTK::VersionNumber& other) { return self >= other; },
+            py::arg("other"),
+            R"(Compare whether this version number is greater than or equal to another one.
+
+    Args:
+      other (VersionNumber): Version number to compare against.
+
+    Returns:
+      bool: True if self is greater than or equal to other, otherwise False.)")
+        .def(
+            "__ne__",
+            [](const ChimeraTK::VersionNumber& self, const ChimeraTK::VersionNumber& other) { return self != other; },
+            py::arg("other"),
+            R"(Compare whether this version number is different from another one.
+
+    Args:
+      other (VersionNumber): Version number to compare against.
+
+    Returns:
+      bool: True if self differs from other, otherwise False.)")
+        .def(
+            "__eq__",
+            [](const ChimeraTK::VersionNumber& self, const ChimeraTK::VersionNumber& other) { return self == other; },
+            py::arg("other"),
+            R"(Compare whether this version number is equal to another one.
+
+    Args:
+      other (VersionNumber): Version number to compare against.
+
+    Returns:
+      bool: True if self equals other, otherwise False.)");
   }
 
   /********************************************************************************************************************/
