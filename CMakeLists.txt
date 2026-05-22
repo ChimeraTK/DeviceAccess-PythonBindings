@@ -46,6 +46,9 @@ set_property( TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE )
 # set the right output file name for the the python core module library
 set_target_properties( ${PROJECT_NAME} PROPERTIES PREFIX "" OUTPUT_NAME "deviceaccess" )
 
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    PYTHON_MODULE_VERSION="${${PROJECT_NAME}_VERSION}")
+
 # Copy Python part to build directory (required for tests to run)
 file( COPY mtca4u.py DESTINATION ${PROJECT_BINARY_DIR} )
 
