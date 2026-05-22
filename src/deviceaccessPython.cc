@@ -165,4 +165,5 @@ PYBIND11_MODULE(deviceaccess, m) {
       exc("Thread Interrupted");
     }
   });
+  m.attr("__version__") = PYTHON_MODULE_VERSION;
 }
