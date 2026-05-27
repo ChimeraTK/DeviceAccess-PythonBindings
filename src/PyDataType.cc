@@ -15,7 +15,8 @@ namespace ChimeraTK {
     py::class_<ChimeraTK::DataType> mDataType(mod, "DataType",
         R"(The actual enum representing the data type.
           It is a plain enum so the data type class can be used like a class enum,
-          i.e. types are identified for instance as DataType::int32.)");
+          i.e. types are identified for instance as DataType::int32.)",
+        py::module_local());
     mDataType.def(py::init<ChimeraTK::DataType::TheType>())
         .def("__str__", &ChimeraTK::DataType::getAsString)
         .def("__repr__", [](const ChimeraTK::DataType& type) { return "DataType." + type.getAsString(); })
@@ -40,7 +41,7 @@ namespace ChimeraTK {
               :return: True if the data type is signed, false otherwise.
               :rtype: bool)");
 
-    py::enum_<ChimeraTK::DataType::TheType>(mDataType, "TheType")
+    py::enum_<ChimeraTK::DataType::TheType>(mDataType, "TheType", py::module_local())
         .value("none", ChimeraTK::DataType::none,
             "The data type/concept does not exist, e.g. there is no raw transfer (do not confuse with Void)")
         .value("int8", ChimeraTK::DataType::int8)

@@ -212,7 +212,8 @@ namespace ChimeraTK {
 
       The device can be opened and closed, and provides methods to obtain register accessors. Additionally,
       convenience methods to read and write registers directly are provided.
-      The class also offers methods to check the device state, obtain the register catalogue,  Metadata and to set exception conditions.)");
+      The class also offers methods to check the device state, obtain the register catalogue,  Metadata and to set exception conditions.)",
+        py::module_local());
 
     dev.def(py::init<const std::string&>(), py::arg("aliasName"),
            R"(Initialize device and associate a backend.

@@ -33,7 +33,7 @@ namespace DeviceAccessPython {
   /*******************************************************************************************************************/
 
   void RegisterCatalogue::bind(py::module& m) {
-    py::class_<ChimeraTK::RegisterCatalogue>(m, "RegisterCatalogue")
+    py::class_<ChimeraTK::RegisterCatalogue>(m, "RegisterCatalogue", py::module_local())
         .def(py::init<ChimeraTK::RegisterCatalogue>(), "Catalogue of register information.")
         .def(
             "__iter__", [](const ChimeraTK::RegisterCatalogue& s) { return py::make_iterator(s.begin(), s.end()); },
@@ -92,7 +92,7 @@ namespace DeviceAccessPython {
   }
 
   void RegisterInfo::bind(py::module& m) {
-    py::class_<ChimeraTK::RegisterInfo>(m, "RegisterInfo")
+    py::class_<ChimeraTK::RegisterInfo>(m, "RegisterInfo", py::module_local())
         .def(py::init<ChimeraTK::RegisterInfo>(), "Catalogue of register information.")
         .def("getDataDescriptor", DeviceAccessPython::RegisterInfo::getDataDescriptor,
             R"(Return description of the actual payload data for this register.
@@ -156,7 +156,7 @@ namespace DeviceAccessPython {
   /*******************************************************************************************************************/
 
   void RegisterInfo::bindBackendRegisterInfoBase(py::module& m) {
-    py::class_<ChimeraTK::BackendRegisterInfoBase>(m, "BackendRegisterInfoBase")
+    py::class_<ChimeraTK::BackendRegisterInfoBase>(m, "BackendRegisterInfoBase", py::module_local())
         .def("getDataDescriptor", &ChimeraTK::BackendRegisterInfoBase::getDataDescriptor,
             R"(Return description of the actual payload data for this register.
 
@@ -229,7 +229,7 @@ namespace DeviceAccessPython {
   /*******************************************************************************************************************/
 
   void DataDescriptor::bind(py::module& m) {
-    py::class_<ChimeraTK::DataDescriptor>(m, "DataDescriptor")
+    py::class_<ChimeraTK::DataDescriptor>(m, "DataDescriptor", py::module_local())
         .def(py::init<ChimeraTK::DataDescriptor>())
         .def(py::init<ChimeraTK::DataType>(),
             R"(Construct a DataDescriptor from a DataType object.

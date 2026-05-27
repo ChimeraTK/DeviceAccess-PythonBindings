@@ -55,7 +55,7 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void PyVoidRegisterAccessor::bind(py::module& m) {
-    py::class_<PyVoidRegisterAccessor>(m, "VoidRegisterAccessor",
+    py::class_<PyVoidRegisterAccessor>(m, "VoidRegisterAccessor", py::module_local(),
         R"(Special accessor that represents a register with no user data (ChimeraTK::Void).
 
         This accessor is typically used to model triggers or actions that do not carry a payload. There is no user
