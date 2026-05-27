@@ -34,7 +34,7 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void PyVersionNumber::bind(py::module& m) {
-    py::class_<ChimeraTK::VersionNumber>(m, "VersionNumberBase")
+    py::class_<ChimeraTK::VersionNumber>(m, "VersionNumberBase", py::module_local())
         .def(
             "getVersionNumberAsString",
             [](const VersionNumber& self) -> std::string {
@@ -54,7 +54,8 @@ namespace ChimeraTK {
       example, they can help in breaking an infinite update loop that might occur when two process variables are
       related and update each other.
 
-      They are also used to determine the order of updates made to different process variables.)")
+      They are also used to determine the order of updates made to different process variables.)",
+        py::module_local())
         .def(py::init<>())
         .def("getNullVersion", &PyVersionNumber::getNullVersion,
             R"(Get a VersionNumber which is not set (null version).

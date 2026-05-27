@@ -179,7 +179,7 @@ namespace ChimeraTK {
         Note:
             Transfers between the device and the internal buffer need to be triggered using the read() and
             write() functions before reading from resp. after writing to the buffer.)",
-        py::buffer_protocol());
+        py::buffer_protocol(), py::module_local());
 
     arrayacc.def(py::init<>())
         .def_buffer(&PyOneDRegisterAccessor::getBufferInfo)

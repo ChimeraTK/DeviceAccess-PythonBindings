@@ -21,7 +21,7 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void PyDataConsistencyGroup::bind(py::module& m) {
-    py::class_<ctk::DataConsistencyGroup>(m, "DataConsistencyGroup")
+    py::class_<ctk::DataConsistencyGroup>(m, "DataConsistencyGroup", py::module_local())
         .def(py::init<ctk::DataConsistencyGroup::MatchingMode>())
         .def(
             "add", [](ctk::DataConsistencyGroup& self, PyTransferElementBase& element) { self.add(element.getTE()); },
@@ -41,7 +41,7 @@ namespace ChimeraTK {
 
   void PyMatchingMode::bind(py::module& m) {
     py::enum_<ctk::DataConsistencyGroup::MatchingMode>(
-        m, "MatchingMode", "Enum describing the matching mode of a DataConsistencyGroup.")
+        m, "MatchingMode", py::module_local(), "Enum describing the matching mode of a DataConsistencyGroup.")
         .value("none", ctk::DataConsistencyGroup::MatchingMode::none,
             "No matching, effectively disable the DataConsitencyGroup. update() will always return true. ")
         .value("exact", ctk::DataConsistencyGroup::MatchingMode::exact,

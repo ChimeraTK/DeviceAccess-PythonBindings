@@ -305,7 +305,7 @@ namespace ChimeraTK {
       Note:
         Create instances via Device.getTwoDRegisterAccessor(). Transfers between the device and the internal buffer
         need to be triggered using read() and write() before reading from or after writing to the buffer.)",
-        py::buffer_protocol());
+        py::buffer_protocol(), py::module_local());
     arrayacc.def(py::init<>())
         .def_buffer(&PyTwoDRegisterAccessor::getBufferInfo)
         .def("read", &PyTwoDRegisterAccessor::read,

@@ -21,7 +21,7 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void PyTransferGroup::bind(py::module& m) {
-    py::class_<ctk::TransferGroup>(m, "TransferGroup")
+    py::class_<ctk::TransferGroup>(m, "TransferGroup", py::module_local())
         .def(py::init<>())
         .def(
             "addAccessor",

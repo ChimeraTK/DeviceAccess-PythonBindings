@@ -21,7 +21,7 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void PyReadAnyGroup::bind(py::module& m) {
-    py::class_<ctk::ReadAnyGroup>(m, "ReadAnyGroup")
+    py::class_<ctk::ReadAnyGroup>(m, "ReadAnyGroup", py::module_local())
         .def(py::init<>())
         .def("finalise", &ctk::ReadAnyGroup::finalise,
             R"(Finalise the group. After this, add() may no longer be called and read methods may be used.)")
@@ -85,7 +85,7 @@ namespace ChimeraTK {
   /*******************************************************************************************************************/
 
   void PyReadAnyGroupNotification::bind(py::module& m) {
-    py::class_<ctk::ReadAnyGroup::Notification>(m, "Notification")
+    py::class_<ctk::ReadAnyGroup::Notification>(m, "Notification", py::module_local())
         .def(py::init<>())
         .def("accept", &ctk::ReadAnyGroup::Notification::accept, R"(Accept the notification.)")
         .def("getId", &ctk::ReadAnyGroup::Notification::getId,

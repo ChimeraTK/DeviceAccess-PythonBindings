@@ -59,7 +59,7 @@ PYBIND11_MODULE(deviceaccess, m) {
         :return: Path of the dmap file (directory and file name).
         :rtype: str)");
 
-  py::enum_<ChimeraTK::AccessMode>(m, "AccessMode",
+  py::enum_<ChimeraTK::AccessMode>(m, "AccessMode", py::module_local(),
       R"(Access mode flags for register access.
 
         Note:
@@ -70,7 +70,7 @@ PYBIND11_MODULE(deviceaccess, m) {
           R"(This access mode makes any read blocking until new data has arrived since the last read. This flag may not be supported by all registers (and backends), in which case an exception will be thrown.)")
       .export_values();
 
-  py::enum_<ChimeraTK::DataDescriptor::FundamentalType>(m, "FundamentalType",
+  py::enum_<ChimeraTK::DataDescriptor::FundamentalType>(m, "FundamentalType", py::module_local(),
       "This is only used inside the DataDescriptor class; defined outside to prevent too long fully qualified names.")
       .value("numeric", ChimeraTK::DataDescriptor::FundamentalType::numeric)
       .value("string", ChimeraTK::DataDescriptor::FundamentalType::string)
@@ -79,7 +79,7 @@ PYBIND11_MODULE(deviceaccess, m) {
       .value("undefined", ChimeraTK::DataDescriptor::FundamentalType::undefined)
       .export_values();
 
-  py::enum_<ChimeraTK::DataValidity>(m, "DataValidity",
+  py::enum_<ChimeraTK::DataValidity>(m, "DataValidity", py::module_local(),
       R"(The current state of the data.
 
         Note:
@@ -92,7 +92,7 @@ PYBIND11_MODULE(deviceaccess, m) {
       .value("faulty", ChimeraTK::DataValidity::faulty, "The data is not considered valid")
       .export_values();
 
-  py::class_<ChimeraTK::TransferElementID>(m, "TransferElementID")
+  py::class_<ChimeraTK::TransferElementID>(m, "TransferElementID", py::module_local())
       .def("isValid", &ChimeraTK::TransferElementID::isValid, "Check whether the ID is valid.")
       .def("__ne__", &ChimeraTK::TransferElementID::operator!=)
       .def("__hash__",
@@ -100,7 +100,8 @@ PYBIND11_MODULE(deviceaccess, m) {
       .def("__eq__", &ChimeraTK::TransferElementID::operator==);
 
   py::class_<ChimeraTK::RegisterPath>(m, "RegisterPath",
-      R"a(Class to store a register path name. Elements of the path are separated by a "/" character, but an  separation character (e.g. ".") can optionally be specified as well. Different equivalent notations will be converted into a standardised notation automatically.)a")
+      R"a(Class to store a register path name. Elements of the path are separated by a "/" character, but an  separation character (e.g. ".") can optionally be specified as well. Different equivalent notations will be converted into a standardised notation automatically.)a",
+      py::module_local())
       .def(py::init<ChimeraTK::RegisterPath>())
       .def(py::init<const std::string&>(), py::arg("path"))
       .def("__str__", &ChimeraTK::RegisterPath::operator std::string)
