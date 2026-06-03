@@ -93,10 +93,14 @@ find_package( Sphinx )
 if( SPHINX_EXECUTABLE )
   configure_file( "${PROJECT_SOURCE_DIR}/doc/conf.py.in" "${PROJECT_BINARY_DIR}/conf.py" )
 
-  # copy the config file to the build directory
+  # Copy doc sources to the build directory so Sphinx generates autosummary
+  # stubs (generated/) in the build tree, not the source tree.
+  file(COPY "${PROJECT_SOURCE_DIR}/doc/" DESTINATION "${PROJECT_BINARY_DIR}/doc_src/"
+       PATTERN "*.png" PATTERN "*.ico" PATTERN "*.pdf" PATTERN "*.py.in" EXCLUDE)
+
   message( STATUS "Html documentation support enabled; use 'make doc' to build it." )
   add_custom_target( doc ALL
-    COMMAND "${SPHINX_EXECUTABLE}" -c "${PROJECT_BINARY_DIR}" -b html "${PROJECT_SOURCE_DIR}/doc" "doc/html"
+    COMMAND "${SPHINX_EXECUTABLE}" -c "${PROJECT_BINARY_DIR}" -b html "${PROJECT_BINARY_DIR}/doc_src" "doc/html"
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating HTML documentation" VERBATIM )
 
