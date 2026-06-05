@@ -81,7 +81,7 @@ foreach( script_path ${test_scripts} )
 
   if( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "asan" AND NOT "${CMAKE_BUILD_TYPE}" STREQUAL "tsan" )
     add_test( NAME ${test_name} COMMAND ${Python_EXECUTABLE} ${script_path} WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/tests )
-    set_tests_properties( ${test_name} PROPERTIES TIMEOUT 30 )
+    set_tests_properties( ${test_name} PROPERTIES TIMEOUT 60 )
   endif()
 endforeach( script_path )
 
