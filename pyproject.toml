@@ -1,9 +1,2 @@
 [tool.autopep8]
 max_line_length = 120
-
-[project.optional-dependencies]
-docs = [
-    "sphinx >= 6.0",
-    "sphinx-autodoc-typehints >= 1.22",
-    "sphinx-rtd-theme >= 3.0",
-]
