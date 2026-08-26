@@ -14,7 +14,9 @@ echo "==== find -name *.so"
 find . -name "*.so"
 echo "---"
 
-PYTHONPATH="$(pwd):${PYTHONPATH}" ${STUBGEN} --include-docstrings -m deviceaccess -o .
+export PYTHONPATH="$(pwd):${PYTHONPATH}"
+
+strace ${STUBGEN} --include-docstrings -m deviceaccess -o .
 
 if [ $? -ne 0 ]; then
     echo WARNING: Running stubgen without docstrings!
