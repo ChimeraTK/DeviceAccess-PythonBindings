@@ -15,8 +15,11 @@ find . -name "*.so"
 echo "---"
 
 stubgen --version
+export PYTHONPATH="$(pwd):${PYTHONPATH}"
 
-PYTHONPATH="$(pwd):${PYTHONPATH}" ${STUBGEN} --include-docstrings -m deviceaccess -o .
+sudo apt-get install -y strace
+
+strace ${STUBGEN} --include-docstrings -m deviceaccess -o .
 
 if [ $? -ne 0 ]; then
     echo WARNING: Running stubgen without docstrings!
