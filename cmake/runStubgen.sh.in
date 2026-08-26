@@ -4,8 +4,16 @@
 # The output is not particularly useful, but it allows the build process to run through.
 # Prepend the working directory to PYTHONPATH so stubgen imports the freshly built
 # deviceaccess module rather than an older installed version.
+
+echo "HIER runStubgen.sh"
+echo "PYTHONPATH=${PYTHONPATH}"
+echo "pwd=$(pwd)"
+
 PYTHONPATH="$(pwd):${PYTHONPATH}" ${STUBGEN} --include-docstrings -m deviceaccess -o .
+
 if [ $? -ne 0 ]; then
     echo WARNING: Running stubgen without docstrings!
     PYTHONPATH="$(pwd):${PYTHONPATH}" ${STUBGEN} -m deviceaccess -o .
 fi
+
+echo EXITCODE=$?
