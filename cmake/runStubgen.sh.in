@@ -19,7 +19,12 @@ export PYTHONPATH="$(pwd):${PYTHONPATH}"
 
 sudo apt-get install -y strace
 
+echo ==========================
+strace ${STUBGEN} --include-docstrings -m mtca4u -o .
+echo ==========================
+
 strace ${STUBGEN} --include-docstrings -m deviceaccess -o .
+echo ==========================
 
 if [ $? -ne 0 ]; then
     echo WARNING: Running stubgen without docstrings!
