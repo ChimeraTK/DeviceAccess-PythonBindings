@@ -19,7 +19,18 @@ echo "---"
 stubgen --version
 export PYTHONPATH="$(pwd):${PYTHONPATH}"
 
-#sudo apt-get install -y strace
+echo ==========================
+
+python -c "
+  import sys
+  print(sys.path)
+  try:
+    import deviceaccess
+    print('deviceaccess import success')
+  except Exception as e:
+    import traceback
+    traceback.print_exc()
+"
 
 echo ==========================
 ${STUBGEN} --include-docstrings -m deviceaccess -o . --verbose
