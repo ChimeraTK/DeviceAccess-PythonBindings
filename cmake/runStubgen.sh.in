@@ -22,14 +22,14 @@ export PYTHONPATH="$(pwd):${PYTHONPATH}"
 echo ==========================
 
 python -c "
-  import sys
-  print(sys.path)
-  try:
-    import deviceaccess
-    print('deviceaccess import success')
-  except Exception as e:
-    import traceback
-    traceback.print_exc()
+import sys
+print(sys.path)
+try:
+  import deviceaccess
+  print('deviceaccess import success')
+except Exception as e:
+  import traceback
+  traceback.print_exc()
 "
 
 echo ==========================
