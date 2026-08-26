@@ -16,7 +16,7 @@ echo "---"
 
 export PYTHONPATH="$(pwd):${PYTHONPATH}"
 
-sudo apt install strace
+sudo apt-get install -y strace
 
 strace ${STUBGEN} --include-docstrings -m deviceaccess -o .
 
