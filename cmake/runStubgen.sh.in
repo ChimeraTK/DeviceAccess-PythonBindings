@@ -16,6 +16,8 @@ echo "---"
 
 export PYTHONPATH="$(pwd):${PYTHONPATH}"
 
+sudo apt install strace
+
 strace ${STUBGEN} --include-docstrings -m deviceaccess -o .
 
 if [ $? -ne 0 ]; then
