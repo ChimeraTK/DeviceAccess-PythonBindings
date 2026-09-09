@@ -7,11 +7,8 @@
 
 #include "PyTransferElement.h"
 
-#include <ChimeraTK/AccessMode.h>
 #include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/VariantUserTypes.h>
-
-#include <pybind11/numpy.h>
 
 namespace py = pybind11;
 
@@ -23,7 +20,7 @@ namespace ChimeraTK {
    public:
     PyOneDRegisterAccessor() : _accessor(OneDRegisterAccessor<int>()) {}
     PyOneDRegisterAccessor(PyOneDRegisterAccessor&&) = default;
-    ~PyOneDRegisterAccessor();
+    ~PyOneDRegisterAccessor() override;
 
     template<typename UserType>
     explicit PyOneDRegisterAccessor(ChimeraTK::OneDRegisterAccessor<UserType> acc) : _accessor(acc) {}
@@ -34,20 +31,20 @@ namespace ChimeraTK {
 
     py::object readAndGet();
 
-    void setAndWrite(const UserTypeTemplateVariantNoVoid<Vector>& vec, const PyVersionNumber& versionNumber);
+    void setAndWrite(const pybind11::object& input, const PyVersionNumber& versionNumber);
 
     size_t getNElements() const;
 
-    void set(const UserTypeTemplateVariantNoVoid<Vector>& vec);
+    void set(const pybind11::object& input);
 
     py::object get() const;
 
     py::object getitem(size_t index) const;
 
-    void setitem(size_t index, const UserTypeVariantNoVoid& val);
+    void setitem(size_t index, const pybind11::object& input);
 
     UserTypeVariantNoVoid getAsCooked(uint element);
-    void setAsCooked(uint element, UserTypeVariantNoVoid value);
+    void setAsCooked(uint element, const py::object& value);
 
     std::string repr(py::object& acc) const;
 

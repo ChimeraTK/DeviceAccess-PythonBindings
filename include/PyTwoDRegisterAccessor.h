@@ -41,7 +41,7 @@ namespace ChimeraTK {
     size_t getNChannels();
     size_t getNElementsPerChannel();
 
-    void set(const UserTypeTemplateVariantNoVoid<VVector>& vec);
+    void set(const py::object& vec);
 
     template<typename AccessorType>
     void setTE(AccessorType incomingAcc) {
@@ -53,7 +53,7 @@ namespace ChimeraTK {
     }
 
     UserTypeVariantNoVoid getAsCooked(uint channel, uint element);
-    void setAsCooked(uint channel, uint element, UserTypeVariantNoVoid value);
+    void setAsCooked(uint channel, uint element, const py::object& value);
 
     py::object get() const;
 

@@ -539,6 +539,19 @@ class TestOneDRegisterAccessor(unittest.TestCase):
         acc.write()
         self.assertTrue((acc.get() == np.array([100, 11, 300, 11])).all(), f'{acc.get()} == {[100, 11, 300, 11]}')
 
+    def testToFloatConversion(self):
+        acc: da.OneDRegisterAccessor = self.dev.getOneDRegisterAccessor(
+            np.float32, "FLOAT_TEST.1DARRAY")
+        # test value conversions for float32:
+        # set: check all combinations of value-type (python float or np.float32) and packing (python list or nu.array)
+        acc.set([2, 4, 8, 16.5])
+        self.assertTrue(acc[3] == 16.5, f'{acc[3]} == 16.5')
+        acc.set([2, 4, 8, np.float32(16.5)])
+        self.assertTrue(acc[3] == 16.5, f'{acc[3]} == 16.5')
+        acc.set(np.array([2, 4, 8, 16.5], dtype=np.float32))
+        self.assertTrue(acc[3] == 16.5, f'{acc[3]} == 16.5')
+        acc.set(np.array([2, 4, 8, 16.5], dtype=np.float64))
+        self.assertTrue(acc[3] == 16.5, f'{acc[3]} == 16.5')
 
 #####################################################################################################################
 
