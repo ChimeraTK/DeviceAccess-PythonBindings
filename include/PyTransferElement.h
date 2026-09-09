@@ -123,6 +123,8 @@ namespace ChimeraTK {
       const auto* self = static_cast<const DerivedAccessor*>(this);
       return std::visit(fn, self->_accessor);
     }
+    // (needed for raw accessors) store the cooked type, i.e. value type of converted values according to catalogue
+    ChimeraTK::DataType _cookedType;
   };
 
   /********************************************************************************************************************/

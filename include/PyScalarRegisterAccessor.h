@@ -31,20 +31,16 @@ namespace ChimeraTK {
 
     py::object readAndGet();
 
-    void setAndWrite(const UserTypeVariantNoVoid& val, const PyVersionNumber& versionNumber);
-    void setAndWriteArray(const py::array& val, const PyVersionNumber& versionNumber);
+    void setAndWrite(const py::object& val, const PyVersionNumber& versionNumber);
 
-    void writeIfDifferent(const UserTypeVariantNoVoid& val, const PyVersionNumber& versionNumber);
-    void writeIfDifferentArray(const py::array& val, const PyVersionNumber& versionNumber);
+    void writeIfDifferent(const py::object& val, const PyVersionNumber& versionNumber);
 
-    void set(const UserTypeVariantNoVoid& val);
-    void setArray(const py::array& val);
-    void setList(const py::list& val);
+    void set(const py::object& val);
 
     py::object get() const;
 
     UserTypeVariantNoVoid getAsCooked();
-    void setAsCooked(UserTypeVariantNoVoid value);
+    void setAsCooked(const py::object& value);
 
     std::string repr(py::object& acc) const;
 
