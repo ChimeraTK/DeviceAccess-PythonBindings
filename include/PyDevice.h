@@ -45,14 +45,12 @@ namespace ChimeraTK {
     ChimeraTK::RegisterCatalogue getRegisterCatalogue();
     std::string getCatalogueMetadata(const std::string& parameterName);
 
-    void write2D(const std::string& registerPath,
-        const UserTypeTemplateVariantNoVoid<PyTwoDRegisterAccessor::VVector>& data, size_t wordOffsetInRegister = 0,
-        const py::list& flaglist = py::list(), py::object dtype = py::none());
-    void write1D(const std::string& registerPath,
-        const UserTypeTemplateVariantNoVoid<PyOneDRegisterAccessor::Vector>& data, size_t wordOffsetInRegister = 0,
-        const py::list& flaglist = py::list(), py::object dtype = py::none());
-    void writeScalar(const std::string& registerPath, const UserTypeVariantNoVoid& data,
-        size_t wordOffsetInRegister = 0, const py::list& flaglist = py::list(), py::object dtype = py::none());
+    void write2D(const std::string& registerPath, const py::object& data, size_t elementsOffset = 0,
+        const py::list& flaglist = py::list());
+    void write1D(const std::string& registerPath, const py::object& data, size_t wordOffsetInRegister = 0,
+        const py::list& flaglist = py::list());
+    void writeScalar(const std::string& registerPath, const py::object& data, size_t elementsOffset = 0,
+        const py::list& flaglist = py::list());
 
     pybind11::object read(const std::string& registerPath, const py::object& dtype, size_t numberOfElements = 0,
         size_t elementsOffset = 0, const py::list& flaglist = py::list());
@@ -60,6 +58,13 @@ namespace ChimeraTK {
     static void bind(py::module& mod);
 
    private:
+    template<typename PyAccessorType>
+    void storeCookedType(PyAccessorType& pyAcc) {
+      auto registerPathName = pyAcc.getName();
+      auto ri = _device.getRegisterCatalogue().getRegister(registerPathName);
+      pyAcc._cookedType = ri.getDataDescriptor().minimumDataType();
+    }
+
     Device _device;
   };
 

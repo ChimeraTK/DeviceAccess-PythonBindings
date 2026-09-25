@@ -3,6 +3,7 @@
 
 #include "PyTwoDRegisterAccessor.h"
 
+#include <ChimeraTK/PyConvert.h>
 #include <ChimeraTK/SupportedUserTypes.h>
 
 #include <pybind11/stl.h>
@@ -122,14 +123,32 @@ namespace ChimeraTK {
       py::gil_scoped_release release;
       copyFromBuffer();
     }
-    return std::visit([&](auto& acc) { return acc.template getAsCooked<double>(channel, element); }, _accessor);
+    UserTypeVariantNoVoid ret;
+    std::visit(
+        [&](auto& acc) {
+          callForTypeNoVoid(_cookedType, [&](auto&& type) {
+            using CookedType = std::decay_t<decltype(type)>;
+            ret = acc.template getAsCooked<CookedType>(channel, element);
+          });
+        },
+        _accessor);
+    return ret;
   }
 
   /********************************************************************************************************************/
 
-  void PyTwoDRegisterAccessor::setAsCooked(uint channel, uint element, UserTypeVariantNoVoid value) {
+  void PyTwoDRegisterAccessor::setAsCooked(uint channel, uint element, const py::object& value) {
     std::visit(
-        [&](auto& acc) { std::visit([&](auto& val) { acc.setAsCooked(channel, element, val); }, value); }, _accessor);
+        [&](auto& acc) {
+          // convert value into the type that should be used natively by the device, according to the catalogue
+          // e.g. if raw accessor with raw type int32 actually represents float32 values, then UserType is int32
+          // and we should convert value to float32 for setAsCooked.
+          callForTypeNoVoid(_cookedType, [&](auto&& type) {
+            using CookedType = std::decay_t<decltype(type)>;
+            acc.template setAsCooked<CookedType>(channel, element, convertScalarValue<CookedType>(value));
+          });
+        },
+        _accessor);
     {
       py::gil_scoped_release release;
       copyToBuffer();
@@ -138,37 +157,28 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void PyTwoDRegisterAccessor::set(const UserTypeTemplateVariantNoVoid<VVector>& vec) {
+  void PyTwoDRegisterAccessor::set(const py::object& vec) {
     std::visit(
         [&](auto& acc) {
-          std::visit(
-              [&](auto& incoming) {
-                using ACC = typename std::remove_reference<decltype(acc)>::type;
-                using UserType = typename ACC::value_type;
+          using ACC = std::remove_reference<decltype(acc)>::type;
+          using UserType = ACC::value_type;
 
-                using VecType = typename std::remove_reference<decltype(incoming)>::type;
-                using VecValueType = typename VecType::value_type::value_type;
+          auto incoming = convertPyObject2D<UserType>(vec);
 
-                auto& buffer = std::get<std::vector<UserType>>(_continuousBuffer);
+          auto& buffer = std::get<std::vector<UserType>>(_continuousBuffer);
 
-                buffer.resize(acc.getNChannels() * acc.getNElementsPerChannel());
-                if constexpr(std::is_same_v<UserType, VecValueType>) {
-                  auto* out = buffer.data();
-                  for(size_t i = 0; i < acc.getNChannels(); ++i) {
-                    out = std::ranges::copy(incoming[i], out).out;
-                  }
-                }
-                else {
-                  for(size_t i = 0; i < acc.getNChannels(); ++i) {
-                    auto out = std::span<UserType>(
-                        buffer.data() + i * acc.getNElementsPerChannel(), acc.getNElementsPerChannel());
-
-                    std::transform(incoming[i].cbegin(), incoming[i].cend(), out.begin(),
-                        ChimeraTK::userTypeToUserType<UserType, VecValueType>);
-                  }
-                }
-              },
-              vec);
+          buffer.resize(acc.getNChannels() * acc.getNElementsPerChannel());
+          // note, if we knew that shape of incoming is same as shape of accessor, we could even further optimize
+          // and eliminate one copy...
+          if(incoming.empty() || incoming.size() != acc.getNChannels() ||
+              incoming[0].size() != acc.getNElementsPerChannel()) {
+            throw ChimeraTK::logic_error("incompatible shapes");
+          }
+          for(size_t i = 0; i < acc.getNChannels(); ++i) {
+            auto out =
+                std::span<UserType>(buffer.data() + i * acc.getNElementsPerChannel(), acc.getNElementsPerChannel());
+            std::ranges::copy(incoming[i], out.begin());
+          }
         },
         _accessor);
   }

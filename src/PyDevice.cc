@@ -9,7 +9,9 @@
 #include "PyVoidRegisterAccessor.h"
 
 #include <ChimeraTK/AccessMode.h>
+#include <ChimeraTK/DataDescriptor.h>
 #include <ChimeraTK/NDRegisterAccessor.h>
+#include <ChimeraTK/PyConvert.h>
 #include <ChimeraTK/SupportedUserTypes.h>
 #include <ChimeraTK/VariantUserTypes.h>
 #include <ChimeraTK/VoidRegisterAccessor.h>
@@ -64,6 +66,7 @@ namespace ChimeraTK {
           registerPathName, elementsOffset, convertFlagsFromPython(accessModeFlags));
       pyAcc.setTE(acc);
     });
+    storeCookedType(pyAcc);
     return pyAcc;
   }
 
@@ -76,6 +79,7 @@ namespace ChimeraTK {
           registerPathName, numberOfElements, elementsOffset, convertFlagsFromPython(accessModeFlags));
       pyAcc.setTE(acc);
     });
+    storeCookedType(pyAcc);
     return pyAcc;
   }
 
@@ -88,6 +92,7 @@ namespace ChimeraTK {
           registerPathName, numberOfElements, elementsOffset, convertFlagsFromPython(accessModeFlags));
       pyAcc.setTE(acc);
     });
+    storeCookedType(pyAcc);
     return pyAcc;
   }
 
@@ -132,64 +137,73 @@ namespace ChimeraTK {
 
   /*****************************************************************************************************************/
 
-  void PyDevice::write2D(const std::string& registerPath,
-      const UserTypeTemplateVariantNoVoid<PyTwoDRegisterAccessor::VVector>& data, size_t wordOffsetInRegister,
-      const py::list& flaglist, py::object dtype) {
-    size_t numberOfWords;
-    std::visit(
-        [&](const auto& v) {
-          using UserType = typename std::remove_reference_t<decltype(v)>::value_type::value_type;
-          if(dtype.is(py::none())) {
-            dtype = convertUsertypeToDtype(ChimeraTK::DataType(typeid(UserType)));
-          }
-          numberOfWords = v.size() > 0 ? v[0].size() : 0;
-        },
-        data);
+  void PyDevice::write2D(
+      const std::string& registerPath, const py::object& data, size_t elementsOffset, const py::list& flaglist) {
+    // Determine the target UserType from the register catalogue, not from the data passed in.
+    auto ri = _device.getRegisterCatalogue().getRegister(registerPath);
+    auto dd = ri.getDataDescriptor();
 
-    if(numberOfWords == 0) {
-      // there is a test checking that writing nothing is ok...
-      return;
-    }
-    auto acc = getTwoDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
-    acc.set(data);
-    acc.write();
+    bool isRaw = convertFlagsFromPython(flaglist).has(ChimeraTK::AccessMode::raw);
+    ChimeraTK::DataType userType = isRaw ? dd.rawDataType() : dd.minimumDataType();
+
+    callForTypeNoVoid(userType, [&](auto&& type) {
+      using expectedUserType = std::decay_t<decltype(type)>;
+      std::vector<std::vector<expectedUserType>> converted = convertPyObject2D<expectedUserType>(data);
+
+      size_t numberOfElements = converted.empty() ? 0 : converted[0].size();
+      auto acc = _device.getTwoDRegisterAccessor<expectedUserType>(
+          registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
+      acc = converted;
+      acc.write();
+    });
   }
 
   /*****************************************************************************************************************/
 
-  void PyDevice::write1D(const std::string& registerPath,
-      const UserTypeTemplateVariantNoVoid<PyOneDRegisterAccessor::Vector>& data, size_t wordOffsetInRegister,
-      const py::list& flaglist, py::object dtype) {
-    size_t numberOfWords;
-    std::visit(
-        [&](const auto& v) {
-          using UserType = typename std::remove_reference_t<decltype(v)>::value_type;
-          if(dtype.is(py::none())) {
-            dtype = convertUsertypeToDtype(ChimeraTK::DataType(typeid(UserType)));
-          }
-          numberOfWords = v.size();
-        },
-        data);
-    auto acc = getOneDRegisterAccessor(dtype, registerPath, numberOfWords, wordOffsetInRegister, flaglist);
-    acc.set(data);
-    acc.write();
+  void PyDevice::write1D(
+      const std::string& registerPath, const pybind11::object& data, size_t elementsOffset, const py::list& flaglist) {
+    // Determine the target UserType from the register catalogue, not from the data passed in.
+    auto ri = _device.getRegisterCatalogue().getRegister(registerPath);
+    auto dd = ri.getDataDescriptor();
+
+    bool isRaw = convertFlagsFromPython(flaglist).has(ChimeraTK::AccessMode::raw);
+    ChimeraTK::DataType userType = isRaw ? dd.rawDataType() : dd.minimumDataType();
+
+    callForTypeNoVoid(userType, [&](auto&& type) {
+      using expectedUserType = std::decay_t<decltype(type)>;
+      std::vector<expectedUserType> converted = convertPyObject<expectedUserType>(data, true, true);
+
+      size_t numberOfElements = converted.size();
+      auto acc = _device.getOneDRegisterAccessor<expectedUserType>(
+          registerPath, numberOfElements, elementsOffset, convertFlagsFromPython(flaglist));
+      acc = converted;
+      acc.write();
+    });
   }
 
   /*****************************************************************************************************************/
 
-  void PyDevice::writeScalar(const std::string& registerPath, const UserTypeVariantNoVoid& data,
-      size_t wordOffsetInRegister, const py::list& flaglist, py::object dtype) {
-    std::visit(
-        [&](const auto& v) {
-          using UserType = typename std::remove_reference_t<decltype(v)>;
-          if(dtype.is(py::none())) {
-            dtype = convertUsertypeToDtype(ChimeraTK::DataType(typeid(UserType)));
-          }
-        },
-        data);
-    auto acc = getScalarRegisterAccessor(dtype, registerPath, wordOffsetInRegister, flaglist);
-    acc.set(data);
-    acc.write();
+  void PyDevice::writeScalar(
+      const std::string& registerPath, const py::object& data, size_t elementsOffset, const py::list& flaglist) {
+    // Determine the target UserType from the register catalogue, not from the data passed in.
+    auto ri = _device.getRegisterCatalogue().getRegister(registerPath);
+    auto dd = ri.getDataDescriptor();
+
+    bool isRaw = convertFlagsFromPython(flaglist).has(ChimeraTK::AccessMode::raw);
+    ChimeraTK::DataType userType = isRaw ? dd.rawDataType() : dd.minimumDataType();
+
+    callForTypeNoVoid(userType, [&](auto&& type) {
+      using expectedUserType = std::decay_t<decltype(type)>;
+      auto converted = convertScalarOptionalValue<expectedUserType>(data);
+      if(!converted.has_value()) {
+        // empty write does nothing
+        return;
+      }
+      auto acc = _device.getScalarRegisterAccessor<expectedUserType>(
+          registerPath, elementsOffset, convertFlagsFromPython(flaglist));
+      acc = converted.value();
+      acc.write();
+    });
   }
 
   /*****************************************************************************************************************/
@@ -360,16 +374,31 @@ namespace ChimeraTK {
             :meth:`getOneDRegisterAccessor`: For efficient repeated 1D array access.
             :meth:`getTwoDRegisterAccessor`: For efficient repeated 2D array access.
             :meth:`write`: Convenience function for one-time writes.)")
-        .def("write", &PyDevice::write2D, py::arg("registerPath"), py::arg("dataToWrite"),
-            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list(), py::arg("dtype") = py::none())
-        .def("write", &PyDevice::write1D, py::arg("registerPath"), py::arg("dataToWrite"),
-            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list(), py::arg("dtype") = py::none())
-        .def("write", &PyDevice::writeScalar, py::arg("registerPath"), py::arg("dataToWrite"),
-            py::arg("wordOffsetInRegister") = 0, py::arg("accessModeFlags") = py::list(), py::arg("dtype") = py::none(),
+        .def(
+            "write",
+            [](PyDevice& self, const std::string& registerPath, const py::object& data, size_t elementsOffset,
+                const py::list& flaglist, [[maybe_unused]] const py::object& dtype) {
+              // Dispatch based on the register dimensionality from the catalogue.
+              // Note: the `dtype` argument is accepted for compatibility but ignored, since the
+              // register type is determined from the catalogue (see the "catalogue wins" design decision).
+              auto reg = self.getRegisterCatalogue().getRegister(registerPath);
+              size_t ndim = reg.getNumberOfDimensions();
+              if(ndim == 0) {
+                self.writeScalar(registerPath, data, elementsOffset, flaglist);
+              }
+              else if(ndim == 1) {
+                self.write1D(registerPath, data, elementsOffset, flaglist);
+              }
+              else {
+                self.write2D(registerPath, data, elementsOffset, flaglist);
+              }
+            },
+            py::arg("registerPath"), py::arg("dataToWrite"), py::arg("wordOffsetInRegister") = 0,
+            py::arg("accessModeFlags") = py::list(), py::arg("dtype") = py::none(),
             R"(Convenience function to write a register without obtaining an accessor.
 
-        This method is overloaded to handle different data types. The appropriate overload is selected based on the
-        type of dataToWrite.
+        This method is overloaded to handle different data types and array dimensionalities. The appropriate overload
+        is selected based on the register description in the catalogue.
 
         Warning:
           This function is inefficient as it creates and discards a register accessor in each call. For better
@@ -378,7 +407,7 @@ namespace ChimeraTK {
 
         Args:
           registerPath (str): Full path name of the register.
-          dataToWrite (int | float | bool | str | ndarray): Data to write. Type determines operation:
+          dataToWrite (int | float | bool | str | ndarray): Data to write. Depending on register type (catalogue),
 
             - Scalar (int, float, bool, str): Write a scalar value to a single-element register.
             - 1D array (ndarray): Write 1D array data to a 1D register.
@@ -386,8 +415,8 @@ namespace ChimeraTK {
 
           wordOffsetInRegister (int): Word offset in the register to skip initial elements (default: 0).
           accessModeFlags (list[:class:`AccessMode`]): Optional flags to control register access (default: []).
-          dtype (numpy.dtype | None): Optional data type override. If None, type is inferred from data (default:
-            None).
+          dtype (type | numpy.dtype): Accepted for compatibility but ignored; the register type is always
+            taken from the catalogue.
 
         Examples:
           >>> import ChimeraTK.DeviceAccess as da

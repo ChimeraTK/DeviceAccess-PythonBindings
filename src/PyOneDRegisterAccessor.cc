@@ -3,9 +3,11 @@
 
 #include "PyOneDRegisterAccessor.h"
 
+#include <ChimeraTK/PyConvert.h>
+
 #include <pybind11/stl.h>
 
-#include <algorithm>
+#include <variant>
 #include <vector>
 
 namespace py = pybind11;
@@ -21,19 +23,13 @@ namespace ChimeraTK {
   }
   /********************************************************************************************************************/
 
-  void PyOneDRegisterAccessor::set(const UserTypeTemplateVariantNoVoid<Vector>& vec) {
+  void PyOneDRegisterAccessor::set(const pybind11::object& input) {
     std::visit(
         [&](auto& acc) {
-          using ACC = typename std::remove_reference<decltype(acc)>::type;
-          using expectedUserType = typename ACC::value_type;
-          std::visit(
-              [&](const auto& vector) {
-                std::vector<expectedUserType> converted(vector.size());
-                std::transform(vector.begin(), vector.end(), converted.begin(),
-                    [](auto v) { return userTypeToUserType<expectedUserType>(v); });
-                acc = converted;
-              },
-              vec);
+          using ACC = std::remove_reference<decltype(acc)>::type;
+          using expectedUserType = ACC::value_type;
+          std::vector<expectedUserType> converted = convertPyObject<expectedUserType>(input, false, true);
+          acc = converted;
         },
         _accessor);
   }
@@ -46,9 +42,8 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void PyOneDRegisterAccessor::setAndWrite(
-      const UserTypeTemplateVariantNoVoid<Vector>& vec, const PyVersionNumber& versionNumber) {
-    set(vec);
+  void PyOneDRegisterAccessor::setAndWrite(const pybind11::object& input, const PyVersionNumber& versionNumber) {
+    set(input);
     auto vn = getNewVersionNumberIfNull(versionNumber);
     write(vn);
   }
@@ -57,8 +52,8 @@ namespace ChimeraTK {
   py::object PyOneDRegisterAccessor::get() const {
     return std::visit(
         [&](auto& acc) -> py::object {
-          using ACC = typename std::remove_reference<decltype(acc)>::type;
-          using userType = typename ACC::value_type;
+          using ACC = std::remove_reference<decltype(acc)>::type;
+          using userType = ACC::value_type;
           auto ndacc = boost::dynamic_pointer_cast<NDRegisterAccessor<userType>>(acc.getHighLevelImplElement());
           if constexpr(std::is_same<userType, std::string>::value) {
             // String arrays are not really supported by numpy, so we return a list instead
@@ -95,27 +90,43 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void PyOneDRegisterAccessor::setitem(size_t index, const UserTypeVariantNoVoid& val) {
+  void PyOneDRegisterAccessor::setitem(size_t index, const pybind11::object& input) {
     std::visit(
         [&](auto& acc) {
-          std::visit(
-              [&](auto& v) {
-                acc[index] = userTypeToUserType<typename std::remove_reference<decltype(acc)>::type::value_type>(v);
-              },
-              val);
+          using ACC = std::remove_reference<decltype(acc)>::type;
+          using expectedUserType = ACC::value_type;
+
+          auto value = convertPyScalar<expectedUserType>(input);
+          acc[index] = value;
         },
         _accessor);
   }
   /********************************************************************************************************************/
 
   UserTypeVariantNoVoid PyOneDRegisterAccessor::getAsCooked(uint element) {
-    return std::visit([&](auto& acc) { return acc.template getAsCooked<double>(element); }, _accessor);
+    UserTypeVariantNoVoid ret;
+    std::visit(
+        [&](auto& acc) {
+          callForTypeNoVoid(_cookedType, [&](auto&& type) {
+            using CookedType = std::decay_t<decltype(type)>;
+            ret = acc.template getAsCooked<CookedType>(element);
+          });
+        },
+        _accessor);
+    return ret;
   }
 
   /********************************************************************************************************************/
 
-  void PyOneDRegisterAccessor::setAsCooked(uint element, UserTypeVariantNoVoid value) {
-    std::visit([&](auto& acc) { std::visit([&](auto& val) { acc.setAsCooked(element, val); }, value); }, _accessor);
+  void PyOneDRegisterAccessor::setAsCooked(uint element, const py::object& value) {
+    std::visit(
+        [&](auto& acc) {
+          callForTypeNoVoid(_cookedType, [&](auto&& type) {
+            using CookedType = std::decay_t<decltype(type)>;
+            acc.template setAsCooked<CookedType>(element, convertScalarValue<CookedType>(value));
+          });
+        },
+        _accessor);
   }
 
   /********************************************************************************************************************/
@@ -418,9 +429,7 @@ namespace ChimeraTK {
               np.ndarray: The value(s) at the specified slice.)")
         .def(
             "__setitem__",
-            [](PyOneDRegisterAccessor& acc, size_t index, const UserTypeVariantNoVoid& value) {
-              acc.setitem(index, value);
-            },
+            [](PyOneDRegisterAccessor& acc, size_t index, const py::object& value) { acc.setitem(index, value); },
             py::arg("index"), py::arg("value"),
             R"(Set an element in the array by index.
 
@@ -432,8 +441,8 @@ namespace ChimeraTK {
               None: This function does not return a value.)")
         .def(
             "__setitem__",
-            [](PyOneDRegisterAccessor& acc, const py::object& slice, const UserTypeVariantNoVoid& value) {
-              acc.get().attr("__setitem__")(slice, py::cast(value));
+            [](PyOneDRegisterAccessor& acc, const py::object& slice, const py::object& value) {
+              acc.get().attr("__setitem__")(slice, value);
             },
             py::arg("slice"), py::arg("value"),
             R"(Set an element in the array by slice.
@@ -458,6 +467,13 @@ namespace ChimeraTK {
 
             Returns:
               None: This function does not return a value.)")
+        .def("__len__", &PyOneDRegisterAccessor::getNElements,
+            R"(Return the number of elements in the accessor buffer.
+
+            This allows the accessor to be used like a Python list or sequence, e.g. with len().
+
+            Returns:
+              int: Number of elements in the register.)")
         .def("__getattr__", &PyOneDRegisterAccessor::getattr, py::arg("name"),
             R"(Forward unknown attribute access to the underlying array-like object.
 
